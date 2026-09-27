@@ -193,6 +193,10 @@ or Both.
 - **Data ownership controls** — Export and delete conversations, delete memories
   and models, remove permissions, clear local data, disable networking. Both.
   `planned`
+- **Theme** — Material 3 theme with a Bruce brand palette (tan and white).
+  User setting: System (default), Light, Dark. On Android 12 and later the user
+  may turn on wallpaper-based dynamic colour; it is off by default. Both.
+  `planned`
 - **Future surfaces** — Widget, Quick Settings tile, share-sheet actions,
   shortcuts. `planned`
 
@@ -201,7 +205,7 @@ or Both.
 | Component | Choice | Why |
 |---|---|---|
 | App language | Kotlin | Native Android; required for Compose and the Android SDK. .NET is a poor fit for an NDK-heavy Android app. |
-| UI | Jetpack Compose | Current Android UI toolkit. |
+| UI | Jetpack Compose with Material 3 | Current Android UI toolkit; the UI must conform to Material Design 3. |
 | Concurrency | Kotlin Coroutines and Flow | Streaming tokens and cancellation map to Flow. |
 | Persistence | Room (SQLite) | Structured local data; model files stay on disk. |
 | File access | Storage Access Framework | Scoped, user-granted access instead of broad storage permission. |
@@ -210,8 +214,8 @@ or Both.
 | Model format | GGUF | llama.cpp native format. |
 | Build | Gradle with Kotlin DSL | Android standard. |
 | Billing | Google Play Billing | Play-only distribution. |
-| Unit tests | JUnit 5, MockK | Kotlin-idiomatic mocking. |
-| UI / end-to-end tests | Compose UI tests (instrumented) | Playwright does not apply to native Android. |
+| Unit tests | JUnit 5, MockK, Robolectric | Kotlin-idiomatic mocking. Robolectric runs Compose UI tests on the JVM so Kover counts UI branches. |
+| UI / end-to-end tests | Compose UI tests (instrumented, JUnit 4 runner) | Playwright does not apply to native Android. The Compose test rule requires JUnit 4. |
 | Native tests | GoogleTest | JNI glue and native helpers. |
 | Coverage | Kover | Branch coverage gate. |
 | CI | GitHub Actions | Build (including NDK), unit tests, coverage gate. No emulator tests in CI. |
@@ -228,7 +232,7 @@ or Both.
 | Model metadata | Room database |
 | Model files (GGUF) | App-private file storage, outside the database |
 | Permissions, grants, scopes | Room database; SAF URI permissions persisted by Android |
-| Settings | Room database or DataStore (open question) |
+| Settings | Jetpack DataStore (Preferences) |
 | Hugging Face token | Android Keystore-backed encrypted storage |
 | Plus entitlement | Google Play Billing, cached locally |
 
@@ -290,7 +294,6 @@ device-to-device transfer.
 | Web search provider for `WEB_SEARCH`. | User |
 | Conversation export format. | User |
 | Custom ROM and Android version on the Xperia XZ Premium test device. | User |
-| Settings storage: Room or DataStore. | Developer, with user approval |
 | Dependency injection approach (Hilt or manual). | Developer, with user approval |
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
@@ -323,6 +326,7 @@ Billing moves into the MVP is an open question.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Added | Material 3 UI; theme setting System/Light/Dark with optional dynamic colour; DataStore for settings; Robolectric for JVM UI tests. |
 | 2026-09-27 | Changed | Plus price removed from the plan; price is set in Google Play and must never be hardcoded in the app. |
 | 2026-09-27 | Added | Tier rules for Free and Plus. |
 | 2026-09-27 | Changed | Single-file create, write and delete are Free; multi-file operations and move/rename stay Plus. Overrides spec §29. |

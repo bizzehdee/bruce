@@ -5,9 +5,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [ ] TASK-001: Scaffold the Android project
   - Gradle Kotlin DSL, single `app` module, Kotlin, Jetpack Compose.
   - `minSdk` 29, ABI filter `arm64-v8a`.
-  - JUnit 5, MockK, Compose UI test and Kover configured; one passing test that the app launches.
+  - JUnit 5, MockK, Robolectric, Compose UI test and Kover configured; one passing test that the app launches.
+  - Material 3 theme with the Bruce palette, following the system light/dark setting.
   - Application ID and root package: `com.bizzeh.bruce`.
-  - Required by: TASK-002, TASK-003, TASK-007
+  - Required by: TASK-002, TASK-003, TASK-007, TASK-013
 - [ ] TASK-002: Add llama.cpp as a pinned git submodule and build it with the NDK
   - Submodule under `app/src/main/cpp/llama.cpp` (path to confirm at start), pinned to a tagged release commit.
   - CMake build produces the native library for `arm64-v8a`, CPU backend only.
@@ -65,3 +66,8 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Record results and conclusions in `.learnings/`.
   - Devices: Xperia XZ Premium and Xperia 1 II required; Pixel 11 when available, not blocking.
   - Depends on: TASK-011
+- [ ] TASK-013: Theme setting
+  - Setting with System (default), Light and Dark; persisted with Jetpack DataStore Preferences.
+  - Dynamic colour toggle, shown only on Android 12 and later, off by default.
+  - Selector shown on the prototype screen until the Settings screen exists.
+  - Depends on: TASK-001
