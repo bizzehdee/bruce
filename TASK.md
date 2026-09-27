@@ -9,8 +9,8 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Material 3 theme with the Bruce palette, following the system light/dark setting.
   - Application ID and root package: `com.bizzeh.bruce`.
   - Required by: TASK-002, TASK-003, TASK-007, TASK-013
-- [ ] TASK-002: Add llama.cpp as a pinned git submodule and build it with the NDK
-  - Submodule under `app/src/main/cpp/llama.cpp` (path to confirm at start), pinned to a tagged release commit.
+- [x] TASK-002: Add llama.cpp as a pinned git submodule and build it with the NDK
+  - Submodule under `app/src/main/cpp/llama.cpp`, pinned to release tag `v0.5.0`.
   - CMake build produces the native library for `arm64-v8a`, CPU backend only.
   - JNI stub returns the llama.cpp version string; instrumented test asserts it.
   - Depends on: TASK-001

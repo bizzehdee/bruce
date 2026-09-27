@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "com.bizzeh.bruce"
     compileSdk = 37
+    ndkVersion = "30.0.16248370"
 
     defaultConfig {
         applicationId = "com.bizzeh.bruce"
@@ -20,6 +21,13 @@ android {
         ndk {
             abiFilters += "arm64-v8a"
         }
+
+        externalNativeBuild {
+            cmake {
+                // Unoptimised llama.cpp is too slow to exercise on a device, even in debug builds.
+                arguments += "-DCMAKE_BUILD_TYPE=Release"
+            }
+        }
     }
 
     buildTypes {
@@ -27,6 +35,13 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "4.1.2"
         }
     }
 
