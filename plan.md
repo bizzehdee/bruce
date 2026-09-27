@@ -185,7 +185,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   delete conversations, delete memories, clear all data, open-source licences);
   a link to the permissions management screen; and Diagnostics, the Phase 0 test
   bench (hardware report, backends, benchmarks), available in every build. `planned`
- Chat, Conversations, Models, Model browser, Downloads,
+- **Setup wizard** — Shown on first launch. Walks the user through the choices that
+  shape Bruce before first use: network mode, permission and capability toggles,
+  and getting a first model (import or download). Every choice can be changed later
+  in Settings. `planned`
+- **Main screens** — Chat, Conversations, Models, Model browser, Downloads,
   Skills, Permissions (reached from Settings), Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
   approval. `planned`
@@ -319,6 +323,7 @@ device-to-device transfer.
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
 | Default assistant: milestone. | User |
+| Setup wizard: which permission and capability toggles it shows before the policy engine exists, and whether it includes appearance. | User |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Privacy policy URL on the owner's website. | User |
@@ -348,6 +353,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Added | First-launch setup wizard covering network mode, permission toggles and a first model. |
 | 2026-09-27 | Changed | Hub API uses built-in HTTP and JSON; test bench kept for everyone as Settings > Diagnostics; fresh installs start offline only; Hugging Face sign-in by OAuth now. |
 | 2026-09-27 | Changed | Permissions management screen is reached from Settings only, not from the drawer. |
 | 2026-09-27 | Added | Side-drawer navigation, a Model management screen and a Settings screen; open-source licences are shown under Settings, closing that open question. |
