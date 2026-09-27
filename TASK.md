@@ -62,10 +62,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Weights are the file size; the KV cache is f16 at the context rounded up to 256. Compute buffers are not estimated; TASK-012 measures real memory against the estimate.
   - Depends on: TASK-004, TASK-006
   - Required by: TASK-011
-- [ ] TASK-011: Prototype debug screen
+- [x] TASK-011: Prototype debug screen
   - Import a model, show metadata, hardware report, selected backend and memory estimate.
   - Prompt box with streamed output, stop button, tokens-per-second readout.
-  - Not the product UI; no styling work.
+  - Not the product UI; no styling work. Text is not localised.
+  - Models are imported with the system document picker into app storage; models already there are listed.
   - Depends on: TASK-005, TASK-009, TASK-010
   - Required by: TASK-012
 - [ ] TASK-012: Benchmark on physical devices and record results
