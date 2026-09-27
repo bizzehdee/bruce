@@ -156,12 +156,18 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Installed models with size, quantisation and fit label; choose the active model; details (metadata, memory estimate, backend); delete; import from a file.
   - Per-model settings (context length, backend, threads, temperature) that override the inference defaults.
   - Depends on: TASK-010, TASK-025
-  - Required by: TASK-029
+  - Required by: TASK-029, TASK-030
 - [ ] TASK-028: Network settings
   - Network mode (offline only, Hugging Face only, approved domains, general) and Hugging Face sign-in, in Settings. Fresh installs start offline only; the Hub client refuses requests the mode does not allow.
   - Sign-in by OAuth with PKCE through the browser, redirect `com.bizzeh.bruce:/oauth/huggingface`, scopes `openid profile read-repos`; token stored encrypted with Android Keystore.
   - Open: OAuth client ID from the owner's Hugging Face OAuth app.
+  - Required by: TASK-030
   - Depends on: TASK-020, TASK-026
 - [ ] TASK-029: Model management screen: Hugging Face browse and download
   - Search, fit-ranked results and download progress with resume, inside the Model management screen.
   - Depends on: TASK-020, TASK-022, TASK-023, TASK-027
+- [ ] TASK-030: First-launch setup wizard
+  - Shown once on first launch: network mode, permission and capability toggles, and getting a first model (import, or download when the network mode allows it).
+  - Every choice is also in Settings; the wizard writes the same settings.
+  - Open: which permission toggles to show before the policy engine exists (see plan.md open questions).
+  - Depends on: TASK-027, TASK-028
