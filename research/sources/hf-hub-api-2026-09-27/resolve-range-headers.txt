@@ -1,0 +1,10 @@
+HTTP/2 302 
+content-length: 1054
+location: https://us.aws.cdn.hf.co/xet-bridge-us/680fec4554f3f8295857ad0b/8ad0a46ab1560d187c313af45b26af00f03882f1cd127766037e9aa279f4a3da?<signed query omitted>
+access-control-expose-headers: X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+x-linked-size: 428970080
+x-linked-etag: "da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4"
+HTTP/2 206 
+access-control-allow-headers: Content-Range, Content-Type, Content-Disposition, ETag
+content-length: 1048576
+content-range: bytes 0-1048575/428970080

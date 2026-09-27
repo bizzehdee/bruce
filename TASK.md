@@ -82,6 +82,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Dynamic colour toggle, shown only on Android 12 and later, off by default.
   - Selector shown on the prototype screen until the Settings screen exists.
   - Depends on: TASK-001
+  - Required by: TASK-026
 - [x] TASK-014: App logo
   - Reddish-tan working Cocker Spaniel, white stripe down the middle of the head, three-quarter pose, looking from left to right; head with neck and collar, as the owner chose.
   - Master SVG `docs/branding/bruce-logo.svg`, vectorised from `docs/branding/logo-idea.jpeg` with vtracer, mirrored and recoloured. A hand-written SVG was tried first and judged too childish.
@@ -113,3 +114,52 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Establish why memory use on the DOTPROD phone is 39–56% above the estimate (hypothesis: repacked weights plus resident mapped file pages), using `/proc/self/smaps` or llama.cpp's buffer-size log lines.
   - Update `ModelMemory` from the measured cause, and re-run the TASK-012 benchmark to check the estimate on both phones.
   - Depends on: TASK-012
+  - Required by: TASK-022
+- [ ] TASK-020: Hugging Face Hub client
+  - Anonymous search of GGUF repositories (`filter=gguf`, sorted by downloads) with `expand` for architecture, parameter count, context length, licence and gated status.
+  - List a repository's GGUF files with size and SHA-256.
+  - Validate every response at the boundary and bound its size; map failures (offline, rate limited, not found) to returned errors.
+  - Adds the `INTERNET` permission. Requests only when networking is allowed.
+  - Open: HTTP client and JSON parsing choice (see plan.md open questions). Must be settled before starting.
+  - Required by: TASK-021, TASK-022, TASK-023, TASK-028, TASK-029
+- [ ] TASK-021: Read a remote GGUF header
+  - Fetch only the start of a model file with range requests, growing the range until the header parses, with a fixed upper limit.
+  - Refactor `GgufReader` to read from a bounded stream so local and remote files share one parser.
+  - Depends on: TASK-006, TASK-020
+  - Required by: TASK-022
+- [ ] TASK-022: Model fit and recommendation
+  - For each candidate file: fits, tight or does not fit (memory estimate against usable RAM), architecture supported by the bundled llama.cpp, and an expected speed band from measured benchmarks.
+  - Rank results for this phone; all ranking runs on the phone.
+  - Depends on: TASK-010, TASK-012, TASK-019, TASK-021
+  - Required by: TASK-029
+- [ ] TASK-023: Resumable, verified model download
+  - Download into app storage through a partial file; resume with range requests; check free space first; verify the SHA-256 before the file becomes a model.
+  - Depends on: TASK-020
+  - Required by: TASK-029
+- [ ] TASK-024: Basic chat screen
+  - Chat layout in the style of Claude, ChatGPT and Gemini: scrolling message list, composer at the bottom, replies streamed from the loaded model, stop button.
+  - Uses the model's chat template; no tools, agent loop or saved conversations yet.
+  - Material 3, light and dark themes.
+  - Required by: TASK-025
+- [ ] TASK-025: Navigation shell
+  - Side drawer with a conversation list placeholder, Models and Settings entries; chat is the start screen. Permissions are not in the drawer; they are reached from Settings.
+  - Chat top bar shows the active model; tapping it opens a quick model switcher.
+  - Open: whether the prototype test bench stays reachable (see plan.md open questions).
+  - Depends on: TASK-024
+  - Required by: TASK-026, TASK-027
+- [ ] TASK-026: Settings screen
+  - Appearance (moved from the prototype screen), inference defaults (backend, threads, context length), data and privacy (clear all data, open-source licences), and a link to the permissions management screen (placeholder until that screen exists).
+  - Export and delete conversations and delete memories appear once those features exist.
+  - Depends on: TASK-013, TASK-025
+  - Required by: TASK-028
+- [ ] TASK-027: Model management screen: installed models
+  - Installed models with size, quantisation and fit label; choose the active model; details (metadata, memory estimate, backend); delete; import from a file.
+  - Per-model settings (context length, backend, threads, temperature) that override the inference defaults.
+  - Depends on: TASK-010, TASK-025
+  - Required by: TASK-029
+- [ ] TASK-028: Network settings
+  - Network mode (offline only, Hugging Face only, approved domains, general) and Hugging Face sign-in, in Settings.
+  - Depends on: TASK-020, TASK-026
+- [ ] TASK-029: Model management screen: Hugging Face browse and download
+  - Search, fit-ranked results and download progress with resume, inside the Model management screen.
+  - Depends on: TASK-020, TASK-022, TASK-023, TASK-027
