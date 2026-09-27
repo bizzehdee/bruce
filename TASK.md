@@ -106,7 +106,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Prepared answers for the Play Console setup questions: app or game, free or paid, ads, app access, content rating questionnaire, target audience, data safety form, and any permission declarations.
   - Data safety answers must match the privacy policy.
   - Depends on: TASK-016
-- [ ] TASK-018: Default thread count from CPU topology
+- [x] TASK-018: Default thread count from CPU topology
   - Default `LoadConfig.threads` to the number of performance cores instead of all cores; TASK-012 measured 4 threads 25–35% faster than 8 on both test phones.
   - Detect performance cores from each core's maximum frequency in sysfs; cores in the lowest-frequency cluster are efficiency cores.
   - Depends on: TASK-012

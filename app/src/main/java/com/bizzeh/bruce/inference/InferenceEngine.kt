@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.inference
 
+import com.bizzeh.bruce.hardware.CpuTopology
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 import kotlin.time.Duration
@@ -76,7 +77,7 @@ data class GenerationStats(
 
 data class LoadConfig(
     val contextLength: Int = 2048,
-    val threads: Int = Runtime.getRuntime().availableProcessors(),
+    val threads: Int = CpuTopology.performanceCoreCount(),
     /** Tokens decoded per native call while evaluating a prompt. 2048 is llama.cpp's default. */
     val batchSize: Int = 2048,
     val backend: BackendPreference = BackendPreference.AUTO,
