@@ -32,7 +32,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Reports tokens per second for prompt processing and generation.
   - Depends on: TASK-004
   - Required by: TASK-011
-- [ ] TASK-006: GGUF metadata inspection
+- [x] TASK-006: GGUF metadata inspection
   - Read architecture, parameter count, quantisation, context length and file size without loading weights.
   - Reject files that are not valid GGUF with a structured error.
   - Depends on: TASK-004
