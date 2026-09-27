@@ -1,0 +1,67 @@
+# Tasks
+
+Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
+
+- [ ] TASK-001: Scaffold the Android project
+  - Gradle Kotlin DSL, single `app` module, Kotlin, Jetpack Compose.
+  - `minSdk` 29, ABI filter `arm64-v8a`.
+  - JUnit 5, MockK, Compose UI test and Kover configured; one passing test that the app launches.
+  - Application ID and root package: `com.bizzeh.bruce`.
+  - Required by: TASK-002, TASK-003, TASK-007
+- [ ] TASK-002: Add llama.cpp as a pinned git submodule and build it with the NDK
+  - Submodule under `app/src/main/cpp/llama.cpp` (path to confirm at start), pinned to a tagged release commit.
+  - CMake build produces the native library for `arm64-v8a`, CPU backend only.
+  - JNI stub returns the llama.cpp version string; instrumented test asserts it.
+  - Depends on: TASK-001
+  - Required by: TASK-003, TASK-004, TASK-008
+- [ ] TASK-003: GitHub Actions CI
+  - On push and pull request: build debug APK including native code, run JVM unit tests, run GoogleTest native tests on the host, enforce 90% branch coverage via Kover.
+  - No emulator tests.
+  - Depends on: TASK-001, TASK-002
+- [ ] TASK-004: `InferenceEngine` interface and `LlamaCppEngine` load/unload
+  - Interface: `loadModel`, `unloadModel`, `generate`, `stop`, `getCapabilities`, `getModelInfo`.
+  - Load a GGUF file from app-private storage; import one via SAF into that storage.
+  - Load failures return structured errors; native handles are released on unload.
+  - Depends on: TASK-002
+  - Required by: TASK-005, TASK-006, TASK-010
+- [ ] TASK-005: Streaming generation with stop and cancellation
+  - `generate` returns a `Flow` of tokens; cancelling the collector or calling `stop` halts native generation.
+  - Reports tokens per second for prompt processing and generation.
+  - Depends on: TASK-004
+  - Required by: TASK-011
+- [ ] TASK-006: GGUF metadata inspection
+  - Read architecture, parameter count, quantisation, context length and file size without loading weights.
+  - Reject files that are not valid GGUF with a structured error.
+  - Depends on: TASK-004
+  - Required by: TASK-010
+- [ ] TASK-007: CPU feature detection
+  - Report ARM64, NEON, FP16, DOTPROD and I8MM availability.
+  - Depends on: TASK-001
+  - Required by: TASK-009
+- [ ] TASK-008: Vulkan and OpenCL backends
+  - Build llama.cpp with Vulkan and OpenCL backends enabled.
+  - Detect at runtime whether each backend is usable on the device.
+  - Depends on: TASK-002
+  - Required by: TASK-009
+- [ ] TASK-009: Backend selection with CPU fallback
+  - Choose Vulkan, OpenCL or CPU from detected capabilities and model compatibility.
+  - Fall back to CPU if a GPU backend fails to initialise or load the model.
+  - User override of the selected backend.
+  - Depends on: TASK-007, TASK-008
+  - Required by: TASK-011
+- [ ] TASK-010: Model memory estimation
+  - Estimate RAM for weights plus KV cache at the chosen context size.
+  - Compare with usable device RAM; warn before loading a model that will not fit.
+  - Depends on: TASK-004, TASK-006
+  - Required by: TASK-011
+- [ ] TASK-011: Prototype debug screen
+  - Import a model, show metadata, hardware report, selected backend and memory estimate.
+  - Prompt box with streamed output, stop button, tokens-per-second readout.
+  - Not the product UI; no styling work.
+  - Depends on: TASK-005, TASK-009, TASK-010
+  - Required by: TASK-012
+- [ ] TASK-012: Benchmark on physical devices and record results
+  - Run 2 or more models on each test device across available backends.
+  - Record results and conclusions in `.learnings/`.
+  - Devices: Xperia XZ Premium and Xperia 1 II required; Pixel 11 when available, not blocking.
+  - Depends on: TASK-011
