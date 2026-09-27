@@ -12,6 +12,8 @@ import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.ModelInfo
 import com.bizzeh.bruce.models.MemoryCheck
 import com.bizzeh.bruce.models.MemoryEstimate
+import com.bizzeh.bruce.settings.ThemeMode
+import com.bizzeh.bruce.settings.ThemeSettings
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -34,9 +36,38 @@ class PrototypeScreenTest {
         override fun setPrompt(prompt: String) { calls += "prompt $prompt" }
         override fun generate() { calls += "generate" }
         override fun stop() { calls += "stop" }
+        override fun setThemeMode(mode: ThemeMode) { calls += "theme $mode" }
+        override fun setDynamicColour(enabled: Boolean) { calls += "dynamic $enabled" }
     }
 
-    private fun show(state: PrototypeState) = compose.setContent { BruceTheme { PrototypeScreen(state, actions) } }
+    private fun show(state: PrototypeState, dynamicColourSupported: Boolean = false) = compose.setContent {
+        BruceTheme { PrototypeScreen(state, actions, ThemeSettings(), dynamicColourSupported) }
+    }
+
+    @Test
+    fun choosingAThemeMode() {
+        show(PrototypeState())
+
+        compose.onNodeWithText("Dark").performScrollTo().performClick()
+
+        assertEquals(listOf("theme DARK"), calls)
+    }
+
+    @Test
+    fun dynamicColourSwitchOnlyWhereSupported() {
+        show(PrototypeState(), dynamicColourSupported = true)
+
+        compose.onNodeWithTag("dynamicColour").performScrollTo().performClick()
+
+        assertEquals(listOf("dynamic true"), calls)
+    }
+
+    @Test
+    fun dynamicColourSwitchHiddenWhereUnsupported() {
+        show(PrototypeState())
+
+        compose.onNodeWithTag("dynamicColour").assertDoesNotExist()
+    }
 
     @Test
     fun emptyStateOffersImport() {
