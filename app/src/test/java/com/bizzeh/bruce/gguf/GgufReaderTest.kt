@@ -37,6 +37,10 @@ class GgufReaderTest {
                 fileType = null,
                 quantisation = null,
                 fileSizeBytes = fixture.length(),
+                blockCount = 5L,
+                embeddingLength = 64L,
+                headCount = 8L,
+                headCountKv = 4L,
             ),
             metadata,
         )
@@ -62,6 +66,20 @@ class GgufReaderTest {
         assertEquals(1024L * 151_936 + 1024, metadata.parameterCount)
         assertEquals(2L, metadata.tensorCount)
         assertEquals(bytes.size.toLong(), metadata.fileSizeBytes)
+    }
+
+    @Test
+    fun readsExplicitKeyAndValueLengths() {
+        val metadata = metadata(
+            GgufBuilder()
+                .string("general.architecture", "gemma3")
+                .uint32("gemma3.attention.key_length", 256)
+                .uint32("gemma3.attention.value_length", 128)
+                .build(),
+        )
+
+        assertEquals(256L, metadata.keyLength)
+        assertEquals(128L, metadata.valueLength)
     }
 
     @Test

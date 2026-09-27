@@ -56,9 +56,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Automatic order is Vulkan, then OpenCL, then CPU. The GPU order is provisional until TASK-012 measures it on a phone with a usable GPU.
   - Depends on: TASK-007, TASK-008
   - Required by: TASK-011
-- [ ] TASK-010: Model memory estimation
+- [x] TASK-010: Model memory estimation
   - Estimate RAM for weights plus KV cache at the chosen context size.
   - Compare with usable device RAM; warn before loading a model that will not fit.
+  - Weights are the file size; the KV cache is f16 at the context rounded up to 256. Compute buffers are not estimated; TASK-012 measures real memory against the estimate.
   - Depends on: TASK-004, TASK-006
   - Required by: TASK-011
 - [ ] TASK-011: Prototype debug screen
