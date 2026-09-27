@@ -26,12 +26,12 @@ class LlamaCppEngineTest {
 
     @Test
     fun loadsModelAndReportsInfo() = test {
-        val result = engine.loadModel(ggufFile(), LoadConfig(contextLength = 512, threads = 2))
+        val result = engine.loadModel(ggufFile(), LoadConfig(contextLength = 512, threads = 2, batchSize = 64))
 
         val expected = ModelInfo("fake model 10", 260_000L, 1_000_000L, 512)
         assertEquals(LoadResult.Loaded(expected), result)
         assertEquals(expected, engine.getModelInfo())
-        assertEquals(512 to 2, llama.lastContextRequest)
+        assertEquals(Triple(512, 2, 64), llama.lastContextRequest)
     }
 
     @Test
@@ -113,5 +113,6 @@ class LlamaCppEngineTest {
     fun loadConfigRejectsNonPositiveValues() {
         assertThrows<IllegalArgumentException> { LoadConfig(contextLength = 0) }
         assertThrows<IllegalArgumentException> { LoadConfig(threads = 0) }
+        assertThrows<IllegalArgumentException> { LoadConfig(batchSize = 0) }
     }
 }

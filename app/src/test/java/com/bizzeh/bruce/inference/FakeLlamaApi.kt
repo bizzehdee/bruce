@@ -8,7 +8,7 @@ internal class FakeLlamaApi : LlamaApi {
     val loadedPaths = mutableListOf<String>()
     val freedModels = mutableListOf<Long>()
     val freedContexts = mutableListOf<Long>()
-    var lastContextRequest: Pair<Int, Int>? = null
+    var lastContextRequest: Triple<Int, Int, Int>? = null
 
     override fun version() = "fake"
 
@@ -21,8 +21,8 @@ internal class FakeLlamaApi : LlamaApi {
         freedModels += model
     }
 
-    override fun newContext(model: Long, contextLength: Int, threads: Int): Long {
-        lastContextRequest = contextLength to threads
+    override fun newContext(model: Long, contextLength: Int, threads: Int, batchSize: Int): Long {
+        lastContextRequest = Triple(contextLength, threads, batchSize)
         return nextContextHandle
     }
 
@@ -39,4 +39,47 @@ internal class FakeLlamaApi : LlamaApi {
     override fun modelTrainedContextLength(model: Long) = 512
 
     override fun deviceTypes() = devices
+
+    var promptResult = 3
+    /** Scripted nextToken results; each TOKEN consumes the next entry of [pieces]. */
+    val tokenResults = ArrayDeque<Int>()
+    val pieces = ArrayDeque<ByteArray>()
+    var onNextToken: () -> Unit = {}
+    var generationRequest: Triple<Long, Float, Int>? = null
+    var lastPrompt: ByteArray? = null
+    val endedGenerations = mutableListOf<Long>()
+    private var currentPiece = ByteArray(0)
+
+    fun script(vararg texts: String, end: Int = LlamaApi.END_OF_GENERATION) {
+        texts.forEach { tokenPiece(it.toByteArray()) }
+        tokenResults += end
+    }
+
+    fun tokenPiece(bytes: ByteArray) {
+        tokenResults += LlamaApi.TOKEN
+        pieces += bytes
+    }
+
+    override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long {
+        generationRequest = Triple(context, temperature, seed)
+        return 30L
+    }
+
+    override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray): Int {
+        lastPrompt = promptUtf8
+        return promptResult
+    }
+
+    override fun nextToken(generation: Long): Int {
+        onNextToken()
+        val result = tokenResults.removeFirstOrNull() ?: LlamaApi.END_OF_GENERATION
+        if (result == LlamaApi.TOKEN) currentPiece = pieces.removeFirst()
+        return result
+    }
+
+    override fun takePiece(generation: Long) = currentPiece
+
+    override fun endGeneration(generation: Long) {
+        endedGenerations += generation
+    }
 }

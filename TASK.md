@@ -27,10 +27,9 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Load failures return structured errors; native handles are released on unload.
   - Depends on: TASK-002
   - Required by: TASK-005, TASK-006, TASK-010
-- [ ] TASK-005: Streaming generation with stop and cancellation
+- [x] TASK-005: Streaming generation with stop and cancellation
   - `generate` returns a `Flow` of tokens; cancelling the collector or calling `stop` halts native generation.
   - Reports tokens per second for prompt processing and generation.
-  - Add GoogleTest for native logic (first native logic: UTF-8 assembly of token pieces) and run it in CI.
   - Depends on: TASK-004
   - Required by: TASK-011
 - [ ] TASK-006: GGUF metadata inspection
@@ -40,6 +39,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Required by: TASK-010
 - [ ] TASK-007: CPU feature detection
   - Report ARM64, NEON, FP16, DOTPROD and I8MM availability.
+  - Add GoogleTest for the native detection logic and run it in CI.
   - Depends on: TASK-001
   - Required by: TASK-009
 - [ ] TASK-008: Vulkan and OpenCL backends
