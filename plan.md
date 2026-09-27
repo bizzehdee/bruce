@@ -154,6 +154,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 
 ### Interface and platform
 
+- **Chat interface** — The main screen is a chat conversation in the style of
+  Claude, ChatGPT and Gemini: a scrolling message list, a message composer at the
+  bottom, and replies that stream in as they are generated. Bruce's actions,
+  permission requests and confirmations appear inline in the conversation.
+  `planned`
 - **Main screens** — Chat, Conversations, Models, Model browser, Downloads,
   Skills, Permissions, Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
@@ -316,6 +321,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Added | Chat interface as the main screen, in the style of Claude, ChatGPT and Gemini; replaces the spec's §8 guidance that Bruce should not look like a conventional chatbot. |
 | 2026-09-27 | Changed | Memory estimation marked done: weights plus KV cache against usable RAM. |
 | 2026-09-27 | Changed | llama.cpp integration, streaming generation, and backend detection and selection marked done; GPU order provisional until benchmarked. |
 | 2026-09-27 | Changed | Logo done: vectorised from the owner's reference image, keeping neck and collar; transparent launcher icon, cream Play icon. |
