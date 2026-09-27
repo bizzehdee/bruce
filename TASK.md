@@ -69,11 +69,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Models are imported with the system document picker into app storage; models already there are listed.
   - Depends on: TASK-005, TASK-009, TASK-010
   - Required by: TASK-012
-- [ ] TASK-012: Benchmark on physical devices and record results
+- [x] TASK-012: Benchmark on physical devices and record results
   - Run 2 or more models on each test device across available backends.
   - Record results and conclusions in `.learnings/`.
   - Devices: Xperia XZ Premium and Xperia 1 II required; Pixel 11 when available, not blocking.
+  - Results: `.learnings/phase0-cpu-benchmarks.md`. Harness: `InferenceBenchmark`, skipped unless run with `benchmark=true`.
+  - Pixel 11 run still to do when the phone is available.
   - Depends on: TASK-011
+  - Required by: TASK-018, TASK-019
 - [ ] TASK-013: Theme setting
   - Setting with System (default), Light and Dark; persisted with Jetpack DataStore Preferences.
   - Dynamic colour toggle, shown only on Android 12 and later, off by default.
@@ -102,3 +105,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Prepared answers for the Play Console setup questions: app or game, free or paid, ads, app access, content rating questionnaire, target audience, data safety form, and any permission declarations.
   - Data safety answers must match the privacy policy.
   - Depends on: TASK-016
+- [ ] TASK-018: Default thread count from CPU topology
+  - Default `LoadConfig.threads` to the number of performance cores instead of all cores; TASK-012 measured 4 threads 25–35% faster than 8 on both test phones.
+  - Detect performance cores from each core's maximum frequency in sysfs; cores in the lowest-frequency cluster are efficiency cores.
+  - Depends on: TASK-012
+- [ ] TASK-019: Memory estimate on repacking CPUs
+  - Establish why memory use on the DOTPROD phone is 39–56% above the estimate (hypothesis: repacked weights plus resident mapped file pages), using `/proc/self/smaps` or llama.cpp's buffer-size log lines.
+  - Update `ModelMemory` from the measured cause, and re-run the TASK-012 benchmark to check the estimate on both phones.
+  - Depends on: TASK-012
