@@ -16,7 +16,6 @@ import com.bizzeh.bruce.models.ModelMemory
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -26,18 +25,18 @@ import kotlin.time.measureTime
 
 /**
  * Measures load time, prompt and generation speed, and resident memory for every GGUF model
- * in the app's models folder, across thread counts. Skipped unless run with
- * `-Pandroid.testInstrumentationRunnerArguments.benchmark=true`; results go to logcat tag
- * `BruceBench`.
+ * in the app's models folder, across thread counts. Results go to logcat tag `BruceBench`.
+ * Not part of normal runs; run it with
+ * `adb shell am instrument -w -e class com.bizzeh.bruce.benchmark.InferenceBenchmark
+ * com.bizzeh.bruce.test/androidx.test.runner.AndroidJUnitRunner`.
  */
+@Benchmark
 @RunWith(AndroidJUnit4::class)
 class InferenceBenchmark {
-    private val arguments = InstrumentationRegistry.getArguments()
     private val modelsDir = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, MainActivity.MODELS_DIR)
 
     @Test
     fun benchmarkModels() {
-        assumeTrue("benchmark not requested", arguments.getString("benchmark") == "true")
         val models = modelsDir.listFiles { file -> file.name.endsWith(".gguf") }.orEmpty().sortedBy { it.length() }
         val cores = Runtime.getRuntime().availableProcessors()
         val threadCounts = listOf(1, 2, 4, 8).filter { it <= cores }

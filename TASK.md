@@ -73,7 +73,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Run 2 or more models on each test device across available backends.
   - Record results and conclusions in `.learnings/`.
   - Devices: Xperia XZ Premium and Xperia 1 II required; Pixel 11 when available, not blocking.
-  - Results: `.learnings/phase0-cpu-benchmarks.md`. Harness: `InferenceBenchmark`, skipped unless run with `benchmark=true`.
+  - Results: `.learnings/phase0-cpu-benchmarks.md`. Harness: `InferenceBenchmark`, annotated `@Benchmark` and excluded from normal device test runs.
   - Pixel 11 run still to do when the phone is available.
   - Depends on: TASK-011
   - Required by: TASK-018, TASK-019
