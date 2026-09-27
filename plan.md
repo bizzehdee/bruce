@@ -70,12 +70,12 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 
 - **llama.cpp integration** — Native llama.cpp built with the NDK, behind an
   `InferenceEngine` interface (load, unload, generate, stop, capabilities, model
-  info). No other module depends on llama.cpp directly. `planned`
+  info). No other module depends on llama.cpp directly. `done`
 - **Streaming generation** — Tokens stream to the caller as generated; generation
-  can be stopped. `planned`
+  can be stopped. `done`
 - **Backend detection and selection** — Detect CPU features (NEON, FP16, DOTPROD),
   Vulkan and OpenCL; select a backend; always fall back to CPU. NPU is used only
-  if a supported backend exposes it. `planned`
+  if a supported backend exposes it. `done`
 - **Memory estimation** — Estimate a model's RAM requirement and compare it with
   usable device RAM before loading. `planned`
 - **Advanced hardware tuning** — User control over backend, threads, context and
@@ -316,6 +316,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | llama.cpp integration, streaming generation, and backend detection and selection marked done; GPU order provisional until benchmarked. |
 | 2026-09-27 | Changed | Logo done: vectorised from the owner's reference image, keeping neck and collar; transparent launcher icon, cream Play icon. |
 | 2026-09-27 | Changed | Logo artwork comes from the owner and is vectorised, replacing the hand-built SVG approach. |
 | 2026-09-27 | Added | App logo (hand-built SVG), Play Store feature graphic, listing text and setup answers, and a privacy policy published on the owner's website; screenshots deferred to Phase 1. |

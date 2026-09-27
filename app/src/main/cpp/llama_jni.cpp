@@ -98,14 +98,24 @@ Java_com_bizzeh_bruce_inference_LlamaNative_version(JNIEnv *env, jobject) {
 }
 
 JNIEXPORT jlong JNICALL
-Java_com_bizzeh_bruce_inference_LlamaNative_loadModel(JNIEnv *env, jobject, jstring path) {
+Java_com_bizzeh_bruce_inference_LlamaNative_loadModel(
+        JNIEnv *env, jobject, jstring path, jintArray deviceIndices, jint gpuLayers) {
+    // Always pass an explicit, NULL-terminated device list: with none, llama.cpp allocates
+    // on every registered GPU even with zero offloaded layers, and some drivers crash there.
+    // An empty list keeps the model on the CPU.
+    const jsize deviceCount = env->GetArrayLength(deviceIndices);
+    std::vector<jint> indices(static_cast<size_t>(deviceCount));
+    env->GetIntArrayRegion(deviceIndices, 0, deviceCount, indices.data());
+    std::vector<ggml_backend_dev_t> devices;
+    for (jint index : indices) {
+        devices.push_back(ggml_backend_dev_get(static_cast<size_t>(index)));
+    }
+    devices.push_back(nullptr);
+
     const char *nativePath = env->GetStringUTFChars(path, nullptr);
     llama_model_params params = llama_model_default_params();
-    // With no list, llama.cpp allocates on every registered GPU even with zero offloaded
-    // layers, and some drivers crash there. An empty list keeps the model on the CPU.
-    static ggml_backend_dev_t noGpuDevices[] = {nullptr};
-    params.devices = noGpuDevices;
-    params.n_gpu_layers = 0;
+    params.devices = devices.data();
+    params.n_gpu_layers = gpuLayers;
     llama_model *model = llama_model_load_from_file(nativePath, params);
     env->ReleaseStringUTFChars(path, nativePath);
     return reinterpret_cast<jlong>(model);

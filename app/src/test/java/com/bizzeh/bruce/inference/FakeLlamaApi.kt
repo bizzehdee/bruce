@@ -16,9 +16,15 @@ internal class FakeLlamaApi : LlamaApi {
 
     override fun version() = "fake"
 
-    override fun loadModel(path: String): Long {
+    /** When non-empty, each loadModel call takes its result from here instead of [nextModelHandle]. */
+    val modelHandles = ArrayDeque<Long>()
+    val contextHandles = ArrayDeque<Long>()
+    val loadRequests = mutableListOf<Pair<List<Int>, Int>>()
+
+    override fun loadModel(path: String, deviceIndices: IntArray, gpuLayers: Int): Long {
         loadedPaths += path
-        return nextModelHandle
+        loadRequests += deviceIndices.toList() to gpuLayers
+        return modelHandles.removeFirstOrNull() ?: nextModelHandle
     }
 
     override fun freeModel(model: Long) {
@@ -27,7 +33,7 @@ internal class FakeLlamaApi : LlamaApi {
 
     override fun newContext(model: Long, contextLength: Int, threads: Int, batchSize: Int): Long {
         lastContextRequest = Triple(contextLength, threads, batchSize)
-        return nextContextHandle
+        return contextHandles.removeFirstOrNull() ?: nextContextHandle
     }
 
     override fun freeContext(context: Long) {

@@ -3,8 +3,11 @@ package com.bizzeh.bruce.inference
 internal interface LlamaApi {
     fun version(): String
 
-    /** Returns a native model handle, or 0 if the model could not be loaded. */
-    fun loadModel(path: String): Long
+    /**
+     * Loads a model onto the ggml devices at [deviceIndices], offloading [gpuLayers] layers;
+     * an empty array keeps it on the CPU. Returns a native model handle, or 0 on failure.
+     */
+    fun loadModel(path: String, deviceIndices: IntArray, gpuLayers: Int): Long
 
     fun freeModel(model: Long)
 
@@ -74,7 +77,7 @@ internal object LlamaNative : LlamaApi {
 
     external override fun version(): String
 
-    external override fun loadModel(path: String): Long
+    external override fun loadModel(path: String, deviceIndices: IntArray, gpuLayers: Int): Long
 
     external override fun freeModel(model: Long)
 

@@ -49,10 +49,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - An isolated-process GPU probe is deferred until real phones show driver crashes the version rule misses.
   - Depends on: TASK-002
   - Required by: TASK-009
-- [ ] TASK-009: Backend selection with CPU fallback
+- [x] TASK-009: Backend selection with CPU fallback
   - Choose Vulkan, OpenCL or CPU from detected capabilities and model compatibility.
   - Fall back to CPU if a GPU backend fails to initialise or load the model.
-  - User override of the selected backend.
+  - User override of the selected backend. A forced GPU backend with no usable device is refused (BACKEND_UNAVAILABLE) rather than tried.
+  - Automatic order is Vulkan, then OpenCL, then CPU. The GPU order is provisional until TASK-012 measures it on a phone with a usable GPU.
   - Depends on: TASK-007, TASK-008
   - Required by: TASK-011
 - [ ] TASK-010: Model memory estimation
