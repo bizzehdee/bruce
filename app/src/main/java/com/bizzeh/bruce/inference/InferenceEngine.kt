@@ -79,6 +79,7 @@ data class LoadConfig(
     val threads: Int = Runtime.getRuntime().availableProcessors(),
     /** Tokens decoded per native call while evaluating a prompt. 2048 is llama.cpp's default. */
     val batchSize: Int = 2048,
+    val backend: BackendPreference = BackendPreference.AUTO,
 ) {
     init {
         require(contextLength > 0) { "contextLength must be positive, was $contextLength" }
@@ -95,7 +96,15 @@ data class ModelInfo(
 )
 
 sealed interface LoadResult {
-    data class Loaded(val info: ModelInfo) : LoadResult
+    /**
+     * [backend] is where the model runs. [failedBackends] lists GPU backends that were
+     * tried first and could not load it, in the order tried.
+     */
+    data class Loaded(
+        val info: ModelInfo,
+        val backend: Backend,
+        val failedBackends: List<Backend> = emptyList(),
+    ) : LoadResult
 
     data class Failed(val error: LoadError) : LoadResult
 }
@@ -105,6 +114,8 @@ enum class LoadError {
     NOT_GGUF,
     MODEL_LOAD_FAILED,
     CONTEXT_CREATION_FAILED,
+    /** The requested backend has no usable device on this phone. */
+    BACKEND_UNAVAILABLE,
 }
 
 data class EngineCapabilities(
@@ -117,6 +128,8 @@ data class EngineCapabilities(
 }
 
 data class ComputeDevice(
+    /** Position in ggml's device registry. */
+    val index: Int,
     val backend: Backend,
     val name: String,
     val description: String,

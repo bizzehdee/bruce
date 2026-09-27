@@ -33,7 +33,7 @@ class LlamaCppEngineTest {
         val result = engine.loadModel(ggufFile(), LoadConfig(contextLength = 512, threads = 2, batchSize = 64))
 
         val expected = ModelInfo("fake model 10", 260_000L, 1_000_000L, 512)
-        assertEquals(LoadResult.Loaded(expected), result)
+        assertEquals(LoadResult.Loaded(expected, Backend.CPU), result)
         assertEquals(expected, engine.getModelInfo())
         assertEquals(Triple(512, 2, 64), llama.lastContextRequest)
     }
@@ -117,11 +117,11 @@ class LlamaCppEngineTest {
 
         assertEquals(
             listOf(
-                ComputeDevice(Backend.CPU, "CPU", "Kryo", DeviceType.CPU, 8L shl 30, usable = true),
-                ComputeDevice(Backend.VULKAN, "Vulkan0", "Adreno 650", DeviceType.GPU, 4L shl 30, usable = true),
-                ComputeDevice(Backend.OPENCL, "GPUOpenCL", "QUALCOMM Adreno", DeviceType.INTEGRATED_GPU, 2L shl 30, usable = true),
-                ComputeDevice(Backend.OTHER, "BLAS", "accelerate", DeviceType.ACCELERATOR, 0, usable = true),
-                ComputeDevice(Backend.OTHER, "meta", "tensor parallel", DeviceType.OTHER, 0, usable = true),
+                ComputeDevice(0, Backend.CPU, "CPU", "Kryo", DeviceType.CPU, 8L shl 30, usable = true),
+                ComputeDevice(1, Backend.VULKAN, "Vulkan0", "Adreno 650", DeviceType.GPU, 4L shl 30, usable = true),
+                ComputeDevice(2, Backend.OPENCL, "GPUOpenCL", "QUALCOMM Adreno", DeviceType.INTEGRATED_GPU, 2L shl 30, usable = true),
+                ComputeDevice(3, Backend.OTHER, "BLAS", "accelerate", DeviceType.ACCELERATOR, 0, usable = true),
+                ComputeDevice(4, Backend.OTHER, "meta", "tensor parallel", DeviceType.OTHER, 0, usable = true),
             ),
             capabilities.devices,
         )
@@ -142,6 +142,81 @@ class LlamaCppEngineTest {
 
         assertEquals(listOf(true, false, false), capabilities.devices.map { it.usable })
         assertEquals(setOf(Backend.CPU), capabilities.usableBackends)
+    }
+
+    private fun withVulkanAndOpenCl() {
+        llama.devices = listOf(
+            FakeLlamaApi.Device("CPU", "CPU", "Kryo", 0, 0),
+            FakeLlamaApi.Device("Vulkan", "Vulkan0", "Adreno 750", 2, 0),
+            FakeLlamaApi.Device("OpenCL", "GPUOpenCL", "QUALCOMM Adreno", 2, 0),
+        )
+        llama.vulkanApiVersions = mapOf("Adreno 750" to VULKAN_1_2)
+    }
+
+    @Test
+    fun autoLoadsOnUsableGpuWithAllLayersOffloaded() = test {
+        withVulkanAndOpenCl()
+
+        val result = engine.loadModel(ggufFile()) as LoadResult.Loaded
+
+        assertEquals(Backend.VULKAN, result.backend)
+        assertEquals(emptyList<Backend>(), result.failedBackends)
+        assertEquals(listOf(listOf(1) to 999), llama.loadRequests)
+    }
+
+    @Test
+    fun gpuLoadFailureFallsBackThroughEachBackendToCpu() = test {
+        withVulkanAndOpenCl()
+        llama.modelHandles += listOf(0L, 0L, 10L)
+
+        val result = engine.loadModel(ggufFile()) as LoadResult.Loaded
+
+        assertEquals(Backend.CPU, result.backend)
+        assertEquals(listOf(Backend.VULKAN, Backend.OPENCL), result.failedBackends)
+        assertEquals(listOf(listOf(1) to 999, listOf(2) to 999, emptyList<Int>() to 0), llama.loadRequests)
+    }
+
+    @Test
+    fun gpuContextFailureFreesGpuModelBeforeFallingBack() = test {
+        withVulkanAndOpenCl()
+        llama.modelHandles += listOf(11L, 12L)
+        llama.contextHandles += listOf(0L, 22L)
+
+        val result = engine.loadModel(ggufFile(), LoadConfig(backend = BackendPreference.VULKAN)) as LoadResult.Loaded
+
+        assertEquals(Backend.CPU, result.backend)
+        assertEquals(listOf(Backend.VULKAN), result.failedBackends)
+        assertEquals(listOf(11L), llama.freedModels)
+    }
+
+    @Test
+    fun forcedCpuIgnoresUsableGpu() = test {
+        withVulkanAndOpenCl()
+
+        val result = engine.loadModel(ggufFile(), LoadConfig(backend = BackendPreference.CPU)) as LoadResult.Loaded
+
+        assertEquals(Backend.CPU, result.backend)
+        assertEquals(listOf(emptyList<Int>() to 0), llama.loadRequests)
+    }
+
+    @Test
+    fun forcedBackendWithoutUsableDeviceIsRefused() = test {
+        llama.devices = listOf(FakeLlamaApi.Device("Vulkan", "Vulkan0", "Adreno 540", 2, 0))
+
+        val result = engine.loadModel(ggufFile(), LoadConfig(backend = BackendPreference.VULKAN))
+
+        assertEquals(LoadResult.Failed(LoadError.BACKEND_UNAVAILABLE), result)
+        assertTrue(llama.loadRequests.isEmpty())
+    }
+
+    @Test
+    fun whenEveryAttemptFailsTheLastErrorIsReported() = test {
+        withVulkanAndOpenCl()
+        llama.modelHandles += listOf(0L, 0L, 13L)
+        llama.contextHandles += listOf(0L)
+
+        assertEquals(LoadResult.Failed(LoadError.CONTEXT_CREATION_FAILED), engine.loadModel(ggufFile()))
+        assertEquals(listOf(13L), llama.freedModels)
     }
 
     @Test

@@ -61,6 +61,27 @@ class LlamaCppEngineDeviceTest {
     }
 
     @Test
+    fun autoLoadsOnAUsableBackend() = runTest {
+        val usable = engine.getCapabilities().usableBackends
+
+        val result = engine.loadModel(fixture(), LoadConfig(contextLength = 128, threads = 2)) as LoadResult.Loaded
+
+        assertTrue(result.backend in usable)
+        if (usable == setOf(Backend.CPU)) assertEquals(emptyList<Backend>(), result.failedBackends)
+    }
+
+    @Test
+    fun forcingABackendWithoutUsableDeviceIsRefused() = runTest {
+        val unusable = listOf(BackendPreference.VULKAN, BackendPreference.OPENCL)
+            .filter { Backend.valueOf(it.name) !in engine.getCapabilities().usableBackends }
+
+        for (preference in unusable) {
+            val result = engine.loadModel(fixture(), LoadConfig(contextLength = 128, threads = 2, backend = preference))
+            assertEquals(LoadResult.Failed(LoadError.BACKEND_UNAVAILABLE), result)
+        }
+    }
+
+    @Test
     fun cpuBackendIsAvailable() {
         assertTrue(Backend.CPU in engine.getCapabilities().usableBackends)
     }

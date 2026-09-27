@@ -55,6 +55,7 @@ internal class LlamaCppEngine(
             val (registryName, name, description) = llama.deviceStrings(index)
             val backend = toBackend(registryName)
             ComputeDevice(
+                index = index,
                 backend = backend,
                 name = name,
                 description = description,
@@ -133,13 +134,41 @@ internal class LlamaCppEngine(
     }
 
     private fun open(file: File, config: LoadConfig): LoadResult {
-        val model = llama.loadModel(file.absolutePath)
-        if (model == 0L) return LoadResult.Failed(LoadError.MODEL_LOAD_FAILED)
+        val plan = BackendSelection.plan(config.backend, getCapabilities())
+        if (plan is BackendPlan.Unavailable) return LoadResult.Failed(LoadError.BACKEND_UNAVAILABLE)
+
+        val failedBackends = mutableListOf<Backend>()
+        var lastError = LoadError.MODEL_LOAD_FAILED
+        for (attempt in (plan as BackendPlan.Attempts).attempts) {
+            when (val result = openOn(file, config, attempt)) {
+                is AttemptResult.Failed -> {
+                    lastError = result.error
+                    if (attempt.backend != Backend.CPU) failedBackends += attempt.backend
+                }
+                is AttemptResult.Opened -> {
+                    session = result.session
+                    return LoadResult.Loaded(result.session.info, attempt.backend, failedBackends)
+                }
+            }
+        }
+        return LoadResult.Failed(lastError)
+    }
+
+    private sealed interface AttemptResult {
+        data class Opened(val session: Session) : AttemptResult
+
+        data class Failed(val error: LoadError) : AttemptResult
+    }
+
+    private fun openOn(file: File, config: LoadConfig, attempt: LoadAttempt): AttemptResult {
+        val gpuLayers = if (attempt.devices.isEmpty()) 0 else ALL_LAYERS
+        val model = llama.loadModel(file.absolutePath, attempt.devices.map { it.index }.toIntArray(), gpuLayers)
+        if (model == 0L) return AttemptResult.Failed(LoadError.MODEL_LOAD_FAILED)
 
         val context = llama.newContext(model, config.contextLength, config.threads, config.batchSize)
         if (context == 0L) {
             llama.freeModel(model)
-            return LoadResult.Failed(LoadError.CONTEXT_CREATION_FAILED)
+            return AttemptResult.Failed(LoadError.CONTEXT_CREATION_FAILED)
         }
 
         val info = ModelInfo(
@@ -148,8 +177,7 @@ internal class LlamaCppEngine(
             sizeBytes = llama.modelSizeBytes(model),
             trainedContextLength = llama.modelTrainedContextLength(model),
         )
-        session = Session(model, context, info)
-        return LoadResult.Loaded(info)
+        return AttemptResult.Opened(Session(model, context, info))
     }
 
     private fun release() {
@@ -182,6 +210,9 @@ internal class LlamaCppEngine(
         }
 
         // Values of enum ggml_backend_dev_type in ggml-backend.h.
+        // More than any model has; llama.cpp clamps it to the model's layer count.
+        private const val ALL_LAYERS = 999
+
         // VK_MAKE_API_VERSION(0, 1, 2, 0)
         private const val VULKAN_1_2 = (1 shl 22) or (2 shl 12)
 
