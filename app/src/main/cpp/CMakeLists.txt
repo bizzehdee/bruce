@@ -21,4 +21,4 @@ set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
 add_subdirectory(llama.cpp)
 
 add_library(bruce SHARED llama_jni.cpp)
-target_link_libraries(bruce PRIVATE llama)
+target_link_libraries(bruce PRIVATE llama log)

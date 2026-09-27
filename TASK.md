@@ -21,16 +21,16 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done when the workflow has passed once on GitHub.
   - No emulator tests.
   - Depends on: TASK-001, TASK-002
-- [ ] TASK-004: `InferenceEngine` interface and `LlamaCppEngine` load/unload
+- [x] TASK-004: `InferenceEngine` interface and `LlamaCppEngine` load/unload
   - Interface: `loadModel`, `unloadModel`, `generate`, `stop`, `getCapabilities`, `getModelInfo`.
   - Load a GGUF file from app-private storage; import one via SAF into that storage.
   - Load failures return structured errors; native handles are released on unload.
-  - Add GoogleTest for native logic and run it in CI.
   - Depends on: TASK-002
   - Required by: TASK-005, TASK-006, TASK-010
 - [ ] TASK-005: Streaming generation with stop and cancellation
   - `generate` returns a `Flow` of tokens; cancelling the collector or calling `stop` halts native generation.
   - Reports tokens per second for prompt processing and generation.
+  - Add GoogleTest for native logic (first native logic: UTF-8 assembly of token pieces) and run it in CI.
   - Depends on: TASK-004
   - Required by: TASK-011
 - [ ] TASK-006: GGUF metadata inspection
