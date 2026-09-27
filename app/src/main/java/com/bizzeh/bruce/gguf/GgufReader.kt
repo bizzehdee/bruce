@@ -16,6 +16,14 @@ data class GgufMetadata(
     /** Quantisation name for [fileType], e.g. "Q4_K_M"; null when undeclared or unknown. */
     val quantisation: String?,
     val fileSizeBytes: Long,
+    /** Transformer shape, from `<architecture>.*` keys; null when the file does not declare it. */
+    val blockCount: Long? = null,
+    val embeddingLength: Long? = null,
+    val headCount: Long? = null,
+    /** Defaults to [headCount] in llama.cpp when absent. */
+    val headCountKv: Long? = null,
+    val keyLength: Long? = null,
+    val valueLength: Long? = null,
 )
 
 sealed interface GgufReadResult {
@@ -129,6 +137,12 @@ object GgufReader {
                 fileType = fileType,
                 quantisation = fileType?.let(LlamaFileTypes::name),
                 fileSizeBytes = fileSize,
+                blockCount = architecture?.let { integers["$it.block_count"] },
+                embeddingLength = architecture?.let { integers["$it.embedding_length"] },
+                headCount = architecture?.let { integers["$it.attention.head_count"] },
+                headCountKv = architecture?.let { integers["$it.attention.head_count_kv"] },
+                keyLength = architecture?.let { integers["$it.attention.key_length"] },
+                valueLength = architecture?.let { integers["$it.attention.value_length"] },
             ),
         )
     }

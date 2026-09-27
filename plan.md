@@ -77,7 +77,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   Vulkan and OpenCL; select a backend; always fall back to CPU. NPU is used only
   if a supported backend exposes it. `done`
 - **Memory estimation** — Estimate a model's RAM requirement and compare it with
-  usable device RAM before loading. `planned`
+  usable device RAM before loading. `done`
 - **Advanced hardware tuning** — User control over backend, threads, context and
   similar settings; optional backend benchmarking. `planned`
 
@@ -316,6 +316,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Memory estimation marked done: weights plus KV cache against usable RAM. |
 | 2026-09-27 | Changed | llama.cpp integration, streaming generation, and backend detection and selection marked done; GPU order provisional until benchmarked. |
 | 2026-09-27 | Changed | Logo done: vectorised from the owner's reference image, keeping neck and collar; transparent launcher icon, cream Play icon. |
 | 2026-09-27 | Changed | Logo artwork comes from the owner and is vectorised, replacing the hand-built SVG approach. |
