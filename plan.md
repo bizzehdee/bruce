@@ -158,7 +158,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   Claude, ChatGPT and Gemini: a scrolling message list, a message composer at the
   bottom, and replies that stream in as they are generated. Bruce's actions,
   permission requests and confirmations appear inline in the conversation.
-  `planned`
+  This familiar layout is the starting point because it is what users expect;
+  how Bruce's interface stands apart is decided later. `planned`
 - **Main screens** — Chat, Conversations, Models, Model browser, Downloads,
   Skills, Permissions, Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
@@ -293,6 +294,7 @@ device-to-device transfer.
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
 | How third-party licence notices are shown to users. MIT and Apache-2.0 dependencies require their notices to accompany distributed copies. | User |
 | Default assistant: milestone. | User |
+| How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Privacy policy URL on the owner's website. | User |
 
