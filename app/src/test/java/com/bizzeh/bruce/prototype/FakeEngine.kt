@@ -1,0 +1,45 @@
+package com.bizzeh.bruce.prototype
+
+import com.bizzeh.bruce.inference.Backend
+import com.bizzeh.bruce.inference.EngineCapabilities
+import com.bizzeh.bruce.inference.GenerationEvent
+import com.bizzeh.bruce.inference.GenerationRequest
+import com.bizzeh.bruce.inference.InferenceEngine
+import com.bizzeh.bruce.inference.LoadConfig
+import com.bizzeh.bruce.inference.LoadResult
+import com.bizzeh.bruce.inference.ModelInfo
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
+import java.io.File
+
+class FakeEngine : InferenceEngine {
+    var reportedCapabilities = EngineCapabilities(emptyList(), listOf("NEON=1"))
+    var loadResult: LoadResult = LoadResult.Loaded(ModelInfo("fake", 1, 1, 512), Backend.CPU)
+    var events: List<GenerationEvent> = emptyList()
+    val loads = mutableListOf<Pair<File, LoadConfig>>()
+    val requests = mutableListOf<GenerationRequest>()
+    var stops = 0
+    var unloads = 0
+
+    override suspend fun loadModel(file: File, config: LoadConfig): LoadResult {
+        loads += file to config
+        return loadResult
+    }
+
+    override suspend fun unloadModel() {
+        unloads++
+    }
+
+    override fun getCapabilities() = reportedCapabilities
+
+    override fun getModelInfo(): ModelInfo? = null
+
+    override fun generate(request: GenerationRequest): Flow<GenerationEvent> {
+        requests += request
+        return flowOf(*events.toTypedArray())
+    }
+
+    override fun stop() {
+        stops++
+    }
+}

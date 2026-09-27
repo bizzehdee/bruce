@@ -24,6 +24,17 @@ internal val BruceLightColors = lightColorScheme(
     surfaceVariant = Color(0xFFF2DFD1),
     onSurfaceVariant = Color(0xFF51443A),
     outline = Color(0xFF837468),
+    outlineVariant = Color(0xFFD5C3B5),
+    surfaceDim = Color(0xFFE3D8D0),
+    surfaceBright = Color(0xFFFFF8F5),
+    surfaceContainerLowest = Color(0xFFFFFFFF),
+    surfaceContainerLow = Color(0xFFFDF1EA),
+    surfaceContainer = Color(0xFFF7EBE4),
+    surfaceContainerHigh = Color(0xFFF1E6DE),
+    surfaceContainerHighest = Color(0xFFECE0D9),
+    inverseSurface = Color(0xFF362F2A),
+    inverseOnSurface = Color(0xFFFBEEE7),
+    inversePrimary = Color(0xFFFDB876),
 )
 
 internal val BruceDarkColors = darkColorScheme(
@@ -46,4 +57,15 @@ internal val BruceDarkColors = darkColorScheme(
     surfaceVariant = Color(0xFF51443A),
     onSurfaceVariant = Color(0xFFD5C3B5),
     outline = Color(0xFF9D8E81),
+    outlineVariant = Color(0xFF51443A),
+    surfaceDim = Color(0xFF18120D),
+    surfaceBright = Color(0xFF3F3731),
+    surfaceContainerLowest = Color(0xFF120D09),
+    surfaceContainerLow = Color(0xFF201B16),
+    surfaceContainer = Color(0xFF251F1A),
+    surfaceContainerHigh = Color(0xFF302924),
+    surfaceContainerHighest = Color(0xFF3B332E),
+    inverseSurface = Color(0xFFECE0D9),
+    inverseOnSurface = Color(0xFF362F2A),
+    inversePrimary = Color(0xFF855318),
 )
