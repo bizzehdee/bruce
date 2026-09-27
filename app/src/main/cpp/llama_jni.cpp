@@ -1,11 +1,13 @@
 #include <jni.h>
 
 #include <android/log.h>
+#include <sys/auxv.h>
 
 #include <algorithm>
 #include <string>
 #include <vector>
 
+#include "cpu_features.h"
 #include "ggml-backend.h"
 #include "llama.h"
 
@@ -223,6 +225,16 @@ Java_com_bizzeh_bruce_inference_LlamaNative_endGeneration(JNIEnv *, jobject, jlo
     Generation *generation = asGeneration(handle);
     llama_sampler_free(generation->sampler);
     delete generation;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_hardware_CpuFeaturesNative_detect(JNIEnv *, jobject) {
+#if defined(__aarch64__)
+    constexpr bool kArm64 = true;
+#else
+    constexpr bool kArm64 = false;
+#endif
+    return static_cast<jint>(bruce::decodeCpuFeatures(kArm64, getauxval(AT_HWCAP), getauxval(AT_HWCAP2)));
 }
 
 }  // extern "C"

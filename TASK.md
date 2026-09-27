@@ -37,7 +37,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Reject files that are not valid GGUF with a structured error.
   - Depends on: TASK-004
   - Required by: TASK-010
-- [ ] TASK-007: CPU feature detection
+- [x] TASK-007: CPU feature detection
   - Report ARM64, NEON, FP16, DOTPROD and I8MM availability.
   - Add GoogleTest for the native detection logic and run it in CI.
   - Depends on: TASK-001

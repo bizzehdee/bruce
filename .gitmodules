@@ -1,3 +1,6 @@
 [submodule "app/src/main/cpp/llama.cpp"]
 	path = app/src/main/cpp/llama.cpp
 	url = https://github.com/ggml-org/llama.cpp
+[submodule "app/src/test/cpp/googletest"]
+	path = app/src/test/cpp/googletest
+	url = https://github.com/google/googletest
