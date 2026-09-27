@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -30,6 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.settings.ThemeMode
+import com.bizzeh.bruce.settings.ThemeSettings
 import java.io.File
 
 /** Callbacks from the prototype screen. */
@@ -41,17 +44,37 @@ interface PrototypeActions {
     fun setPrompt(prompt: String)
     fun generate()
     fun stop()
+    fun setThemeMode(mode: ThemeMode)
+    fun setDynamicColour(enabled: Boolean)
 }
 
 /** Phase 0 test bench, not the product UI. Text is deliberately not localised. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrototypeScreen(state: PrototypeState, actions: PrototypeActions) {
+fun PrototypeScreen(
+    state: PrototypeState,
+    actions: PrototypeActions,
+    theme: ThemeSettings = ThemeSettings(),
+    dynamicColourSupported: Boolean = false,
+) {
     Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) }) { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            Section("Appearance") {
+                ThemeChooser(theme.mode, actions::setThemeMode)
+                if (dynamicColourSupported) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Switch(
+                            checked = theme.dynamicColour,
+                            onCheckedChange = actions::setDynamicColour,
+                            modifier = Modifier.testTag("dynamicColour"),
+                        )
+                        Text("Use wallpaper colours", modifier = Modifier.padding(start = 12.dp))
+                    }
+                }
+            }
             Section("Hardware") {
                 Text(PrototypeText.cpu(state.cpuFeatures))
                 state.capabilities?.devices?.forEach { Text(PrototypeText.device(it)) }
@@ -113,6 +136,21 @@ private fun Section(title: String, content: @Composable () -> Unit) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(title, style = MaterialTheme.typography.titleMedium)
             content()
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ThemeChooser(selected: ThemeMode, onSelect: (ThemeMode) -> Unit) {
+    val options = ThemeMode.entries
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        options.forEachIndexed { index, option ->
+            SegmentedButton(
+                selected = option == selected,
+                onClick = { onSelect(option) },
+                shape = SegmentedButtonDefaults.itemShape(index, options.size),
+            ) { Text(option.name.lowercase().replaceFirstChar(Char::uppercase)) }
         }
     }
 }

@@ -77,7 +77,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Pixel 11 run still to do when the phone is available.
   - Depends on: TASK-011
   - Required by: TASK-018, TASK-019
-- [ ] TASK-013: Theme setting
+- [x] TASK-013: Theme setting
   - Setting with System (default), Light and Dark; persisted with Jetpack DataStore Preferences.
   - Dynamic colour toggle, shown only on Android 12 and later, off by default.
   - Selector shown on the prototype screen until the Settings screen exists.

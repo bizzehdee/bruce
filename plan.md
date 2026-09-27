@@ -178,7 +178,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Theme** — Material 3 theme with a Bruce brand palette (tan and white).
   User setting: System (default), Light, Dark. On Android 12 and later the user
   may turn on wallpaper-based dynamic colour; it is off by default.
-  `planned`
+  `done`
 - **Default assistant** — Bruce can be chosen as Android's digital assistant app
   and opens from the system assistant gesture or button. No always-on wake word:
   low-power hotword detection is limited to privileged system apps.
@@ -323,6 +323,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Theme setting marked done (System/Light/Dark, optional dynamic colour, stored with DataStore). |
 | 2026-09-27 | Added | Chat interface as the main screen, in the style of Claude, ChatGPT and Gemini; replaces the spec's §8 guidance that Bruce should not look like a conventional chatbot. |
 | 2026-09-27 | Changed | Memory estimation marked done: weights plus KV cache against usable RAM. |
 | 2026-09-27 | Changed | llama.cpp integration, streaming generation, and backend detection and selection marked done; GPU order provisional until benchmarked. |

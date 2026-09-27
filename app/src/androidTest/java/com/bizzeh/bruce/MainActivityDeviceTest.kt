@@ -6,6 +6,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -61,6 +62,19 @@ class MainActivityDeviceTest {
 
         compose.waitUntilAtLeastOneExists(hasTestTag("stats"), TIMEOUT_MS)
         compose.onNodeWithTag("output").assert(hasNonBlankText)
+    }
+
+    @Test
+    fun themeChoiceSurvivesRecreation() {
+        compose.waitUntilAtLeastOneExists(hasText("Dark"), TIMEOUT_MS)
+        compose.onNodeWithText("Dark").performScrollTo().performClick()
+        compose.waitUntilAtLeastOneExists(hasText("Dark") and isSelected(), TIMEOUT_MS)
+
+        scenario.recreate()
+
+        compose.waitUntilAtLeastOneExists(hasText("Dark") and isSelected(), TIMEOUT_MS)
+        compose.onNodeWithText("System").performScrollTo().performClick()
+        compose.waitUntilAtLeastOneExists(hasText("System") and isSelected(), TIMEOUT_MS)
     }
 
     private companion object {
