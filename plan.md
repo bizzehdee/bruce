@@ -141,7 +141,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `CAPABILITY_DISABLED`, `RESOURCE_OUTSIDE_SCOPE`, and the others in the spec),
   message, `user_can_change`, `retryable`. `planned`
 - **Network modes** — Offline only, Hugging Face only, approved domains, general
-  internet. `planned`
+  internet. A fresh install starts in offline only. `planned`
 
 ### Skills
 
@@ -183,7 +183,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and
   delete conversations, delete memories, clear all data, open-source licences);
-  and a link to the permissions management screen. `planned`
+  a link to the permissions management screen; and Diagnostics, the Phase 0 test
+  bench (hardware report, backends, benchmarks), available in every build. `planned`
  Chat, Conversations, Models, Model browser, Downloads,
   Skills, Permissions (reached from Settings), Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
@@ -235,6 +236,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 | Inference | llama.cpp, git submodule at a pinned commit | Explicit version pin; upgrades visible in history. |
 | Native backends | ggml backends as runtime-loaded libraries: 7 Android CPU variants, Vulkan, OpenCL. Native libraries are extracted on install. | One APK runs the best code path each phone supports. |
 | Build tools | Khronos Vulkan-Headers, SPIRV-Headers, OpenCL-Headers, OpenCL-ICD-Loader (link only) as pinned submodules; host `glslc` | The NDK lacks these headers, and its `glslc` is too old for llama.cpp's shaders. |
+| HTTP and JSON | Android's `HttpURLConnection` and `org.json` | Built in; no new dependencies for a small API surface. |
 | Model format | GGUF | llama.cpp native format. |
 | Build | Gradle with Kotlin DSL | Android standard. |
 | Unit tests | JUnit Jupiter 6 (successor to JUnit 5), MockK, Robolectric | Kotlin-idiomatic mocking. Robolectric runs Compose UI tests on the JVM so Kover counts UI branches. |
@@ -317,8 +319,6 @@ device-to-device transfer.
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
 | Default assistant: milestone. | User |
-| HTTP client and JSON parsing for the Hub API: Android's built-in `HttpURLConnection` and `org.json`, or new dependencies. | User |
-| Whether the prototype test bench stays reachable (for example from the drawer in debug builds only) once the chat screen exists. | User |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Privacy policy URL on the owner's website. | User |
@@ -348,6 +348,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Hub API uses built-in HTTP and JSON; test bench kept for everyone as Settings > Diagnostics; fresh installs start offline only; Hugging Face sign-in by OAuth now. |
 | 2026-09-27 | Changed | Permissions management screen is reached from Settings only, not from the drawer. |
 | 2026-09-27 | Added | Side-drawer navigation, a Model management screen and a Settings screen; open-source licences are shown under Settings, closing that open question. |
 | 2026-09-27 | Changed | Hugging Face discovery, resumable downloads and model recommendation detailed from verified Hub API behaviour. |
