@@ -197,6 +197,10 @@ or Both.
   User setting: System (default), Light, Dark. On Android 12 and later the user
   may turn on wallpaper-based dynamic colour; it is off by default. Both.
   `planned`
+- **Default assistant** — Bruce can be chosen as Android's digital assistant app
+  and opens from the system assistant gesture or button. No always-on wake word:
+  low-power hotword detection is limited to privileged system apps. Free.
+  Milestone is an open question. `planned`
 - **Future surfaces** — Widget, Quick Settings tile, share-sheet actions,
   shortcuts. `planned`
 
@@ -299,6 +303,8 @@ device-to-device transfer.
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
 | Whether Play Billing and the Plus purchase are part of the MVP release. | User |
+| Default assistant: milestone. | User |
+| Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Logo and visual identity: tan working Cocker Spaniel with white blaze. Who produces the artwork. | User |
 
 ## Milestones
@@ -327,6 +333,8 @@ Billing moves into the MVP is an open question.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Default assistant is Free tier. |
+| 2026-09-27 | Added | Bruce selectable as Android's default digital assistant; no always-on wake word. |
 | 2026-09-27 | Changed | Test device OS versions recorded; JUnit Jupiter 6; `@Composable` functions excluded from the branch gate. |
 | 2026-09-27 | Added | Material 3 UI; theme setting System/Light/Dark with optional dynamic colour; DataStore for settings; Robolectric for JVM UI tests. |
 | 2026-09-27 | Changed | Plus price removed from the plan; price is set in Google Play and must never be hardcoded in the app. |
