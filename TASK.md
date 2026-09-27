@@ -8,7 +8,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - JUnit 5, MockK, Robolectric, Compose UI test and Kover configured; one passing test that the app launches.
   - Material 3 theme with the Bruce palette, following the system light/dark setting.
   - Application ID and root package: `com.bizzeh.bruce`.
-  - Required by: TASK-002, TASK-003, TASK-007, TASK-013
+  - Required by: TASK-002, TASK-003, TASK-007, TASK-013, TASK-014
 - [x] TASK-002: Add llama.cpp as a pinned git submodule and build it with the NDK
   - Submodule under `app/src/main/cpp/llama.cpp`, pinned to release tag `v0.5.0`.
   - CMake build produces the native library for `arm64-v8a`, CPU backend only.
@@ -76,3 +76,26 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Dynamic colour toggle, shown only on Android 12 and later, off by default.
   - Selector shown on the prototype screen until the Settings screen exists.
   - Depends on: TASK-001
+- [ ] TASK-014: App logo
+  - Flat, 2D, simply stylised head of a reddish-tan working Cocker Spaniel, white stripe down the middle of the head, three-quarter pose, looking from left to right.
+  - Master artwork as SVG under `docs/branding/`; `docs/branding/logo-idea.jpeg` is a reference only.
+  - Adaptive launcher icon (foreground, background and monochrome layers) replacing lint's MissingApplicationIcon warning.
+  - Play Store icon: 512 × 512 PNG.
+  - Hand-written SVG, iterated with the owner on rendered previews.
+  - Depends on: TASK-001
+  - Required by: TASK-015
+- [ ] TASK-015: Play Store feature graphic
+  - 1024 × 500 header image using the TASK-014 logo, under `docs/store/`.
+  - Phone screenshots are out of scope here; they follow once the product UI exists.
+  - Depends on: TASK-014
+- [ ] TASK-016: Privacy policy
+  - Markdown under `docs/store/`, describing local-only storage, what leaves the device (Hugging Face requests and downloads only when the user enables them), no ads, no analytics, no accounts, and how to delete data.
+  - Must match the app's actual behaviour and `plan.md`'s privacy model.
+  - Published on the owner's website; contact email dhorrocks@gmail.com.
+  - Open: the publication URL (needed for the Play Console, not for writing the policy).
+  - Required by: TASK-017
+- [ ] TASK-017: Play Store listing text and setup answers
+  - `docs/store/listing.md`: app name (30 characters or fewer), short description (80 or fewer), full description (4000 or fewer).
+  - Prepared answers for the Play Console setup questions: app or game, free or paid, ads, app access, content rating questionnaire, target audience, data safety form, and any permission declarations.
+  - Data safety answers must match the privacy policy.
+  - Depends on: TASK-016

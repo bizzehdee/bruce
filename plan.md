@@ -177,6 +177,19 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   and opens from the system assistant gesture or button. No always-on wake word:
   low-power hotword detection is limited to privileged system apps.
   Milestone is an open question. `planned`
+- **App logo** — Flat, 2D, simply stylised head of a reddish-tan working Cocker
+  Spaniel with a white stripe down the middle of the head, three-quarter pose,
+  looking from left to right. Used for the launcher icon (adaptive and
+  monochrome layers) and the Play Store icon. `docs/branding/logo-idea.jpeg` is
+  a reference idea only, not the canonical logo. Built as a hand-written SVG.
+  `planned`
+- **Store listing** — Play Store feature graphic, listing text (name, short
+  description, full description) and prepared answers for the Play Console setup
+  questions, kept as Markdown in the repository. Phone screenshots follow once
+  the product UI exists (Phase 1). `planned`
+- **Privacy policy** — Public privacy policy describing Bruce's local-only data
+  handling, required by Google Play. Published on the owner's website; the
+  contact email is the one given in `docs/store/`. `planned`
 - **Future surfaces** — Widget, Quick Settings tile, share-sheet actions,
   shortcuts. `planned`
 
@@ -277,7 +290,7 @@ device-to-device transfer.
 | How third-party licence notices are shown to users. MIT and Apache-2.0 dependencies require their notices to accompany distributed copies. | User |
 | Default assistant: milestone. | User |
 | Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
-| Logo and visual identity: tan working Cocker Spaniel with white blaze. Who produces the artwork. | User |
+| Privacy policy URL on the owner's website. | User |
 
 ## Milestones
 
@@ -304,6 +317,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Added | App logo (hand-built SVG), Play Store feature graphic, listing text and setup answers, and a privacy policy published on the owner's website; screenshots deferred to Phase 1. |
 | 2026-09-27 | Changed | Native backends are runtime-loaded libraries with CPU variants, Vulkan and OpenCL; build needs Khronos headers and a host glslc. |
 | 2026-09-27 | Changed | Licence GPL-3.0-or-later; distribution through Google Play, F-Droid and GitHub Releases APKs. |
 | 2026-09-27 | Removed | Bruce Plus and all payment: every feature is free, with no paid tier or purchase; source becomes open, licence to be chosen. |
