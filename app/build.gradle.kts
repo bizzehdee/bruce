@@ -45,6 +45,16 @@ android {
         }
     }
 
+    packaging {
+        jniLibs {
+            // ggml finds its backend libraries by scanning the native library folder,
+            // which Android only populates when libraries are extracted on install.
+            useLegacyPackaging = true
+            // Link-time stand-in only; the phone's vendor libOpenCL.so is used at runtime.
+            excludes += "**/libOpenCL.so"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

@@ -107,7 +107,34 @@ enum class LoadError {
     CONTEXT_CREATION_FAILED,
 }
 
-data class EngineCapabilities(val devices: List<DeviceType>)
+data class EngineCapabilities(
+    val devices: List<ComputeDevice>,
+    /** Features of the CPU backend variant chosen for this phone, e.g. "DOTPROD=1". */
+    val cpuBackendFeatures: List<String>,
+) {
+    /** Backends with at least one device Bruce considers safe to run a model on. */
+    val usableBackends: Set<Backend> get() = devices.filter { it.usable }.mapTo(mutableSetOf()) { it.backend }
+}
+
+data class ComputeDevice(
+    val backend: Backend,
+    val name: String,
+    val description: String,
+    val type: DeviceType,
+    val memoryBytes: Long,
+    /**
+     * False when the device is registered but known to be unsafe: ggml requires Vulkan 1.2
+     * yet only checks the instance version, so a Vulkan 1.1 GPU can still be registered.
+     */
+    val usable: Boolean,
+)
+
+enum class Backend {
+    CPU,
+    VULKAN,
+    OPENCL,
+    OTHER,
+}
 
 enum class DeviceType {
     CPU,

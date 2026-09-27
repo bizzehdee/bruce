@@ -3,7 +3,11 @@ package com.bizzeh.bruce.inference
 internal class FakeLlamaApi : LlamaApi {
     var nextModelHandle = 10L
     var nextContextHandle = 20L
-    var devices = intArrayOf(0)
+    /** backend, name, description, ggml type, memory */
+    var devices = listOf(Device("CPU", "CPU", "Cortex", 0, 8L shl 30))
+    var cpuFeatures = arrayOf("NEON=1")
+
+    data class Device(val backend: String, val name: String, val description: String, val type: Int, val memory: Long)
 
     val loadedPaths = mutableListOf<String>()
     val freedModels = mutableListOf<Long>()
@@ -38,7 +42,19 @@ internal class FakeLlamaApi : LlamaApi {
 
     override fun modelTrainedContextLength(model: Long) = 512
 
-    override fun deviceTypes() = devices
+    override fun deviceCount() = devices.size
+
+    override fun deviceStrings(index: Int) = devices[index].let { arrayOf(it.backend, it.name, it.description) }
+
+    override fun deviceType(index: Int) = devices[index].type
+
+    override fun deviceMemoryBytes(index: Int) = devices[index].memory
+
+    var vulkanApiVersions = mapOf<String, Int>()
+
+    override fun vulkanDeviceApiVersion(deviceName: String) = vulkanApiVersions[deviceName] ?: 0
+
+    override fun cpuBackendFeatures() = cpuFeatures
 
     var promptResult = 3
     /** Scripted nextToken results; each TOKEN consumes the next entry of [pieces]. */

@@ -2,8 +2,7 @@ package com.bizzeh.bruce.gguf
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
-import com.bizzeh.bruce.inference.LlamaCppEngine
-import com.bizzeh.bruce.inference.LlamaNative
+import com.bizzeh.bruce.inference.deviceEngine
 import com.bizzeh.bruce.inference.LoadConfig
 import com.bizzeh.bruce.inference.LoadResult
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -26,7 +25,7 @@ class GgufReaderDeviceTest {
         val metadata = (GgufReader.read(model) as GgufReadResult.Read).metadata
 
         Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { nativeThread ->
-            val engine = LlamaCppEngine(LlamaNative, nativeThread)
+            val engine = deviceEngine(nativeThread)
             val loaded = engine.loadModel(model, LoadConfig(contextLength = 128, threads = 2)) as LoadResult.Loaded
             engine.unloadModel()
 

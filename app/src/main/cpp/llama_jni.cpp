@@ -4,10 +4,12 @@
 #include <sys/auxv.h>
 
 #include <algorithm>
+#include <mutex>
 #include <string>
 #include <vector>
 
 #include "cpu_features.h"
+#include "vulkan_devices.h"
 #include "ggml-backend.h"
 #include "llama.h"
 
@@ -79,9 +81,15 @@ void forwardLog(ggml_log_level level, const char *text, void *) {
 extern "C" {
 
 JNIEXPORT void JNICALL
-Java_com_bizzeh_bruce_inference_LlamaNative_initBackend(JNIEnv *, jobject) {
-    llama_log_set(forwardLog, nullptr);
-    llama_backend_init();
+Java_com_bizzeh_bruce_inference_LlamaNative_loadBackends(JNIEnv *env, jobject, jstring libraryDir) {
+    static std::once_flag loaded;
+    const char *dir = env->GetStringUTFChars(libraryDir, nullptr);
+    std::call_once(loaded, [dir] {
+        llama_log_set(forwardLog, nullptr);
+        ggml_backend_load_all_from_path(dir);
+        llama_backend_init();
+    });
+    env->ReleaseStringUTFChars(libraryDir, dir);
 }
 
 JNIEXPORT jstring JNICALL
@@ -93,6 +101,10 @@ JNIEXPORT jlong JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_loadModel(JNIEnv *env, jobject, jstring path) {
     const char *nativePath = env->GetStringUTFChars(path, nullptr);
     llama_model_params params = llama_model_default_params();
+    // With no list, llama.cpp allocates on every registered GPU even with zero offloaded
+    // layers, and some drivers crash there. An empty list keeps the model on the CPU.
+    static ggml_backend_dev_t noGpuDevices[] = {nullptr};
+    params.devices = noGpuDevices;
     params.n_gpu_layers = 0;
     llama_model *model = llama_model_load_from_file(nativePath, params);
     env->ReleaseStringUTFChars(path, nativePath);
@@ -142,15 +154,65 @@ Java_com_bizzeh_bruce_inference_LlamaNative_modelTrainedContextLength(JNIEnv *, 
     return llama_model_n_ctx_train(asModel(model));
 }
 
-JNIEXPORT jintArray JNICALL
-Java_com_bizzeh_bruce_inference_LlamaNative_deviceTypes(JNIEnv *env, jobject) {
-    const size_t count = ggml_backend_dev_count();
-    std::vector<jint> types(count);
-    for (size_t i = 0; i < count; ++i) {
-        types[i] = static_cast<jint>(ggml_backend_dev_type(ggml_backend_dev_get(i)));
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_deviceCount(JNIEnv *, jobject) {
+    return static_cast<jint>(ggml_backend_dev_count());
+}
+
+// Returns {backend name, device name, device description}.
+JNIEXPORT jobjectArray JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_deviceStrings(JNIEnv *env, jobject, jint index) {
+    ggml_backend_dev_t device = ggml_backend_dev_get(static_cast<size_t>(index));
+    const char *values[] = {
+            ggml_backend_reg_name(ggml_backend_dev_backend_reg(device)),
+            ggml_backend_dev_name(device),
+            ggml_backend_dev_description(device),
+    };
+    jobjectArray result = env->NewObjectArray(3, env->FindClass("java/lang/String"), nullptr);
+    for (jsize i = 0; i < 3; ++i) {
+        env->SetObjectArrayElement(result, i, env->NewStringUTF(values[i]));
     }
-    jintArray result = env->NewIntArray(static_cast<jsize>(count));
-    env->SetIntArrayRegion(result, 0, static_cast<jsize>(count), types.data());
+    return result;
+}
+
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_deviceType(JNIEnv *, jobject, jint index) {
+    return static_cast<jint>(ggml_backend_dev_type(ggml_backend_dev_get(static_cast<size_t>(index))));
+}
+
+JNIEXPORT jlong JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_deviceMemoryBytes(JNIEnv *, jobject, jint index) {
+    size_t free = 0;
+    size_t total = 0;
+    ggml_backend_dev_memory(ggml_backend_dev_get(static_cast<size_t>(index)), &free, &total);
+    return static_cast<jlong>(total);
+}
+
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_vulkanDeviceApiVersion(JNIEnv *env, jobject, jstring deviceName) {
+    const char *name = env->GetStringUTFChars(deviceName, nullptr);
+    const uint32_t version = bruce::vulkanDeviceApiVersion(name);
+    env->ReleaseStringUTFChars(deviceName, name);
+    return static_cast<jint>(version);
+}
+
+// The features the loaded CPU variant was compiled with, e.g. "DOTPROD", as "NAME=value".
+JNIEXPORT jobjectArray JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_cpuBackendFeatures(JNIEnv *env, jobject) {
+    std::vector<std::string> features;
+    ggml_backend_reg_t cpu = ggml_backend_reg_by_name("CPU");
+    auto getFeatures = cpu == nullptr ? nullptr : reinterpret_cast<ggml_backend_get_features_t>(
+            ggml_backend_reg_get_proc_address(cpu, "ggml_backend_get_features"));
+    if (getFeatures != nullptr) {
+        for (ggml_backend_feature *feature = getFeatures(cpu); feature->name != nullptr; ++feature) {
+            features.push_back(std::string(feature->name) + "=" + feature->value);
+        }
+    }
+    jobjectArray result = env->NewObjectArray(
+            static_cast<jsize>(features.size()), env->FindClass("java/lang/String"), nullptr);
+    for (size_t i = 0; i < features.size(); ++i) {
+        env->SetObjectArrayElement(result, static_cast<jsize>(i), env->NewStringUTF(features[i].c_str()));
+    }
     return result;
 }
 

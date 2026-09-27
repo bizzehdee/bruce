@@ -50,8 +50,21 @@ internal class LlamaCppEngine(
         mutex.withLock { withContext(dispatcher) { release() } }
     }
 
-    override fun getCapabilities(): EngineCapabilities =
-        EngineCapabilities(llama.deviceTypes().map(::toDeviceType))
+    override fun getCapabilities(): EngineCapabilities {
+        val devices = (0 until llama.deviceCount()).map { index ->
+            val (registryName, name, description) = llama.deviceStrings(index)
+            val backend = toBackend(registryName)
+            ComputeDevice(
+                backend = backend,
+                name = name,
+                description = description,
+                type = toDeviceType(llama.deviceType(index)),
+                memoryBytes = llama.deviceMemoryBytes(index),
+                usable = backend != Backend.VULKAN || llama.vulkanDeviceApiVersion(description) >= VULKAN_1_2,
+            )
+        }
+        return EngineCapabilities(devices, llama.cpuBackendFeatures().toList())
+    }
 
     override fun getModelInfo(): ModelInfo? = session?.info
 
@@ -146,6 +159,13 @@ internal class LlamaCppEngine(
         llama.freeModel(current.model)
     }
 
+    private fun toBackend(registryName: String): Backend = when (registryName) {
+        "CPU" -> Backend.CPU
+        "Vulkan" -> Backend.VULKAN
+        "OpenCL" -> Backend.OPENCL
+        else -> Backend.OTHER
+    }
+
     private fun toDeviceType(ggmlType: Int): DeviceType = when (ggmlType) {
         GGML_DEVICE_CPU -> DeviceType.CPU
         GGML_DEVICE_GPU -> DeviceType.GPU
@@ -154,11 +174,20 @@ internal class LlamaCppEngine(
         else -> DeviceType.OTHER
     }
 
-    private companion object {
+    companion object {
+        /** An engine backed by the native library, with every runnable backend loaded. */
+        fun create(nativeLibraryDir: String, dispatcher: CoroutineDispatcher): LlamaCppEngine {
+            LlamaNative.loadBackends(nativeLibraryDir)
+            return LlamaCppEngine(LlamaNative, dispatcher)
+        }
+
         // Values of enum ggml_backend_dev_type in ggml-backend.h.
-        const val GGML_DEVICE_CPU = 0
-        const val GGML_DEVICE_GPU = 1
-        const val GGML_DEVICE_IGPU = 2
-        const val GGML_DEVICE_ACCEL = 3
+        // VK_MAKE_API_VERSION(0, 1, 2, 0)
+        private const val VULKAN_1_2 = (1 shl 22) or (2 shl 12)
+
+        private const val GGML_DEVICE_CPU = 0
+        private const val GGML_DEVICE_GPU = 1
+        private const val GGML_DEVICE_IGPU = 2
+        private const val GGML_DEVICE_ACCEL = 3
     }
 }

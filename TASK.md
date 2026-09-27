@@ -42,9 +42,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Add GoogleTest for the native detection logic and run it in CI.
   - Depends on: TASK-001
   - Required by: TASK-009
-- [ ] TASK-008: Vulkan and OpenCL backends
+- [x] TASK-008: Vulkan and OpenCL backends
   - Build llama.cpp with Vulkan and OpenCL backends enabled.
-  - Detect at runtime whether each backend is usable on the device.
+  - Build ggml backends as runtime-loaded libraries (GGML_BACKEND_DL) with all Android CPU variants; the phone loads the best CPU variant it supports.
+  - Detect at runtime whether each backend is usable on the device. A Vulkan device is usable only if it reports Vulkan 1.2 or later.
+  - An isolated-process GPU probe is deferred until real phones show driver crashes the version rule misses.
   - Depends on: TASK-002
   - Required by: TASK-009
 - [ ] TASK-009: Backend selection with CPU fallback

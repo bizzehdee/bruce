@@ -191,6 +191,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 | File access | Storage Access Framework | Scoped, user-granted access instead of broad storage permission. |
 | Native | C++, Android NDK, CMake, JNI | llama.cpp is C/C++. |
 | Inference | llama.cpp, git submodule at a pinned commit | Explicit version pin; upgrades visible in history. |
+| Native backends | ggml backends as runtime-loaded libraries: 7 Android CPU variants, Vulkan, OpenCL. Native libraries are extracted on install. | One APK runs the best code path each phone supports. |
+| Build tools | Khronos Vulkan-Headers, SPIRV-Headers, OpenCL-Headers, OpenCL-ICD-Loader (link only) as pinned submodules; host `glslc` | The NDK lacks these headers, and its `glslc` is too old for llama.cpp's shaders. |
 | Model format | GGUF | llama.cpp native format. |
 | Build | Gradle with Kotlin DSL | Android standard. |
 | Unit tests | JUnit Jupiter 6 (successor to JUnit 5), MockK, Robolectric | Kotlin-idiomatic mocking. Robolectric runs Compose UI tests on the JVM so Kover counts UI branches. |
@@ -302,6 +304,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Native backends are runtime-loaded libraries with CPU variants, Vulkan and OpenCL; build needs Khronos headers and a host glslc. |
 | 2026-09-27 | Changed | Licence GPL-3.0-or-later; distribution through Google Play, F-Droid and GitHub Releases APKs. |
 | 2026-09-27 | Removed | Bruce Plus and all payment: every feature is free, with no paid tier or purchase; source becomes open, licence to be chosen. |
 | 2026-09-27 | Changed | Default assistant is Free tier. |

@@ -9,8 +9,12 @@ line 3819). Bruce builds for baseline ARMv8, so they would report "no" even
 on the Xperia 1 II, which has DOTPROD.
 
 Bruce detects features itself from `getauxval(AT_HWCAP/AT_HWCAP2)`
-(`cpu_features.cpp`). A consequence for performance work: the current
-`libbruce.so` does not use DOTPROD, FP16 or I8MM instructions on any phone.
+(`cpu_features.cpp`).
+
+Since TASK-008, llama.cpp is built with `GGML_CPU_ALL_VARIANTS`, and ggml loads the
+best CPU variant at runtime: `android_armv8.2_2` on the Xperia 1 II and
+`android_armv8.0_1` on the XZ Premium. The loaded variant reports its features through
+`ggml_backend_get_features`. ggml names FP16 vector arithmetic `FP16_VA` there.
 
 Evidence: source above; `/proc/cpuinfo` on the Xperia 1 II lists
 `asimdhp asimddp`, on the XZ Premium neither.

@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
 @RunWith(AndroidJUnit4::class)
 class LlamaCppEngineDeviceTest {
     private val nativeThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    private val engine = LlamaCppEngine(LlamaNative, nativeThread)
+    private val engine = deviceEngine(nativeThread)
     private val cacheDir = InstrumentationRegistry.getInstrumentation().targetContext.cacheDir
 
     @After
@@ -61,7 +61,7 @@ class LlamaCppEngineDeviceTest {
     }
 
     @Test
-    fun cpuDeviceIsAvailable() {
-        assertTrue(DeviceType.CPU in engine.getCapabilities().devices)
+    fun cpuBackendIsAvailable() {
+        assertTrue(Backend.CPU in engine.getCapabilities().usableBackends)
     }
 }

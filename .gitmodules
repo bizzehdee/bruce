@@ -4,3 +4,15 @@
 [submodule "app/src/test/cpp/googletest"]
 	path = app/src/test/cpp/googletest
 	url = https://github.com/google/googletest
+[submodule "app/src/main/cpp/external/Vulkan-Headers"]
+	path = app/src/main/cpp/external/Vulkan-Headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers
+[submodule "app/src/main/cpp/external/SPIRV-Headers"]
+	path = app/src/main/cpp/external/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers
+[submodule "app/src/main/cpp/external/OpenCL-Headers"]
+	path = app/src/main/cpp/external/OpenCL-Headers
+	url = https://github.com/KhronosGroup/OpenCL-Headers
+[submodule "app/src/main/cpp/external/OpenCL-ICD-Loader"]
+	path = app/src/main/cpp/external/OpenCL-ICD-Loader
+	url = https://github.com/KhronosGroup/OpenCL-ICD-Loader

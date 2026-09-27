@@ -18,7 +18,7 @@ import java.util.concurrent.Executors
 @RunWith(AndroidJUnit4::class)
 class GenerationDeviceTest {
     private val nativeThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    private val engine = LlamaCppEngine(LlamaNative, nativeThread)
+    private val engine = deviceEngine(nativeThread)
 
     private lateinit var modelFile: File
 

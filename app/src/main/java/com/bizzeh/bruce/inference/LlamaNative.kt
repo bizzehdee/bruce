@@ -21,8 +21,21 @@ internal interface LlamaApi {
 
     fun modelTrainedContextLength(model: Long): Int
 
-    /** ggml_backend_dev_type values, one per registered device. */
-    fun deviceTypes(): IntArray
+    fun deviceCount(): Int
+
+    /** {backend name, device name, device description} for device [index]. */
+    fun deviceStrings(index: Int): Array<String>
+
+    /** A ggml_backend_dev_type value. */
+    fun deviceType(index: Int): Int
+
+    fun deviceMemoryBytes(index: Int): Long
+
+    /** The Vulkan API version of the physical device named [deviceName], or 0 if unknown. */
+    fun vulkanDeviceApiVersion(deviceName: String): Int
+
+    /** Features the loaded CPU backend variant was compiled with, as "NAME=value". */
+    fun cpuBackendFeatures(): Array<String>
 
     /** Clears the context and returns a generation handle; release it with [endGeneration]. */
     fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
@@ -51,10 +64,13 @@ internal interface LlamaApi {
 internal object LlamaNative : LlamaApi {
     init {
         System.loadLibrary("bruce")
-        initBackend()
     }
 
-    private external fun initBackend()
+    /**
+     * Loads every ggml backend library in [nativeLibraryDir] that this phone can run,
+     * choosing the best CPU variant. Must run before a model is loaded; later calls do nothing.
+     */
+    external fun loadBackends(nativeLibraryDir: String)
 
     external override fun version(): String
 
@@ -74,7 +90,17 @@ internal object LlamaNative : LlamaApi {
 
     external override fun modelTrainedContextLength(model: Long): Int
 
-    external override fun deviceTypes(): IntArray
+    external override fun deviceCount(): Int
+
+    external override fun deviceStrings(index: Int): Array<String>
+
+    external override fun deviceType(index: Int): Int
+
+    external override fun deviceMemoryBytes(index: Int): Long
+
+    external override fun vulkanDeviceApiVersion(deviceName: String): Int
+
+    external override fun cpuBackendFeatures(): Array<String>
 
     external override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
 

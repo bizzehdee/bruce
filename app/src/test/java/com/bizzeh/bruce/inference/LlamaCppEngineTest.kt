@@ -12,6 +12,10 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class LlamaCppEngineTest {
+    private companion object {
+        const val VULKAN_1_2 = (1 shl 22) or (2 shl 12)
+    }
+
     @TempDir
     lateinit var dir: File
 
@@ -98,15 +102,46 @@ class LlamaCppEngineTest {
     }
 
     @Test
-    fun capabilitiesMapGgmlDeviceTypes() {
-        llama.devices = intArrayOf(0, 1, 2, 3, 4)
+    fun capabilitiesDescribeEachDevice() {
+        llama.devices = listOf(
+            FakeLlamaApi.Device("CPU", "CPU", "Kryo", 0, 8L shl 30),
+            FakeLlamaApi.Device("Vulkan", "Vulkan0", "Adreno 650", 1, 4L shl 30),
+            FakeLlamaApi.Device("OpenCL", "GPUOpenCL", "QUALCOMM Adreno", 2, 2L shl 30),
+            FakeLlamaApi.Device("BLAS", "BLAS", "accelerate", 3, 0),
+            FakeLlamaApi.Device("Meta", "meta", "tensor parallel", 4, 0),
+        )
+        llama.cpuFeatures = arrayOf("NEON=1", "DOTPROD=1")
+        llama.vulkanApiVersions = mapOf("Adreno 650" to VULKAN_1_2)
+
+        val capabilities = engine.getCapabilities()
 
         assertEquals(
-            EngineCapabilities(
-                listOf(DeviceType.CPU, DeviceType.GPU, DeviceType.INTEGRATED_GPU, DeviceType.ACCELERATOR, DeviceType.OTHER),
+            listOf(
+                ComputeDevice(Backend.CPU, "CPU", "Kryo", DeviceType.CPU, 8L shl 30, usable = true),
+                ComputeDevice(Backend.VULKAN, "Vulkan0", "Adreno 650", DeviceType.GPU, 4L shl 30, usable = true),
+                ComputeDevice(Backend.OPENCL, "GPUOpenCL", "QUALCOMM Adreno", DeviceType.INTEGRATED_GPU, 2L shl 30, usable = true),
+                ComputeDevice(Backend.OTHER, "BLAS", "accelerate", DeviceType.ACCELERATOR, 0, usable = true),
+                ComputeDevice(Backend.OTHER, "meta", "tensor parallel", DeviceType.OTHER, 0, usable = true),
             ),
-            engine.getCapabilities(),
+            capabilities.devices,
         )
+        assertEquals(setOf(Backend.CPU, Backend.VULKAN, Backend.OPENCL, Backend.OTHER), capabilities.usableBackends)
+        assertEquals(listOf("NEON=1", "DOTPROD=1"), capabilities.cpuBackendFeatures)
+    }
+
+    @Test
+    fun vulkanDeviceBelowVersion1Point2IsUnusable() {
+        llama.devices = listOf(
+            FakeLlamaApi.Device("CPU", "CPU", "Kryo", 0, 0),
+            FakeLlamaApi.Device("Vulkan", "Vulkan0", "Adreno 540", 2, 0),
+            FakeLlamaApi.Device("Vulkan", "Vulkan1", "Unknown GPU", 1, 0),
+        )
+        llama.vulkanApiVersions = mapOf("Adreno 540" to VULKAN_1_2 - 1)
+
+        val capabilities = engine.getCapabilities()
+
+        assertEquals(listOf(true, false, false), capabilities.devices.map { it.usable })
+        assertEquals(setOf(Backend.CPU), capabilities.usableBackends)
     }
 
     @Test
