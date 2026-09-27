@@ -11,3 +11,4 @@
 - [llama-uses-every-gpu-unless-told.md](llama-uses-every-gpu-unless-told.md) — Why model loads pass an explicit device list. Read before TASK-009 or changing loadModel.
 - [ggml-backend-loading-is-silent.md](ggml-backend-loading-is-silent.md) — How to diagnose a backend that does not appear. Read when a backend is missing.
 - [ndk-glslc-too-old.md](ndk-glslc-too-old.md) — Why the build needs a host glslc. Read when the Vulkan shader build fails or when upgrading the NDK.
+- [vtracer-python-binding-crashes.md](vtracer-python-binding-crashes.md) — How the logo was traced, and why with the vtracer CLI. Read before re-tracing artwork.

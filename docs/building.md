@@ -31,3 +31,9 @@ This guide is for developers building Bruce from source.
 
 The first native build compiles llama.cpp, seven CPU variants and the Vulkan shaders. It
 takes several minutes.
+
+## Regenerating the icons
+
+`docs/branding/export-icons.sh` rebuilds the launcher icon layers and the Play Store icon
+from `docs/branding/bruce-logo.svg`. It needs ImageMagick 7 with librsvg support
+(`magick -list format | grep RSVG`).
