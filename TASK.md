@@ -2,7 +2,7 @@
 
 Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 
-- [ ] TASK-001: Scaffold the Android project
+- [x] TASK-001: Scaffold the Android project
   - Gradle Kotlin DSL, single `app` module, Kotlin, Jetpack Compose.
   - `minSdk` 29, ABI filter `arm64-v8a`.
   - JUnit 5, MockK, Robolectric, Compose UI test and Kover configured; one passing test that the app launches.

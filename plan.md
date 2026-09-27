@@ -214,7 +214,7 @@ or Both.
 | Model format | GGUF | llama.cpp native format. |
 | Build | Gradle with Kotlin DSL | Android standard. |
 | Billing | Google Play Billing | Play-only distribution. |
-| Unit tests | JUnit 5, MockK, Robolectric | Kotlin-idiomatic mocking. Robolectric runs Compose UI tests on the JVM so Kover counts UI branches. |
+| Unit tests | JUnit Jupiter 6 (successor to JUnit 5), MockK, Robolectric | Kotlin-idiomatic mocking. Robolectric runs Compose UI tests on the JVM so Kover counts UI branches. |
 | UI / end-to-end tests | Compose UI tests (instrumented, JUnit 4 runner) | Playwright does not apply to native Android. The Compose test rule requires JUnit 4. |
 | Native tests | GoogleTest | JNI glue and native helpers. |
 | Coverage | Kover | Branch coverage gate. |
@@ -265,7 +265,9 @@ device-to-device transfer.
   string resources, assets or other shipped copy.
 - Android 10 (API 29) minimum; arm64-v8a.
 - Branch coverage of at least 90%, excluding generated code, migrations and
-  composition-root wiring.
+  composition-root wiring. `@Composable` functions are excluded because the
+  Compose compiler generates branches in them; branching logic must live in
+  plain functions that the gate counts.
 - Secrets (including the Hugging Face token) are never stored in source, logs or
   plain preferences.
 - Android background-execution and permission rules are respected; never
@@ -277,8 +279,8 @@ device-to-device transfer.
 
 | Device | Availability | Notes |
 |---|---|---|
-| Sony Xperia XZ Premium | Always | 4 GB RAM. Deliberate stand-in for a modern budget phone. Runs a custom ROM at Android 10 or later. |
-| Sony Xperia 1 II | Always | |
+| Sony Xperia XZ Premium | Always | 4 GB RAM. Deliberate stand-in for a modern budget phone. LineageOS, Android 13. |
+| Sony Xperia 1 II | Always | Android 12. |
 | Google Pixel 11 | Intermittent | Benchmarks on it are recorded when it is available; tasks do not wait for it. |
 
 ## Open questions
@@ -293,7 +295,6 @@ device-to-device transfer.
 | Local embedding model for RAG. | User, from evidence |
 | Web search provider for `WEB_SEARCH`. | User |
 | Conversation export format. | User |
-| Custom ROM and Android version on the Xperia XZ Premium test device. | User |
 | Dependency injection approach (Hilt or manual). | Developer, with user approval |
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
@@ -326,6 +327,7 @@ Billing moves into the MVP is an open question.
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Test device OS versions recorded; JUnit Jupiter 6; `@Composable` functions excluded from the branch gate. |
 | 2026-09-27 | Added | Material 3 UI; theme setting System/Light/Dark with optional dynamic colour; DataStore for settings; Robolectric for JVM UI tests. |
 | 2026-09-27 | Changed | Plus price removed from the plan; price is set in Google Play and must never be hardcoded in the app. |
 | 2026-09-27 | Added | Tier rules for Free and Plus. |
