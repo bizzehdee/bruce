@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,6 +20,12 @@ class MainActivityTest {
     fun launchShowsAppNameAndPlaceholder() {
         composeRule.onNodeWithText("Bruce").assertIsDisplayed()
         composeRule.onNodeWithText("Bruce is getting ready.").assertIsDisplayed()
+    }
+
+    @Test
+    fun appHasLauncherIcon() {
+        val info = composeRule.activity.applicationInfo
+        assertNotEquals(0, info.icon)
     }
 
     @Test

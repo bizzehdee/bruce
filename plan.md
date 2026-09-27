@@ -177,12 +177,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   and opens from the system assistant gesture or button. No always-on wake word:
   low-power hotword detection is limited to privileged system apps.
   Milestone is an open question. `planned`
-- **App logo** — Flat, 2D, simply stylised head of a reddish-tan working Cocker
-  Spaniel with a white stripe down the middle of the head, three-quarter pose,
-  looking from left to right. Used for the launcher icon (adaptive and
-  monochrome layers) and the Play Store icon. `docs/branding/logo-idea.jpeg` is
-  a reference idea only, not the canonical logo. Built as a hand-written SVG.
-  `planned`
+- **App logo** — Flat, 2D, stylised reddish-tan working Cocker Spaniel with a white
+  stripe down the middle of the head, three-quarter pose looking from left to right,
+  with neck and collar. Master SVG in `docs/branding/`. Launcher icon has a
+  transparent background and a themed monochrome layer; the Play icon sits on warm
+  cream. `done`
 - **Store listing** — Play Store feature graphic, listing text (name, short
   description, full description) and prepared answers for the Play Console setup
   questions, kept as Markdown in the repository. Phone screenshots follow once
@@ -317,6 +316,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Logo done: vectorised from the owner's reference image, keeping neck and collar; transparent launcher icon, cream Play icon. |
+| 2026-09-27 | Changed | Logo artwork comes from the owner and is vectorised, replacing the hand-built SVG approach. |
 | 2026-09-27 | Added | App logo (hand-built SVG), Play Store feature graphic, listing text and setup answers, and a privacy policy published on the owner's website; screenshots deferred to Phase 1. |
 | 2026-09-27 | Changed | Native backends are runtime-loaded libraries with CPU variants, Vulkan and OpenCL; build needs Khronos headers and a host glslc. |
 | 2026-09-27 | Changed | Licence GPL-3.0-or-later; distribution through Google Play, F-Droid and GitHub Releases APKs. |

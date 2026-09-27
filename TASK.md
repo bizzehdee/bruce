@@ -76,12 +76,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Dynamic colour toggle, shown only on Android 12 and later, off by default.
   - Selector shown on the prototype screen until the Settings screen exists.
   - Depends on: TASK-001
-- [ ] TASK-014: App logo
-  - Flat, 2D, simply stylised head of a reddish-tan working Cocker Spaniel, white stripe down the middle of the head, three-quarter pose, looking from left to right.
-  - Master artwork as SVG under `docs/branding/`; `docs/branding/logo-idea.jpeg` is a reference only.
-  - Adaptive launcher icon (foreground, background and monochrome layers) replacing lint's MissingApplicationIcon warning.
-  - Play Store icon: 512 × 512 PNG.
-  - Hand-written SVG, iterated with the owner on rendered previews.
+- [x] TASK-014: App logo
+  - Reddish-tan working Cocker Spaniel, white stripe down the middle of the head, three-quarter pose, looking from left to right; head with neck and collar, as the owner chose.
+  - Master SVG `docs/branding/bruce-logo.svg`, vectorised from `docs/branding/logo-idea.jpeg` with vtracer, mirrored and recoloured. A hand-written SVG was tried first and judged too childish.
+  - Adaptive launcher icon with a transparent background, plus a monochrome layer for themed icons.
+  - Play Store icon `docs/store/play-icon-512.png`, 512 × 512 on warm cream (#FFF3E6).
+  - `docs/branding/export-icons.sh` regenerates every icon from the master SVG.
   - Depends on: TASK-001
   - Required by: TASK-015
 - [ ] TASK-015: Play Store feature graphic
