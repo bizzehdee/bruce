@@ -15,14 +15,17 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - JNI stub returns the llama.cpp version string; instrumented test asserts it.
   - Depends on: TASK-001
   - Required by: TASK-003, TASK-004, TASK-008
-- [ ] TASK-003: GitHub Actions CI
-  - On push and pull request: build debug APK including native code, run JVM unit tests, run GoogleTest native tests on the host, enforce 90% branch coverage via Kover.
+- [~] TASK-003: GitHub Actions CI
+  - On push and pull request: build debug APK including native code, run JVM unit tests, enforce 90% branch coverage via Kover.
+  - GoogleTest native tests are added to CI by TASK-004, when the first native logic exists.
+  - Done when the workflow has passed once on GitHub.
   - No emulator tests.
   - Depends on: TASK-001, TASK-002
 - [ ] TASK-004: `InferenceEngine` interface and `LlamaCppEngine` load/unload
   - Interface: `loadModel`, `unloadModel`, `generate`, `stop`, `getCapabilities`, `getModelInfo`.
   - Load a GGUF file from app-private storage; import one via SAF into that storage.
   - Load failures return structured errors; native handles are released on unload.
+  - Add GoogleTest for native logic and run it in CI.
   - Depends on: TASK-002
   - Required by: TASK-005, TASK-006, TASK-010
 - [ ] TASK-005: Streaming generation with stop and cancellation
