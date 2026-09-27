@@ -86,15 +86,23 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Model manager** — Import, install, verify, inspect (architecture, parameters,
   quantisation, context size, file size, compatibility, memory), select, load,
   unload, delete. Model files live outside the database. `planned`
-- **Hugging Face discovery** — Search public repositories, inspect metadata, list
-  GGUF files, distinguish a repository from a runnable model. Anonymous by
-  default. `planned`
+- **Hugging Face discovery** — Search public GGUF repositories through the
+  anonymous Hub API. Search results already carry architecture, parameter count,
+  context length, licence and gated status, so incompatible or gated models can be
+  flagged before any download. For a chosen file, Bruce reads only its GGUF header
+  with a partial (range) download to get the layer shape for the memory estimate.
+  Only the search text and download requests leave the phone; device details never
+  do. `planned`
 - **Hugging Face sign-in** — OAuth ("Sign in with Hugging Face") as the default,
   pasted access token as a fallback. Token stored in Keystore-backed storage.
   `planned`
-- **Resumable downloads** — Download, resume, verify file integrity. `planned`
-- **Model recommendation** — Recommend a model from RAM, storage, backend, size,
-  quantisation; the user can always override. `planned`
+- **Resumable downloads** — Download into app storage, resume with range requests
+  after interruption, check free space first, and verify the SHA-256 the Hub
+  publishes for the file. `planned`
+- **Model recommendation** — Rank search results for this phone, on the phone:
+  whether the model fits usable RAM (memory estimate), whether llama.cpp supports
+  its architecture, and an expected speed band from measured benchmarks. Shows a
+  fit label on each result; the user can always override. `planned`
 - **Multiple model profiles and routing** — Named profiles (Main, Fast, Coding,
   Vision) and automatic model selection per task. Basic in Free, advanced and
   routing in `planned`
@@ -160,8 +168,24 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   permission requests and confirmations appear inline in the conversation.
   This familiar layout is the starting point because it is what users expect;
   how Bruce's interface stands apart is decided later. `planned`
-- **Main screens** — Chat, Conversations, Models, Model browser, Downloads,
-  Skills, Permissions, Memory, Settings. `planned`
+- **Navigation** — A side drawer, as in the ChatGPT, Claude and Gemini apps, holds
+  the conversation list and entries for Models and Settings. The chat screen's top
+  bar shows the active model; tapping it opens a quick model switcher. The
+  permissions management screen is not in the drawer; it is reached from
+  Settings. `planned`
+- **Model management screen** — Installed models with size, quantisation and fit
+  label; choose the active model; model details (metadata, memory estimate,
+  backend); delete. Import from a file with the system picker. Browse, search and
+  download from Hugging Face with fit-ranked results and download progress.
+  Per-model settings (context length, backend, threads, temperature) override the
+  inference defaults. `planned`
+- **Settings screen** — Appearance (theme and dynamic colour, moved from the
+  prototype screen); inference defaults (backend, threads, context length);
+  network (network mode and Hugging Face sign-in); data and privacy (export and
+  delete conversations, delete memories, clear all data, open-source licences);
+  and a link to the permissions management screen. `planned`
+ Chat, Conversations, Models, Model browser, Downloads,
+  Skills, Permissions (reached from Settings), Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
   approval. `planned`
 - **Voice** — Speech-to-text, text-to-speech, voice conversations; local where
@@ -292,8 +316,9 @@ device-to-device transfer.
 | Dependency injection approach (Hilt or manual). | Developer, with user approval |
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
-| How third-party licence notices are shown to users. MIT and Apache-2.0 dependencies require their notices to accompany distributed copies. | User |
 | Default assistant: milestone. | User |
+| HTTP client and JSON parsing for the Hub API: Android's built-in `HttpURLConnection` and `org.json`, or new dependencies. | User |
+| Whether the prototype test bench stays reachable (for example from the drawer in debug builds only) once the chat screen exists. | User |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Privacy policy URL on the owner's website. | User |
@@ -323,6 +348,9 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-27 | Changed | Permissions management screen is reached from Settings only, not from the drawer. |
+| 2026-09-27 | Added | Side-drawer navigation, a Model management screen and a Settings screen; open-source licences are shown under Settings, closing that open question. |
+| 2026-09-27 | Changed | Hugging Face discovery, resumable downloads and model recommendation detailed from verified Hub API behaviour. |
 | 2026-09-27 | Changed | Theme setting marked done (System/Light/Dark, optional dynamic colour, stored with DataStore). |
 | 2026-09-27 | Added | Chat interface as the main screen, in the style of Claude, ChatGPT and Gemini; replaces the spec's §8 guidance that Bruce should not look like a conventional chatbot. |
 | 2026-09-27 | Changed | Memory estimation marked done: weights plus KV cache against usable RAM. |
