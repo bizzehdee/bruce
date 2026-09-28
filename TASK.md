@@ -131,9 +131,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Ranges grow 2, 8, 32, 64 MB. Verified on a phone against the real Hub: the Range header survives the redirect to the CDN.
   - Depends on: TASK-006, TASK-020
   - Required by: TASK-022
-- [ ] TASK-022: Model fit and recommendation
+- [x] TASK-022: Model fit and recommendation
   - For each candidate file: fits, tight or does not fit (memory estimate against usable RAM), architecture supported by the bundled llama.cpp, and an expected speed band from measured benchmarks.
   - Rank results for this phone; all ranking runs on the phone.
+  - Speed model: tokens/s ≈ constant ÷ weights in GB (24 with DOTPROD, 5.8 without), fitted to TASK-012; within 5–12% of every measurement, slightly pessimistic. "Tight" means over 80% of usable memory, a judgement rather than a measurement.
+  - Architecture support comes from llama.cpp's own table, with a test that fails if a llama.cpp upgrade changes it.
   - Depends on: TASK-010, TASK-012, TASK-019, TASK-021
   - Required by: TASK-029
 - [ ] TASK-023: Resumable, verified model download
