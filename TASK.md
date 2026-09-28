@@ -321,3 +321,9 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Step 2: build `test-backend-ops` and `llama-server` for Android with Bruce's Vulkan build settings and run them on the Pixel; compare `llama-server` output with Bruce's, and record which operations fail.
   - Output: the established cause in `.learnings/gpu-backends-on-test-phones.md`, research provenance for any driver or upstream issue, and a follow-up task if Bruce's build or integration is at fault.
   - Step 2 can freeze the Pixel; the owner reboots it.
+- [ ] TASK-051: Render Markdown in replies
+  - Parse replies with commonmark-java (new dependency, BSD-2; approved 2026-09-28, versions and licence checked when added) and draw them in Compose with the app theme: headings, emphasis, inline code, code blocks (monospace, horizontally scrollable), ordered and bulleted lists, quotes, tables, rules. Replies stream, so rendering copes with partial Markdown (an unclosed code block shows as code so far). No web view, no HTML: raw HTML in replies is shown as text.
+  - Reasoning (`<think>`) keeps its collapsed display; the answer part is rendered.
+  - Links: tapping shows the full address in a dialog and opens the browser only if the user confirms; only http and https links open.
+  - Images: loaded only when the network mode allows the host (Any site; Approved sites for approved domains), without cookies or credentials, with a size cap; otherwise the alt text and address are shown. User messages stay plain text.
+  - Depends on: TASK-024, TASK-028

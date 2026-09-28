@@ -201,6 +201,12 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   permission requests and confirmations appear inline in the conversation.
   This familiar layout is the starting point because it is what users expect;
   how Bruce's interface stands apart is decided later. `in progress`
+- **Formatted replies** — Replies are rendered as Markdown (headings, emphasis,
+  lists, code, tables, quotes) in Bruce's own theme, parsed by commonmark-java and
+  drawn in Compose, with no web view. Links show their full address and open in
+  the browser only after the user confirms. Images load only when the network
+  mode allows the site (Any site; Approved sites for approved domains); otherwise
+  the alt text and address are shown. `planned`
 - **Navigation** — A side drawer, as in the ChatGPT, Claude and Gemini apps, holds
   the conversation list and entries for Models and Settings. The chat screen's top
   bar shows the active model; tapping it opens a quick model switcher. The
@@ -402,6 +408,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Added | Formatted replies: Markdown rendered natively; links confirmed before opening; images only where the network mode allows. |
 | 2026-09-28 | Changed | Skill framework and capability model done: skill definitions, argument validation, structured denials, untrusted-result envelope. |
 | 2026-09-28 | Changed | Backend choices list only backends this phone can use (Auto, CPU, and usable GPUs). |
 | 2026-09-28 | Changed | Saved conversations done (drawer list, resume, rename, archive, delete, bulk actions, Archived view, delete all chats); export still to come. |
