@@ -61,8 +61,11 @@ development machine; a 12-case subset on both Sony phones.
   template execution (Jinja) on the phone for every turn.
 - Tool support depends on the model's own template; Bruce needs the fallback path for the rest.
 - Grammar-constrained generation costs little: generation speed changed by −2% to +1% across
-  the seven models on the development machine (Bruce's format with and without the grammar);
-  phone figures follow.
+  the seven models on the development machine (Bruce's format with and without the grammar).
+- The phones confirm the ranking (own format 87% on the Xperia 1 II, 79% on the XZ Premium) and
+  show that prompt evaluation dominates a turn: about 10 tokens/s on the XZ Premium, so a
+  600-token prompt with tools takes a minute. Reusing the evaluated system prompt and tool
+  descriptions between turns (TASK-056) matters more than the format's length.
 
 ## Alternatives rejected
 
