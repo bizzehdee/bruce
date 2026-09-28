@@ -56,6 +56,11 @@ import com.bizzeh.bruce.settings.Personality
 import com.bizzeh.bruce.settings.SettingsActions
 import com.bizzeh.bruce.settings.SettingsScreen
 import com.bizzeh.bruce.settings.SettingsViewModel
+import com.bizzeh.bruce.skills.Skill
+import com.bizzeh.bruce.skills.SkillState
+import com.bizzeh.bruce.skills.SkillsActions
+import com.bizzeh.bruce.skills.SkillsScreen
+import com.bizzeh.bruce.skills.SkillsViewModel
 import com.bizzeh.bruce.settings.ThemeSettings
 import com.bizzeh.bruce.setup.SetupActions
 import com.bizzeh.bruce.setup.SetupExit
@@ -121,6 +126,7 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+    private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates) } }
     private val setup: SetupViewModel by viewModels {
         factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
     }
@@ -161,6 +167,7 @@ class MainActivity : ComponentActivity() {
             modelsScreen = { onBack -> Models(onBack, startOnHuggingFace = browse) },
             settingsScreen = { onBack, open -> Settings(onBack, open) },
             diagnosticsScreen = { onBack -> Diagnostics(onBack) },
+            skillsScreen = { onBack, openPermissions -> Skills(onBack, openPermissions) },
             startDestination = if (browse) Destination.MODELS else Destination.CHAT,
             conversations = active,
             archived = archived,
@@ -227,6 +234,18 @@ class MainActivity : ComponentActivity() {
         val known by capabilities.collectAsState()
         val actions = remember { settingsActions(open) }
         SettingsScreen(state.copy(backends = backendChoices(known, state.inference.backend)), actions, onBack)
+    }
+
+    @androidx.compose.runtime.Composable
+    private fun Skills(onBack: () -> Unit, toPermissions: () -> Unit) {
+        val rows by skills.rows.collectAsState()
+        val actions = remember(toPermissions) {
+            object : SkillsActions {
+                override fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean) = skills.set(skill, state, highRiskWarningAccepted)
+                override fun openPermissions() = toPermissions()
+            }
+        }
+        SkillsScreen(rows, actions, onBack)
     }
 
     @androidx.compose.runtime.Composable
@@ -300,6 +319,7 @@ class MainActivity : ComponentActivity() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settings.beginSignIn())))
         }
         override fun signOut() = settings.signOut()
+        override fun openSkills() = open(Destination.SKILLS)
         override fun openPermissions() = open(Destination.PERMISSIONS)
         override fun openLicences() = open(Destination.LICENCES)
         override fun openDiagnostics() = open(Destination.DIAGNOSTICS)

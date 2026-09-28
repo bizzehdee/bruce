@@ -39,6 +39,7 @@ class SettingsScreenTest {
         override fun setPersonality(personality: Personality) { calls += "personality $personality" }
         override fun signIn() { calls += "signIn" }
         override fun signOut() { calls += "signOut" }
+        override fun openSkills() { calls += "skills" }
         override fun openPermissions() { calls += "permissions" }
         override fun openLicences() { calls += "licences" }
         override fun openDiagnostics() { calls += "diagnostics" }
@@ -168,11 +169,12 @@ class SettingsScreenTest {
     fun links() {
         show()
 
+        compose.onNodeWithTag("settings:skills").performScrollTo().performClick()
         compose.onNodeWithTag("settings:permissions").performScrollTo().performClick()
         compose.onNodeWithTag("settings:licences").performScrollTo().performClick()
         compose.onNodeWithTag("settings:diagnostics").performScrollTo().performClick()
 
-        assertEquals(listOf("permissions", "licences", "diagnostics"), calls)
+        assertEquals(listOf("skills", "permissions", "licences", "diagnostics"), calls)
     }
 
     @Test

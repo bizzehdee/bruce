@@ -66,6 +66,7 @@ interface SettingsActions {
     fun setPersonality(personality: Personality)
     fun signIn()
     fun signOut()
+    fun openSkills()
     fun openPermissions()
     fun openLicences()
     fun openDiagnostics()
@@ -89,6 +90,9 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                         .testTag("personality:$personality"),
                 )
             }
+
+            Heading(R.string.settings_skills)
+            Link(R.string.settings_skills, R.string.settings_skills_summary, "settings:skills", actions::openSkills)
 
             Heading(R.string.settings_appearance)
             Choice(

@@ -253,7 +253,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   the Skills screen. Every choice can be changed later. `done`
 - **Skills screen** — Reached from Settings. Lists every skill with what it does,
   a high-risk flag where it applies, and its state (Declined, Ask, Accepted),
-  which the user changes there. `planned`
+  which the user changes there. Declined skills are not offered to the model.
 - **Permissions screen** — Reached from Settings. Lists the files and folders
   Bruce has been granted and the Android permissions it holds. Android
   permissions are changed in Android's own settings, opened from each row;
@@ -425,6 +425,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Skills screen done: per-skill Declined, Ask or Accepted in Settings > Skills, with the high-risk warning. |
 | 2026-09-28 | Changed | Permissions screen done: Android permissions with a link to change each in Android settings; files and folders section empty until TASK-040. |
 | 2026-09-28 | Changed | Sidekick wording and light dog puns in loading and empty states done. |
 | 2026-09-28 | Changed | Personalities done: Bruce and Milo in Settings > Sidekick. |
