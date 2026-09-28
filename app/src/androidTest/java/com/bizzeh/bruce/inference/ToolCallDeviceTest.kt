@@ -2,6 +2,19 @@ package com.bizzeh.bruce.inference
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.room.Room
+import com.bizzeh.bruce.policy.PolicyDatabase
+import com.bizzeh.bruce.policy.PolicyEngine
+import com.bizzeh.bruce.policy.SkillStateStore
+import com.bizzeh.bruce.runtime.BruceRuntime
+import com.bizzeh.bruce.runtime.RuntimeEvent
+import com.bizzeh.bruce.skills.Capability
+import com.bizzeh.bruce.skills.InputSchema
+import com.bizzeh.bruce.skills.Skill
+import com.bizzeh.bruce.skills.SkillOutcome
+import com.bizzeh.bruce.skills.SkillRegistry
+import com.bizzeh.bruce.skills.SkillState
+import com.bizzeh.bruce.skills.ToolOutput
 import com.bizzeh.bruce.testing.ManualOnly
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.toList
@@ -76,6 +89,26 @@ class ToolCallDeviceTest {
         val reply = native("Who wrote Pride and Prejudice?")
         assertTrue(reply.toolCalls.isEmpty())
         assertTrue(reply.content, reply.content.contains("Austen"))
+    }
+
+    @Test
+    fun runtimeCallsTheSkillAndAnswersWithItsResult() = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val database = Room.inMemoryDatabaseBuilder(context, PolicyDatabase::class.java).build()
+        val time = Skill("get_datetime", 1, clock.description, InputSchema(), setOf(Capability.TIME), SkillState.ACCEPTED) {
+            SkillOutcome.Done("Monday 28 September 2026, 14:37, Europe/London")
+        }
+        val registry = SkillRegistry(listOf(time))
+        val states = SkillStateStore(database.policy())
+        val runtime = BruceRuntime(engine, registry, states, PolicyEngine(registry, states, ToolOutput(), { true }), temperature = { 0f })
+
+        val events = runtime.respond(listOf(ToolChatMessage(ToolChatRole.USER, "What time is it?"))).toList()
+        database.close()
+
+        assertTrue(events.filterIsInstance<RuntimeEvent.ToolResult>().single().ran)
+        val answer = (events.last() as RuntimeEvent.Finished).messages.last()
+        assertEquals(ToolChatRole.ASSISTANT, answer.role)
+        assertTrue(answer.content, answer.content.contains("14:37") || answer.content.contains("2:37"))
     }
 
     @Test

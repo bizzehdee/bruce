@@ -334,15 +334,23 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Links: tapping shows the full address in a dialog and opens the browser only if the user confirms; only http and https links open.
   - Images: loaded only when the network mode allows the host (Any site; Approved sites for approved domains), without cookies or credentials, with a size cap; otherwise the alt text and address are shown. User messages stay plain text.
   - Depends on: TASK-024, TASK-028
-- [ ] TASK-052: Runtime and agent loop
+- [x] TASK-052: Runtime and agent loop
   - `BruceRuntime` offers enabled skills to the model, parses its tool requests with TASK-036, runs them through the policy engine (TASK-035) and feeds results back until the model answers.
-  - Skills are described in full until they pass a prompt budget set here from phone timings; past it, a one-line list with a skill's full description loaded when the model picks it. The one-line list with the native format was not measured in TASK-033: measure it before relying on it.
+  - Skills are described in full. The switch to a one-line list past a prompt budget moved to TASK-054 (owner, 2026-09-28): six skills stay well under any budget, and the list form was not measured with the models' own formats.
   - Bounded agent loop: maximum tool calls per turn, maximum execution time, cancellation with the stop button; structured errors on every limit.
   - Skills in the Ask state stop the loop with a pending confirmation (the card itself is TASK-041).
+  - Done (`runtime` package): `BruceRuntime.respond` streams text, each finished step, tool results (sanitised result or structured denial), a pending confirmation for Ask, and finished or failed with this turn's messages. Uses the model's own tool format when its template supports tools, otherwise Bruce's format through the plain chat template, with results as `<tool_response>` turns. Offers only skills the user has not declined; the policy engine still refuses a declined skill if the model names it. Limits: 5 tool calls and 3 minutes per turn; a timeout stops generation. The system prompt tells the model to use tools rather than guess (ADR 0001, missed calls).
+  - Tested with the real registry, policy engine and skill states (in-memory Room) and a scripted model; on the Pixel 11 with Qwen3.5-0.8B the runtime called a clock skill and answered with its time (`ToolCallDeviceTest`, manual).
+  - Not wired into the chat screen yet (TASK-053).
   - Depends on: TASK-034, TASK-035, TASK-036
-  - Required by: TASK-037, TASK-042, TASK-049, TASK-053
+  - Required by: TASK-037, TASK-042, TASK-049, TASK-053, TASK-054
 - [ ] TASK-053: Tool calls in the chat
   - Tool calls, results and denials appear inline in the conversation (collapsed, with the skill's name and outcome) and are saved with it; a resumed chat shows them again.
   - Room schema version 2 with a tested migration from version 1.
   - Depends on: TASK-032, TASK-052
   - Required by: TASK-041
+- [ ] TASK-054: Short skill list past a prompt budget
+  - Measure on both Sony phones and the Pixel 11 the TASK-033 cases with each model's own tool format when skills are given as one-line descriptions, against full descriptions: accuracy, prompt tokens and prompt time.
+  - Set a prompt budget for skill descriptions from those timings; past it, give the model the one-line list and add a skill's full description when the model picks it (a second step in the agent loop).
+  - Needed before the skills outgrow the budget: at the latest with the file skills (TASK-042 to TASK-044).
+  - Depends on: TASK-052
