@@ -177,6 +177,12 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   confirmation on each operation. `planned`
 - **File delete** — Delete single files in granted scopes; always-confirm.
   `planned`
+- **Folder instructions** — When Bruce works in a granted folder, it looks for
+  `AGENTS.md` at the folder root and the `.agents/` directory (for example
+  `.agents/skills/*/SKILL.md`). The first time, and whenever they change, Bruce
+  shows them and asks whether to follow them for that folder. Followed
+  instructions guide how Bruce works there, with `.agents/` files loaded as
+  needed; they never grant permissions or change skill states. `planned`
 - **Advanced skills** — Move/rename files, calendar create/modify/delete,
   sharing, opening apps and URLs, clipboard write, SMS, calls, notifications.
   `planned`
@@ -393,6 +399,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Added | Folder instructions: Bruce reads `AGENTS.md` and `.agents/` in a granted folder and asks before following them. |
 | 2026-09-28 | Changed | Auto backend always uses the CPU; Vulkan and OpenCL only when chosen, marked experimental (Vulkan gave wrong output on the Pixel 11). |
 | 2026-09-28 | Changed | Hugging Face sign-in by OAuth marked done after a real sign-in on a phone; pasted-token fallback not built. |
 | 2026-09-28 | Added | Context indicator with drop-oldest overflow and optional auto-summarise; memory setting (off, per model, global) with automatic saving and review; response notifications; archive and bulk archive/delete of chats; skills loaded as needed; the only installed model loads at launch. |

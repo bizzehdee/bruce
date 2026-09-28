@@ -236,7 +236,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Bounded agent loop: maximum tool calls per turn, maximum execution time, cancellation with the stop button; structured errors on every limit.
   - Tool calls, results and denials appear inline in the conversation and are saved with it.
   - Depends on: TASK-024, TASK-032, TASK-033, TASK-034, TASK-035
-  - Required by: TASK-037, TASK-041, TASK-042
+  - Required by: TASK-037, TASK-041, TASK-042, TASK-049
 - [ ] TASK-037: Automatic skills
   - Date/time, calculator, battery, device information, storage status, network status; default state Accepted; no Android runtime permissions.
   - Calculator uses a bounded arithmetic parser, never code evaluation.
@@ -247,7 +247,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Replaces the placeholder reached from Settings. Lists granted files and folders (with granted date) and the Android permissions Bruce holds; each can be revoked.
   - Skill states are not here; they are in the Skills screen (TASK-039).
   - Depends on: TASK-035
-  - Required by: TASK-040
+  - Required by: TASK-040, TASK-049
 - [ ] TASK-039: Skills screen
   - Settings gains a Skills section that opens a dedicated Skills screen.
   - Lists each skill: what it does, a high-risk flag where it applies, and its state (Declined, Ask, Accepted), which the user changes there. Notes when a skill also needs a folder grant, linking to Permissions.
@@ -258,7 +258,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Grants last until revoked (no durations; the skill states replace them).
   - Resource-scope check refuses any target outside a grant (`RESOURCE_OUTSIDE_SCOPE`), including path tricks that escape the granted tree.
   - Depends on: TASK-035, TASK-038
-  - Required by: TASK-042, TASK-043, TASK-044
+  - Required by: TASK-042, TASK-043, TASK-044, TASK-049
 - [ ] TASK-041: Exact-operation confirmation
   - For skills in the Ask state: inline confirmation card in chat showing the tool, arguments and exact targets, with approve and deny.
   - Approval binds tool ID, arguments, target resources, timestamp and policy version; the executor refuses anything that differs from what was approved.
@@ -297,3 +297,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Generation continues in the background through a foreground service, within Android's background rules.
   - Requests the notification permission (Android 13 and later) the first time it is needed; if refused, replies still complete without a notification.
   - Depends on: TASK-032
+- [ ] TASK-049: Folder instructions (AGENTS.md and .agents/)
+  - When Bruce works in a granted folder, check the folder root for `AGENTS.md` and the `.agents/` directory. Only those locations; nested `AGENTS.md` files and other tools' files (`CLAUDE.md`, `GEMINI.md`) are not read.
+  - The first time Bruce finds instructions in a folder, show them and ask whether to follow them for that folder. The answer is stored against the files' content hash; any change asks again. Declined instructions are ignored.
+  - Followed instructions are guidance only: they are passed to the model as folder-supplied text, never grant permissions, and never change skill states, scope checks or confirmations.
+  - `AGENTS.md` joins the context while working in that folder; `.agents/` files (for example `.agents/skills/*/SKILL.md`) are listed in the skill index and loaded as needed. Size limits on what is read; oversized files are refused with a message.
+  - The follow or ignore choice per folder is shown on the Permissions screen and can be changed there.
+  - Depends on: TASK-036, TASK-038, TASK-040
