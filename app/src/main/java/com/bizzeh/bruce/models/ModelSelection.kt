@@ -23,12 +23,14 @@ class ModelSelection(
         return result
     }
 
-    /** Loads the model chosen last time, if it is still installed. */
+    /** Loads the model chosen last time if it is still installed, otherwise the only installed model. */
     suspend fun restore() {
         activeModel.refresh()
-        val name = modelSettings.activeModelName.first() ?: return
-        val file = File(modelsDir, name)
-        if (withContext(ioDispatcher) { file.isFile }) choose(file)
+        val remembered = modelSettings.activeModelName.first()?.let { File(modelsDir, it) }
+        val file = remembered?.takeIf { withContext(ioDispatcher) { it.isFile } }
+            ?: activeModel.state.value.installed.singleOrNull()
+            ?: return
+        choose(file)
     }
 
     /** Deletes a model file, unloading it first if it is loaded, and forgets its settings. */

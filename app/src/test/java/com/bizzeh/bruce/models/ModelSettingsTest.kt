@@ -118,19 +118,43 @@ class ModelSettingsTest {
     @Test
     fun restoreLoadsTheRememberedModelIfItStillExists() = runTest(dispatcher) {
         val f = Fixture(this)
-        f.model("m.gguf")
-        f.settings.setActiveModel("m.gguf")
+        f.model("a.gguf")
+        val b = f.model("b.gguf")
+        f.settings.setActiveModel("b.gguf")
 
         f.selection.restore()
 
-        assertEquals(File(f.modelsDir, "m.gguf"), engine.loads.single().first)
-        f.settings.setActiveModel("gone.gguf")
-        f.selection.restore()
-        assertEquals(1, engine.loads.size)
+        assertEquals(b, engine.loads.single().first)
     }
 
     @Test
-    fun restoreWithNothingRememberedLoadsNothing() = runTest(dispatcher) {
+    fun restoreLoadsTheOnlyInstalledModelWhenNothingUsableIsRemembered() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val only = f.model("m.gguf")
+
+        f.selection.restore()
+        f.settings.setActiveModel("gone.gguf")
+        f.selection.restore()
+
+        assertEquals(listOf(only, only), engine.loads.map { it.first })
+        assertEquals("m.gguf", f.settings.activeModelName.first())
+    }
+
+    @Test
+    fun restoreWithSeveralModelsAndNothingUsableRememberedLoadsNothing() = runTest(dispatcher) {
+        val f = Fixture(this)
+        f.model("a.gguf")
+        f.model("b.gguf")
+
+        f.selection.restore()
+        f.settings.setActiveModel("gone.gguf")
+        f.selection.restore()
+
+        assertEquals(0, engine.loads.size)
+    }
+
+    @Test
+    fun restoreWithNoModelsLoadsNothing() = runTest(dispatcher) {
         Fixture(this).selection.restore()
         assertEquals(0, engine.loads.size)
     }
