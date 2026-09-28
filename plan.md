@@ -255,8 +255,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   a high-risk flag where it applies, and its state (Declined, Ask, Accepted),
   which the user changes there. `planned`
 - **Permissions screen** — Reached from Settings. Lists the files and folders
-  Bruce has been granted and the Android permissions it holds, each revocable.
-  `planned`
+  Bruce has been granted and the Android permissions it holds. Android
+  permissions are changed in Android's own settings, opened from each row;
+  install-time ones (internet, network status) are shown as always granted, with
+  the internet row pointing to Network mode.
 - **Main screens** — Chat, Conversations, Models, Model browser, Downloads,
   Skills, Permissions (reached from Settings), Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
@@ -423,6 +425,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Permissions screen done: Android permissions with a link to change each in Android settings; files and folders section empty until TASK-040. |
 | 2026-09-28 | Changed | Sidekick wording and light dog puns in loading and empty states done. |
 | 2026-09-28 | Changed | Personalities done: Bruce and Milo in Settings > Sidekick. |
 | 2026-09-28 | Changed | Tool calling works in chat: skill uses shown inline and saved with the chat; agent loop done. |

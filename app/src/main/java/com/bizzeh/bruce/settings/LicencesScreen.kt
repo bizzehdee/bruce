@@ -52,10 +52,3 @@ fun LicencesScreen(onBack: () -> Unit) {
         }
     }
 }
-
-@Composable
-fun PermissionsScreen(onBack: () -> Unit) {
-    SubScreen(stringResource(R.string.settings_permissions), onBack) {
-        Text(stringResource(R.string.permissions_placeholder), modifier = Modifier.padding(16.dp).testTag("permissionsPlaceholder"))
-    }
-}

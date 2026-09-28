@@ -169,7 +169,7 @@ fun BruceApp(
             Destination.SETTINGS -> settingsScreen({ goBack() }, { destination = it })
             Destination.DIAGNOSTICS -> diagnosticsScreen { goBack() }
             Destination.LICENCES -> LicencesScreen { goBack() }
-            Destination.PERMISSIONS -> PermissionsScreen { goBack() }
+            Destination.PERMISSIONS -> PermissionsScreen(onOpenNetworkSettings = { destination = Destination.SETTINGS }, onBack = { goBack() })
             Destination.ARCHIVED -> SubScreen(stringResource(R.string.nav_archived), { goBack() }) {
                 if (conversationActions != null) {
                     ConversationList(
