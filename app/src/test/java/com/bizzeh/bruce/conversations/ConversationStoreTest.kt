@@ -4,6 +4,9 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.bizzeh.bruce.chat.ChatEntry
+import com.bizzeh.bruce.chat.ToolStatus
+import com.bizzeh.bruce.chat.ToolUse
+import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.inference.GenerationStats
 import kotlinx.coroutines.Dispatchers
@@ -118,6 +121,36 @@ class ConversationStoreTest {
         database.conversations().insert(listOf(MessageEntity(conversationId = id, position = 1, role = "FUTURE_ROLE", text = "?")))
 
         assertEquals(listOf(user("hi")), store.load(id))
+    }
+
+    @Test
+    fun skillCallsAndResultsAreSavedAndLoaded() = runBlocking {
+        val call = ToolCall("get_datetime", "{}", "c1")
+        val entries = listOf(
+            user("What time is it?"),
+            ChatEntry(ChatRole.ASSISTANT, "", toolCalls = listOf(call)),
+            ChatEntry(ChatRole.TOOL, """{"status":"ok"}""", tool = ToolUse("c1", "get_datetime", """{"status":"ok"}""", ToolStatus.RAN)),
+            reply("Noon."),
+        )
+
+        val id = store.save(null, entries)
+
+        assertEquals(entries, store.load(id))
+    }
+
+    @Test
+    fun damagedOrUnknownSkillDataIsReadSafely() = runBlocking {
+        val id = store.save(null, listOf(user("hi")))
+        database.conversations().insert(
+            listOf(
+                MessageEntity(conversationId = id, position = 1, role = "ASSISTANT", text = "", toolCallsJson = "not json"),
+                MessageEntity(conversationId = id, position = 2, role = "TOOL", text = "{}", toolCallId = "c", toolName = "x", toolStatus = "SOMETHING_NEW"),
+            ),
+        )
+
+        val loaded = store.load(id)!!
+        assertEquals(emptyList<ToolCall>(), loaded[1].toolCalls)
+        assertEquals("an unknown status is never shown as having run", ToolStatus.REFUSED, loaded[2].tool!!.status)
     }
 
     @Test

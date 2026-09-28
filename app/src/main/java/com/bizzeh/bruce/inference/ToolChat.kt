@@ -9,16 +9,9 @@ data class ToolDefinition(val name: String, val description: String, val paramet
 /** A tool call the model made; [argumentsJson] is the model's raw JSON text, still untrusted. */
 data class ToolCall(val name: String, val argumentsJson: String, val id: String = "")
 
-enum class ToolChatRole(val wireName: String) {
-    SYSTEM("system"),
-    USER("user"),
-    ASSISTANT("assistant"),
-    TOOL("tool"),
-}
-
 /** A conversation message with room for tool calls (assistant) and tool results (tool). */
 data class ToolChatMessage(
-    val role: ToolChatRole,
+    val role: ChatRole,
     val content: String,
     val toolCalls: List<ToolCall> = emptyList(),
     val toolCallId: String = "",

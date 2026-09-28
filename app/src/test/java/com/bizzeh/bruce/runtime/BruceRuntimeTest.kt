@@ -20,7 +20,6 @@ import com.bizzeh.bruce.inference.StopReason
 import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.inference.ToolChatPrompt
-import com.bizzeh.bruce.inference.ToolChatRole
 import com.bizzeh.bruce.inference.ToolDefinition
 import com.bizzeh.bruce.inference.ToolFormat
 import com.bizzeh.bruce.inference.ToolGrammar
@@ -80,7 +79,7 @@ class BruceRuntimeTest {
     private fun runtime(maxToolCalls: Int = 5, maxDuration: kotlin.time.Duration = 10.seconds) =
         BruceRuntime(engine, registry, states, policy, temperature = { 0.3f }, maxToolCalls = maxToolCalls, maxDuration = maxDuration)
 
-    private val question = listOf(ToolChatMessage(ToolChatRole.USER, "What time is it?"))
+    private val question = listOf(ToolChatMessage(ChatRole.USER, "What time is it?"))
 
     @After
     fun tearDown() = database.close()
@@ -100,14 +99,14 @@ class BruceRuntimeTest {
         assertEquals("call_1", result.call.id)
         assertEquals("get_datetime says hi", JSONObject(result.resultJson).getString("untrusted_data"))
         val finished = events.last() as RuntimeEvent.Finished
-        assertEquals(listOf(ToolChatRole.ASSISTANT, ToolChatRole.TOOL, ToolChatRole.ASSISTANT), finished.messages.map { it.role })
+        assertEquals(listOf(ChatRole.ASSISTANT, ChatRole.TOOL, ChatRole.ASSISTANT), finished.messages.map { it.role })
         assertEquals("call_1", finished.messages[1].toolCallId)
         assertEquals("It is noon.", finished.messages[2].content)
         assertEquals(listOf("<call>", "It is noon."), events.filterIsInstance<RuntimeEvent.Text>().map { it.text })
 
         val second = engine.formatted[1]
-        assertEquals(ToolChatRole.SYSTEM, second.first().role)
-        assertEquals("the model sees its call and the result", listOf(ToolChatRole.USER, ToolChatRole.ASSISTANT, ToolChatRole.TOOL), second.drop(1).map { it.role })
+        assertEquals(ChatRole.SYSTEM, second.first().role)
+        assertEquals("the model sees its call and the result", listOf(ChatRole.USER, ChatRole.ASSISTANT, ChatRole.TOOL), second.drop(1).map { it.role })
         assertEquals(0.3f, engine.requests.first().temperature)
         assertEquals(engine.grammar, engine.requests.first().grammar)
         assertEquals(listOf("<|end|>"), engine.requests.first().stops)
@@ -146,7 +145,7 @@ class BruceRuntimeTest {
 
         val pending = events.filterIsInstance<RuntimeEvent.NeedsConfirmation>().single()
         assertEquals("write_note", pending.decision.request.skill.id)
-        assertEquals(listOf(ToolChatRole.ASSISTANT), (events.last() as RuntimeEvent.Finished).messages.map { it.role })
+        assertEquals(listOf(ChatRole.ASSISTANT), (events.last() as RuntimeEvent.Finished).messages.map { it.role })
         assertTrue(ran.isEmpty())
     }
 

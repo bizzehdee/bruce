@@ -71,10 +71,7 @@ class MainActivity : ComponentActivity() {
     private val prototype: PrototypeViewModel by viewModels { factory { prototypeViewModel() } }
     private val chat: ChatViewModel by viewModels {
         factory {
-            ChatViewModel(
-                container.engine, container.activeModel.state, container.conversations::save, container.conversations::load,
-                container.modelSelection::activeTemperature,
-            )
+            ChatViewModel(container.engine, container.activeModel.state, container.conversations::save, container.conversations::load, container.runtime::respond)
         }
     }
     private val conversations: ConversationsViewModel by viewModels {

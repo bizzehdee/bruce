@@ -37,6 +37,11 @@ android {
         }
     }
 
+    // Room's MigrationTestHelper reads the exported schemas as test assets.
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -133,7 +138,6 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
-    testImplementation(libs.room.testing)
     testImplementation(libs.androidx.test.core)
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)

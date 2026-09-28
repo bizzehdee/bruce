@@ -16,6 +16,10 @@ import com.bizzeh.bruce.conversations.ConversationStore
 import com.bizzeh.bruce.policy.PolicyDatabase
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.skills.SkillRegistry
+import com.bizzeh.bruce.skills.ToolOutput
+import com.bizzeh.bruce.policy.PolicyEngine
+import com.bizzeh.bruce.runtime.BruceRuntime
+import android.content.pm.PackageManager
 import com.bizzeh.bruce.skills.automatic.AndroidPhoneReaders
 import com.bizzeh.bruce.skills.automatic.AutomaticSkills
 import androidx.room.Room
@@ -89,7 +93,9 @@ class AppContainer(private val context: Context) {
     }
 
     private val conversationDatabase: ConversationDatabase by lazy {
-        Room.databaseBuilder(context, ConversationDatabase::class.java, ConversationDatabase.NAME).build()
+        Room.databaseBuilder(context, ConversationDatabase::class.java, ConversationDatabase.NAME)
+            .addMigrations(ConversationDatabase.MIGRATION_1_2)
+            .build()
     }
 
     val conversations: ConversationStore by lazy { ConversationStore(conversationDatabase.conversations()) }
@@ -101,6 +107,13 @@ class AppContainer(private val context: Context) {
     val skillStates: SkillStateStore by lazy { SkillStateStore(policyDatabase.policy()) }
 
     val skills: SkillRegistry by lazy { SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context))) }
+
+    val runtime: BruceRuntime by lazy {
+        val policy = PolicyEngine(skills, skillStates, ToolOutput(reservedMarkers = RESERVED_MARKERS), permissionGranted = { permission ->
+            context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        })
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() })
+    }
 
     val dataReset: DataReset by lazy {
         DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO) {
@@ -116,6 +129,9 @@ class AppContainer(private val context: Context) {
 
     companion object {
         const val MODELS_DIR = "models"
+
+        /** Tool-call markup a skill result must not be able to imitate (ADR 0001 formats). */
+        private val RESERVED_MARKERS = listOf("<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>", "<|tool_call_start|>", "<|tool_call_end|>")
     }
 }
 

@@ -48,6 +48,8 @@ enum class ChatRole(val wireName: String) {
     SYSTEM("system"),
     USER("user"),
     ASSISTANT("assistant"),
+    /** A tool's result, in a conversation with tools. */
+    TOOL("tool"),
 }
 
 data class ChatMessage(val role: ChatRole, val content: String)

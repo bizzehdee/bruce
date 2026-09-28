@@ -11,7 +11,6 @@ import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.ParsedReply
 import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ToolChatMessage
-import com.bizzeh.bruce.inference.ToolChatRole
 import com.bizzeh.bruce.inference.ToolDefinition
 import com.bizzeh.bruce.inference.ToolFormat
 import com.bizzeh.bruce.policy.PolicyDecision
@@ -107,7 +106,7 @@ class BruceRuntime(
 
             val parsed = parse(prompt.format, text.toString(), calls)
             emit(RuntimeEvent.Step(parsed.content, parsed.reasoning, parsed.toolCalls, stats))
-            added += ToolChatMessage(ToolChatRole.ASSISTANT, parsed.content, toolCalls = parsed.toolCalls)
+            added += ToolChatMessage(ChatRole.ASSISTANT, parsed.content, toolCalls = parsed.toolCalls)
             if (parsed.toolCalls.isEmpty()) return emit(RuntimeEvent.Finished(added.toList()))
 
             for (call in parsed.toolCalls) {
@@ -125,7 +124,7 @@ class BruceRuntime(
     }
 
     private suspend fun FlowCollector<RuntimeEvent>.result(call: ToolCall, json: String, ran: Boolean, added: MutableList<ToolChatMessage>) {
-        added += ToolChatMessage(ToolChatRole.TOOL, json, toolCallId = call.id, toolName = call.name)
+        added += ToolChatMessage(ChatRole.TOOL, json, toolCallId = call.id, toolName = call.name)
         emit(RuntimeEvent.ToolResult(call, json, ran))
     }
 
@@ -138,7 +137,7 @@ class BruceRuntime(
 
     /** The model's own tool format when its template supports tools, otherwise Bruce's (ADR 0001). */
     private suspend fun prompt(messages: List<ToolChatMessage>, tools: List<ToolDefinition>): Prompt? {
-        val system = ToolChatMessage(ToolChatRole.SYSTEM, SYSTEM_PROMPT)
+        val system = ToolChatMessage(ChatRole.SYSTEM, SYSTEM_PROMPT)
         val native = engine.formatToolChat(listOf(system) + messages, tools) ?: return null
         if (tools.isEmpty() || native.format.supportsTools) return Prompt(native.text, native.format)
 
@@ -156,14 +155,14 @@ class BruceRuntime(
 
     /** Bruce's format as plain chat: calls written back in its tags, results as the user's turn. */
     private fun bruceMessage(message: ToolChatMessage): ChatMessage = when (message.role) {
-        ToolChatRole.SYSTEM -> ChatMessage(ChatRole.SYSTEM, message.content)
-        ToolChatRole.USER -> ChatMessage(ChatRole.USER, message.content)
-        ToolChatRole.ASSISTANT -> ChatMessage(
+        ChatRole.SYSTEM -> ChatMessage(ChatRole.SYSTEM, message.content)
+        ChatRole.USER -> ChatMessage(ChatRole.USER, message.content)
+        ChatRole.ASSISTANT -> ChatMessage(
             ChatRole.ASSISTANT,
             (listOf(message.content) + message.toolCalls.map { "${BruceToolFormat.OPEN}{\"name\": ${JSONObject.quote(it.name)}, \"arguments\": ${it.argumentsJson}}${BruceToolFormat.CLOSE}" })
                 .filter { it.isNotEmpty() }.joinToString("\n"),
         )
-        ToolChatRole.TOOL -> ChatMessage(ChatRole.USER, "<tool_response>\n${message.content}\n</tool_response>")
+        ChatRole.TOOL -> ChatMessage(ChatRole.USER, "<tool_response>\n${message.content}\n</tool_response>")
     }
 
     companion object {
