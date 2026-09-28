@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | File create and write skills done: create_file and write_file, plain text only, asked every time by default. |
 | 2026-09-28 | Changed | File read skills done: list_files and read_file in granted folders, plain text only, off by default. |
 | 2026-09-28 | Changed | Exact-operation confirmation done: approval card in chat, bound to the request, targets and policy version, expiring after 15 minutes. |
 | 2026-09-28 | Changed | File and folder grants done: added and revoked in Permissions; the model names targets as `<grant name>/<path>`. |

@@ -300,8 +300,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/files/FileSkills.kt`): `list_files` and `read_file`, both Declined by default. Reading accepts a text MIME type (or none, or `application/octet-stream`) and then only valid UTF-8 without NUL bytes; at most 16 KB is read and a cut is reported; the result goes through `ToolOutput` (4,000 characters, untrusted-data envelope). Listings are sorted, folders end in `/`, at most 200 entries. When a file skill is offered, the system prompt names the user's grants (or says there are none); grant names are capped at 80 characters.
   - Device-tested on the Pixel 11 with Documents granted: `read_file` returned the pushed file's lines and `list_files` listed the folder through Android's real document provider. Qwen3.5-0.8B only called the skills when named; a larger model is needed for reliable use.
   - Depends on: TASK-040, TASK-052
-- [ ] TASK-043: File create and write skills
+- [x] TASK-043: File create and write skills
   - Create a file and write or replace a file's contents in a granted folder; default state Ask, confirmed per operation through TASK-041.
+  - Done: `create_file` (never replaces; the parent must be a folder inside a grant) and `write_file` (replaces the whole text of an existing plain-text file only, so photos and documents cannot be overwritten), both Ask. Content is at most 15,000 characters, inside the 16 KB arguments limit. Writes truncate first.
+  - Device-tested on the Pixel 11 by `FileSkillsDeviceTest` (manual; needs Documents granted): create, read, replace with shorter text, read and list through Android's real provider. Qwen3.5-0.8B would not call `create_file` from the chat (it claimed to have written the file without calling it, and nothing was written), so the chat path relies on TASK-041's device test of the approval card.
   - Depends on: TASK-040, TASK-041
 - [ ] TASK-044: File delete skill
   - Delete a single file in a granted folder; flagged high risk; default state Ask.

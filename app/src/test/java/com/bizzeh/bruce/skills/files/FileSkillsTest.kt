@@ -56,9 +56,48 @@ class FileSkillsTest {
     private fun failure(outcome: SkillOutcome) = (outcome as SkillOutcome.Failed).code
 
     @Test
-    fun bothAreReadOnlyAndOffByDefault() {
-        assertEquals(setOf("list_files", "read_file"), skills.keys)
-        skills.values.forEach { assertEquals(SkillState.DECLINED, it.defaultState) }
+    fun readingIsOffAndChangingAsksByDefault() {
+        assertEquals(setOf("list_files", "read_file", "create_file", "write_file"), skills.keys)
+        assertEquals(SkillState.DECLINED, skills.getValue("list_files").defaultState)
+        assertEquals(SkillState.DECLINED, skills.getValue("read_file").defaultState)
+        assertEquals(SkillState.ASK, skills.getValue("create_file").defaultState)
+        assertEquals(SkillState.ASK, skills.getValue("write_file").defaultState)
+    }
+
+    private fun write(id: String, path: String, content: String) =
+        runBlocking { skills.getValue(id).execute(SkillArguments(mapOf("path" to path, "content" to content))) }
+
+    @Test
+    fun creatingMakesANewFileWithTheText() {
+        assertEquals(SkillOutcome.Done("Created the file (5 characters)."), write("create_file", "Documents/notes/ideas.txt", "hello"))
+        assertEquals(SkillOutcome.Done("hello"), run("read_file", "Documents/notes/ideas.txt"))
+    }
+
+    @Test
+    fun creatingNeverReplacesAndNeedsAGrantedFolder() {
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(write("create_file", "Documents/todo.txt", "x")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(write("create_file", "Documents/notes", "x")))
+        assertEquals("the granted folder itself exists", DenialCode.INVALID_ARGUMENTS, failure(write("create_file", "Documents", "x")))
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(write("create_file", "Documents/missing/new.txt", "x")))
+        documents.refuseCreate = true
+        assertEquals(DenialCode.TOOL_FAILED, failure(write("create_file", "Documents/new.txt", "x")))
+        assertEquals(SkillOutcome.Done("milk\neggs"), run("read_file", "Documents/todo.txt"))
+    }
+
+    @Test
+    fun writingReplacesTheWholeTextOfAnExistingTextFile() {
+        assertEquals(SkillOutcome.Done("Replaced the file's contents (3 characters)."), write("write_file", "Documents/todo.txt", "tea"))
+        assertEquals(SkillOutcome.Done("tea"), run("read_file", "Documents/todo.txt"))
+    }
+
+    @Test
+    fun writingNeverTouchesFoldersMissingFilesOrNonText() {
+        assertEquals(DenialCode.RESOURCE_NOT_FOUND, failure(write("write_file", "Documents/new.txt", "x")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(write("write_file", "Documents/notes", "x")))
+        assertEquals(DenialCode.TOOL_UNAVAILABLE, failure(write("write_file", "Documents/photo.jpg", "x")))
+        documents.contents[todo.uri] = "application/octet-stream" to byteArrayOf(1, 0, 2)
+        assertEquals(DenialCode.TOOL_UNAVAILABLE, failure(write("write_file", "Documents/todo.txt", "x")))
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(write("write_file", "Documents/../x.txt", "x")))
     }
 
     @Test

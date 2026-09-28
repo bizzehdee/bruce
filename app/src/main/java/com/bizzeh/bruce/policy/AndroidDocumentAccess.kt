@@ -5,6 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
+import android.webkit.MimeTypeMap
+import java.io.IOException
 
 /** [DocumentAccess] through Android's content resolver and document providers. */
 class AndroidDocumentAccess(private val resolver: ContentResolver) : DocumentAccess {
@@ -62,5 +64,17 @@ class AndroidDocumentAccess(private val resolver: ContentResolver) : DocumentAcc
             read += n
         }
         buffer.copyOf(read)
+    }
+
+    override fun create(tree: Uri, parent: DocumentRef, name: String): DocumentRef? {
+        val extension = name.substringAfterLast('.', "").lowercase()
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension) ?: "text/plain"
+        return DocumentsContract.createDocument(resolver, parent.uri, mimeType, name)?.let { DocumentRef(it, isDirectory = false) }
+    }
+
+    override fun write(document: Uri, bytes: ByteArray) {
+        // "wt" truncates, so a shorter text leaves nothing of the old one behind.
+        val stream = resolver.openOutputStream(document, "wt") ?: throw IOException("the provider gave no stream")
+        stream.use { it.write(bytes) }
     }
 }

@@ -26,7 +26,7 @@ import java.nio.charset.CodingErrorAction
  * checked the path against the grants; each skill resolves it again to act on the same document.
  */
 class FileSkills(private val scope: GrantScope, private val access: DocumentAccess, private val io: CoroutineDispatcher) {
-    fun create(): List<Skill> = listOf(listFiles(), readFile())
+    fun create(): List<Skill> = listOf(listFiles(), readFile(), createFile(), writeFile())
 
     private fun pathParameter(description: String) =
         Parameter(GrantScope.PATH_ARGUMENT, ParameterType.STRING, description, maxLength = PathRules.MAX_LENGTH)
@@ -50,6 +50,57 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         defaultState = SkillState.DECLINED,
         scope = ResourceScope.GRANTED_FILES,
     ) { arguments -> withContext(io) { read(arguments) } }
+
+    private fun contentParameter() = Parameter(CONTENT_ARGUMENT, ParameterType.STRING, "The complete text the file will hold", maxLength = MAX_WRITE_CHARS)
+
+    private fun createFile() = Skill(
+        id = "create_file",
+        version = 1,
+        description = "Create a new plain-text file in a granted folder. Fails if a file with that name already exists.",
+        input = InputSchema(listOf(pathParameter("The new file, starting with a granted name, for example Documents/notes/ideas.txt"), contentParameter())),
+        capabilities = setOf(Capability.FILE_CREATE),
+        defaultState = SkillState.ASK,
+        scope = ResourceScope.GRANTED_FILES,
+    ) { arguments -> withContext(io) { createNew(arguments) } }
+
+    private fun writeFile() = Skill(
+        id = "write_file",
+        version = 1,
+        description = "Replace the whole contents of an existing plain-text file in a granted folder.",
+        input = InputSchema(listOf(pathParameter("The file, starting with a granted name, for example Documents/notes/todo.txt"), contentParameter())),
+        capabilities = setOf(Capability.FILE_WRITE),
+        defaultState = SkillState.ASK,
+        scope = ResourceScope.GRANTED_FILES,
+    ) { arguments -> withContext(io) { replace(arguments) } }
+
+    private suspend fun createNew(arguments: SkillArguments): SkillOutcome {
+        val found = when (val resolution = resolve(arguments)) {
+            is PathResolution.Found -> resolution
+            is PathResolution.Refused -> return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, resolution.reason)
+        }
+        if (found.document != null) return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "Something with that name already exists. Use write_file to replace a file's contents.")
+        val parent = found.parent ?: return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, "A new file must go inside a granted folder.")
+        val file = access.create(found.grant.uri, parent, found.name) ?: return SkillOutcome.Failed(DenialCode.TOOL_FAILED, "The folder did not accept a new file.")
+        val content = arguments.string(CONTENT_ARGUMENT).orEmpty()
+        access.write(file.uri, content.toByteArray())
+        return SkillOutcome.Done("Created the file (${content.length} characters).")
+    }
+
+    private suspend fun replace(arguments: SkillArguments): SkillOutcome {
+        val found = when (val resolution = resolve(arguments)) {
+            is PathResolution.Found -> resolution
+            is PathResolution.Refused -> return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, resolution.reason)
+        }
+        val file = found.document ?: return SkillOutcome.Failed(DenialCode.RESOURCE_NOT_FOUND, "No file exists at that path. Use create_file to make one.")
+        if (file.isDirectory) return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "That is a folder, not a file.")
+        // Only text is replaced with text, so a photo or document cannot be overwritten by mistake.
+        if (!PlainText.allowedType(access.mimeType(file.uri))) return notPlainText()
+        val existing = access.read(file.uri, MAX_READ_BYTES) ?: return notFound()
+        if (PlainText.decode(existing) == null) return notPlainText()
+        val content = arguments.string(CONTENT_ARGUMENT).orEmpty()
+        access.write(file.uri, content.toByteArray())
+        return SkillOutcome.Done("Replaced the file's contents (${content.length} characters).")
+    }
 
     private suspend fun list(arguments: SkillArguments): SkillOutcome {
         val found = when (val resolution = resolve(arguments)) {
@@ -91,6 +142,9 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         /** More than the model is given (ToolOutput caps results), so a cut is reported honestly. */
         const val MAX_READ_BYTES = 16 * 1024
         const val MAX_LISTED = 200
+        /** Inside InputSchema.MAX_RAW_LENGTH, which bounds the whole arguments object. */
+        const val MAX_WRITE_CHARS = 15_000
+        private const val CONTENT_ARGUMENT = "content"
     }
 }
 

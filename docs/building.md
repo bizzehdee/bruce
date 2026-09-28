@@ -55,6 +55,10 @@ adb shell "run-as com.bizzeh.bruce mkdir -p files/test-models"
 adb shell "cat /data/local/tmp/Qwen3.5-0.8B-Q8_0.gguf | run-as com.bizzeh.bruce sh -c 'cat > files/test-models/Qwen3.5-0.8B-Q8_0.gguf'"
 ```
 
+`FileSkillsDeviceTest` needs a folder named Documents granted in the installed app: open
+Settings, Permissions, Add folder, and pick Documents. It creates a file named
+`bruce-device-test-<time>.txt` there.
+
 ## Regenerating the icons
 
 `docs/branding/export-icons.sh` rebuilds the launcher icon layers and the Play Store icon

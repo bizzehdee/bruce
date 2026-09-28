@@ -129,6 +129,9 @@ class AppContainer(private val context: Context) {
 
     private val grantScope: GrantScope by lazy { GrantScope(grants, documentAccess) }
 
+    /** The names the model starts file paths with. */
+    suspend fun grantNames(): List<String> = grantScope.names()
+
     val skills: SkillRegistry by lazy {
         SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context)) + FileSkills(grantScope, documentAccess, Dispatchers.IO).create())
     }
@@ -137,7 +140,7 @@ class AppContainer(private val context: Context) {
         val policy = PolicyEngine(skills, skillStates, ToolOutput(reservedMarkers = RESERVED_MARKERS), permissionGranted = { permission ->
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
         }, scope = grantScope::check)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = grantScope::names)
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames)
     }
 
     val dataReset: DataReset by lazy {
