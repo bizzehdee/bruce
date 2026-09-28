@@ -1,0 +1,37 @@
+{
+ "id": "unsloth/Qwen3.5-2B-GGUF",
+ "sha": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+ "lastModified": "2026-03-02T14:07:35.000Z",
+ "tags": [
+  "transformers",
+  "gguf",
+  "unsloth",
+  "image-text-to-text",
+  "base_model:Qwen/Qwen3.5-2B",
+  "base_model:quantized:Qwen/Qwen3.5-2B",
+  "license:apache-2.0",
+  "endpoints_compatible",
+  "region:us",
+  "conversational"
+ ],
+ "cardData": {
+  "tags": [
+   "unsloth"
+  ],
+  "library_name": "transformers",
+  "license": "apache-2.0",
+  "license_link": "https://huggingface.co/Qwen/Qwen3.5-2B/blob/main/LICENSE",
+  "pipeline_tag": "image-text-to-text",
+  "base_model": [
+   "Qwen/Qwen3.5-2B"
+  ]
+ },
+ "gguf": {
+  "total": 1881825088,
+  "architecture": "qwen35",
+  "context_length": 262144,
+  "eos_token": "<|im_end|>",
+  "totalFileSize": 3775709216
+ },
+ "gated": false
+}

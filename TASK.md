@@ -220,11 +220,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Pixel 11: chat, new chat, reopen from the drawer, rename, archive, restore, delete with confirmation.
   - Depends on: TASK-024, TASK-025, TASK-026
   - Required by: TASK-035, TASK-045, TASK-047, TASK-048, TASK-053
-- [ ] TASK-033: Tool-calling format for small models
+- [~] TASK-033: Tool-calling format for small models
   - Experiment on both phones with small models (1–4B) to choose how the model asks for a tool: the model's own chat-template tool format, grammar-constrained JSON (llama.cpp GBNF), or both with a fallback.
   - Measure call accuracy (right tool, valid arguments) over a fixed set of prompts for the automatic skills, and the speed cost of grammar constraint.
   - Also test loading skills as needed: the model first sees only a short list of skill names and one-line descriptions, and a skill's full description is added only when the model picks it. Compare accuracy and prompt time against describing every skill up front.
   - Output: a decision recorded as an ADR and in `.learnings/`, closing the plan.md open question on tool-calling format.
+  - Decided 2026-09-28 from the development-machine run (7 models, 36 cases, 4 formats): each model's own format via a narrow build of llama.cpp's chat code, Bruce's format with a grammar as fallback; full skill descriptions until a prompt budget (`docs/adr/0001-tool-calling-format.md`). Open until the phone runs (12-case subset, both Sony phones) are added to the experiment README.
   - Depends on: TASK-024
   - Required by: TASK-036
 - [x] TASK-034: Skill framework and capability model
