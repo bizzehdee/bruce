@@ -151,7 +151,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Shared engine moved into an app-level container (`BruceApplication`/`AppContainer`) so chat, models and diagnostics use one loaded model.
   - Each turn re-evaluates the whole conversation; reusing the KV cache between turns is a later optimisation.
   - Material 3, light and dark themes.
-  - Required by: TASK-025
+  - Required by: TASK-025, TASK-032, TASK-033, TASK-036
 - [x] TASK-025: Navigation shell
   - Side drawer with a conversation list placeholder, Models and Settings entries; chat is the start screen. Permissions are not in the drawer; they are reached from Settings.
   - Chat top bar shows the active model; tapping it opens a quick model switcher.
@@ -159,7 +159,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Until TASK-026 and TASK-027, Settings holds only Diagnostics and Models shows a placeholder.
   - The prototype test bench stays available to everyone as Settings > Diagnostics (TASK-026).
   - Depends on: TASK-024
-  - Required by: TASK-026, TASK-027
+  - Required by: TASK-026, TASK-027, TASK-032
 - [x] TASK-026: Settings screen
   - Appearance (moved from the prototype screen), Diagnostics (the prototype test bench), inference defaults (backend, threads, context length), data and privacy (clear all data, open-source licences), and a link to the permissions management screen (placeholder until that screen exists).
   - Export and delete conversations and delete memories appear once those features exist.
@@ -167,7 +167,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Clear all data asks for confirmation, then unloads the model and deletes models, cached files and settings.
   - Open-source licences list every shipped component with its licence text.
   - Depends on: TASK-013, TASK-025
-  - Required by: TASK-028
+  - Required by: TASK-028, TASK-032
 - [x] TASK-027: Model management screen: installed models
   - Installed models with size, quantisation and fit label; choose the active model; details (metadata, memory estimate, backend); delete; import from a file.
   - Per-model settings (context length, backend, threads, temperature) that override the inference defaults.
@@ -188,8 +188,87 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Files rank quantised before 16/32-bit (BF16 was being recommended first). The memory estimate covers weights only until download. Downloads run while the app is open; background downloads (WorkManager) are not done.
   - Checked live on the XZ Premium: search, repository files ranked with fit and speed.
   - Depends on: TASK-020, TASK-022, TASK-023, TASK-027
+  - Required by: TASK-031
 - [ ] TASK-030: First-launch setup wizard
   - Shown once on first launch: network mode, permission and capability toggles, and getting a first model (import, or download when the network mode allows it).
   - Every choice is also in Settings; the wizard writes the same settings.
   - Open: which permission toggles to show before the policy engine exists (see plan.md open questions).
   - Depends on: TASK-027, TASK-028
+- [ ] TASK-031: Model browser recommendations and filters
+  - The Hugging Face tab opens on models recommended for this phone (text-generation GGUF repositories that fit, ranked by fit then popularity) without typing a name. Name search remains for advanced users.
+  - Filters, combinable, applied to recommendations and search results:
+    - Parameter count buckets: under 1B, 1–3B, 3–8B, 8–14B, 14B and over.
+    - Download size buckets (of the best-fitting file): under 1 GB, 1–2 GB, 2–4 GB, 4–8 GB, 8 GB and over.
+    - Runs on this phone: Fits, Tight, or any.
+    - Task type: only types Bruce can run; text generation now.
+  - Research first: which filters the Hub API supports server-side (pipeline tag, parameter range) and how to get file sizes without one request per repository (avoid N+1). Record findings in research/ and .learnings/.
+  - Depends on: TASK-029
+- [ ] TASK-032: Saved conversations
+  - Every chat is saved locally (Room) and listed in the drawer, newest first, replacing the placeholder. New chat, resume, rename and delete.
+  - A resumed conversation reloads its messages; the model in use is whichever is active.
+  - Settings > data gains delete all conversations. Export is a later task.
+  - Room is a new dependency (already listed in plan.md's stack for conversations).
+  - Depends on: TASK-024, TASK-025, TASK-026
+  - Required by: TASK-035, TASK-036
+- [ ] TASK-033: Tool-calling format for small models
+  - Experiment on both phones with small models (1–4B) to choose how the model asks for a tool: the model's own chat-template tool format, grammar-constrained JSON (llama.cpp GBNF), or both with a fallback.
+  - Measure call accuracy (right tool, valid arguments) over a fixed set of prompts for the automatic skills, and the speed cost of grammar constraint.
+  - Output: a decision recorded as an ADR and in `.learnings/`, closing the plan.md open question on tool-calling format.
+  - Depends on: TASK-024
+  - Required by: TASK-036
+- [ ] TASK-034: Skill framework and capability model
+  - Skill definition per the spec: ID, version, description, input schema, required capabilities, default state, high-risk flag, resource scope, Android permissions, execute function.
+  - Capability classes and capabilities from the spec (INFORMATION, FILES, PERSONAL_DATA, SENSORS, COMMUNICATION, SYSTEM, NETWORK); only those used by current skills are wired.
+  - Skill registry; argument validation against the input schema (untrusted input from the model); structured denials with the spec's codes, `user_can_change` and `retryable`; results sanitised and marked as untrusted data before returning to the model.
+  - Required by: TASK-035, TASK-036, TASK-037
+- [ ] TASK-035: Policy engine
+  - Per-skill states: Declined (refused with a structured denial), Ask (confirm every use), Accepted (run without asking).
+  - Fresh-install defaults: automatic skills Accepted; file read Declined; file create, write and delete Ask.
+  - Enforcement order: validate tool, validate arguments, skill state, Android permissions, granted scope, confirmation (Ask), execute, sanitise result. Scope checks apply in every state, including Accepted.
+  - The model has no path to change skill states, grants or settings.
+  - States and grants stored in Room with a policy version.
+  - Depends on: TASK-032, TASK-034
+  - Required by: TASK-036, TASK-038, TASK-039, TASK-040
+- [ ] TASK-036: Tool calling in chat (runtime and agent loop)
+  - `BruceRuntime` lists enabled skills to the model, parses tool requests in the TASK-033 format, runs them through the policy engine and feeds results back.
+  - Bounded agent loop: maximum tool calls per turn, maximum execution time, cancellation with the stop button; structured errors on every limit.
+  - Tool calls, results and denials appear inline in the conversation and are saved with it.
+  - Depends on: TASK-024, TASK-032, TASK-033, TASK-034, TASK-035
+  - Required by: TASK-037, TASK-041, TASK-042
+- [ ] TASK-037: Automatic skills
+  - Date/time, calculator, battery, device information, storage status, network status; default state Accepted; no Android runtime permissions.
+  - Calculator uses a bounded arithmetic parser, never code evaluation.
+  - Device and network status report only what the spec needs (no identifiers such as serials or MAC addresses).
+  - Depends on: TASK-034, TASK-036
+  - Required by: TASK-039
+- [ ] TASK-038: Permissions screen
+  - Replaces the placeholder reached from Settings. Lists granted files and folders (with granted date) and the Android permissions Bruce holds; each can be revoked.
+  - Skill states are not here; they are in the Skills screen (TASK-039).
+  - Depends on: TASK-035
+  - Required by: TASK-040
+- [ ] TASK-039: Skills screen
+  - Settings gains a Skills section that opens a dedicated Skills screen.
+  - Lists each skill: what it does, a high-risk flag where it applies, and its state (Declined, Ask, Accepted), which the user changes there. Notes when a skill also needs a folder grant, linking to Permissions.
+  - Setting a high-risk skill to Accepted shows a warning the user must accept; cancelling leaves the state unchanged.
+  - Depends on: TASK-035, TASK-037, TASK-038
+- [ ] TASK-040: Scoped grants with the Storage Access Framework
+  - The user grants a file or folder through the system picker; the grant binds the capability to that scope. Persisted URI permissions survive restarts; revoking releases them.
+  - Grants last until revoked (no durations; the skill states replace them).
+  - Resource-scope check refuses any target outside a grant (`RESOURCE_OUTSIDE_SCOPE`), including path tricks that escape the granted tree.
+  - Depends on: TASK-035, TASK-038
+  - Required by: TASK-042, TASK-043, TASK-044
+- [ ] TASK-041: Exact-operation confirmation
+  - For skills in the Ask state: inline confirmation card in chat showing the tool, arguments and exact targets, with approve and deny.
+  - Approval binds tool ID, arguments, target resources, timestamp and policy version; the executor refuses anything that differs from what was approved.
+  - Depends on: TASK-036
+  - Required by: TASK-043, TASK-044
+- [ ] TASK-042: File read skill
+  - Read granted files and list granted folders; default state Declined.
+  - Plain-text formats only at first; size limits on what is read into the prompt; content passed to the model as untrusted data.
+  - Depends on: TASK-036, TASK-040
+- [ ] TASK-043: File create and write skills
+  - Create a file and write or replace a file's contents in a granted folder; default state Ask, confirmed per operation through TASK-041.
+  - Depends on: TASK-040, TASK-041
+- [ ] TASK-044: File delete skill
+  - Delete a single file in a granted folder; flagged high risk; default state Ask.
+  - Depends on: TASK-040, TASK-041

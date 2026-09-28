@@ -114,7 +114,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Agent loop** — Multi-step tool use, bounded by maximum tool calls, maximum
   execution time and resource limits; supports cancellation and structured
   errors. `planned`
-- **Conversations** — Local history; export and delete. `planned`
+- **Conversations** — Saved conversations ("sessions"): the drawer lists them,
+  newest first; the user starts a new chat, resumes, renames or deletes one.
+  Stored locally; export follows. `planned`
 - **Memory** — Conversation memory; long-term user-approved facts; local
   knowledge. Basic/limited in Free, persistent in `planned`
 - **Local RAG** — Text extraction, chunking, local embeddings, local index,
@@ -127,14 +129,23 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Capability model** — Capability classes and capabilities as listed in the
   product spec (INFORMATION, FILES, PERSONAL_DATA, SENSORS, COMMUNICATION,
   SYSTEM, NETWORK). `planned`
-- **Policy engine** — Policies AUTO, USER_ENABLE, CONFIRM, ALWAYS_CONFIRM, DENY.
-  Enforcement order: validate tool, validate arguments, capabilities, Android
+- **Skill states** — Each skill has one user-set state: **Declined** (never
+  used), **Ask** (the user confirms every use) or **Accepted** (always allowed,
+  never asked again). The user changes states in the Skills screen. Fresh-install
+  defaults follow the spec's policies: automatic skills start Accepted, file read
+  starts Declined, file create, write and delete start Ask. High-risk skills
+  (the spec's always-confirm operations: delete files now; SMS, calls, payments
+  and side-effecting web requests later) are flagged as high risk; setting one to
+  Accepted shows a warning the user must accept first. The owner chose to allow
+  Accepted for high-risk skills with this warning (2026-09-28). `planned`
+- **Policy engine** — Applies the skill states. Enforcement order: validate tool, validate arguments, capabilities, Android
   permissions, user grants, resource scope, confirmation, execute, sanitise
   result. `planned`
-- **Scoped grants** — Grants bound to a resource scope (for example one SAF
-  directory) with duration: once, this chat, until revoked, permanent.
-  `planned`
-- **Exact-operation confirmation** — Confirmation binds tool ID, arguments,
+- **Scoped grants** — File skills act only inside files and folders the user
+  granted through the Storage Access Framework, whatever the skill's state.
+  Grants last until the user revokes them; the spec's grant durations (once, this
+  chat, until revoked, permanent) are replaced by the skill states. `planned`
+- **Exact-operation confirmation** — For skills in the Ask state, confirmation binds tool ID, arguments,
   target resources, timestamp and policy version; execution is refused if the
   operation differs. `planned`
 - **Structured denials** — Tool failures return a code (`UNKNOWN_TOOL`,
@@ -179,16 +190,28 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   download from Hugging Face with fit-ranked results and download progress.
   Per-model settings (context length, backend, threads, temperature) override the
   inference defaults. `done`
+- **Model browser recommendations** — The Hugging Face tab opens on a list of
+  models suited to the phone, so users need not know a model's name; name search
+  stays available for advanced users. Filters: parameter count (buckets), download
+  size (buckets), runs on this phone (fit), and task type. Task types are limited
+  to those Bruce can run (text generation now; vision and embeddings once
+  supported). `planned`
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and
   delete conversations, delete memories, clear all data, open-source licences);
-  a link to the permissions management screen; and Diagnostics, the Phase 0 test
+  a Skills section opening the Skills screen; a link to the permissions management screen; and Diagnostics, the Phase 0 test
   bench (hardware report, backends, benchmarks), available in every build. `in progress`
 - **Setup wizard** — Shown on first launch. Walks the user through the choices that
   shape Bruce before first use: network mode, permission and capability toggles,
   and getting a first model (import or download). Every choice can be changed later
   in Settings. `planned`
+- **Skills screen** — Reached from Settings. Lists every skill with what it does,
+  a high-risk flag where it applies, and its state (Declined, Ask, Accepted),
+  which the user changes there. `planned`
+- **Permissions screen** — Reached from Settings. Lists the files and folders
+  Bruce has been granted and the Android permissions it holds, each revocable.
+  `planned`
 - **Main screens** — Chat, Conversations, Models, Model browser, Downloads,
   Skills, Permissions (reached from Settings), Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
@@ -314,7 +337,6 @@ device-to-device transfer.
 | Question | Owner |
 |---|---|
 | App signing arrangements (Play App Signing, upload key custody). | User |
-| Difference between the grant durations "until revoked" and "permanent". | User |
 | Tool-calling format for small models (for example grammar-constrained JSON output). To be settled by Phase 1 experiments. | User, from evidence |
 | Local embedding model for RAG. | User, from evidence |
 | Web search provider for `WEB_SEARCH`. | User |
@@ -353,6 +375,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Skill permissions are per-skill states (Declined, Ask, Accepted) set in a Skills screen under Settings; high-risk skills warn before Accepted; grant durations dropped; Permissions screen holds folder grants and Android permissions. |
+| 2026-09-28 | Added | Model browser recommendations with filters (parameter count, download size, fit, task type); saved conversations defined. |
 | 2026-09-28 | Changed | Statuses from TASK-024 to TASK-028: chat interface and Settings screen in progress, navigation done, Hugging Face sign-in in progress. |
 | 2026-09-28 | Changed | Hugging Face discovery, resumable downloads, model recommendation, model management and network modes marked done; sign-in awaits a real sign-in. |
 | 2026-09-27 | Added | First-launch setup wizard covering network mode, permission toggles and a first model. |
