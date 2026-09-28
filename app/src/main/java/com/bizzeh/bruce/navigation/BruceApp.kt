@@ -41,6 +41,11 @@ import com.bizzeh.bruce.R
 import com.bizzeh.bruce.chat.ChatActions
 import com.bizzeh.bruce.chat.ChatScreen
 import com.bizzeh.bruce.chat.ChatState
+import com.bizzeh.bruce.conversations.Conversation
+import com.bizzeh.bruce.conversations.ConversationActions
+import com.bizzeh.bruce.conversations.ConversationList
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import com.bizzeh.bruce.models.ActiveModelState
 import com.bizzeh.bruce.settings.LicencesScreen
 import com.bizzeh.bruce.settings.PermissionsScreen
@@ -54,13 +59,14 @@ enum class Destination {
     DIAGNOSTICS,
     LICENCES,
     PERMISSIONS,
+    ARCHIVED,
 }
 
 /** Where the system back button goes from each destination. */
 internal fun backTarget(destination: Destination): Destination? = when (destination) {
     Destination.CHAT -> null
     Destination.DIAGNOSTICS, Destination.LICENCES, Destination.PERMISSIONS -> Destination.SETTINGS
-    Destination.MODELS, Destination.SETTINGS -> Destination.CHAT
+    Destination.MODELS, Destination.SETTINGS, Destination.ARCHIVED -> Destination.CHAT
 }
 
 interface AppActions {
@@ -69,8 +75,9 @@ interface AppActions {
 }
 
 /**
- * The app shell: chat is the start screen, a side drawer leads to Models and Settings, and the
- * chat title opens a quick model switcher. Permissions are reached from Settings, not here.
+ * The app shell: chat is the start screen, a side drawer lists saved chats and leads to Archived,
+ * Models and Settings, and the chat title opens a quick model switcher. Permissions are reached
+ * from Settings, not here.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,6 +90,9 @@ fun BruceApp(
     settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
     startDestination: Destination = Destination.CHAT,
+    conversations: List<Conversation> = emptyList(),
+    archived: List<Conversation> = emptyList(),
+    conversationActions: ConversationActions? = null,
 ) {
     var destination by rememberSaveable { mutableStateOf(startDestination) }
     var switcherOpen by rememberSaveable { mutableStateOf(false) }
@@ -106,13 +116,29 @@ fun BruceApp(
                     onClick = { actions.newChat(); go(Destination.CHAT) },
                     modifier = Modifier.padding(horizontal = 12.dp),
                 )
-                Text(
-                    stringResource(R.string.nav_conversations_placeholder),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 16.dp),
-                )
+                if (conversationActions != null) {
+                    ConversationList(
+                        conversations = conversations,
+                        currentId = chat.conversationId,
+                        archivedView = false,
+                        actions = object : ConversationActions by conversationActions {
+                            override fun open(id: Long) {
+                                conversationActions.open(id)
+                                go(Destination.CHAT)
+                            }
+                        },
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).testTag("conversations"),
+                    )
+                }
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 28.dp))
+                if (conversationActions != null) {
+                    NavigationDrawerItem(
+                        label = { Text(stringResource(R.string.nav_archived)) },
+                        selected = false,
+                        onClick = { go(Destination.ARCHIVED) },
+                        modifier = Modifier.padding(horizontal = 12.dp).testTag("nav:archived"),
+                    )
+                }
                 NavigationDrawerItem(
                     label = { Text(stringResource(R.string.nav_models)) },
                     selected = false,
@@ -144,6 +170,17 @@ fun BruceApp(
             Destination.DIAGNOSTICS -> diagnosticsScreen { goBack() }
             Destination.LICENCES -> LicencesScreen { goBack() }
             Destination.PERMISSIONS -> PermissionsScreen { goBack() }
+            Destination.ARCHIVED -> SubScreen(stringResource(R.string.nav_archived), { goBack() }) {
+                if (conversationActions != null) {
+                    ConversationList(
+                        conversations = archived,
+                        currentId = null,
+                        archivedView = true,
+                        actions = conversationActions,
+                        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).testTag("archived"),
+                    )
+                }
+            }
         }
     }
 

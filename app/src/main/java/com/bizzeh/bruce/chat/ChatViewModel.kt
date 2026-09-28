@@ -21,6 +21,8 @@ data class ChatEntry(val role: ChatRole, val text: String, val stats: Generation
 
 data class ChatState(
     val modelName: String? = null,
+    /** The saved conversation shown; null until the first turn of a new chat is saved. */
+    val conversationId: Long? = null,
     val entries: List<ChatEntry> = emptyList(),
     val input: String = "",
     val generating: Boolean = false,
@@ -37,10 +39,17 @@ enum class ChatError {
 class ChatViewModel(
     private val engine: InferenceEngine,
     activeModel: StateFlow<ActiveModelState>,
+    /** Saves a conversation (null id: a new one) and returns the id it was saved as. */
+    private val save: suspend (id: Long?, entries: List<ChatEntry>) -> Long,
+    /** A saved conversation's messages, or null if it no longer exists. */
+    private val load: suspend (id: Long) -> List<ChatEntry>?,
     private val temperature: suspend () -> Float = { GenerationRequest.DEFAULT_TEMPERATURE },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
+
+    /** Changes when another conversation is shown, so a turn that finishes later does not touch it. */
+    private var session = 0
 
     init {
         viewModelScope.launch {
@@ -57,19 +66,27 @@ class ChatViewModel(
         val text = current.input.trim()
         if (text.isEmpty() || current.generating) return
         val conversation = current.entries + ChatEntry(ChatRole.USER, text)
+        val turnSession = session
         mutableState.update {
             it.copy(entries = conversation + ChatEntry(ChatRole.ASSISTANT, ""), input = "", generating = true, error = null)
         }
         viewModelScope.launch {
+            var reply = ChatEntry(ChatRole.ASSISTANT, "")
             val prompt = engine.formatChat(conversation.map(::toMessage))
+            val onScreen = { session == turnSession }
             if (prompt == null) {
-                finish(ChatError.NO_MODEL_LOADED)
+                if (onScreen()) finish(ChatError.NO_MODEL_LOADED)
                 return@launch
             }
             engine.generate(GenerationRequest(prompt.text, maxTokens = MAX_REPLY_TOKENS, temperature = temperature())).collect { event ->
                 when (event) {
-                    is GenerationEvent.Token -> updateReply { it.copy(text = it.text + event.text) }
-                    is GenerationEvent.Completed -> updateReply { it.copy(stats = event.stats) }
+                    is GenerationEvent.Token -> reply = reply.copy(text = reply.text + event.text)
+                    is GenerationEvent.Completed -> reply = reply.copy(stats = event.stats)
+                    is GenerationEvent.Failed -> Unit
+                }
+                if (!onScreen()) return@collect
+                when (event) {
+                    is GenerationEvent.Token, is GenerationEvent.Completed -> updateReply { reply }
                     is GenerationEvent.Failed -> finish(
                         when (event.error) {
                             GenerationError.NO_MODEL_LOADED -> ChatError.NO_MODEL_LOADED
@@ -79,8 +96,25 @@ class ChatViewModel(
                     )
                 }
             }
-            mutableState.update { it.copy(generating = false) }
+            // Saved to the conversation the turn began in, even if another is shown by now.
+            val saved = save(current.conversationId, if (reply.text.isEmpty()) conversation else conversation + reply)
+            if (onScreen()) mutableState.update { it.copy(generating = false, conversationId = saved) }
         }
+    }
+
+    /** Shows a saved conversation; stops any reply in progress, which is still saved to its own chat. */
+    fun open(id: Long) {
+        viewModelScope.launch {
+            val entries = load(id) ?: return@launch
+            if (mutableState.value.generating) engine.stop()
+            session++
+            mutableState.update { ChatState(modelName = it.modelName, conversationId = id, entries = entries) }
+        }
+    }
+
+    /** Called when conversations are archived or deleted; the chat on screen starts afresh if it was one of them. */
+    fun forget(ids: Collection<Long>) {
+        if (mutableState.value.conversationId in ids) newChat()
     }
 
     fun stop() {
@@ -89,6 +123,7 @@ class ChatViewModel(
 
     fun newChat() {
         if (mutableState.value.generating) engine.stop()
+        session++
         mutableState.update { ChatState(modelName = it.modelName) }
     }
 

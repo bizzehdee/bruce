@@ -11,6 +11,9 @@ import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.models.ModelSelection
 import com.bizzeh.bruce.models.ModelSettingsRepository
 import com.bizzeh.bruce.settings.DataReset
+import com.bizzeh.bruce.conversations.ConversationDatabase
+import com.bizzeh.bruce.conversations.ConversationStore
+import androidx.room.Room
 import com.bizzeh.bruce.setup.SetupSettingsRepository
 import com.bizzeh.bruce.huggingface.HttpTransport
 import com.bizzeh.bruce.huggingface.HubAuth
@@ -80,8 +83,14 @@ class AppContainer(private val context: Context) {
         ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO)
     }
 
+    private val conversationDatabase: ConversationDatabase by lazy {
+        Room.databaseBuilder(context, ConversationDatabase::class.java, ConversationDatabase.NAME).build()
+    }
+
+    val conversations: ConversationStore by lazy { ConversationStore(conversationDatabase.conversations()) }
+
     val dataReset: DataReset by lazy {
-        DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO)
+        DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO, conversations::deleteAll)
     }
 
     val cpuFeatures: () -> CpuFeatures = CpuFeatures::detect

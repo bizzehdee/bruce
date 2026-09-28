@@ -210,12 +210,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Vision projectors, split-model parts and speculative-decoding draft architectures (eagle3, dflash) are never recommended.
   - Checked on the Pixel 11 against the real Hub (`HubClientOnlineTest`) and on screen.
   - Depends on: TASK-029
-- [ ] TASK-032: Saved conversations
+- [x] TASK-032: Saved conversations
   - Every chat is saved locally (Room) and listed in the drawer, newest first, replacing the placeholder. New chat, resume, rename, archive and delete.
   - Bulk selection: archive or delete several chats at once. Archived chats leave the main list and are reachable from an Archived view, where they can be restored or deleted. Delete asks for confirmation.
   - A resumed conversation reloads its messages; the model in use is whichever is active.
   - Settings > data gains delete all conversations. Export is a later task.
   - Room is a new dependency (already listed in plan.md's stack for conversations).
+  - Done: Room 2.8.5 with KSP 2.3.12 (owner approved, 2026-09-28); schema exported to `app/schemas`. Each turn is saved when it ends, to the chat it began in, even if the user has switched chats. The title is the start of the first message (about 40 characters, cut at a word). Long press selects; Rename appears for one selection. Archived chats open in the Archived view by selection only. Clear all data also deletes chats.
+  - Device-tested on the Pixel 11: chat, new chat, reopen from the drawer, rename, archive, restore, delete with confirmation.
   - Depends on: TASK-024, TASK-025, TASK-026
   - Required by: TASK-035, TASK-036, TASK-045, TASK-047, TASK-048
 - [ ] TASK-033: Tool-calling format for small models

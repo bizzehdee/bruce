@@ -121,7 +121,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Conversations** — Saved conversations ("sessions"): the drawer lists them,
   newest first; the user starts a new chat, resumes, renames, archives or deletes
   one, and can archive or delete several at once. Archived chats are kept but
-  leave the main list. Stored locally; export follows. `planned`
+  leave the main list. Stored locally; export follows. `done` (export not yet)
 - **Context management** — The chat shows how much of the model's context is in
   use and how much is free, with a note that a full context does not stop the
   chat: new messages push the oldest out. When the context overflows, the oldest
@@ -399,6 +399,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Saved conversations done (drawer list, resume, rename, archive, delete, bulk actions, Archived view, delete all chats); export still to come. |
 | 2026-09-28 | Changed | Model browser recommendations and filters done; list sizes are estimates, exact when a repository is opened. |
 | 2026-09-28 | Changed | Auto backend always uses the CPU; Vulkan and OpenCL only when chosen, marked experimental (Vulkan gave wrong output on the Pixel 11). |
 | 2026-09-28 | Changed | Setup wizard settled: welcome, network mode, notification permission and a first model; no skill toggles or appearance. |

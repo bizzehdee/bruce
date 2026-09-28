@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kover)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -117,6 +118,8 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
@@ -130,6 +133,7 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.robolectric)
+    testImplementation(libs.room.testing)
     testImplementation(libs.androidx.test.core)
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)
@@ -143,4 +147,9 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4)
     // Compose's test library brings Espresso 3.5.0, which fails on Android 17 (no InputManager.getInstance).
     androidTestImplementation(libs.espresso.core)
+}
+
+ksp {
+    // Each database version's schema is committed, so migrations can be tested against it.
+    arg("room.schemaLocation", "$projectDir/schemas")
 }

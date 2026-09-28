@@ -58,6 +58,7 @@ interface SettingsActions {
     fun setThreads(threads: Int?)
     fun setContextLength(contextLength: Int)
     fun clearAllData()
+    fun deleteAllConversations()
     fun setNetworkMode(mode: NetworkMode)
     fun signIn()
     fun signOut()
@@ -70,6 +71,7 @@ interface SettingsActions {
 @Composable
 fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () -> Unit) {
     var confirmClear by rememberSaveable { mutableStateOf(false) }
+    var confirmDeleteChats by rememberSaveable { mutableStateOf(false) }
     SubScreen(stringResource(R.string.nav_settings), onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).testTag("settings")) {
             Heading(R.string.settings_appearance)
@@ -176,6 +178,11 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             Heading(R.string.settings_privacy)
             Link(R.string.settings_permissions, R.string.settings_permissions_summary, "settings:permissions", actions::openPermissions)
             ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_delete_conversations), color = MaterialTheme.colorScheme.error) },
+                supportingContent = { Text(stringResource(R.string.settings_delete_conversations_summary)) },
+                modifier = Modifier.clickable { confirmDeleteChats = true }.testTag("settings:deleteChats"),
+            )
+            ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_clear_data), color = MaterialTheme.colorScheme.error) },
                 supportingContent = { Text(stringResource(R.string.settings_clear_data_summary)) },
                 modifier = Modifier.clickable { confirmClear = true }.testTag("settings:clear"),
@@ -185,6 +192,19 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             Link(R.string.settings_licences, null, "settings:licences", actions::openLicences)
             Link(R.string.nav_diagnostics, R.string.nav_diagnostics_summary, "settings:diagnostics", actions::openDiagnostics)
         }
+    }
+    if (confirmDeleteChats) {
+        AlertDialog(
+            onDismissRequest = { confirmDeleteChats = false },
+            title = { Text(stringResource(R.string.settings_delete_conversations_confirm_title)) },
+            text = { Text(stringResource(R.string.conversations_delete_confirm_text)) },
+            confirmButton = {
+                TextButton(onClick = { confirmDeleteChats = false; actions.deleteAllConversations() }, modifier = Modifier.testTag("confirmDeleteChats")) {
+                    Text(stringResource(R.string.conversations_delete), color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = { TextButton(onClick = { confirmDeleteChats = false }) { Text(stringResource(R.string.settings_cancel)) } },
+        )
     }
     if (confirmClear) {
         AlertDialog(
