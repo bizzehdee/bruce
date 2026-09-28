@@ -5,6 +5,7 @@ import com.bizzeh.bruce.gguf.GgufMetadata
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.ComputeDevice
 import com.bizzeh.bruce.models.MemoryCheck
+import com.bizzeh.bruce.ui.Format
 import java.util.Locale
 
 /** Formats prototype state for display; kept out of composables so tests can cover it. */
@@ -66,21 +67,7 @@ internal object PrototypeText {
         )
     }
 
-    fun bytes(value: Long): String = when {
-        value >= GIB -> String.format(Locale.ROOT, "%.2f GB", value.toDouble() / GIB)
-        value >= MIB -> String.format(Locale.ROOT, "%.1f MB", value.toDouble() / MIB)
-        value >= KIB -> String.format(Locale.ROOT, "%.1f KB", value.toDouble() / KIB)
-        else -> "$value B"
-    }
+    fun bytes(value: Long): String = Format.bytes(value)
 
-    fun count(value: Long): String = when {
-        value >= 1_000_000_000 -> String.format(Locale.ROOT, "%.2fB", value / 1e9)
-        value >= 1_000_000 -> String.format(Locale.ROOT, "%.1fM", value / 1e6)
-        value >= 1_000 -> String.format(Locale.ROOT, "%.1fK", value / 1e3)
-        else -> value.toString()
-    }
-
-    private const val KIB = 1024L
-    private const val MIB = KIB * 1024
-    private const val GIB = MIB * 1024
+    fun count(value: Long): String = Format.count(value)
 }

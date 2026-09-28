@@ -46,12 +46,16 @@ data class GenerationRequest(
     val prompt: String,
     val maxTokens: Int = 256,
     /** 0 selects greedy decoding. */
-    val temperature: Float = 0.8f,
+    val temperature: Float = DEFAULT_TEMPERATURE,
     val seed: Int = 0,
 ) {
     init {
         require(maxTokens > 0) { "maxTokens must be positive, was $maxTokens" }
         require(temperature >= 0f) { "temperature must not be negative, was $temperature" }
+    }
+
+    companion object {
+        const val DEFAULT_TEMPERATURE = 0.8f
     }
 }
 

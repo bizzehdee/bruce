@@ -1,5 +1,6 @@
 package com.bizzeh.bruce
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -12,6 +13,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -36,8 +38,8 @@ class MainActivityDeviceTest {
 
     @Before
     fun setUp() {
-        // The engine is shared by the whole process, so a model loaded by an earlier test would leak in.
-        runBlocking { instrumentation.targetContext.appContainer.activeModel.unload() }
+        // The engine and settings outlive a single test, so each test starts from cleared data.
+        runBlocking { instrumentation.targetContext.appContainer.dataReset.clearAll() }
         modelsDir.mkdirs()
         instrumentation.context.assets.open("stories260K.gguf").use { input ->
             File(modelsDir, "stories260K.gguf").outputStream().use { input.copyTo(it) }
@@ -78,6 +80,27 @@ class MainActivityDeviceTest {
         compose.waitUntilAtLeastOneExists(hasText("Tell me a story"), TIMEOUT_MS)
         compose.waitUntilAtLeastOneExists(hasTestTag("send"), TIMEOUT_MS)
         compose.onNodeWithTag("answer:1").assert(hasNonBlankText)
+    }
+
+    @Test
+    fun choosingAModelInModelsIsRememberedAcrossRecreation() {
+        compose.waitUntilAtLeastOneExists(hasTestTag("openDrawer"), TIMEOUT_MS)
+        compose.onNodeWithTag("openDrawer").performClick()
+        compose.waitUntilAtLeastOneExists(hasTestTag("nav:models"), TIMEOUT_MS)
+        compose.onNodeWithTag("nav:models").performClick()
+        compose.waitUntilAtLeastOneExists(hasText("stories260K"), TIMEOUT_MS)
+        compose.onNodeWithText("stories260K").performClick()
+        compose.waitUntilAtLeastOneExists(hasTestTag("use:stories260K.gguf"), TIMEOUT_MS)
+        // A synthetic tap after scrolling missed the button on the XZ Premium's shorter screen;
+        // the click action itself is what is under test.
+        compose.onNodeWithTag("use:stories260K.gguf").performScrollTo().performSemanticsAction(SemanticsActions.OnClick)
+        compose.waitUntilAtLeastOneExists(hasText("In use"), TIMEOUT_MS)
+
+        compose.onNodeWithTag("back").performClick()
+        compose.waitUntilAtLeastOneExists(hasTestTag("chatTitle") and hasText("stories260K"), TIMEOUT_MS)
+
+        scenario.recreate()
+        compose.waitUntilAtLeastOneExists(hasTestTag("chatTitle") and hasText("stories260K"), TIMEOUT_MS)
     }
 
     @Test

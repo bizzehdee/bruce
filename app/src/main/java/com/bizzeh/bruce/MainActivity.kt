@@ -20,7 +20,11 @@ import com.bizzeh.bruce.chat.ChatViewModel
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.navigation.AppActions
 import com.bizzeh.bruce.navigation.BruceApp
-import com.bizzeh.bruce.navigation.InterimModels
+import com.bizzeh.bruce.models.DeviceProfile
+import com.bizzeh.bruce.models.ModelOverrides
+import com.bizzeh.bruce.models.ModelsActions
+import com.bizzeh.bruce.models.ModelsScreen
+import com.bizzeh.bruce.models.ModelsViewModel
 import com.bizzeh.bruce.navigation.Destination
 import com.bizzeh.bruce.prototype.PrototypeActions
 import com.bizzeh.bruce.prototype.PrototypeScreen
@@ -31,7 +35,6 @@ import com.bizzeh.bruce.settings.SettingsScreen
 import com.bizzeh.bruce.settings.SettingsViewModel
 import com.bizzeh.bruce.settings.ThemeSettings
 import com.bizzeh.bruce.hardware.CpuTopology
-import kotlinx.coroutines.flow.first
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import com.bizzeh.bruce.ui.theme.dynamicColourSupported
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +44,25 @@ import java.io.File
 class MainActivity : ComponentActivity() {
     private val container by lazy { appContainer }
     private val prototype: PrototypeViewModel by viewModels { factory { prototypeViewModel() } }
-    private val chat: ChatViewModel by viewModels { factory { ChatViewModel(container.engine, container.activeModel.state) } }
+    private val chat: ChatViewModel by viewModels {
+        factory { ChatViewModel(container.engine, container.activeModel.state, container.modelSelection::activeTemperature) }
+    }
+    private val models: ModelsViewModel by viewModels {
+        factory {
+            ModelsViewModel(
+                activeModel = container.activeModel,
+                selection = container.modelSelection,
+                modelSettings = container.modelSettings,
+                inferenceDefaults = container.inferenceSettings.defaults,
+                importModel = container.importer::import,
+                device = {
+                    val memory = container.memoryInfo()
+                    DeviceProfile((memory.availMem - memory.threshold).coerceAtLeast(0), container.cpuFeatures())
+                },
+                ioDispatcher = Dispatchers.IO,
+            )
+        }
+    }
     private val settings: SettingsViewModel by viewModels {
         factory {
             SettingsViewModel(
@@ -63,18 +84,34 @@ class MainActivity : ComponentActivity() {
             BruceTheme(theme) {
                 val chatState by chat.state.collectAsState()
                 val activeModel by container.activeModel.state.collectAsState()
-                LaunchedEffect(Unit) { container.activeModel.refresh() }
+                LaunchedEffect(Unit) { container.modelSelection.restore() }
                 BruceApp(
                     chat = chatState,
                     chatActions = remember { chatActions() },
                     activeModel = activeModel,
                     actions = remember { appActions() },
-                    modelsScreen = { onBack -> InterimModels(onBack) },
+                    modelsScreen = { onBack -> Models(onBack) },
                     settingsScreen = { onBack, open -> Settings(onBack, open) },
                     diagnosticsScreen = { onBack -> Diagnostics(onBack) },
                 )
             }
         }
+    }
+
+    @androidx.compose.runtime.Composable
+    private fun Models(onBack: () -> Unit) {
+        val state by models.state.collectAsState()
+        val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(models::import) }
+        val actions = remember {
+            object : ModelsActions {
+                override fun choose(file: File) = models.choose(file)
+                override fun importModel() = picker.launch(arrayOf("*/*"))
+                override fun delete(file: File) = models.delete(file)
+                override fun setOverrides(file: File, overrides: ModelOverrides) = models.setOverrides(file, overrides)
+            }
+        }
+        LaunchedEffect(Unit) { models.refresh() }
+        ModelsScreen(state, actions, onBack, cores = Runtime.getRuntime().availableProcessors())
     }
 
     @androidx.compose.runtime.Composable
@@ -103,7 +140,7 @@ class MainActivity : ComponentActivity() {
     private fun appActions() = object : AppActions {
         override fun newChat() = chat.newChat()
         override fun selectModel(file: File) {
-            lifecycleScope.launch { container.activeModel.load(file, container.inferenceSettings.defaults.first().toLoadConfig()) }
+            lifecycleScope.launch { container.modelSelection.choose(file) }
         }
     }
 

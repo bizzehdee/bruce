@@ -24,7 +24,6 @@
     <string name="switcher_empty">No models installed yet.</string>
     <string name="switcher_manage">Manage models</string>
     <string name="switcher_loading">Loading…</string>
-    <string name="models_placeholder">Model management is coming next.</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
@@ -49,4 +48,23 @@
     <string name="settings_cancel">Cancel</string>
     <string name="settings_about">About</string>
     <string name="permissions_placeholder">Permission controls arrive with Bruce\'s skills. Bruce cannot access anything on this phone yet beyond the models you give it.</string>
+    <string name="models_import">Import</string>
+    <string name="models_empty">No models yet. Import a GGUF file to get started.</string>
+    <string name="models_active">In use</string>
+    <string name="models_use">Use this model</string>
+    <string name="models_loading">Loading…</string>
+    <string name="models_delete">Delete</string>
+    <string name="models_delete_confirm_title">Delete %1$s?</string>
+    <string name="models_delete_confirm_text">The file is removed from this phone. You can import or download it again later.</string>
+    <string name="models_fit_fits">Fits</string>
+    <string name="models_fit_tight">Tight fit</string>
+    <string name="models_fit_no">Too large for this phone</string>
+    <string name="models_speed_fast">Fast</string>
+    <string name="models_speed_usable">Usable</string>
+    <string name="models_speed_slow">Slow</string>
+    <string name="models_unsupported">Not supported</string>
+    <string name="models_details">Details</string>
+    <string name="models_settings">Model settings</string>
+    <string name="models_default">Default</string>
+    <string name="models_temperature">Temperature</string>
 </resources>
