@@ -92,3 +92,26 @@ comfortably).
 
 An earlier phone run was discarded: a stale server kept serving the first model to every later
 one (`.learnings/adb-shell-background-process-hangs.md`); the invalid files are not kept.
+
+## Addendum 2026-09-29: Llama 3.2 1B Instruct
+
+Reported by the owner: tool calls "don't seem to work at all" with Llama 3.2 1B Instruct Q4 in
+Bruce. File tested: `Llama-3.2-1B-Instruct-Q4_K_M.gguf` from bartowski/Llama-3.2-1B-Instruct-GGUF @
+067b946c, SHA-256 6f85a640a97cf2bf5b8e764087b1e83da0fdb51d7c9fab7d0fece9385611df83 (licence
+llama3.2). Host run, `results/host-llama32-2026-09-29.jsonl`, correct out of 36:
+
+| Model | native | prompt | grammar |
+|---|---|---|---|
+| Llama-3.2-1B Q4_K_M | 18 (11 malformed) | 8 | 15 |
+
+- Malformed calls look like `{"name": "get_datetime", "parameters": {"}}`: llama-server's own parser
+  rejects them with HTTP 500 (`run.py` now records that as malformed rather than stopping).
+- After a successful result, with the skills still offered, it called the same skill again in 5
+  of 5 runs, with the result wrapped in Bruce's envelope or as plain text alike. With no skills
+  offered for that step it answered from the result in 4 of 5.
+
+What Bruce changed in response: a call with arguments that are not JSON goes back to the template
+as `{}` (bad JSON there broke every later turn, reported as "Load a model first"); a repeated call
+gets its earlier result and the rest of the turn offers no skills. On the Xperia 1 II the
+calculator and battery questions were then answered; malformed calls remain the model's.
+
