@@ -374,7 +374,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Checked in the real app on the Pixel 11 with Qwen3.5-0.8B: with Milo chosen, "Who are you?" gets "I'm Milo. What's on your mind?".
   - Depends on: TASK-026, TASK-052
   - Required by: TASK-058
-- [ ] TASK-058: Sidekick wording and light dog puns in the app
+- [x] TASK-058: Sidekick wording and light dog puns in the app
   - User-facing app text says "sidekick" where it described an assistant or agent.
   - Light dog puns in small UI copy only: loading and empty states (for example "Fetching…" while a model loads, "Sniffing out models for this phone" while recommendations load, an empty chat list). Errors, warnings, permission requests, confirmations and settings explanations stay plain.
   - Play listing text (TASK-017) follows the same rule.

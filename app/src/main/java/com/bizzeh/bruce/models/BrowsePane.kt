@@ -76,6 +76,7 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
         }
         Filters(state.filters, actions::setFilters)
         if (state.searching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        if (state.searching && state.recommended) Text(stringResource(R.string.browse_sniffing), style = MaterialTheme.typography.bodySmall)
         state.error?.let { ErrorText(BrowseText.hubError(it), it) }
         if (state.recommended && state.searched && state.error == null) {
             Text(stringResource(R.string.browse_recommended), style = MaterialTheme.typography.titleSmall, modifier = Modifier.testTag("browseRecommended"))

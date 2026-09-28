@@ -423,6 +423,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Sidekick wording and light dog puns in loading and empty states done. |
 | 2026-09-28 | Changed | Personalities done: Bruce and Milo in Settings > Sidekick. |
 | 2026-09-28 | Changed | Tool calling works in chat: skill uses shown inline and saved with the chat; agent loop done. |
 | 2026-09-28 | Changed | Automatic skills done (date and time, calculator, battery, device, storage, network). |
