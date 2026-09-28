@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.models
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -320,7 +321,7 @@ class ModelBrowserTest {
         }
 
         compose.onNodeWithText("Allow Hugging Face in Settings → Network to search and download.").assertIsDisplayed()
-        compose.onNodeWithText("No models match. Try other filters.").assertIsDisplayed()
+        compose.onNodeWithText("Couldn't sniff out a match. Try other filters.").assertIsDisplayed()
         assertEquals(com.bizzeh.bruce.R.string.hub_error_unauthorised, BrowseText.hubError(HubError.UNAUTHORISED))
         assertEquals(com.bizzeh.bruce.R.string.hub_error_rate_limited, BrowseText.hubError(HubError.RATE_LIMITED))
         assertEquals(com.bizzeh.bruce.R.string.hub_error_offline, BrowseText.hubError(HubError.OFFLINE))
@@ -328,6 +329,25 @@ class ModelBrowserTest {
         assertEquals(com.bizzeh.bruce.R.string.hub_error_other, BrowseText.hubError(HubError.SERVER_ERROR))
         assertEquals("qwen3 · 596.0M parameters · 1.0K downloads · apache-2.0", BrowseText.summary(qwen))
         assertFalse(tooBig.fit == Fit.FITS)
+    }
+
+    @Test
+    fun recommendationsSaySoWhileLoadingButSearchesDoNot() {
+        val actions = object : BrowseActions {
+            override fun setQuery(query: String) = Unit
+            override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
+            override fun openRepository(model: HubModel) = Unit
+            override fun download(model: HubModel, assessment: Assessment) = Unit
+            override fun cancel(repositoryId: String, path: String) = Unit
+        }
+        var state by mutableStateOf(BrowseState(searching = true, recommended = true))
+        compose.setContent { BruceTheme { BrowsePane(state, actions) } }
+
+        compose.onNodeWithText("Sniffing out models for this phone…").assertIsDisplayed()
+        state = BrowseState(searching = true, recommended = false)
+        compose.onNodeWithText("Sniffing out models for this phone…").assertDoesNotExist()
     }
 
     @Test

@@ -115,7 +115,7 @@ private fun Installed(
             state.importError?.let { Text("Import failed: $it", color = MaterialTheme.colorScheme.error) }
         }
         OutlinedButton(onClick = actions::importModel, enabled = !state.importing, modifier = Modifier.testTag("import")) {
-            Text(stringResource(if (state.importing) R.string.models_loading else R.string.models_import))
+            Text(stringResource(if (state.importing) R.string.models_importing else R.string.models_import))
         }
     }
     if (state.models.isEmpty()) {

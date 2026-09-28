@@ -4,7 +4,8 @@ This guide is for developers building Bruce from source.
 
 ## Requirements
 
-- JDK 17 or later.
+- JDK 21 or later, a full JDK rather than a JRE. Robolectric's Android SDK 36 runtime
+  refuses to start on JDK 17.
 - Android SDK with platform `android-37.0`, NDK `30.0.16248370` and CMake `4.1.2`.
 - `glslc` from shaderc 2023 or later on `PATH`. The NDK's own `glslc` is too old for
   llama.cpp's Vulkan shaders. On Fedora: `sudo dnf install glslc`. On Debian or Ubuntu:
