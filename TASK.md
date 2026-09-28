@@ -138,8 +138,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Architecture support comes from llama.cpp's own table, with a test that fails if a llama.cpp upgrade changes it.
   - Depends on: TASK-010, TASK-012, TASK-019, TASK-021
   - Required by: TASK-029
-- [ ] TASK-023: Resumable, verified model download
+- [x] TASK-023: Resumable, verified model download
   - Download into app storage through a partial file; resume with range requests; check free space first; verify the SHA-256 before the file becomes a model.
+  - Files without a published SHA-256 are refused. The partial file is named after the SHA-256, so resuming only continues the same content. Verified on a phone with a real Hub download (`ModelDownloaderOnlineTest`).
+  - Not yet: surviving the app going to the background (WorkManager); interrupted downloads resume on the next attempt instead.
   - Depends on: TASK-020
   - Required by: TASK-029
 - [ ] TASK-024: Basic chat screen

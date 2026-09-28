@@ -76,6 +76,14 @@ class UrlConnectionTransportTest {
     }
 
     @Test
+    fun openStreamsTheBody() {
+        transport.open("$base/big", emptyMap()).use { response ->
+            assertEquals(200, response.status)
+            assertEquals(100_000, response.body.readBytes().size)
+        }
+    }
+
+    @Test
     fun followsRedirects() {
         assertEquals(200, transport.get("$base/moved", emptyMap(), maxBytes = 1_000)!!.status)
     }

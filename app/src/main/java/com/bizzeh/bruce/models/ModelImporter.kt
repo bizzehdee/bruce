@@ -47,7 +47,7 @@ class ModelImporter(
         val header = Gguf.readHeader(source)
         if (!Gguf.hasMagic(header)) return ImportResult.Failed(ImportError.NOT_GGUF)
 
-        val target = uniqueTarget(fileName)
+        val target = uniqueTarget(modelsDir, fileName)
         val partial = File(modelsDir, ".${target.name}.partial")
         val copied = try {
             partial.outputStream().use { out ->
@@ -88,22 +88,23 @@ class ModelImporter(
         null
     }
 
-    private fun uniqueTarget(fileName: String): File {
-        val base = fileName.removeSuffix(GGUF_EXTENSION)
-        var candidate = File(modelsDir, fileName)
-        var suffix = 1
-        while (candidate.exists()) {
-            candidate = File(modelsDir, "$base-$suffix$GGUF_EXTENSION")
-            suffix++
-        }
-        return candidate
-    }
-
     internal companion object {
         private const val GGUF_EXTENSION = ".gguf"
         private const val MAX_BASE_NAME_LENGTH = 120
         private val UNSAFE_CHARACTERS = Regex("[^A-Za-z0-9._-]")
         private val GGUF_SUFFIX = Regex("\\.gguf$", RegexOption.IGNORE_CASE)
+
+        /** [fileName] in [dir], or with "-1", "-2"… before the extension if that name is taken. */
+        fun uniqueTarget(dir: File, fileName: String): File {
+            val base = fileName.removeSuffix(GGUF_EXTENSION)
+            var candidate = File(dir, fileName)
+            var suffix = 1
+            while (candidate.exists()) {
+                candidate = File(dir, "$base-$suffix$GGUF_EXTENSION")
+                suffix++
+            }
+            return candidate
+        }
 
         /** The display name comes from another app, so it is never trusted as a path. */
         fun sanitisedFileName(displayName: String?): String {

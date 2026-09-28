@@ -208,6 +208,8 @@ class HubClientTest {
             this.body = body
         }
 
+        override fun open(url: String, headers: Map<String, String>): StreamingResponse = error("not used")
+
         override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse? {
             urls += url
             this.headers += headers
