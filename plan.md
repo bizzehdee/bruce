@@ -184,7 +184,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   network (network mode and Hugging Face sign-in); data and privacy (export and
   delete conversations, delete memories, clear all data, open-source licences);
   a link to the permissions management screen; and Diagnostics, the Phase 0 test
-  bench (hardware report, backends, benchmarks), available in every build. `planned`
+  bench (hardware report, backends, benchmarks), available in every build. `in progress`
 - **Setup wizard** — Shown on first launch. Walks the user through the choices that
   shape Bruce before first use: network mode, permission and capability toggles,
   and getting a first model (import or download). Every choice can be changed later

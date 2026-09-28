@@ -51,13 +51,17 @@ class MainActivityDeviceTest {
         modelsDir.deleteRecursively()
     }
 
-    private fun openDiagnostics() {
+    private fun openSettings() {
         compose.waitUntilAtLeastOneExists(hasTestTag("openDrawer"), TIMEOUT_MS)
         compose.onNodeWithTag("openDrawer").performClick()
         compose.waitUntilAtLeastOneExists(hasTestTag("nav:settings"), TIMEOUT_MS)
         compose.onNodeWithTag("nav:settings").performClick()
+    }
+
+    private fun openDiagnostics() {
+        openSettings()
         compose.waitUntilAtLeastOneExists(hasTestTag("settings:diagnostics"), TIMEOUT_MS)
-        compose.onNodeWithTag("settings:diagnostics").performClick()
+        compose.onNodeWithTag("settings:diagnostics").performScrollTo().performClick()
     }
 
     @Test
@@ -95,7 +99,7 @@ class MainActivityDeviceTest {
 
     @Test
     fun themeChoiceSurvivesRecreation() {
-        openDiagnostics()
+        openSettings()
         compose.waitUntilAtLeastOneExists(hasText("Dark"), TIMEOUT_MS)
         compose.onNodeWithText("Dark").performScrollTo().performClick()
         compose.waitUntilAtLeastOneExists(hasText("Dark") and isSelected(), TIMEOUT_MS)
@@ -103,7 +107,7 @@ class MainActivityDeviceTest {
         scenario.recreate()
 
         compose.waitUntilAtLeastOneExists(hasText("Dark") and isSelected(), TIMEOUT_MS)
-        // Recreation keeps the Diagnostics screen, so the choice is visible straight away.
+        // Recreation keeps the Settings screen, so the choice is visible straight away.
         compose.onNodeWithText("System").performScrollTo().performClick()
         compose.waitUntilAtLeastOneExists(hasText("System") and isSelected(), TIMEOUT_MS)
     }
