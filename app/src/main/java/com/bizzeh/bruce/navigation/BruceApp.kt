@@ -26,13 +26,16 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -102,6 +105,11 @@ fun BruceApp(
     val scope = rememberCoroutineScope()
     val goBack = { backTarget(destination)?.let { destination = it } }
     BackHandler(enabled = destination != Destination.CHAT) { goBack() }
+    // The keyboard would otherwise stay up over the drawer and hide its lower items.
+    val focus = LocalFocusManager.current
+    LaunchedEffect(drawer) {
+        snapshotFlow { drawer.targetValue }.collect { if (it == DrawerValue.Open) focus.clearFocus() }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawer,
