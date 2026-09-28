@@ -92,17 +92,17 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   flagged before any download. For a chosen file, Bruce reads only its GGUF header
   with a partial (range) download to get the layer shape for the memory estimate.
   Only the search text and download requests leave the phone; device details never
-  do. `planned`
+  do. `done`
 - **Hugging Face sign-in** — OAuth ("Sign in with Hugging Face") as the default,
   pasted access token as a fallback. Token stored in Keystore-backed storage.
   `in progress`
 - **Resumable downloads** — Download into app storage, resume with range requests
   after interruption, check free space first, and verify the SHA-256 the Hub
-  publishes for the file. `planned`
+  publishes for the file. `done`
 - **Model recommendation** — Rank search results for this phone, on the phone:
   whether the model fits usable RAM (memory estimate), whether llama.cpp supports
   its architecture, and an expected speed band from measured benchmarks. Shows a
-  fit label on each result; the user can always override. `planned`
+  fit label on each result; the user can always override. `done`
 - **Multiple model profiles and routing** — Named profiles (Main, Fast, Coding,
   Vision) and automatic model selection per task. Basic in Free, advanced and
   routing in `planned`
@@ -141,7 +141,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `CAPABILITY_DISABLED`, `RESOURCE_OUTSIDE_SCOPE`, and the others in the spec),
   message, `user_can_change`, `retryable`. `planned`
 - **Network modes** — Offline only, Hugging Face only, approved domains, general
-  internet. A fresh install starts in offline only. `in progress`
+  internet. A fresh install starts in offline only. `done`
 
 ### Skills
 
@@ -178,7 +178,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   backend); delete. Import from a file with the system picker. Browse, search and
   download from Hugging Face with fit-ranked results and download progress.
   Per-model settings (context length, backend, threads, temperature) override the
-  inference defaults. `in progress`
+  inference defaults. `done`
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and
@@ -353,6 +353,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Hugging Face discovery, resumable downloads, model recommendation, model management and network modes marked done; sign-in awaits a real sign-in. |
 | 2026-09-27 | Added | First-launch setup wizard covering network mode, permission toggles and a first model. |
 | 2026-09-27 | Changed | Hub API uses built-in HTTP and JSON; test bench kept for everyone as Settings > Diagnostics; fresh installs start offline only; Hugging Face sign-in by OAuth now. |
 | 2026-09-27 | Changed | Permissions management screen is reached from Settings only, not from the drawer. |

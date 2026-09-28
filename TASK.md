@@ -183,8 +183,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Implemented and unit/device tested; open until a real sign-in on a phone succeeds.
   - Required by: TASK-030
   - Depends on: TASK-020, TASK-026
-- [ ] TASK-029: Model management screen: Hugging Face browse and download
+- [x] TASK-029: Model management screen: Hugging Face browse and download
   - Search, fit-ranked results and download progress with resume, inside the Model management screen.
+  - Files rank quantised before 16/32-bit (BF16 was being recommended first). The memory estimate covers weights only until download. Downloads run while the app is open; background downloads (WorkManager) are not done.
+  - Checked live on the XZ Premium: search, repository files ranked with fit and speed.
   - Depends on: TASK-020, TASK-022, TASK-023, TASK-027
 - [ ] TASK-030: First-launch setup wizard
   - Shown once on first launch: network mode, permission and capability toggles, and getting a first model (import, or download when the network mode allows it).

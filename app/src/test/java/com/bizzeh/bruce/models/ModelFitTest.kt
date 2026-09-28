@@ -114,6 +114,17 @@ class ModelFitTest {
     }
 
     @Test
+    fun quantisedFilesRankAheadOfFullPrecision() {
+        val q8 = qwen(639_446_688, 596_000_000, "Qwen3-0.6B-Q8_0.gguf").copy(header = null)
+        val bf16 = qwen(1_509_347_552, 596_000_000, "Qwen3-0.6B-BF16.gguf").copy(header = null)
+        val q4 = qwen(428_970_080, 596_000_000, "Qwen3-0.6B-Q4_0.gguf").copy(header = null)
+
+        val ranked = ModelFit.rank(listOf(bf16, q4, q8), xperia1Ii, 2048).map { it.candidate.path }
+
+        assertEquals(listOf("Qwen3-0.6B-Q8_0.gguf", "Qwen3-0.6B-Q4_0.gguf", "Qwen3-0.6B-BF16.gguf"), ranked)
+    }
+
+    @Test
     fun rankingPutsRunnableModelsFirstThenGatedThenOnesThatDoNotFit() {
         val gated = qwen06.copy(repositoryId = "meta/gated", gated = true)
         val projector = qwen06.copy(header = null, architecture = "clip", path = "mmproj-F16.gguf")

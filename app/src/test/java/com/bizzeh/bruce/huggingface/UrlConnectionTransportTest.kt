@@ -126,6 +126,24 @@ class UrlConnectionTransportTest {
     }
 
     @Test
+    fun redirectRules() {
+        val auth = mapOf("Authorization" to "Bearer tok", "User-Agent" to "Bruce")
+        val hub = java.net.URL("https://huggingface.co/a/b/resolve/main/m.gguf")
+
+        val (cdn, cdnHeaders) = redirect(hub, "https://cdn.example.org/xet/123?sig=1", auth)
+        assertEquals("cdn.example.org", cdn.host)
+        assertEquals(mapOf("User-Agent" to "Bruce"), cdnHeaders)
+
+        val (renamed, renamedHeaders) = redirect(hub, "/a/b-moved/resolve/main/m.gguf", auth)
+        assertEquals("https://huggingface.co/a/b-moved/resolve/main/m.gguf", renamed.toString())
+        assertEquals(auth, renamedHeaders)
+
+        assertEquals(mapOf("User-Agent" to "Bruce"), redirect(hub, "https://huggingface.co:8443/x", auth).second)
+        assertThrows<IOException> { redirect(hub, "http://huggingface.co/a/b", auth) }
+        assertEquals(auth, redirect(java.net.URL("http://127.0.0.1:1/a"), "/b", auth).second)
+    }
+
+    @Test
     fun redirectLoopsAreCapped() {
         server.createContext("/loop") { exchange ->
             exchange.responseHeaders.add("Location", "/loop")
