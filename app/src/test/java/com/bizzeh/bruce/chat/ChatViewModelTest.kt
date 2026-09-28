@@ -6,6 +6,7 @@ import com.bizzeh.bruce.inference.GenerationStats
 import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.models.ActiveModelState
+import com.bizzeh.bruce.policy.PolicyDecision
 import com.bizzeh.bruce.runtime.RuntimeError
 import com.bizzeh.bruce.runtime.RuntimeEvent
 import com.bizzeh.bruce.testing.FakeEngine
@@ -64,7 +65,9 @@ class ChatViewModelTest {
 
     private fun reply(text: String) = flowOf(RuntimeEvent.Text(text), RuntimeEvent.Step(text, "", emptyList(), stats), RuntimeEvent.Finished(emptyList()))
 
-    private fun TestScope.viewModel() = ChatViewModel(engine, activeModel, save, load, respond).also { advanceUntilIdle() }
+    private val noAnswer: suspend (ToolCall, PolicyDecision.NeedsConfirmation, Boolean) -> RuntimeEvent.ToolResult = { _, _, _ -> error("no approvals in these tests") }
+
+    private fun TestScope.viewModel() = ChatViewModel(engine, activeModel, save, load, respond, noAnswer).also { advanceUntilIdle() }
 
     private fun TestScope.chat(text: String, vm: ChatViewModel) {
         vm.setInput(text)
@@ -85,7 +88,7 @@ class ChatViewModelTest {
 
     @Test
     fun theChatUsesTheChosenSidekicksNameAndKeepsItOnNewChats() = runTest(dispatcher) {
-        val vm = ChatViewModel(engine, activeModel, save, load, respond, flowOf("Milo"))
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, flowOf("Milo"))
         advanceUntilIdle()
         assertEquals("Milo", vm.state.value.sidekick)
 

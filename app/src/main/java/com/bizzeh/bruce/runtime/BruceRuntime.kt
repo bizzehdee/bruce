@@ -16,6 +16,8 @@ import com.bizzeh.bruce.inference.ToolFormat
 import com.bizzeh.bruce.policy.PolicyDecision
 import com.bizzeh.bruce.policy.PolicyEngine
 import com.bizzeh.bruce.policy.SkillStateStore
+import com.bizzeh.bruce.skills.Denial
+import com.bizzeh.bruce.skills.DenialCode
 import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.SkillState
 import kotlinx.coroutines.TimeoutCancellationException
@@ -111,19 +113,36 @@ class BruceRuntime(
             added += ToolChatMessage(ChatRole.ASSISTANT, parsed.content, toolCalls = parsed.toolCalls)
             if (parsed.toolCalls.isEmpty()) return emit(RuntimeEvent.Finished(added.toList()))
 
-            for (call in parsed.toolCalls) {
+            for ((index, call) in parsed.toolCalls.withIndex()) {
                 if (calls++ >= maxToolCalls) return emit(RuntimeEvent.Failed(RuntimeError.TOO_MANY_TOOL_CALLS, added.toList()))
                 when (val decision = policy.decide(call.name, call.argumentsJson)) {
                     is PolicyDecision.Allowed -> result(call, policy.execute(decision).toString(), ran = true, added)
                     is PolicyDecision.Denied -> result(call, policy.refusal(decision).toString(), ran = false, added)
                     is PolicyDecision.NeedsConfirmation -> {
                         emit(RuntimeEvent.NeedsConfirmation(call, decision))
+                        // Every call gets a result, so the conversation stays well formed when the turn resumes.
+                        parsed.toolCalls.drop(index + 1).forEach { result(it, waiting(it).toString(), ran = false, added) }
                         return emit(RuntimeEvent.Finished(added.toList()))
                     }
                 }
             }
         }
     }
+
+    /**
+     * The user's answer to a call that was awaiting approval: what the model sees as its result. An
+     * approval runs the call only if the policy engine confirms nothing changed since it was asked.
+     */
+    suspend fun answer(call: ToolCall, pending: PolicyDecision.NeedsConfirmation, approved: Boolean): RuntimeEvent.ToolResult =
+        when (val decision = if (approved) policy.confirm(pending) else policy.declined(pending)) {
+            is PolicyDecision.Allowed -> RuntimeEvent.ToolResult(call, policy.execute(decision).toString(), ran = true)
+            is PolicyDecision.Denied -> RuntimeEvent.ToolResult(call, policy.refusal(decision).toString(), ran = false)
+            is PolicyDecision.NeedsConfirmation -> error("confirming never asks again")
+        }
+
+    private fun waiting(call: ToolCall) = policy.refusal(
+        PolicyDecision.Denied(Denial(DenialCode.CONFIRMATION_REQUIRED, call.name, "Not run: an earlier call is waiting for the user's approval.", userCanChange = false, retryable = true)),
+    )
 
     private suspend fun FlowCollector<RuntimeEvent>.result(call: ToolCall, json: String, ran: Boolean, added: MutableList<ToolChatMessage>) {
         added += ToolChatMessage(ChatRole.TOOL, json, toolCallId = call.id, toolName = call.name)

@@ -63,13 +63,16 @@ class PolicyEngineTest {
 
     private var granted = setOf<String>()
     private var inScope = true
+    private var target = "content://docs/one"
+    private var now = 10_000L
 
     private val engine = PolicyEngine(
         registry = registry,
         states = states,
         output = ToolOutput(reservedMarkers = listOf("<tool_call>")),
         permissionGranted = { it in granted },
-        scope = { if (inScope) ScopeCheck.InScope else ScopeCheck.OutOfScope("Outside the granted folders.") },
+        scope = { if (inScope) ScopeCheck.InScope(listOf(ResourceTarget("Documents/a.txt", target))) else ScopeCheck.OutOfScope("Outside the granted folders.") },
+        clock = { now },
     )
 
     @After
@@ -133,6 +136,57 @@ class PolicyEngineTest {
 
         assertEquals("write_file", before.request.skill.id)
         assertEquals(before.policyVersion + 1, after.policyVersion)
+    }
+
+    @Test
+    fun anApprovalRunsExactlyWhatWasShown() = runBlocking {
+        val pending = decide("write_file", """{"path":"Documents/a.txt"}""") as PolicyDecision.NeedsConfirmation
+        assertEquals(listOf(ResourceTarget("Documents/a.txt", "content://docs/one")), pending.targets)
+        assertEquals(10_000L, pending.askedAt)
+
+        now += PolicyEngine.CONFIRMATION_LIFETIME_MS
+        val allowed = engine.confirm(pending) as PolicyDecision.Allowed
+        assertEquals(pending.request, allowed.request)
+        engine.execute(allowed)
+        assertEquals(listOf("write_file"), runs)
+    }
+
+    @Test
+    fun anApprovalIsRefusedWhenAnythingChangedOrItExpired() = runBlocking {
+        fun ask() = decide("write_file", """{"path":"Documents/a.txt"}""") as PolicyDecision.NeedsConfirmation
+        fun refusal(decision: PolicyDecision) = (decision as PolicyDecision.Denied).denial
+
+        val late = ask()
+        now += PolicyEngine.CONFIRMATION_LIFETIME_MS + 1
+        assertEquals(DenialCode.CONFIRMATION_REQUIRED, refusal(engine.confirm(late)).code)
+
+        val retargeted = ask()
+        target = "content://docs/two"
+        assertEquals(DenialCode.CONFIRMATION_REQUIRED, refusal(engine.confirm(retargeted)).code)
+
+        val versioned = ask()
+        states.set(clock, SkillState.ASK)
+        assertEquals(DenialCode.CONFIRMATION_REQUIRED, refusal(engine.confirm(versioned)).code)
+
+        val turnedOff = ask()
+        states.set(writer, SkillState.DECLINED)
+        assertEquals(DenialCode.CAPABILITY_DISABLED, refusal(engine.confirm(turnedOff)).code)
+        states.set(writer, SkillState.ASK)
+
+        val nowAccepted = ask()
+        states.set(writer, SkillState.ACCEPTED)
+        assertEquals(DenialCode.CONFIRMATION_REQUIRED, refusal(engine.confirm(nowAccepted)).code)
+
+        assertEquals(emptyList<String>(), runs)
+    }
+
+    @Test
+    fun decliningTellsTheModelTheUserSaidNo() = runBlocking {
+        val pending = decide("write_file", """{"path":"Documents/a.txt"}""") as PolicyDecision.NeedsConfirmation
+        val denial = engine.declined(pending).denial
+
+        assertEquals(DenialCode.USER_DENIED, denial.code)
+        assertFalse(denial.retryable)
     }
 
     @Test

@@ -84,7 +84,7 @@ class MainActivity : ComponentActivity() {
     private val chat: ChatViewModel by viewModels {
         factory {
             ChatViewModel(
-                container.engine, container.activeModel.state, container.conversations::save, container.conversations::load, container.runtime::respond,
+                container.engine, container.activeModel.state, container.conversations::save, container.conversations::load, container.runtime::respond, container.runtime::answer,
                 container.personalitySettings.personality.map { it.displayName },
             )
         }
@@ -308,6 +308,7 @@ class MainActivity : ComponentActivity() {
         override fun setInput(input: String) = chat.setInput(input)
         override fun send() = chat.send()
         override fun stop() = chat.stop()
+        override fun decide(callId: String, approved: Boolean) = chat.decide(callId, approved)
     }
 
     private fun conversationActions() = object : ConversationActions {

@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Exact-operation confirmation done: approval card in chat, bound to the request, targets and policy version, expiring after 15 minutes. |
 | 2026-09-28 | Changed | File and folder grants done: added and revoked in Permissions; the model names targets as `<grant name>/<path>`. |
 | 2026-09-28 | Changed | Skills screen done: per-skill Declined, Ask or Accepted in Settings > Skills, with the high-risk warning. |
 | 2026-09-28 | Changed | Permissions screen done: Android permissions with a link to change each in Android settings; files and folders section empty until TASK-040. |

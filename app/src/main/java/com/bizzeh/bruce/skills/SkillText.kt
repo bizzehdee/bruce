@@ -22,7 +22,10 @@ object SkillText {
     }
 
     @Composable
-    fun name(skill: Skill): String = TEXT[skill.id]?.let { stringResource(it.first) } ?: skill.id
+    fun name(skill: Skill): String = name(skill.id)
+
+    @Composable
+    fun name(skillId: String): String = TEXT[skillId]?.let { stringResource(it.first) } ?: skillId
 
     @Composable
     fun summary(skill: Skill): String = TEXT[skill.id]?.let { stringResource(it.second) } ?: skill.description

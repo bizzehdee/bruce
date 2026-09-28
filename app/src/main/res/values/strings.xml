@@ -17,6 +17,12 @@
     <string name="chat_tool_ran">Used %1$s</string>
     <string name="chat_tool_refused">Not allowed: %1$s</string>
     <string name="chat_tool_awaiting">Waiting for your approval: %1$s</string>
+    <string name="chat_tool_declined">You declined: %1$s</string>
+    <string name="chat_confirm_title">Allow %1$s?</string>
+    <string name="chat_confirm_target">On: %1$s</string>
+    <string name="chat_confirm_allow">Allow once</string>
+    <string name="chat_confirm_deny">Don\'t allow</string>
+    <string name="chat_confirm_expired">No longer waiting. Ask again if you still want this.</string>
     <string name="nav_open_drawer">Open menu</string>
     <string name="nav_back">Back</string>
     <string name="nav_new_chat">New chat</string>

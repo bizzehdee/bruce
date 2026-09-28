@@ -8,6 +8,7 @@ import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.models.ActiveModelState
+import com.bizzeh.bruce.policy.PolicyDecision
 import com.bizzeh.bruce.runtime.RuntimeError
 import com.bizzeh.bruce.runtime.RuntimeEvent
 import com.bizzeh.bruce.skills.Denial
@@ -22,6 +23,8 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONException
+import org.json.JSONObject
 
 /** One message in the conversation. [text] is the model's output for replies, reasoning included. */
 data class ChatEntry(
@@ -34,10 +37,13 @@ data class ChatEntry(
     val tool: ToolUse? = null,
 )
 
-enum class ToolStatus { RAN, REFUSED, AWAITING_APPROVAL }
+enum class ToolStatus { RAN, REFUSED, AWAITING_APPROVAL, DECLINED }
 
 /** A skill's use in a chat; [resultJson] is exactly what the model was given. */
 data class ToolUse(val callId: String, val name: String, val resultJson: String, val status: ToolStatus)
+
+/** What the approval card shows for a call awaiting the user's decision. */
+data class Confirmation(val callId: String, val skillId: String, val arguments: List<Pair<String, String>>, val targets: List<String>)
 
 data class ChatState(
     val modelName: String? = null,
@@ -46,6 +52,8 @@ data class ChatState(
     /** The saved conversation shown; null until the first turn of a new chat is saved. */
     val conversationId: Long? = null,
     val entries: List<ChatEntry> = emptyList(),
+    /** Calls awaiting approval in this session, by call id. A saved chat reopened later has none: it must be asked again. */
+    val confirmations: Map<String, Confirmation> = emptyMap(),
     val input: String = "",
     val generating: Boolean = false,
     val error: ChatError? = null,
@@ -71,6 +79,8 @@ class ChatViewModel(
     private val load: suspend (id: Long) -> List<ChatEntry>?,
     /** One turn of the runtime (BruceRuntime.respond): replies, skill calls and results. */
     private val respond: (List<ToolChatMessage>) -> Flow<RuntimeEvent>,
+    /** The user's answer to a call awaiting approval (BruceRuntime.answer). */
+    private val answer: suspend (ToolCall, PolicyDecision.NeedsConfirmation, Boolean) -> RuntimeEvent.ToolResult,
     sidekick: Flow<String> = emptyFlow(),
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
@@ -79,6 +89,7 @@ class ChatViewModel(
     /** Changes when another conversation is shown, so a turn that finishes later does not touch it. */
     private var session = 0
     private var turn: Job? = null
+    private val pending = mutableMapOf<String, Pair<ToolCall, PolicyDecision.NeedsConfirmation>>()
 
     init {
         viewModelScope.launch {
@@ -97,9 +108,36 @@ class ChatViewModel(
         val current = mutableState.value
         val text = current.input.trim()
         if (text.isEmpty() || current.generating) return
-        val history = current.entries + ChatEntry(ChatRole.USER, text)
+        mutableState.update { it.copy(input = "") }
+        runTurn(current.entries + ChatEntry(ChatRole.USER, text))
+    }
+
+    /** Approves or declines a call awaiting approval, then lets the model carry on with the outcome. */
+    fun decide(callId: String, approved: Boolean) {
+        val current = mutableState.value
+        if (current.generating) return
+        val (call, decision) = pending.remove(callId) ?: return
+        val decidingSession = session
+        mutableState.update { it.copy(confirmations = it.confirmations - callId, generating = true) }
+        viewModelScope.launch {
+            val result = answer(call, decision, approved)
+            val status = when {
+                result.ran -> ToolStatus.RAN
+                approved -> ToolStatus.REFUSED
+                else -> ToolStatus.DECLINED
+            }
+            val entries = current.entries.map { entry ->
+                if (entry.tool?.callId == callId && entry.tool.status == ToolStatus.AWAITING_APPROVAL) toolEntry(call, result.resultJson, status) else entry
+            }
+            // Moved on while the skill ran: its outcome is still saved to the chat it belongs to.
+            if (session == decidingSession) runTurn(entries) else withContext(NonCancellable) { save(current.conversationId, entries) }
+        }
+    }
+
+    private fun runTurn(history: List<ChatEntry>) {
+        val current = mutableState.value
         val turnSession = session
-        mutableState.update { it.copy(entries = history + ChatEntry(ChatRole.ASSISTANT, ""), input = "", generating = true, error = null) }
+        mutableState.update { it.copy(entries = history + ChatEntry(ChatRole.ASSISTANT, ""), generating = true, error = null) }
         turn = viewModelScope.launch {
             val added = mutableListOf<ChatEntry>()
             var streaming = ChatEntry(ChatRole.ASSISTANT, "")
@@ -117,7 +155,13 @@ class ChatViewModel(
                             streaming = ChatEntry(ChatRole.ASSISTANT, "")
                         }
                         is RuntimeEvent.ToolResult -> added += toolEntry(event.call, event.resultJson, if (event.ran) ToolStatus.RAN else ToolStatus.REFUSED)
-                        is RuntimeEvent.NeedsConfirmation -> added += toolEntry(event.call, AWAITING_APPROVAL, ToolStatus.AWAITING_APPROVAL)
+                        is RuntimeEvent.NeedsConfirmation -> {
+                            added += toolEntry(event.call, AWAITING_APPROVAL, ToolStatus.AWAITING_APPROVAL)
+                            if (onScreen()) {
+                                pending[event.call.id] = event.call to event.decision
+                                mutableState.update { it.copy(confirmations = it.confirmations + (event.call.id to confirmation(event.call, event.decision))) }
+                            }
+                        }
                         is RuntimeEvent.Finished -> Unit
                         is RuntimeEvent.Failed -> error = chatError(event.error)
                     }
@@ -141,6 +185,7 @@ class ChatViewModel(
             val entries = load(id) ?: return@launch
             endTurn()
             session++
+            pending.clear()
             mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries) }
         }
     }
@@ -155,6 +200,7 @@ class ChatViewModel(
     fun newChat() {
         endTurn()
         session++
+        pending.clear()
         mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick) }
     }
 
@@ -167,6 +213,21 @@ class ChatViewModel(
 
     private fun toolEntry(call: ToolCall, json: String, status: ToolStatus) =
         ChatEntry(ChatRole.TOOL, json, tool = ToolUse(call.id, call.name, json, status))
+
+    private fun confirmation(call: ToolCall, decision: PolicyDecision.NeedsConfirmation) = Confirmation(
+        callId = call.id,
+        skillId = decision.request.skill.id,
+        arguments = arguments(call.argumentsJson),
+        targets = decision.targets.map { it.display },
+    )
+
+    /** The arguments as the user reads them; the policy engine has already validated them. */
+    private fun arguments(json: String): List<Pair<String, String>> = try {
+        val obj = JSONObject(json)
+        obj.keys().asSequence().map { it to obj.get(it).toString() }.toList()
+    } catch (e: JSONException) {
+        listOf("" to json)
+    }
 
     /** Earlier replies go back to the model without their reasoning, as reasoning models expect. */
     private fun toMessage(entry: ChatEntry) = when (entry.role) {
