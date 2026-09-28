@@ -1,5 +1,6 @@
 # Learnings index
 
+- [compose-keyboard-insets.md](compose-keyboard-insets.md) — Keyboard gap: adjustResize, and consume Scaffold insets before imePadding. Read when a text field screen jumps or gaps with the keyboard.
 - [reasoning-models-and-plain-templates.md](reasoning-models-and-plain-templates.md) — Extra model passes need thinking off, or reasoning models write no answer; uiautomator hides long chat text. Read when adding a model pass or checking chats on a phone.
 - [viewmodel-before-setmain.md](viewmodel-before-setmain.md) — A ViewModel built before Dispatchers.setMain never updates under runBlocking. Read when a ViewModel test times out on a StateFlow.
 - [android-17-local-network-permission.md](android-17-local-network-permission.md) — Android 17 grants Bruce local network access by itself at targetSdk 36. Read when a permission appears that the manifest does not declare, or when raising targetSdk.
