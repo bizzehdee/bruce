@@ -7,6 +7,19 @@ import java.net.URL
 
 class HttpResponse(val status: Int, val headers: Map<String, String>, val body: ByteArray)
 
+/** A response whose body is read as a stream; close it when done. */
+class StreamingResponse(
+    val status: Int,
+    val headers: Map<String, String>,
+    val body: InputStream,
+    private val onClose: () -> Unit,
+) : java.io.Closeable {
+    override fun close() {
+        body.close()
+        onClose()
+    }
+}
+
 /** Minimal HTTP GET, so the Hub client can be tested without a network. */
 interface HttpTransport {
     /**
@@ -14,13 +27,22 @@ interface HttpTransport {
      * Throws [IOException] when the network fails.
      */
     fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse?
+
+    /** Opens a response for streaming large bodies. Throws [IOException] when the network fails. */
+    fun open(url: String, headers: Map<String, String>): StreamingResponse
 }
 
 class UrlConnectionTransport(
     private val connectTimeoutMs: Int = 15_000,
     private val readTimeoutMs: Int = 30_000,
 ) : HttpTransport {
-    override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse? {
+    override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse? =
+        open(url, headers).use { response ->
+            val body = readBounded(response.body, maxBytes) ?: return null
+            HttpResponse(response.status, response.headers, body)
+        }
+
+    override fun open(url: String, headers: Map<String, String>): StreamingResponse {
         val connection = URL(url).openConnection() as HttpURLConnection
         try {
             connection.connectTimeout = connectTimeoutMs
@@ -28,15 +50,15 @@ class UrlConnectionTransport(
             connection.instanceFollowRedirects = true
             headers.forEach(connection::setRequestProperty)
             val status = connection.responseCode
-            val stream = if (status >= 400) connection.errorStream else connection.inputStream
-            val body = stream?.use { readBounded(it, maxBytes) ?: return null } ?: ByteArray(0)
+            val stream = (if (status >= 400) connection.errorStream else connection.inputStream) ?: java.io.ByteArrayInputStream(ByteArray(0))
             val responseHeaders = connection.headerFields
                 .filterKeys { it != null }
                 .mapKeys { it.key.lowercase() }
                 .mapValues { it.value.joinToString(",") }
-            return HttpResponse(status, responseHeaders, body)
-        } finally {
+            return StreamingResponse(status, responseHeaders, stream, connection::disconnect)
+        } catch (e: IOException) {
             connection.disconnect()
+            throw e
         }
     }
 
