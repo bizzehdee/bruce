@@ -68,6 +68,24 @@ class SkillFrameworkTest {
     }
 
     @Test
+    fun gettersReturnNothingForTheWrongTypeAndLimitsHold() {
+        val arguments = valid("""{"name":"Ann","count":10000000000}""".replace("10000000000", "7"))
+        assertNull(arguments.long("name"))
+        assertNull(arguments.string("count"))
+        assertNull(arguments.double("name"))
+        assertNull(arguments.boolean("name"))
+        assertFalse(arguments.equals("Ann"))
+        assertEquals(valid("""{"name":"Ann","count":7}""").hashCode(), arguments.hashCode())
+        assertTrue(arguments.toString().contains("Ann"))
+
+        assertTrue(invalid("""{"name":"a","count":0}""").contains("between 1.0 and 10.0"))
+        assertTrue("too large to be exact", invalid("""{"name":"a","count":1e300}""").startsWith("'count' must be an integer"))
+        assertTrue(invalid("""{"name":"a","ratio":"half"}""").startsWith("'ratio' must be a number"))
+        val big = InputSchema(listOf(Parameter("n", ParameterType.INTEGER, "Big")))
+        assertEquals(10_000_000_000L, (big.check("""{"n":10000000000}""") as ArgumentCheck.Valid).arguments.long("n"))
+    }
+
+    @Test
     fun noArgumentsMeansAnEmptyObject() {
         assertEquals(SkillArguments(emptyMap()), (InputSchema().check("  ") as ArgumentCheck.Valid).arguments)
         assertEquals("unknown argument 'x'", (InputSchema().check("""{"x":1}""") as ArgumentCheck.Invalid).reason)
@@ -160,6 +178,7 @@ class SkillFrameworkTest {
         assertFalse(data.contains("<tool_call>", ignoreCase = true))
         assertTrue(data.endsWith(ToolOutput.TRUNCATED))
         assertEquals(60 + ToolOutput.TRUNCATED.length, data.length)
+        assertEquals("line one two", ToolOutput().clean("line\u2028 one\u2029 two"))
     }
 
     @Test
