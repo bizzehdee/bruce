@@ -46,6 +46,7 @@ import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -198,6 +199,77 @@ class BruceRuntimeTest {
         assertEquals("P\n\n" + BruceRuntime.GUIDANCE, system(SkillRegistry(listOf(clock))))
     }
 
+    /** Ten exchanges before the newest question, each message costing 100 "tokens". */
+    private fun longChat(): List<ToolChatMessage> {
+        engine.tokensPerMessage = { 100 }
+        engine.contextLength = 1000
+        return (1..10).flatMap { listOf(ToolChatMessage(ChatRole.USER, "q$it"), ToolChatMessage(ChatRole.ASSISTANT, "a$it")) } +
+            ToolChatMessage(ChatRole.USER, "newest")
+    }
+
+    @Test
+    fun theOldestMessagesAreDroppedUntilThePromptFits() = runBlocking {
+        engine.steps += Step("", ParsedReply("Hi.", "", emptyList()))
+        val history = longChat()
+
+        val events = runtime().respond(history).toList()
+
+        assertTrue(events.last() is RuntimeEvent.Finished)
+        val sent = engine.formatted.last()
+        // 1,000 tokens less a 250-token reply reserve is 750: the system prompt and five messages fit,
+        // and cuts fall only where a question starts.
+        assertEquals(listOf("q9", "a9", "q10", "a10", "newest"), sent.drop(1).map { it.content })
+        assertEquals(ChatRole.SYSTEM, sent.first().role)
+    }
+
+    @Test
+    fun measuringReportsUseAndHowManyWereDropped() = runBlocking {
+        val use = runtime().measure(longChat())!!
+
+        assertEquals(ContextUse(used = 600, total = 1000, dropped = 16, limit = 750), use)
+        assertTrue(use.nearlyFull)
+        assertEquals(false, ContextUse(used = 600, total = 1000, dropped = 0, limit = 750).nearlyFull)
+        assertTrue(ContextUse(used = 640, total = 1000, dropped = 0, limit = 750).nearlyFull)
+        engine.noModel = true
+        assertNull(runtime().measure(longChat()))
+    }
+
+    @Test
+    fun anEmptyChatIsMeasuredWithABlankRequestSinceSomeTemplatesNeedOne() = runBlocking {
+        val use = runtime().measure(emptyList())!!
+
+        assertEquals(listOf(ChatRole.SYSTEM, ChatRole.USER), engine.formatted.last().map { it.role })
+        assertEquals(2, use.used)
+    }
+
+    @Test
+    fun aCutNeverLeavesAToolResultWithoutItsCall() = runBlocking {
+        engine.tokensPerMessage = { 100 }
+        engine.contextLength = 500
+        val history = listOf(
+            ToolChatMessage(ChatRole.USER, "old"),
+            ToolChatMessage(ChatRole.ASSISTANT, "", toolCalls = listOf(ToolCall("get_datetime", "{}", "c1"))),
+            ToolChatMessage(ChatRole.TOOL, "12:00", toolCallId = "c1", toolName = "get_datetime"),
+            ToolChatMessage(ChatRole.ASSISTANT, "Noon."),
+            ToolChatMessage(ChatRole.USER, "newest"),
+        )
+
+        val use = runtime().measure(history)!!
+
+        assertEquals(4, use.dropped)
+        assertEquals(listOf(ChatRole.SYSTEM, ChatRole.USER), engine.formatted.last().map { it.role })
+    }
+
+    @Test
+    fun aRequestTooLongOnItsOwnStillFails() = runBlocking {
+        engine.tokensPerMessage = { if (it.content == "huge") 5_000 else 1 }
+        engine.contextLength = 1000
+
+        val failed = runtime().respond(listOf(ToolChatMessage(ChatRole.USER, "hi"), ToolChatMessage(ChatRole.USER, "huge"))).toList().last() as RuntimeEvent.Failed
+
+        assertEquals(RuntimeError.CONVERSATION_TOO_LONG, failed.error)
+    }
+
     @Test
     fun tooManyToolCallsEndTheTurn() {
         repeat(3) { engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}")))) }
@@ -282,17 +354,21 @@ class BruceRuntimeTest {
         var noModel = false
         var hang = false
         var stops = 0
+        var lastCount = 0
+        var tokensPerMessage: (ToolChatMessage) -> Int = { 1 }
         private var current: Step? = null
 
         override suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean): ToolChatPrompt? {
             if (noModel) return null
             formatted += messages
             offered += tools
+            lastCount = messages.sumOf { tokensPerMessage(it) }
             return ToolChatPrompt("prompt", ToolFormat(3, "p", "", nativeTools, grammar, listOf("<|end|>")))
         }
 
         override suspend fun formatChat(messages: List<ChatMessage>): ChatPrompt? {
             chats += messages
+            lastCount = messages.size
             return ChatPrompt("chat prompt", false)
         }
 
@@ -307,6 +383,11 @@ class BruceRuntimeTest {
         override fun parseReply(format: ToolFormat, text: String, partial: Boolean): ParsedReply? = current?.parsed
 
         override fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar = bruceGrammar
+
+        /** Prompts are counted as one token per message they were formatted from. */
+        var contextLength = 1_000_000
+        override suspend fun countTokens(prompt: String): Int? = if (noModel) null else lastCount
+        override fun contextLength(): Int? = if (noModel) null else contextLength
 
         override fun stop() {
             stops++

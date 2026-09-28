@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.chat
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,13 +15,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -40,6 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
+import com.bizzeh.bruce.runtime.ContextUse
 import com.bizzeh.bruce.skills.SkillText
 import com.bizzeh.bruce.inference.ChatRole
 
@@ -73,6 +77,7 @@ fun ChatScreen(
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).imePadding()) {
+            state.context?.let { ContextBar(it) }
             Messages(state, actions, modifier = Modifier.weight(1f))
             ChatText.error(state.error)?.let {
                 Text(
@@ -109,6 +114,15 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         itemsIndexed(state.entries) { index, entry ->
+            val dropped = state.context?.dropped ?: 0
+            if (dropped > 0 && index == dropped) {
+                Text(
+                    stringResource(R.string.chat_context_dropped),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp).testTag("contextDropped"),
+                )
+            }
             when {
                 entry.role == ChatRole.USER -> UserMessage(entry.text)
                 entry.tool?.status == ToolStatus.AWAITING_APPROVAL -> ConfirmationCard(entry.tool, state.confirmations[entry.tool.callId], !state.generating, actions)
@@ -118,6 +132,38 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
                 else -> Reply(index, entry, state.sidekick)
             }
         }
+    }
+}
+
+/**
+ * How much of the model's context the chat takes. Tapping explains what happens when it is full;
+ * near full a short note says so without being asked.
+ */
+@Composable
+private fun ContextBar(use: ContextUse) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    val fraction = if (use.total > 0) use.used.toFloat() / use.total else 0f
+    Column(
+        modifier = Modifier.fillMaxWidth().clickable { open = true }.padding(horizontal = 16.dp, vertical = 4.dp).testTag("contextBar"),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
+        LinearProgressIndicator(progress = { fraction.coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
+        Text(
+            stringResource(R.string.chat_context_use, use.used, use.total, (use.total - use.used).coerceAtLeast(0)),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (use.nearlyFull) {
+            Text(stringResource(R.string.chat_context_nearly_full), style = MaterialTheme.typography.labelSmall, modifier = Modifier.testTag("contextNearlyFull"))
+        }
+    }
+    if (open) {
+        AlertDialog(
+            onDismissRequest = { open = false },
+            title = { Text(stringResource(R.string.chat_context_title)) },
+            text = { Text(stringResource(R.string.chat_context_explained)) },
+            confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.chat_context_ok)) } },
+        )
     }
 }
 

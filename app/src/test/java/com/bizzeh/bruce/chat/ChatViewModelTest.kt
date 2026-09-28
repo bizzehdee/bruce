@@ -7,6 +7,7 @@ import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.models.ActiveModelState
 import com.bizzeh.bruce.policy.PolicyDecision
+import com.bizzeh.bruce.runtime.ContextUse
 import com.bizzeh.bruce.runtime.RuntimeError
 import com.bizzeh.bruce.runtime.RuntimeEvent
 import com.bizzeh.bruce.testing.FakeEngine
@@ -73,6 +74,26 @@ class ChatViewModelTest {
         vm.setInput(text)
         vm.send()
         advanceUntilIdle()
+    }
+
+    @Test
+    fun contextUseIsMeasuredAfterEachTurnAndWhenTheChatOrModelChanges() = runTest(dispatcher) {
+        val measured = mutableListOf<Int>()
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, measure = { history ->
+            measured += history.size
+            ContextUse(used = 10 * history.size, total = 100, dropped = 0)
+        })
+        advanceUntilIdle()
+        assertEquals(ContextUse(0, 100, 0), vm.state.value.context)
+
+        turns += reply("Hi.")
+        chat("Hello", vm)
+        assertEquals(ContextUse(20, 100, 0), vm.state.value.context)
+
+        vm.newChat()
+        advanceUntilIdle()
+        assertEquals(ContextUse(0, 100, 0), vm.state.value.context)
+        assertEquals(listOf(0, 2, 0), measured)
     }
 
     @Test

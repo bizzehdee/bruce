@@ -42,6 +42,12 @@ interface InferenceEngine {
 
     /** The grammar for [BruceToolFormat] over [tools], or null if their schemas cannot be expressed. */
     fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar?
+
+    /** How many tokens [prompt] takes in the loaded model's context; null with no model loaded. */
+    suspend fun countTokens(prompt: String): Int?
+
+    /** The loaded context's length in tokens; null with no model loaded. */
+    fun contextLength(): Int?
 }
 
 enum class ChatRole(val wireName: String) {
