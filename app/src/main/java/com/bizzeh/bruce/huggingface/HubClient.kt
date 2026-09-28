@@ -1,5 +1,9 @@
 package com.bizzeh.bruce.huggingface
 
+import com.bizzeh.bruce.gguf.GgufError
+import com.bizzeh.bruce.gguf.GgufPrefixResult
+import com.bizzeh.bruce.gguf.GgufReadResult
+import com.bizzeh.bruce.gguf.GgufReader
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -70,15 +74,43 @@ class HubClient(
         return request(url, MAX_TREE_BYTES) { body -> parseFiles(JSONArray(body)) }
     }
 
-    private suspend fun <T> request(url: String, maxBytes: Int, parse: (String) -> T?): HubResult<T> {
-        if (!networkAllowed()) return HubResult.Failure(HubError.NETWORK_DISABLED)
-        val response = try {
-            withContext(dispatcher) { transport.get(url, mapOf("User-Agent" to userAgent, "Accept" to "application/json"), maxBytes) }
-        } catch (e: IOException) {
-            return HubResult.Failure(HubError.OFFLINE)
-        } ?: return HubResult.Failure(HubError.RESPONSE_TOO_LARGE)
+    /**
+     * Reads a model file's GGUF metadata by downloading only the start of it, growing the range
+     * until the header parses. Network problems are [HubResult.Failure]; a file that is not
+     * valid GGUF is a [HubResult.Success] holding [GgufReadResult.Failed].
+     */
+    suspend fun ggufHeader(repositoryId: String, path: String, revision: String = "main"): HubResult<GgufReadResult> {
+        require(isRepositoryId(repositoryId)) { "not a repository id: $repositoryId" }
+        require(REVISION.matches(revision)) { "not a revision: $revision" }
+        require(isSafePath(path) && path.endsWith(GGUF_EXTENSION, ignoreCase = true)) { "not a GGUF path: $path" }
+        val url = "$baseUrl/$repositoryId/resolve/${encode(revision)}/" + path.split('/').joinToString("/", transform = ::encodePathSegment)
 
-        statusError(response.status)?.let { return HubResult.Failure(it) }
+        for (length in HEADER_RANGE_STEPS) {
+            val response = when (val fetched = fetch(url, length, mapOf("Range" to "bytes=0-${length - 1}"))) {
+                is HubResult.Failure -> return fetched
+                is HubResult.Success -> fetched.value
+            }
+            val total = when (response.status) {
+                206 -> contentRangeTotal(response.headers["content-range"]) ?: return HubResult.Failure(HubError.MALFORMED_RESPONSE)
+                // A server that ignores Range sends the whole file; this one fitted inside the limit.
+                200 -> response.body.size.toLong()
+                else -> return HubResult.Failure(HubError.MALFORMED_RESPONSE)
+            }
+            when (val result = GgufReader.readPrefix(response.body.inputStream(), total)) {
+                is GgufPrefixResult.Read -> return HubResult.Success(GgufReadResult.Read(result.metadata))
+                is GgufPrefixResult.Failed -> return HubResult.Success(GgufReadResult.Failed(result.error))
+                GgufPrefixResult.NeedMoreBytes ->
+                    if (response.body.size >= total) return HubResult.Success(GgufReadResult.Failed(GgufError.MALFORMED))
+            }
+        }
+        return HubResult.Failure(HubError.RESPONSE_TOO_LARGE)
+    }
+
+    private suspend fun <T> request(url: String, maxBytes: Int, parse: (String) -> T?): HubResult<T> {
+        val response = when (val fetched = fetch(url, maxBytes, mapOf("Accept" to "application/json"))) {
+            is HubResult.Failure -> return fetched
+            is HubResult.Success -> fetched.value
+        }
         val parsed = try {
             parse(response.body.toString(Charsets.UTF_8))
         } catch (e: JSONException) {
@@ -86,6 +118,23 @@ class HubClient(
         }
         return parsed?.let { HubResult.Success(it) } ?: HubResult.Failure(HubError.MALFORMED_RESPONSE)
     }
+
+    /** Network gate, transport call and HTTP status mapping shared by every request. */
+    private suspend fun fetch(url: String, maxBytes: Int, headers: Map<String, String>): HubResult<HttpResponse> {
+        if (!networkAllowed()) return HubResult.Failure(HubError.NETWORK_DISABLED)
+        val response = try {
+            withContext(dispatcher) { transport.get(url, headers + ("User-Agent" to userAgent), maxBytes) }
+        } catch (e: IOException) {
+            return HubResult.Failure(HubError.OFFLINE)
+        } ?: return HubResult.Failure(HubError.RESPONSE_TOO_LARGE)
+        statusError(response.status)?.let { return HubResult.Failure(it) }
+        return HubResult.Success(response)
+    }
+
+    private fun contentRangeTotal(header: String?): Long? =
+        header?.let(CONTENT_RANGE::matchEntire)?.groupValues?.get(1)?.toLongOrNull()
+
+    private fun encodePathSegment(segment: String) = encode(segment).replace("+", "%20")
 
     private fun statusError(status: Int): HubError? = when {
         status in 200..299 -> null
@@ -141,6 +190,10 @@ class HubClient(
         private val REPOSITORY_ID = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}")
         private val REVISION = Regex("[A-Za-z0-9._-]{1,100}")
         private val SHA256 = Regex("[0-9a-f]{64}")
+        private val CONTENT_RANGE = Regex("bytes \\d+-\\d+/(\\d+)")
+
+        /** Tokenizer vocabularies make GGUF headers several megabytes; 64 MB is the most fetched. */
+        private val HEADER_RANGE_STEPS = listOf(2, 8, 32, 64).map { it * 1024 * 1024 }
 
         fun isRepositoryId(value: String): Boolean = REPOSITORY_ID.matches(value) && ".." !in value
 

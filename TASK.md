@@ -125,9 +125,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The network check is injected; TASK-028 connects it to the network mode setting. Verified against the real Hub from a phone with the manual-only `HubClientOnlineTest`.
   - Uses Android's `HttpURLConnection` and `org.json`; no new dependencies.
   - Required by: TASK-021, TASK-022, TASK-023, TASK-028, TASK-029
-- [ ] TASK-021: Read a remote GGUF header
+- [x] TASK-021: Read a remote GGUF header
   - Fetch only the start of a model file with range requests, growing the range until the header parses, with a fixed upper limit.
   - Refactor `GgufReader` to read from a bounded stream so local and remote files share one parser.
+  - Ranges grow 2, 8, 32, 64 MB. Verified on a phone against the real Hub: the Range header survives the redirect to the CDN.
   - Depends on: TASK-006, TASK-020
   - Required by: TASK-022
 - [ ] TASK-022: Model fit and recommendation

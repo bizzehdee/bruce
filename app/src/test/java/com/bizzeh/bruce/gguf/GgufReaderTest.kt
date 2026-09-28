@@ -47,6 +47,43 @@ class GgufReaderTest {
     }
 
     @Test
+    fun prefixOfWholeFileReadsTheSameMetadata() {
+        val fixture = File("src/androidTest/assets/stories260K.gguf")
+        val full = (GgufReader.read(fixture) as GgufReadResult.Read).metadata
+
+        val prefix = GgufReader.readPrefix(fixture.readBytes().inputStream(), fixture.length())
+
+        assertEquals(GgufPrefixResult.Read(full), prefix)
+    }
+
+    @Test
+    fun shortPrefixNeedsMoreBytes() {
+        val fixture = File("src/androidTest/assets/stories260K.gguf")
+        val bytes = fixture.readBytes()
+
+        for (length in listOf(0, 3, 20, 1024)) {
+            assertEquals(
+                GgufPrefixResult.NeedMoreBytes,
+                GgufReader.readPrefix(bytes.copyOf(length).inputStream(), fixture.length()),
+                "prefix $length",
+            )
+        }
+    }
+
+    @Test
+    fun prefixChecksMagicAndTinyFiles() {
+        assertEquals(GgufPrefixResult.Failed(GgufError.NOT_GGUF), GgufReader.readPrefix("PK\u0003\u0004".byteInputStream(), 1_000))
+        assertEquals(GgufPrefixResult.Failed(GgufError.NOT_GGUF), GgufReader.readPrefix("GG".byteInputStream(), 2))
+    }
+
+    @Test
+    fun prefixStillRejectsCountsLargerThanTheWholeFile() {
+        val bytes = GgufBuilder().build(keyValueCountOverride = 1_000_000L)
+
+        assertEquals(GgufPrefixResult.Failed(GgufError.MALFORMED), GgufReader.readPrefix(bytes.inputStream(), bytes.size.toLong()))
+    }
+
+    @Test
     fun readsDeclaredQuantisationAndArchitectureSpecificContext() {
         val bytes = GgufBuilder()
             .string("general.architecture", "qwen3")
