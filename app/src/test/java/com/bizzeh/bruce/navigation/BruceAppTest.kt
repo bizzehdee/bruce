@@ -32,6 +32,7 @@ class BruceAppTest {
         override fun setInput(input: String) = Unit
         override fun send() = Unit
         override fun stop() = Unit
+        override fun decide(callId: String, approved: Boolean) { }
     }
     private val appActions = object : AppActions {
         override fun newChat() { calls += "newChat" }

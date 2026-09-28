@@ -3,6 +3,7 @@ package com.bizzeh.bruce.chat
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -25,9 +26,39 @@ class ChatScreenTest {
         override fun setInput(input: String) { calls += "input $input" }
         override fun send() { calls += "send" }
         override fun stop() { calls += "stop" }
+        override fun decide(callId: String, approved: Boolean) { calls += "decide $callId $approved" }
     }
 
     private fun show(state: ChatState) = compose.setContent { BruceTheme { ChatScreen(state, actions) } }
+
+    @Test
+    fun approvalCardShowsWhatWouldRunAndTakesTheAnswer() {
+        val awaiting = ToolUse("c1", "get_datetime", "{}", ToolStatus.AWAITING_APPROVAL)
+        val old = ToolUse("c0", "get_datetime", "{}", ToolStatus.AWAITING_APPROVAL)
+        show(
+            ChatState(
+                modelName = "m",
+                entries = listOf(ChatEntry(ChatRole.TOOL, "{}", tool = old), ChatEntry(ChatRole.TOOL, "{}", tool = awaiting)),
+                confirmations = mapOf("c1" to Confirmation("c1", "get_datetime", listOf("path" to "Notes/a.txt"), listOf("Notes/a.txt"))),
+            ),
+        )
+
+        compose.onNodeWithTag("confirmExpired:c0").assertIsDisplayed()
+        compose.onNodeWithTag("approve:c0").assertDoesNotExist()
+        assertEquals(2, compose.onAllNodesWithText("Allow Date and time?").fetchSemanticsNodes().size)
+        compose.onNodeWithText("On: Notes/a.txt").assertIsDisplayed()
+        compose.onNodeWithText("path: Notes/a.txt").assertIsDisplayed()
+        compose.onNodeWithTag("approve:c1").performClick()
+        compose.onNodeWithTag("deny:c1").performClick()
+        assertEquals(listOf("decide c1 true", "decide c1 false"), calls)
+    }
+
+    @Test
+    fun declinedToolsSaySo() {
+        show(ChatState(modelName = "m", entries = listOf(ChatEntry(ChatRole.TOOL, "{}", tool = ToolUse("c1", "write_note", "{}", ToolStatus.DECLINED)))))
+
+        compose.onNodeWithText("You declined: write_note").assertIsDisplayed()
+    }
 
     @Test
     fun withoutModelAskForOneAndDisableSend() {

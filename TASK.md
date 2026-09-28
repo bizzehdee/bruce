@@ -287,9 +287,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Pixel 11: Add folder → Documents → Allow shows the grant with read and write access persisted by Android; it survives a restart; Revoke removes it and Android's access. `PolicyMigrationTest` passes on the Pixel. Walking a real provider's children is exercised first by TASK-042's device test.
   - Depends on: TASK-035, TASK-038
   - Required by: TASK-042, TASK-043, TASK-044, TASK-049
-- [ ] TASK-041: Exact-operation confirmation
+- [x] TASK-041: Exact-operation confirmation
   - For skills in the Ask state: inline confirmation card in chat showing the tool, arguments and exact targets, with approve and deny.
   - Approval binds tool ID, arguments, target resources, timestamp and policy version; the executor refuses anything that differs from what was approved.
+  - Done: `PolicyEngine.confirm` decides the approved request again and allows it only if it is still in the Ask state with the same policy version (no skill state or grant changed) and the same resolved targets, within 15 minutes of asking (a default added for safety: a stale card cannot run). `declined` returns `USER_DENIED`. Other calls in the same model step get a "waiting for approval" result so the conversation stays well formed. The chat card shows the skill, its targets and arguments, with Allow once and Don't allow; the model then carries on with the result. Approvals live only in memory: a saved chat reopened later shows the card as no longer waiting.
+  - Device-tested on the Pixel 11 with Date and time set to Ask: the card appeared, Allow once ran the skill and the model answered with the correct time.
   - Depends on: TASK-053
   - Required by: TASK-043, TASK-044
 - [ ] TASK-042: File read skill

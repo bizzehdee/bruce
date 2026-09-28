@@ -161,9 +161,15 @@ class GrantScope(private val grants: GrantStore, private val access: DocumentAcc
     suspend fun check(request: SkillRequest): ScopeCheck {
         val path = request.arguments.string(PATH_ARGUMENT) ?: return ScopeCheck.OutOfScope("This skill needs a path inside a granted file or folder.")
         return when (val resolution = resolve(path)) {
-            is PathResolution.Found -> ScopeCheck.InScope
+            is PathResolution.Found -> ScopeCheck.InScope(listOf(target(path, resolution)))
             is PathResolution.Refused -> ScopeCheck.OutOfScope(resolution.reason)
         }
+    }
+
+    /** Bound by an approval: the document itself, or the folder and name it would be created as. */
+    private fun target(path: String, found: PathResolution.Found): ResourceTarget {
+        val identity = found.document?.uri?.toString() ?: "${found.parent?.uri}/${found.name}"
+        return ResourceTarget(PathRules.segments(path)!!.joinToString("/"), identity)
     }
 
     companion object {

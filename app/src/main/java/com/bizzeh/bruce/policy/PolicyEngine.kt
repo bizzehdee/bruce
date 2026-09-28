@@ -12,9 +12,12 @@ import com.bizzeh.bruce.skills.ToolOutput
 import kotlinx.coroutines.CancellationException
 import org.json.JSONObject
 
+/** A resource a skill request acts on: [display] is shown to the user, [identity] is what an approval binds to. */
+data class ResourceTarget(val display: String, val identity: String)
+
 /** Whether a skill request's targets lie inside what the user granted. */
 sealed interface ScopeCheck {
-    data object InScope : ScopeCheck
+    data class InScope(val targets: List<ResourceTarget> = emptyList()) : ScopeCheck
 
     /** [message] names the problem for the model without repeating its paths. */
     data class OutOfScope(val message: String) : ScopeCheck
@@ -24,8 +27,11 @@ sealed interface PolicyDecision {
     /** May run now. Only [PolicyEngine] creates one, so nothing can run a skill without passing policy. */
     class Allowed internal constructor(val request: SkillRequest, val policyVersion: Long) : PolicyDecision
 
-    /** The skill is in the Ask state: the user must approve this exact operation first (TASK-041). */
-    data class NeedsConfirmation(val request: SkillRequest, val policyVersion: Long) : PolicyDecision
+    /**
+     * The skill is in the Ask state: the user must approve this exact operation first. [confirm]
+     * binds the approval to the request, its [targets], the [policyVersion] and [askedAt].
+     */
+    data class NeedsConfirmation(val request: SkillRequest, val policyVersion: Long, val targets: List<ResourceTarget>, val askedAt: Long) : PolicyDecision
 
     data class Denied(val denial: Denial) : PolicyDecision
 }
@@ -43,12 +49,42 @@ class PolicyEngine(
     private val permissionGranted: (String) -> Boolean,
     /** Checks a file skill's target against the user's grants (GrantScope.check). */
     private val scope: suspend (SkillRequest) -> ScopeCheck,
+    private val clock: () -> Long = System::currentTimeMillis,
 ) {
-    suspend fun decide(tool: String, rawArguments: String): PolicyDecision {
-        val request = when (val resolution = registry.resolve(tool, rawArguments)) {
-            is Resolution.Refused -> return PolicyDecision.Denied(resolution.denial)
-            is Resolution.Resolved -> resolution.request
+    suspend fun decide(tool: String, rawArguments: String): PolicyDecision = when (val resolution = registry.resolve(tool, rawArguments)) {
+        is Resolution.Refused -> PolicyDecision.Denied(resolution.denial)
+        is Resolution.Resolved -> evaluate(resolution.request)
+    }
+
+    /**
+     * The user approved [pending]. Allowed only if deciding again now gives the same request the same
+     * way: still Ask, same policy version (no state or grant changed), same targets, and not expired.
+     */
+    suspend fun confirm(pending: PolicyDecision.NeedsConfirmation): PolicyDecision {
+        val request = pending.request
+        if (clock() - pending.askedAt > CONFIRMATION_LIFETIME_MS) {
+            return deny(request, DenialCode.CONFIRMATION_REQUIRED, "The user's approval came too late and has expired.", userCanChange = false, retryable = true)
         }
+        return when (val now = evaluate(request)) {
+            is PolicyDecision.Denied -> now
+            is PolicyDecision.NeedsConfirmation ->
+                if (now.policyVersion == pending.policyVersion && now.targets == pending.targets) {
+                    PolicyDecision.Allowed(request, now.policyVersion)
+                } else {
+                    changed(request)
+                }
+            is PolicyDecision.Allowed -> changed(request)
+        }
+    }
+
+    /** The user said no to [pending]. */
+    fun declined(pending: PolicyDecision.NeedsConfirmation): PolicyDecision.Denied =
+        deny(pending.request, DenialCode.USER_DENIED, "The user declined this.", userCanChange = false)
+
+    private fun changed(request: SkillRequest) =
+        deny(request, DenialCode.CONFIRMATION_REQUIRED, "Settings or files changed after the user was asked, so the approval no longer applies.", userCanChange = false, retryable = true)
+
+    private suspend fun evaluate(request: SkillRequest): PolicyDecision {
         val skill = request.skill
         val state = states.state(skill)
         if (state == SkillState.DECLINED) {
@@ -57,12 +93,16 @@ class PolicyEngine(
         if (!skill.androidPermissions.all(permissionGranted)) {
             return deny(request, DenialCode.ANDROID_PERMISSION_DENIED, "Android has not granted a permission this skill needs.", userCanChange = true)
         }
-        if (skill.scope != ResourceScope.NONE) {
-            val check = scope(request)
-            if (check is ScopeCheck.OutOfScope) return deny(request, DenialCode.RESOURCE_OUTSIDE_SCOPE, check.message, userCanChange = true)
+        val targets = if (skill.scope == ResourceScope.NONE) {
+            emptyList()
+        } else {
+            when (val check = scope(request)) {
+                is ScopeCheck.OutOfScope -> return deny(request, DenialCode.RESOURCE_OUTSIDE_SCOPE, check.message, userCanChange = true)
+                is ScopeCheck.InScope -> check.targets
+            }
         }
         val version = states.policyVersion()
-        return if (state == SkillState.ASK) PolicyDecision.NeedsConfirmation(request, version) else PolicyDecision.Allowed(request, version)
+        return if (state == SkillState.ASK) PolicyDecision.NeedsConfirmation(request, version, targets, clock()) else PolicyDecision.Allowed(request, version)
     }
 
     /** Runs an allowed request and returns what goes back to the model: a sanitised result or a denial. */
@@ -81,6 +121,11 @@ class PolicyEngine(
 
     fun refusal(denied: PolicyDecision.Denied): JSONObject = output.denial(denied.denial)
 
-    private fun deny(request: SkillRequest, code: DenialCode, message: String, userCanChange: Boolean) =
-        PolicyDecision.Denied(Denial(code, request.skill.id, message, userCanChange = userCanChange, retryable = false))
+    private fun deny(request: SkillRequest, code: DenialCode, message: String, userCanChange: Boolean, retryable: Boolean = false) =
+        PolicyDecision.Denied(Denial(code, request.skill.id, message, userCanChange = userCanChange, retryable = retryable))
+
+    companion object {
+        /** How long an approval card stays valid; afterwards the model must ask again. */
+        const val CONFIRMATION_LIFETIME_MS = 15 * 60 * 1000L
+    }
 }

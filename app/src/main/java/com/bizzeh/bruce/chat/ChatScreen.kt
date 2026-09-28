@@ -17,6 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -37,12 +40,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
+import com.bizzeh.bruce.skills.SkillText
 import com.bizzeh.bruce.inference.ChatRole
 
 interface ChatActions {
     fun setInput(input: String)
     fun send()
     fun stop()
+
+    /** The user's answer to a skill call awaiting approval. */
+    fun decide(callId: String, approved: Boolean)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,7 +73,7 @@ fun ChatScreen(
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding).imePadding()) {
-            Messages(state, modifier = Modifier.weight(1f))
+            Messages(state, actions, modifier = Modifier.weight(1f))
             ChatText.error(state.error)?.let {
                 Text(
                     stringResource(it),
@@ -80,7 +87,7 @@ fun ChatScreen(
 }
 
 @Composable
-private fun Messages(state: ChatState, modifier: Modifier) {
+private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier) {
     if (state.entries.isEmpty()) {
         Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Text(
@@ -104,10 +111,42 @@ private fun Messages(state: ChatState, modifier: Modifier) {
         itemsIndexed(state.entries) { index, entry ->
             when {
                 entry.role == ChatRole.USER -> UserMessage(entry.text)
+                entry.tool?.status == ToolStatus.AWAITING_APPROVAL -> ConfirmationCard(entry.tool, state.confirmations[entry.tool.callId], !state.generating, actions)
                 entry.tool != null -> ToolRow(index, entry.tool)
                 // A reply that only asked for skills has nothing to show; its tool rows follow.
                 entry.text.isEmpty() && entry.toolCalls.isNotEmpty() -> Unit
                 else -> Reply(index, entry, state.sidekick)
+            }
+        }
+    }
+}
+
+/**
+ * A call in the Ask state: exactly what would run, with Allow once and Don't allow. A call from an
+ * earlier session has no [confirmation] and can no longer be approved; the model must ask again.
+ */
+@Composable
+private fun ConfirmationCard(tool: ToolUse, confirmation: Confirmation?, enabled: Boolean, actions: ChatActions) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth().testTag("confirm:${tool.callId}")) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(stringResource(R.string.chat_confirm_title, SkillText.name(tool.name)), style = MaterialTheme.typography.titleSmall)
+            if (confirmation == null) {
+                Text(stringResource(R.string.chat_confirm_expired), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("confirmExpired:${tool.callId}"))
+                return@Column
+            }
+            confirmation.targets.forEach { target ->
+                Text(stringResource(R.string.chat_confirm_target, target), style = MaterialTheme.typography.bodyMedium)
+            }
+            confirmation.arguments.forEach { (name, value) ->
+                Text(if (name.isEmpty()) value else "$name: $value", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { actions.decide(tool.callId, true) }, enabled = enabled, modifier = Modifier.testTag("approve:${tool.callId}")) {
+                    Text(stringResource(R.string.chat_confirm_allow))
+                }
+                OutlinedButton(onClick = { actions.decide(tool.callId, false) }, enabled = enabled, modifier = Modifier.testTag("deny:${tool.callId}")) {
+                    Text(stringResource(R.string.chat_confirm_deny))
+                }
             }
         }
     }
@@ -222,6 +261,7 @@ internal object ChatText {
         ToolStatus.RAN -> R.string.chat_tool_ran
         ToolStatus.REFUSED -> R.string.chat_tool_refused
         ToolStatus.AWAITING_APPROVAL -> R.string.chat_tool_awaiting
+        ToolStatus.DECLINED -> R.string.chat_tool_declined
     }
 
     /** What the tool gave the model, for the expanded row: the result itself, or the refusal's message. */

@@ -73,7 +73,7 @@ class BruceRuntimeTest {
     private val secret = skill("read_secret", SkillState.DECLINED)
     private val writer = skill("write_note", SkillState.ASK)
     private val registry = SkillRegistry(listOf(clock, calculator, secret, writer))
-    private val policy = PolicyEngine(registry, states, ToolOutput(), permissionGranted = { true }, scope = { ScopeCheck.InScope })
+    private val policy = PolicyEngine(registry, states, ToolOutput(), permissionGranted = { true }, scope = { ScopeCheck.InScope() })
     private val engine = ScriptedEngine()
 
     private fun runtime(maxToolCalls: Int = 5, maxDuration: kotlin.time.Duration = 10.seconds) =
@@ -148,6 +148,35 @@ class BruceRuntimeTest {
         assertEquals("write_note", pending.decision.request.skill.id)
         assertEquals(listOf(ChatRole.ASSISTANT), (events.last() as RuntimeEvent.Finished).messages.map { it.role })
         assertTrue(ran.isEmpty())
+    }
+
+    @Test
+    fun callsAfterOneAwaitingApprovalGetAResultButDoNotRun() {
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("write_note", "{}", "a"), ToolCall("get_datetime", "{}", "b"))))
+
+        val events = events()
+
+        val skipped = events.filterIsInstance<RuntimeEvent.ToolResult>().single()
+        assertEquals("b", skipped.call.id)
+        assertEquals("CONFIRMATION_REQUIRED", JSONObject(skipped.resultJson).getString("code"))
+        assertTrue(ran.isEmpty())
+    }
+
+    @Test
+    fun approvingRunsTheCallAndDecliningDoesNot() = runBlocking {
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("write_note", "{}", "a"))))
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("write_note", "{}", "b"))))
+        val runtime = runtime()
+        val first = runtime.respond(question).toList().filterIsInstance<RuntimeEvent.NeedsConfirmation>().single()
+        val second = runtime.respond(question).toList().filterIsInstance<RuntimeEvent.NeedsConfirmation>().single()
+
+        val approved = runtime.answer(first.call, first.decision, approved = true)
+        val declined = runtime.answer(second.call, second.decision, approved = false)
+
+        assertTrue(approved.ran)
+        assertEquals(listOf("write_note"), ran)
+        assertEquals(false, declined.ran)
+        assertEquals("USER_DENIED", JSONObject(declined.resultJson).getString("code"))
     }
 
     @Test
