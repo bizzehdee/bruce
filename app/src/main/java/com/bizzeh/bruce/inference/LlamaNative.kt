@@ -49,6 +49,23 @@ internal interface LlamaApi {
     /** Clears the context and returns a generation handle; release it with [endGeneration]. */
     fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
 
+    /** As [beginGeneration], constrained by [grammarJson] ([ToolGrammar.json]); 0 if the grammar is unusable. */
+    fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long
+
+    /** The model's chat templates for tool formats; 0 on failure. Free with [chatTemplatesFree]. */
+    fun chatTemplatesInit(model: Long): Long
+
+    fun chatTemplatesFree(templates: Long)
+
+    /** Applies the templates to a JSON request (chat_tools.cpp); UTF-8 JSON reply, or null. */
+    fun applyChat(templates: Long, request: ByteArray): ByteArray?
+
+    /** Parses a reply described by a JSON request (chat_tools.cpp); UTF-8 JSON reply, or null. */
+    fun parseChat(request: ByteArray): ByteArray?
+
+    /** A GBNF grammar for Bruce's own tool-call format over the tools in the JSON request, or null. */
+    fun toolCallGrammar(request: ByteArray): ByteArray?
+
     /** Returns the prompt token count, or [PROMPT_TOO_LONG] or [DECODE_FAILED]. */
     fun evaluatePrompt(generation: Long, promptUtf8: ByteArray): Int
 
@@ -114,6 +131,18 @@ internal object LlamaNative : LlamaApi {
     external override fun formatChat(model: Long, roles: Array<String>, contents: Array<ByteArray>, addAssistant: Boolean): ByteArray?
 
     external override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
+
+    external override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long
+
+    external override fun chatTemplatesInit(model: Long): Long
+
+    external override fun chatTemplatesFree(templates: Long)
+
+    external override fun applyChat(templates: Long, request: ByteArray): ByteArray?
+
+    external override fun parseChat(request: ByteArray): ByteArray?
+
+    external override fun toolCallGrammar(request: ByteArray): ByteArray?
 
     external override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray): Int
 

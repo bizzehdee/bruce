@@ -30,7 +30,29 @@ This guide is for developers building Bruce from source.
    ```
 
 The first native build compiles llama.cpp, seven CPU variants and the Vulkan shaders. It
-takes several minutes.
+takes several minutes. The native build fails if `libbruce` imports network functions such as
+`connect` (`app/src/main/cpp/check_no_network.cmake`).
+
+## Manual device tests
+
+Tests marked `@ManualOnly` are skipped by `connectedDebugAndroidTest`: benchmarks, tests that
+need the internet, tests that can freeze a phone, and tests that need a real model. The
+Gradle device run uninstalls the app afterwards, so install and run these by hand:
+
+```
+./gradlew installDebug installDebugAndroidTest
+adb shell am instrument -w -e class <test class> com.bizzeh.bruce.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+`ToolCallDeviceTest` needs Qwen3.5-0.8B-Q8_0.gguf (from `ggml-org/Qwen3.5-0.8B-GGUF`, SHA-256
+`37ae482d336108d23516fa35e8e0c4126688d81018b87178a18d752a1357814f`) in the app's private
+storage. Copy it in through the debuggable app's own user:
+
+```
+adb push Qwen3.5-0.8B-Q8_0.gguf /data/local/tmp/
+adb shell "run-as com.bizzeh.bruce mkdir -p files/test-models"
+adb shell "cat /data/local/tmp/Qwen3.5-0.8B-Q8_0.gguf | run-as com.bizzeh.bruce sh -c 'cat > files/test-models/Qwen3.5-0.8B-Q8_0.gguf'"
+```
 
 ## Regenerating the icons
 

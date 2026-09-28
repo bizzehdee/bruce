@@ -91,7 +91,7 @@ class ChatViewModel(
                         when (event.error) {
                             GenerationError.NO_MODEL_LOADED -> ChatError.NO_MODEL_LOADED
                             GenerationError.PROMPT_TOO_LONG -> ChatError.CONVERSATION_TOO_LONG
-                            GenerationError.DECODE_FAILED -> ChatError.GENERATION_FAILED
+                            GenerationError.DECODE_FAILED, GenerationError.GRAMMAR_REJECTED -> ChatError.GENERATION_FAILED
                         },
                     )
                 }
