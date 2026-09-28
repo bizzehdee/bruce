@@ -112,9 +112,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 ### Assistant
 
 - **BruceRuntime** — Coordinates requests, context, model calls, tool calls,
-  memory, permission requests and results. Skills are loaded as needed rather
-  than all described to the model up front, because every tool description costs
-  prompt time on the phone (method chosen by TASK-033). `planned`
+  memory, permission requests and results. The model asks for a skill in its own
+  chat template's tool format (llama.cpp's chat code), with Bruce's own format and
+  a grammar for models without tool support (ADR 0001). Skills are described in
+  full while there are few, then as a one-line list with a skill's full
+  description loaded when it is used, once a prompt budget is passed. `planned`
 - **Agent loop** — Multi-step tool use, bounded by maximum tool calls, maximum
   execution time and resource limits; supports cancellation and structured
   errors. `planned`
@@ -296,6 +298,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 | File access | Storage Access Framework | Scoped, user-granted access instead of broad storage permission. |
 | Native | C++, Android NDK, CMake, JNI | llama.cpp is C/C++. |
 | Inference | llama.cpp, git submodule at a pinned commit | Explicit version pin; upgrades visible in history. |
+| Tool-call formats | llama.cpp's chat, template and parser sources from `common`, built by Bruce's own CMake target; not its HTTP or download code | Each model's own tool format (ADR 0001) without native network code outside the network mode. |
 | Native backends | ggml backends as runtime-loaded libraries: 7 Android CPU variants, Vulkan, OpenCL. Native libraries are extracted on install. | One APK runs the best code path each phone supports. |
 | Build tools | Khronos Vulkan-Headers, SPIRV-Headers, OpenCL-Headers, OpenCL-ICD-Loader (link only) as pinned submodules; host `glslc` | The NDK lacks these headers, and its `glslc` is too old for llama.cpp's shaders. |
 | HTTP and JSON | Android's `HttpURLConnection` and `org.json` | Built in; no new dependencies for a small API surface. |
@@ -372,7 +375,6 @@ device-to-device transfer.
 | Question | Owner |
 |---|---|
 | App signing arrangements (Play App Signing, upload key custody). | User |
-| Tool-calling format for small models (for example grammar-constrained JSON output). To be settled by Phase 1 experiments. | User, from evidence |
 | Local embedding model for RAG. | User, from evidence |
 | Web search provider for `WEB_SEARCH`. | User |
 | Conversation export format. | User |
@@ -411,6 +413,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 |---|---|---|
 | 2026-09-28 | Changed | Skill states and policy engine done; states stored in their own database with a policy version; Clear all data resets them. |
 | 2026-09-28 | Added | Formatted replies: Markdown rendered natively; links confirmed before opening; images only where the network mode allows. |
+| 2026-09-28 | Changed | Tool-calling format decided (ADR 0001): each model's own format via a narrow build of llama.cpp's chat code, Bruce's format with a grammar as fallback; full skill descriptions until a prompt budget. Open question closed. |
 | 2026-09-28 | Changed | Skill framework and capability model done: skill definitions, argument validation, structured denials, untrusted-result envelope. |
 | 2026-09-28 | Changed | Backend choices list only backends this phone can use (Auto, CPU, and usable GPUs). |
 | 2026-09-28 | Changed | Saved conversations done (drawer list, resume, rename, archive, delete, bulk actions, Archived view, delete all chats); export still to come. |

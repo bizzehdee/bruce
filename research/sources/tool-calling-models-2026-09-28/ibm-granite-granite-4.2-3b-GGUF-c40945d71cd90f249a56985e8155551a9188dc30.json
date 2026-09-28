@@ -1,0 +1,38 @@
+{
+ "id": "ibm-granite/granite-4.2-3b-GGUF",
+ "sha": "c40945d71cd90f249a56985e8155551a9188dc30",
+ "lastModified": "2026-09-02T22:06:48.000Z",
+ "tags": [
+  "transformers",
+  "gguf",
+  "language",
+  "granite-4.2",
+  "base_model:ibm-granite/granite-4.2-3b",
+  "base_model:quantized:ibm-granite/granite-4.2-3b",
+  "license:apache-2.0",
+  "endpoints_compatible",
+  "region:us",
+  "conversational"
+ ],
+ "cardData": {
+  "license": "apache-2.0",
+  "library_name": "transformers",
+  "tags": [
+   "language",
+   "granite-4.2",
+   "gguf"
+  ],
+  "base_model": [
+   "ibm-granite/granite-4.2-3b"
+  ]
+ },
+ "gguf": {
+  "total": 3659737600,
+  "architecture": "granite",
+  "context_length": 131072,
+  "bos_token": "<s>",
+  "eos_token": "<|im_end|>",
+  "totalFileSize": 7323461152
+ },
+ "gated": false
+}
