@@ -167,7 +167,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   bottom, and replies that stream in as they are generated. Bruce's actions,
   permission requests and confirmations appear inline in the conversation.
   This familiar layout is the starting point because it is what users expect;
-  how Bruce's interface stands apart is decided later. `planned`
+  how Bruce's interface stands apart is decided later. `in progress`
 - **Navigation** — A side drawer, as in the ChatGPT, Claude and Gemini apps, holds
   the conversation list and entries for Models and Settings. The chat screen's top
   bar shows the active model; tapping it opens a quick model switcher. The

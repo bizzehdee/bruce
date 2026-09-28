@@ -32,7 +32,6 @@ class PrototypeViewModel(
     private val detectCpuFeatures: () -> CpuFeatures,
     private val memoryInfo: () -> ActivityManager.MemoryInfo,
     private val ioDispatcher: CoroutineDispatcher,
-    private val release: () -> Unit = {},
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(PrototypeState())
     val state: StateFlow<PrototypeState> = mutableState.asStateFlow()
@@ -129,9 +128,5 @@ class PrototypeViewModel(
             modelsDir.listFiles { file -> file.isFile && file.name.endsWith(".gguf") }.orEmpty().sortedBy { it.name }
         }
         mutableState.update { it.copy(models = models) }
-    }
-
-    override fun onCleared() {
-        release()
     }
 }

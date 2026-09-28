@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -180,6 +181,32 @@ class LlamaCppEngineGenerationTest {
         assertEquals(4, stats.generatedTokens)
         assertEquals(2.seconds, stats.generationDuration)
         assertEquals(2.0, stats.generationTokensPerSecond)
+    }
+
+    @Test
+    fun formatChatPassesRolesAndUtf8Content() = test {
+        loadModel()
+
+        val prompt = engine.formatChat(listOf(ChatMessage(ChatRole.SYSTEM, "Be brief"), ChatMessage(ChatRole.USER, "Héllo 🐕")))
+
+        assertEquals(ChatPrompt("<|im_start|>user", usedFallbackTemplate = false), prompt)
+        assertEquals(Triple(10L, listOf("system", "user"), listOf("Be brief", "Héllo 🐕")), llama.chatRequest)
+    }
+
+    @Test
+    fun formatChatReportsFallbackTemplate() = test {
+        loadModel()
+        llama.chatResult = byteArrayOf(1) + "x".toByteArray()
+
+        assertEquals(ChatPrompt("x", usedFallbackTemplate = true), engine.formatChat(listOf(ChatMessage(ChatRole.USER, "hi"))))
+    }
+
+    @Test
+    fun formatChatWithoutModelOrOnFailureIsNull() = test {
+        assertNull(engine.formatChat(listOf(ChatMessage(ChatRole.USER, "hi"))))
+        loadModel()
+        llama.chatResult = null
+        assertNull(engine.formatChat(listOf(ChatMessage(ChatRole.USER, "hi"))))
     }
 
     @Test

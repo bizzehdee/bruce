@@ -206,6 +206,62 @@ Java_com_bizzeh_bruce_inference_LlamaNative_vulkanDeviceApiVersion(JNIEnv *env, 
     return static_cast<jint>(version);
 }
 
+// Formats a conversation with the model's own chat template, or ChatML when the model has none or
+// llama.cpp does not recognise it. Returns {usedFallback (1 byte), formatted UTF-8 bytes...}, or
+// null if even ChatML fails. Message text crosses JNI as UTF-8 bytes (.learnings/jni-text-as-utf8-bytes.md).
+JNIEXPORT jbyteArray JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_formatChat(
+        JNIEnv *env, jobject, jlong model, jobjectArray roles, jobjectArray contents, jboolean addAssistant) {
+    const jsize count = env->GetArrayLength(roles);
+    std::vector<std::string> roleText(static_cast<size_t>(count));
+    std::vector<std::string> contentText(static_cast<size_t>(count));
+    size_t totalBytes = 0;
+    for (jsize i = 0; i < count; ++i) {
+        auto role = static_cast<jstring>(env->GetObjectArrayElement(roles, i));
+        const char *chars = env->GetStringUTFChars(role, nullptr);
+        roleText[i] = chars;
+        env->ReleaseStringUTFChars(role, chars);
+        auto content = static_cast<jbyteArray>(env->GetObjectArrayElement(contents, i));
+        const jsize length = env->GetArrayLength(content);
+        contentText[i].resize(static_cast<size_t>(length));
+        env->GetByteArrayRegion(content, 0, length, reinterpret_cast<jbyte *>(contentText[i].data()));
+        totalBytes += contentText[i].size();
+    }
+    std::vector<llama_chat_message> messages(static_cast<size_t>(count));
+    for (jsize i = 0; i < count; ++i) {
+        messages[i] = {roleText[i].c_str(), contentText[i].c_str()};
+    }
+
+    auto apply = [&](const char *tmpl, std::vector<char> &out) -> int32_t {
+        out.resize(2 * totalBytes + 1024);
+        int32_t length = llama_chat_apply_template(
+                tmpl, messages.data(), messages.size(), addAssistant, out.data(), static_cast<int32_t>(out.size()));
+        if (length > static_cast<int32_t>(out.size())) {
+            out.resize(static_cast<size_t>(length));
+            length = llama_chat_apply_template(
+                    tmpl, messages.data(), messages.size(), addAssistant, out.data(), static_cast<int32_t>(out.size()));
+        }
+        return length;
+    };
+
+    std::vector<char> formatted;
+    bool usedFallback = false;
+    const char *modelTemplate = llama_model_chat_template(asModel(model), nullptr);
+    int32_t length = modelTemplate == nullptr ? -1 : apply(modelTemplate, formatted);
+    if (length < 0) {
+        usedFallback = true;
+        length = apply("chatml", formatted);
+    }
+    if (length < 0) {
+        return nullptr;
+    }
+    jbyteArray result = env->NewByteArray(length + 1);
+    const jbyte flag = usedFallback ? 1 : 0;
+    env->SetByteArrayRegion(result, 0, 1, &flag);
+    env->SetByteArrayRegion(result, 1, length, reinterpret_cast<const jbyte *>(formatted.data()));
+    return result;
+}
+
 // The features the loaded CPU variant was compiled with, e.g. "DOTPROD", as "NAME=value".
 JNIEXPORT jobjectArray JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_cpuBackendFeatures(JNIEnv *env, jobject) {

@@ -2,11 +2,8 @@ package com.bizzeh.bruce.prototype
 
 import android.app.ActivityManager
 import android.net.Uri
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.bizzeh.bruce.hardware.CpuFeatures
+import com.bizzeh.bruce.testing.FakeEngine
 import com.bizzeh.bruce.inference.Backend
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.GenerationError
@@ -51,7 +48,6 @@ class PrototypeViewModelTest {
     private val cpu = CpuFeatures(arm64 = true, neon = true, fp16 = false, dotProd = false, i8mm = false)
     private lateinit var modelsDir: File
     private var importResult: ImportResult = ImportResult.Failed(ImportError.UNREADABLE)
-    private var released = 0
     private val memory = ActivityManager.MemoryInfo().apply {
         availMem = 8L shl 30
         threshold = 0
@@ -77,7 +73,6 @@ class PrototypeViewModelTest {
         detectCpuFeatures = { cpu },
         memoryInfo = { memory },
         ioDispatcher = dispatcher,
-        release = { released++ },
     ).also { advanceUntilIdle() }
 
     private fun model(name: String) = File(modelsDir, name).apply { writeBytes(fixture.readBytes()) }
@@ -249,17 +244,6 @@ class PrototypeViewModelTest {
         viewModel().stop()
 
         assertEquals(1, engine.stops)
-    }
-
-    @Test
-    fun clearingTheViewModelStoreReleasesTheEngine() = runTest(dispatcher) {
-        val store = ViewModelStore()
-        val vm = viewModel()
-        ViewModelProvider.create(store, viewModelFactory { initializer { vm } })[PrototypeViewModel::class]
-
-        store.clear()
-
-        assertEquals(1, released)
     }
 
     private fun TestScope.loadedViewModel(): PrototypeViewModel {
