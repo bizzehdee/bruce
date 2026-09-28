@@ -11,7 +11,14 @@ import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.models.ModelSelection
 import com.bizzeh.bruce.models.ModelSettingsRepository
 import com.bizzeh.bruce.settings.DataReset
+import com.bizzeh.bruce.huggingface.HttpTransport
+import com.bizzeh.bruce.huggingface.HubAuth
+import com.bizzeh.bruce.huggingface.HubClient
+import com.bizzeh.bruce.huggingface.KeystoreTokenCipher
+import com.bizzeh.bruce.huggingface.ModelDownloader
+import com.bizzeh.bruce.huggingface.UrlConnectionTransport
 import com.bizzeh.bruce.settings.InferenceSettingsRepository
+import com.bizzeh.bruce.settings.NetworkSettingsRepository
 import com.bizzeh.bruce.settings.ThemeSettingsRepository
 import com.bizzeh.bruce.settings.settingsDataStore
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +49,27 @@ class AppContainer(private val context: Context) {
     val themeSettings: ThemeSettingsRepository by lazy { ThemeSettingsRepository(context.settingsDataStore) }
 
     val inferenceSettings: InferenceSettingsRepository by lazy { InferenceSettingsRepository(context.settingsDataStore) }
+
+    val networkSettings: NetworkSettingsRepository by lazy { NetworkSettingsRepository(context.settingsDataStore) }
+
+    private val transport: HttpTransport by lazy { UrlConnectionTransport() }
+
+    private val userAgent = "Bruce/${BuildConfig.VERSION_NAME}"
+
+    val hubAuth: HubAuth by lazy {
+        HubAuth(
+            transport, context.settingsDataStore, KeystoreTokenCipher(), networkSettings::huggingFaceAllowed,
+            Dispatchers.IO, BuildConfig.HUGGING_FACE_CLIENT_ID,
+        )
+    }
+
+    val hubClient: HubClient by lazy {
+        HubClient(transport, networkSettings::huggingFaceAllowed, Dispatchers.IO, userAgent, token = hubAuth::accessToken)
+    }
+
+    val downloader: ModelDownloader by lazy {
+        ModelDownloader(transport, modelsDir, networkSettings::huggingFaceAllowed, Dispatchers.IO, userAgent, token = hubAuth::accessToken)
+    }
 
     val modelSettings: ModelSettingsRepository by lazy { ModelSettingsRepository(context.settingsDataStore) }
 

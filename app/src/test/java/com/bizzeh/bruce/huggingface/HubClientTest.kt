@@ -135,6 +135,18 @@ class HubClientTest {
     }
 
     @Test
+    fun signedInRequestsCarryTheToken() = runTest(dispatcher) {
+        val signedIn = HubClient(transport, { true }, dispatcher, "Bruce/test", token = { "tok" })
+        transport.respond(200, "[]")
+
+        signedIn.search("x")
+        client.search("x")
+
+        assertEquals("Bearer tok", transport.headers[0]["Authorization"])
+        assertNull(transport.headers[1]["Authorization"])
+    }
+
+    @Test
     fun networkModeIsCheckedBeforeAnyRequest() = runTest(dispatcher) {
         allowed = false
 
@@ -179,6 +191,25 @@ class HubClientTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
+    fun limitHasAnUpperBound() = runTest(dispatcher) {
+        client.search("x", limit = HubClient.MAX_RESULTS + 1)
+    }
+
+    @Test
+    fun nonObjectFileEntryIsMalformed() = runTest(dispatcher) {
+        transport.respond(200, "[42]")
+
+        assertEquals(HubResult.Failure(HubError.MALFORMED_RESPONSE), client.ggufFiles("a/b"))
+    }
+
+    @Test
+    fun licenceListOfBlanksIsNoLicence() = runTest(dispatcher) {
+        transport.respond(200, """[{"id":"a/b","cardData":{"license":["", " "]}},{"id":"c/d","cardData":{"license":42}}]""")
+
+        assertEquals(listOf<String?>(null, null), client.search("x").let { (it as HubResult.Success).value.map(HubModel::license) })
+    }
+
+    @Test(expected = IllegalArgumentException::class)
     fun baseUrlMustBeHttps() {
         HubClient(transport, { true }, dispatcher, "Bruce/test", baseUrl = "http://huggingface.co")
     }
@@ -209,6 +240,8 @@ class HubClientTest {
         }
 
         override fun open(url: String, headers: Map<String, String>): StreamingResponse = error("not used")
+
+        override fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse = error("not used")
 
         override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse? {
             urls += url

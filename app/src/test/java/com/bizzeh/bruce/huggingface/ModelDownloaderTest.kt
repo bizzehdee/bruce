@@ -144,6 +144,32 @@ class ModelDownloaderTest {
     }
 
     @Test
+    fun forbiddenAndWrongTotalsAreReported() {
+        server.statusOverride = 403
+        assertEquals(DownloadResult.Failed(DownloadError.UNAUTHORISED), download())
+
+        server.statusOverride = null
+        partial().apply { parentFile.mkdirs(); writeBytes(content.copyOf(1000)) }
+        server.contentRangeOverride = "bytes 1000-999999/2000000"
+        assertEquals(DownloadResult.Failed(DownloadError.UNEXPECTED_RESPONSE), download())
+        server.contentRangeOverride = "garbage"
+        assertEquals(DownloadResult.Failed(DownloadError.UNEXPECTED_RESPONSE), download())
+    }
+
+    @Test
+    fun uppercaseChecksumIsAccepted() {
+        assertTrue(download(sha256 = sha.uppercase()) is DownloadResult.Downloaded)
+    }
+
+    @Test
+    fun bodyThatEndsEarlyFailsVerification() {
+        server.truncateTo = 500_000
+
+        assertEquals(DownloadResult.Failed(DownloadError.VERIFICATION_FAILED), download())
+        assertFalse(partial().exists())
+    }
+
+    @Test
     fun unexpectedRangesAndOverlongBodiesAreRejected() {
         partial().apply { parentFile.mkdirs(); writeBytes(content.copyOf(1000)) }
         server.contentRangeOverride = "bytes 0-999999/1000000"
@@ -170,6 +196,15 @@ class ModelDownloaderTest {
         runCatching { job.await() }
 
         assertTrue(partial().length() in 500_000 until content.size.toLong())
+    }
+
+    @Test
+    fun signedInDownloadsCarryTheToken() {
+        val signedIn = ModelDownloader(server, modelsDir, { true }, Dispatchers.IO, "Bruce/test", { freeSpace }, token = { "tok" })
+
+        runBlocking { signedIn.download("a/b", "m.gguf", content.size.toLong(), sha) }
+
+        assertEquals(listOf<String?>("Bearer tok"), server.authorizations)
     }
 
     @Test
@@ -202,6 +237,7 @@ class ModelDownloaderTest {
         var statusOverride: Int? = null
         var contentRangeOverride: String? = null
         var extraBytes = 0
+        var truncateTo: Int? = null
         var openFails = false
         private val paused = java.util.concurrent.CountDownLatch(1)
 
@@ -209,13 +245,18 @@ class ModelDownloaderTest {
 
         override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse = error("not used")
 
+        override fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse = error("not used")
+
+        val authorizations = mutableListOf<String?>()
+
         override fun open(url: String, headers: Map<String, String>): StreamingResponse {
             urls += url
             ranges += headers["Range"]
+            authorizations += headers["Authorization"]
             if (openFails) throw IOException("connection refused")
             statusOverride?.let { return StreamingResponse(it, emptyMap(), ByteArrayInputStream(ByteArray(0))) {} }
             val start = headers["Range"]?.takeUnless { ignoreRange }?.removePrefix("bytes=")?.removeSuffix("-")?.toInt() ?: 0
-            val body = file.copyOfRange(start, file.size) + ByteArray(extraBytes)
+            val body = (file.copyOfRange(start, file.size) + ByteArray(extraBytes)).let { full -> truncateTo?.let { full.copyOf(it) } ?: full }
             val status = if (headers["Range"] != null && !ignoreRange) 206 else 200
             val contentRange = contentRangeOverride ?: "bytes $start-${file.size - 1}/${file.size}"
             return StreamingResponse(status, mapOf("content-range" to contentRange), stream(body)) {}

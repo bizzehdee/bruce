@@ -85,6 +85,14 @@ class HubHeaderTest {
     }
 
     @Test
+    fun unreadableContentRangeIsMalformed() = runTest(dispatcher) {
+        server.file = fixture.readBytes()
+        server.contentRangeOverride = "bytes */1185376"
+
+        assertEquals(HubResult.Failure(HubError.MALFORMED_RESPONSE), client.ggufHeader("a/b", "m.gguf"))
+    }
+
+    @Test
     fun unexpectedSuccessStatusIsMalformed() = runTest(dispatcher) {
         server.file = fixture.readBytes()
         server.statusOverride = 204
@@ -142,12 +150,15 @@ class HubHeaderTest {
         var ignoreRange = false
         var refuseAboveLimit = false
         var omitContentRange = false
+        var contentRangeOverride: String? = null
         var statusOverride: Int? = null
         var failWith: IOException? = null
         val ranges = mutableListOf<String>()
         val urls = mutableListOf<String>()
 
         override fun open(url: String, headers: Map<String, String>): StreamingResponse = error("not used")
+
+        override fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse = error("not used")
 
         override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse? {
             urls += url
@@ -160,7 +171,7 @@ class HubHeaderTest {
             val end = range.substringAfter('-').toInt()
             val body = file.copyOf(minOf(end + 1, file.size))
             val total = claimedTotal ?: file.size.toLong()
-            val headersOut = if (omitContentRange) emptyMap() else mapOf("content-range" to "bytes 0-${body.size - 1}/$total")
+            val headersOut = if (omitContentRange) emptyMap() else mapOf("content-range" to (contentRangeOverride ?: "bytes 0-${body.size - 1}/$total"))
             return HttpResponse(206, headersOut, body)
         }
     }

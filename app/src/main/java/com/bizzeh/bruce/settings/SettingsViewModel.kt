@@ -2,7 +2,11 @@ package com.bizzeh.bruce.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bizzeh.bruce.huggingface.HubAuth
+import com.bizzeh.bruce.huggingface.SignInError
+import com.bizzeh.bruce.huggingface.SignInResult
 import com.bizzeh.bruce.inference.BackendPreference
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -12,6 +16,8 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val theme: ThemeSettingsRepository,
     private val inference: InferenceSettingsRepository,
+    private val network: NetworkSettingsRepository,
+    private val hubAuth: HubAuth,
     private val dataReset: DataReset,
     dynamicColourSupported: Boolean,
     performanceCores: Int,
@@ -19,9 +25,28 @@ class SettingsViewModel(
 ) : ViewModel() {
     private val initial = SettingsState(dynamicColourSupported = dynamicColourSupported, performanceCores = performanceCores, cores = cores)
 
-    val state: StateFlow<SettingsState> = combine(theme.settings, inference.defaults) { themeSettings, defaults ->
-        initial.copy(theme = themeSettings, inference = defaults)
+    private val signInError = MutableStateFlow<SignInError?>(null)
+
+    val state: StateFlow<SettingsState> = combine(
+        theme.settings, inference.defaults, network.mode, hubAuth.account, signInError,
+    ) { themeSettings, defaults, mode, account, error ->
+        initial.copy(theme = themeSettings, inference = defaults, network = mode, account = account, signInError = error)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, initial)
+
+    fun setNetworkMode(mode: NetworkMode) = launch { network.setMode(mode) }
+
+    /** Starts sign-in; the caller opens the returned URL in the browser. */
+    fun beginSignIn(): String {
+        signInError.value = null
+        return hubAuth.begin().authorizeUrl
+    }
+
+    /** The browser redirect back into the app. */
+    fun completeSignIn(parameters: Map<String, String?>) = launch {
+        signInError.value = (hubAuth.complete(parameters) as? SignInResult.Failed)?.error
+    }
+
+    fun signOut() = launch { hubAuth.signOut() }
 
     fun setThemeMode(mode: ThemeMode) = launch { theme.setMode(mode) }
 

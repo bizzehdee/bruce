@@ -15,3 +15,4 @@
 - [phase0-cpu-benchmarks.md](phase0-cpu-benchmarks.md) — Measured speed and memory on both test phones, thread-count conclusions, and why RSS exceeds the memory estimate on repacking CPUs. Read before tuning threads, recommending models or changing the memory estimate.
 - [hf-hub-api-for-model-discovery.md](hf-hub-api-for-model-discovery.md) — Verified Hub API calls for GGUF search, metadata, hashes and partial downloads. Read before any Hugging Face work.
 - [build-memory-limits.md](build-memory-limits.md) — Why Gradle, Kotlin and native compiles are memory-capped, and the rule against a second Gradle daemon. Read before changing build parallelism or running builds with another Gradle home.
+- [hf-oauth-for-native-apps.md](hf-oauth-for-native-apps.md) — Hugging Face OAuth for Bruce: public app, PKCE, exact redirect, scopes, 8-hour tokens, no token on CDN redirects. Read before any sign-in work.

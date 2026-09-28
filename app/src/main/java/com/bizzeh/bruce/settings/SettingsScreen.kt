@@ -32,6 +32,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
+import com.bizzeh.bruce.huggingface.HubAccount
+import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.navigation.SubScreen
 
@@ -41,6 +43,9 @@ data class SettingsState(
     val inference: InferenceDefaults = InferenceDefaults(),
     val performanceCores: Int = 4,
     val cores: Int = 8,
+    val network: NetworkMode = NetworkMode.OFFLINE,
+    val account: HubAccount? = null,
+    val signInError: SignInError? = null,
 )
 
 interface SettingsActions {
@@ -50,6 +55,9 @@ interface SettingsActions {
     fun setThreads(threads: Int?)
     fun setContextLength(contextLength: Int)
     fun clearAllData()
+    fun setNetworkMode(mode: NetworkMode)
+    fun signIn()
+    fun signOut()
     fun openPermissions()
     fun openLicences()
     fun openDiagnostics()
@@ -119,6 +127,44 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
+
+            Heading(R.string.settings_network)
+            Choice(
+                options = NetworkMode.entries,
+                selected = state.network,
+                label = { stringResource(SettingsText.networkLabel(it)) },
+                onSelect = actions::setNetworkMode,
+            )
+            Text(
+                stringResource(SettingsText.networkSummary(state.network)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).testTag("networkSummary"),
+            )
+            val account = state.account
+            if (account != null) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.account_signed_in, account.username)) },
+                    supportingContent = { Text(stringResource(R.string.account_signed_in_until, SettingsText.date(account.expiresAtMillis))) },
+                    trailingContent = { TextButton(onClick = actions::signOut, modifier = Modifier.testTag("signOut")) { Text(stringResource(R.string.account_sign_out)) } },
+                )
+            } else {
+                val allowed = state.network.allowsHuggingFace
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.account_sign_in)) },
+                    supportingContent = {
+                        Text(stringResource(if (allowed) R.string.account_sign_in_summary else R.string.account_sign_in_offline))
+                    },
+                    modifier = Modifier.clickable(enabled = allowed, onClick = actions::signIn).testTag("signIn"),
+                )
+            }
+            state.signInError?.let {
+                Text(
+                    stringResource(R.string.account_error, it.name),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 16.dp).testTag("signInError"),
+                )
+            }
 
             Heading(R.string.settings_privacy)
             Link(R.string.settings_permissions, R.string.settings_permissions_summary, "settings:permissions", actions::openPermissions)
@@ -216,4 +262,21 @@ internal object SettingsText {
             minOf(cores, InferenceDefaults.MAX_THREADS)).distinct().toList()
 
     fun contextLabel(length: Int) = "${length / 1024}K"
+
+    fun networkLabel(mode: NetworkMode) = when (mode) {
+        NetworkMode.OFFLINE -> R.string.network_offline
+        NetworkMode.HUGGING_FACE -> R.string.network_huggingface
+        NetworkMode.APPROVED_DOMAINS -> R.string.network_approved
+        NetworkMode.GENERAL -> R.string.network_general
+    }
+
+    fun networkSummary(mode: NetworkMode) = when (mode) {
+        NetworkMode.OFFLINE -> R.string.network_offline_summary
+        NetworkMode.HUGGING_FACE -> R.string.network_huggingface_summary
+        NetworkMode.APPROVED_DOMAINS -> R.string.network_approved_summary
+        NetworkMode.GENERAL -> R.string.network_general_summary
+    }
+
+    fun date(millis: Long, locale: java.util.Locale = java.util.Locale.getDefault()): String =
+        java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, locale).format(java.util.Date(millis))
 }

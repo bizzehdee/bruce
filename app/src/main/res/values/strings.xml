@@ -67,4 +67,20 @@
     <string name="models_settings">Model settings</string>
     <string name="models_default">Default</string>
     <string name="models_temperature">Temperature</string>
+    <string name="settings_network">Network</string>
+    <string name="network_offline">Offline</string>
+    <string name="network_huggingface">Hugging Face</string>
+    <string name="network_approved">Approved</string>
+    <string name="network_general">Any</string>
+    <string name="network_offline_summary">Nothing leaves this phone. Model search and downloads are off.</string>
+    <string name="network_huggingface_summary">Bruce may reach Hugging Face to search, sign in and download models. Nothing else.</string>
+    <string name="network_approved_summary">Hugging Face, plus sites you approve once Bruce has skills that use the web.</string>
+    <string name="network_general_summary">Any site, once Bruce has skills that use the web.</string>
+    <string name="account_sign_in">Sign in to Hugging Face</string>
+    <string name="account_sign_in_summary">Needed for gated models such as Llama and Gemma, and your private models.</string>
+    <string name="account_sign_in_offline">Allow Hugging Face in Network to sign in.</string>
+    <string name="account_signed_in">Signed in as %1$s</string>
+    <string name="account_signed_in_until">Until %1$s</string>
+    <string name="account_sign_out">Sign out</string>
+    <string name="account_error">Sign-in did not complete: %1$s</string>
 </resources>
