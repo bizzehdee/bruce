@@ -73,6 +73,22 @@ What the failures were:
 
 ## Results: phones (12-case subset)
 
-Pending: `results/phone-xperia1ii.jsonl`, `results/phone-xzpremium.jsonl`. An earlier phone run
-was discarded: a stale server kept serving the first model to every later one
-(`.learnings/adb-shell-background-process-hangs.md`); the invalid files are not kept.
+`python3 analyse.py results/phone-xperia1ii.jsonl results/phone-xzpremium.jsonl`. All seven models
+on the Xperia 1 II; the four smallest on the XZ Premium (the others do not fit its memory
+comfortably).
+
+| Phone | native | prompt | grammar | index | Prompt speed (mean) |
+|---|---|---|---|---|---|
+| Xperia 1 II | **73/84 (87%)** | 62/84 (74%) | 69/84 (82%) | 64/84 (76%) | 38–62 tokens/s |
+| XZ Premium | **38/48 (79%)** | 34/48 (71%) | 34/48 (71%) | 35/48 (73%) | about 10 tokens/s |
+
+- The ranking matches the development machine: each model's own format is best on both phones.
+  The failures are the same kinds (LFM2.5 in Bruce's format, granite without a grammar, missed
+  calls by the small Qwen models).
+- **Prompt time dominates a turn.** On the XZ Premium one case with tools took 25–98 s, almost
+  all of it evaluating the prompt (Qwen3.5-2B native: 607 prompt tokens, 93 s). The fixed part of
+  every prompt (system prompt and tool descriptions) is re-evaluated each turn today (TASK-024).
+- Generated replies were short (15–39 tokens), so generation speed barely matters here.
+
+An earlier phone run was discarded: a stale server kept serving the first model to every later
+one (`.learnings/adb-shell-background-process-hangs.md`); the invalid files are not kept.
