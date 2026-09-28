@@ -144,9 +144,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Not yet: surviving the app going to the background (WorkManager); interrupted downloads resume on the next attempt instead.
   - Depends on: TASK-020
   - Required by: TASK-029
-- [ ] TASK-024: Basic chat screen
+- [x] TASK-024: Basic chat screen
   - Chat layout in the style of Claude, ChatGPT and Gemini: scrolling message list, composer at the bottom, replies streamed from the loaded model, stop button.
   - Uses the model's chat template; no tools, agent loop or saved conversations yet.
+  - Falls back to ChatML when a model has no template llama.cpp supports. Reasoning (`<think>…</think>`) shows collapsed above the reply and is not sent back to the model.
+  - Shared engine moved into an app-level container (`BruceApplication`/`AppContainer`) so chat, models and diagnostics use one loaded model.
+  - Each turn re-evaluates the whole conversation; reusing the KV cache between turns is a later optimisation.
   - Material 3, light and dark themes.
   - Required by: TASK-025
 - [ ] TASK-025: Navigation shell

@@ -23,7 +23,24 @@ interface InferenceEngine {
 
     /** Ends the current generation after the token in progress. */
     fun stop()
+
+    /**
+     * Formats [messages] as a prompt for the loaded model, ending with the start of an assistant
+     * reply. Null when no model is loaded.
+     */
+    suspend fun formatChat(messages: List<ChatMessage>): ChatPrompt?
 }
+
+enum class ChatRole(val wireName: String) {
+    SYSTEM("system"),
+    USER("user"),
+    ASSISTANT("assistant"),
+}
+
+data class ChatMessage(val role: ChatRole, val content: String)
+
+/** [usedFallbackTemplate] is true when the model had no chat template llama.cpp supports and ChatML was used. */
+data class ChatPrompt(val text: String, val usedFallbackTemplate: Boolean)
 
 data class GenerationRequest(
     val prompt: String,

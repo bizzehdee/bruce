@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Bruce</string>
+    <string name="chat_no_model">No model loaded</string>
+    <string name="chat_empty">Load a model to start chatting.</string>
+    <string name="chat_empty_ready">What can I help with?</string>
+    <string name="chat_input_hint">Message Bruce</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_stop">Stop</string>
+    <string name="chat_reasoning_show">Show reasoning</string>
+    <string name="chat_reasoning_hide">Hide reasoning</string>
+    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_error_no_model">Load a model first.</string>
+    <string name="chat_error_too_long">This conversation is too long for the model. Start a new chat.</string>
+    <string name="chat_error_failed">The model could not finish that reply.</string>
 </resources>

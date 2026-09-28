@@ -1,6 +1,5 @@
 package com.bizzeh.bruce
 
-import android.app.ActivityManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,29 +14,21 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.BackendPreference
-import com.bizzeh.bruce.inference.LlamaCppEngine
-import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.prototype.PrototypeActions
 import com.bizzeh.bruce.prototype.PrototypeScreen
 import com.bizzeh.bruce.prototype.PrototypeViewModel
 import com.bizzeh.bruce.settings.ThemeMode
 import com.bizzeh.bruce.settings.ThemeSettings
-import com.bizzeh.bruce.settings.ThemeSettingsRepository
-import com.bizzeh.bruce.settings.settingsDataStore
 import com.bizzeh.bruce.ui.theme.dynamicColourSupported
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.io.File
-import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
     private val viewModel: PrototypeViewModel by viewModels { factory() }
-    private val themeSettings by lazy { ThemeSettingsRepository(settingsDataStore) }
+    private val themeSettings by lazy { appContainer.themeSettings }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,30 +64,19 @@ class MainActivity : ComponentActivity() {
 
     private fun factory(): ViewModelProvider.Factory = viewModelFactory {
         initializer {
-            val nativeThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-            val engine = LlamaCppEngine.create(applicationInfo.nativeLibraryDir, nativeThread)
-            val modelsDir = File(filesDir, MODELS_DIR)
-            val importer = ModelImporter(contentResolver, modelsDir, Dispatchers.IO)
+            val container = appContainer
             PrototypeViewModel(
-                engine = engine,
-                modelsDir = modelsDir,
-                importModel = importer::import,
-                detectCpuFeatures = CpuFeatures::detect,
-                memoryInfo = {
-                    ActivityManager.MemoryInfo().also { getSystemService(ActivityManager::class.java).getMemoryInfo(it) }
-                },
+                engine = container.engine,
+                modelsDir = container.modelsDir,
+                importModel = container.importer::import,
+                detectCpuFeatures = container.cpuFeatures,
+                memoryInfo = container::memoryInfo,
                 ioDispatcher = Dispatchers.IO,
-                release = {
-                    // onCleared is not a coroutine; freeing native memory is quick and must finish
-                    // before the dispatcher's thread is closed.
-                    runBlocking { engine.unloadModel() }
-                    nativeThread.close()
-                },
             )
         }
     }
 
     companion object {
-        const val MODELS_DIR = "models"
+        const val MODELS_DIR = AppContainer.MODELS_DIR
     }
 }

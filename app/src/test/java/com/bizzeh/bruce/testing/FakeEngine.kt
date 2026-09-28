@@ -1,6 +1,8 @@
-package com.bizzeh.bruce.prototype
+package com.bizzeh.bruce.testing
 
 import com.bizzeh.bruce.inference.Backend
+import com.bizzeh.bruce.inference.ChatMessage
+import com.bizzeh.bruce.inference.ChatPrompt
 import com.bizzeh.bruce.inference.EngineCapabilities
 import com.bizzeh.bruce.inference.GenerationEvent
 import com.bizzeh.bruce.inference.GenerationRequest
@@ -20,6 +22,9 @@ class FakeEngine : InferenceEngine {
     val requests = mutableListOf<GenerationRequest>()
     var stops = 0
     var unloads = 0
+    var loadedModel: ModelInfo? = null
+    var prompt: ChatPrompt? = ChatPrompt("<formatted>", usedFallbackTemplate = false)
+    val formatted = mutableListOf<List<ChatMessage>>()
 
     override suspend fun loadModel(file: File, config: LoadConfig): LoadResult {
         loads += file to config
@@ -32,7 +37,7 @@ class FakeEngine : InferenceEngine {
 
     override fun getCapabilities() = reportedCapabilities
 
-    override fun getModelInfo(): ModelInfo? = null
+    override fun getModelInfo(): ModelInfo? = loadedModel
 
     override fun generate(request: GenerationRequest): Flow<GenerationEvent> {
         requests += request
@@ -41,5 +46,10 @@ class FakeEngine : InferenceEngine {
 
     override fun stop() {
         stops++
+    }
+
+    override suspend fun formatChat(messages: List<ChatMessage>): ChatPrompt? {
+        formatted += messages
+        return prompt
     }
 }

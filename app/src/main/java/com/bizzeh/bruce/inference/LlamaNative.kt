@@ -40,6 +40,12 @@ internal interface LlamaApi {
     /** Features the loaded CPU backend variant was compiled with, as "NAME=value". */
     fun cpuBackendFeatures(): Array<String>
 
+    /**
+     * Formats a conversation with the model's chat template (ChatML if it has none usable).
+     * Returns the fallback flag byte followed by UTF-8 prompt bytes, or null on failure.
+     */
+    fun formatChat(model: Long, roles: Array<String>, contents: Array<ByteArray>, addAssistant: Boolean): ByteArray?
+
     /** Clears the context and returns a generation handle; release it with [endGeneration]. */
     fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
 
@@ -104,6 +110,8 @@ internal object LlamaNative : LlamaApi {
     external override fun vulkanDeviceApiVersion(deviceName: String): Int
 
     external override fun cpuBackendFeatures(): Array<String>
+
+    external override fun formatChat(model: Long, roles: Array<String>, contents: Array<ByteArray>, addAssistant: Boolean): ByteArray?
 
     external override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
 

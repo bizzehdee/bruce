@@ -101,6 +101,14 @@ internal class FakeLlamaApi : LlamaApi {
 
     override fun takePiece(generation: Long) = currentPiece
 
+    var chatResult: ByteArray? = byteArrayOf(0) + "<|im_start|>user".toByteArray()
+    var chatRequest: Triple<Long, List<String>, List<String>>? = null
+
+    override fun formatChat(model: Long, roles: Array<String>, contents: Array<ByteArray>, addAssistant: Boolean): ByteArray? {
+        chatRequest = Triple(model, roles.toList(), contents.map { it.toString(Charsets.UTF_8) })
+        return chatResult
+    }
+
     override fun endGeneration(generation: Long) {
         endedGenerations += generation
     }

@@ -90,6 +90,22 @@ internal class LlamaCppEngine(
         stopRequested.set(true)
     }
 
+    override suspend fun formatChat(messages: List<ChatMessage>): ChatPrompt? = mutex.withLock {
+        withContext(dispatcher) {
+            val current = session ?: return@withContext null
+            val result = llama.formatChat(
+                current.model,
+                messages.map { it.role.wireName }.toTypedArray(),
+                messages.map { it.content.toByteArray(Charsets.UTF_8) }.toTypedArray(),
+                addAssistant = true,
+            ) ?: return@withContext null
+            ChatPrompt(
+                text = String(result, 1, result.size - 1, Charsets.UTF_8),
+                usedFallbackTemplate = result[0] == 1.toByte(),
+            )
+        }
+    }
+
     private suspend fun FlowCollector<GenerationEvent>.streamCompletion(generation: Long, request: GenerationRequest) {
         val promptStart = timeSource.markNow()
         val promptTokens = llama.evaluatePrompt(generation, request.prompt.toByteArray(Charsets.UTF_8))
