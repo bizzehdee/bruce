@@ -1,0 +1,127 @@
+package com.bizzeh.bruce.navigation
+
+import androidx.activity.ComponentActivity
+import androidx.compose.material3.Text
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import com.bizzeh.bruce.chat.ChatActions
+import com.bizzeh.bruce.chat.ChatState
+import com.bizzeh.bruce.models.ActiveModelState
+import com.bizzeh.bruce.ui.theme.BruceTheme
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import java.io.File
+
+@RunWith(RobolectricTestRunner::class)
+class BruceAppTest {
+    @get:Rule
+    val compose = createAndroidComposeRule<ComponentActivity>()
+
+    private val calls = mutableListOf<String>()
+    private val chatActions = object : ChatActions {
+        override fun setInput(input: String) = Unit
+        override fun send() = Unit
+        override fun stop() = Unit
+    }
+    private val appActions = object : AppActions {
+        override fun newChat() { calls += "newChat" }
+        override fun selectModel(file: File) { calls += "select ${file.name}" }
+    }
+    private val qwen = File("Qwen3-0.6B-Q4_0.gguf")
+    private val models = ActiveModelState(installed = listOf(qwen, File("stories.gguf")), active = qwen)
+
+    private fun show() = compose.setContent {
+        BruceTheme {
+            BruceApp(
+                chat = ChatState(modelName = "Qwen3-0.6B-Q4_0"),
+                chatActions = chatActions,
+                activeModel = models,
+                actions = appActions,
+                modelsScreen = { onBack -> SubScreen("Models screen", onBack) { Text("models body") } },
+                settingsScreen = { onBack, openDiagnostics -> InterimSettings(onBack, openDiagnostics) },
+                diagnosticsScreen = { onBack -> SubScreen("Diagnostics screen", onBack) { Text("diagnostics body") } },
+            )
+        }
+    }
+
+    private fun openDrawer() = compose.onNodeWithTag("openDrawer").performClick()
+
+    @Test
+    fun chatIsTheStartScreen() {
+        show()
+
+        compose.onNodeWithText("Qwen3-0.6B-Q4_0").assertIsDisplayed()
+    }
+
+    @Test
+    fun drawerLeadsToModelsAndSettingsButNotPermissions() {
+        show()
+        openDrawer()
+
+        compose.onNodeWithText("Permissions").assertDoesNotExist()
+        compose.onNodeWithTag("nav:models").performClick()
+        compose.onNodeWithText("models body").assertIsDisplayed()
+
+        compose.onNodeWithTag("back").performClick()
+        compose.onNodeWithText("Qwen3-0.6B-Q4_0").assertIsDisplayed()
+    }
+
+    @Test
+    fun settingsLeadsToDiagnosticsAndBackStepsOut() {
+        show()
+        openDrawer()
+        compose.onNodeWithTag("nav:settings").performClick()
+        compose.onNodeWithTag("settings:diagnostics").performClick()
+        compose.onNodeWithText("diagnostics body").assertIsDisplayed()
+
+        compose.activity.onBackPressedDispatcher.onBackPressed()
+        compose.onNodeWithTag("settings:diagnostics").assertIsDisplayed()
+        compose.activity.onBackPressedDispatcher.onBackPressed()
+        compose.onNodeWithText("Qwen3-0.6B-Q4_0").assertIsDisplayed()
+    }
+
+    @Test
+    fun newChatFromTheDrawer() {
+        show()
+        openDrawer()
+
+        compose.onNodeWithText("New chat").performClick()
+
+        assertEquals(listOf("newChat"), calls)
+    }
+
+    @Test
+    fun titleOpensTheModelSwitcher() {
+        show()
+
+        compose.onNodeWithTag("chatTitle").performClick()
+        compose.onNodeWithTag("switch:stories.gguf").performClick()
+
+        assertEquals(listOf("select stories.gguf"), calls)
+    }
+
+    @Test
+    fun switcherLeadsToModelManagement() {
+        show()
+
+        compose.onNodeWithTag("chatTitle").performClick()
+        compose.onNodeWithTag("manageModels").performClick()
+
+        compose.onNodeWithText("models body").assertIsDisplayed()
+    }
+
+    @Test
+    fun backTargets() {
+        assertNull(backTarget(Destination.CHAT))
+        assertEquals(Destination.CHAT, backTarget(Destination.MODELS))
+        assertEquals(Destination.CHAT, backTarget(Destination.SETTINGS))
+        assertEquals(Destination.SETTINGS, backTarget(Destination.DIAGNOSTICS))
+    }
+}

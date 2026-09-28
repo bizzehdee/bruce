@@ -172,7 +172,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   the conversation list and entries for Models and Settings. The chat screen's top
   bar shows the active model; tapping it opens a quick model switcher. The
   permissions management screen is not in the drawer; it is reached from
-  Settings. `planned`
+  Settings. `done`
 - **Model management screen** — Installed models with size, quantisation and fit
   label; choose the active model; model details (metadata, memory estimate,
   backend); delete. Import from a file with the system picker. Browse, search and

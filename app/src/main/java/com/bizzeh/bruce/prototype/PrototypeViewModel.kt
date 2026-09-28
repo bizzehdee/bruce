@@ -13,6 +13,7 @@ import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LoadConfig
 import com.bizzeh.bruce.inference.LoadResult
+import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ImportResult
 import com.bizzeh.bruce.models.ModelMemory
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,6 +28,7 @@ import java.io.File
 
 class PrototypeViewModel(
     private val engine: InferenceEngine,
+    private val activeModel: ActiveModel,
     private val modelsDir: File,
     private val importModel: suspend (Uri) -> ImportResult,
     private val detectCpuFeatures: () -> CpuFeatures,
@@ -87,7 +89,7 @@ class PrototypeViewModel(
         generation?.cancel()
         viewModelScope.launch {
             mutableState.update { it.copy(load = LoadState.Loading) }
-            val load = when (val result = engine.loadModel(file, loadConfig)) {
+            val load = when (val result = activeModel.load(file, loadConfig)) {
                 is LoadResult.Loaded -> LoadState.Loaded(result.info, result.backend, result.failedBackends)
                 is LoadResult.Failed -> LoadState.Failed(result.error)
             }
