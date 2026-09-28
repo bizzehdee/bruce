@@ -167,7 +167,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Clear all data asks for confirmation, then unloads the model and deletes models, cached files and settings.
   - Open-source licences list every shipped component with its licence text.
   - Depends on: TASK-013, TASK-025
-  - Required by: TASK-028, TASK-032
+  - Required by: TASK-028, TASK-032, TASK-057
 - [x] TASK-027: Model management screen: installed models
   - Installed models with size, quantisation and fit label; choose the active model; details (metadata, memory estimate, backend); delete; import from a file.
   - Per-model settings (context length, backend, threads, temperature) that override the inference defaults.
@@ -343,7 +343,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Tested with the real registry, policy engine and skill states (in-memory Room) and a scripted model; on the Pixel 11 with Qwen3.5-0.8B the runtime called a clock skill and answered with its time (`ToolCallDeviceTest`, manual).
   - Not wired into the chat screen yet (TASK-053).
   - Depends on: TASK-034, TASK-035, TASK-036
-  - Required by: TASK-037, TASK-042, TASK-049, TASK-053, TASK-054
+  - Required by: TASK-037, TASK-042, TASK-049, TASK-053, TASK-054, TASK-057, TASK-056
 - [ ] TASK-053: Tool calls in the chat
   - Tool calls, results and denials appear inline in the conversation (collapsed, with the skill's name and outcome) and are saved with it; a resumed chat shows them again.
   - Room schema version 2 with a tested migration from version 1.
@@ -358,3 +358,18 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Every turn re-evaluates the whole conversation (TASK-024), and with tools the fixed part alone is 300–600 tokens: about a minute on the XZ Premium (TASK-033). Keep the KV cache between generations and evaluate only the tokens after the longest shared prefix with the previous prompt; clear it when the model, context or template changes.
   - Measure turn time before and after on both Sony phones with the TASK-033 cases.
   - Depends on: TASK-052
+- [ ] TASK-057: Personalities (Bruce and Milo)
+  - Settings gains a Personality choice, one for every chat: Bruce (default) and Milo. The setup wizard does not ask; it can be changed any time and applies from the next reply.
+  - Each personality's rules go first in the system prompt, verbatim as the owner wrote them (kept in the app as text resources, not code), followed by Bruce's tool guidance. Both prompts may use an occasional dog pun (Bruce more than Milo); the tool and safety guidance is unchanged.
+  - The chat uses the chosen name: title and greeting of an empty chat, "…is thinking" while a reply is on its way. The launcher, Settings and store name stay Bruce.
+  - Plain chat without tools gets the same personality prompt, so both paths sound the same.
+  - Personality rules as supplied (2026-09-28):
+    - Bruce: "You are Bruce: fast, energetic, confident, loving, helpful, and a little silly." Move quickly toward useful answers; avoid unnecessary deliberation. Be proactive and action-oriented; anticipate what the user needs. Be direct and confident; give clear recommendations when appropriate. Be gently bossy in a warm, good-natured way. Keep the conversation energetic and positive. Use occasional playful humor without letting it distract from the task. When uncertain, acknowledge it briefly and make the best reasonable assumption. Never sacrifice accuracy just to be fast. Overall: an enthusiastic, proactive helper who keeps things moving.
+    - Milo: "You are Milo: curious, observant, thoughtful, patient, and quiet." Take time to understand the user's intent before answering. Follow the relevant clues and consider alternatives when useful. Prefer thoughtful, well-grounded answers over quick reactions. Be calm and understated; avoid unnecessary enthusiasm or chatter. Ask clarifying questions when important ambiguity cannot be reasonably resolved. Express uncertainty naturally and precisely. Be concise when the problem is simple, but think more deeply when needed. Avoid overthinking or becoming indecisive. Overall: a quiet, thoughtful companion who observes first and speaks when he has something useful to say.
+  - Depends on: TASK-026, TASK-052
+  - Required by: TASK-058
+- [ ] TASK-058: Sidekick wording and light dog puns in the app
+  - User-facing app text says "sidekick" where it described an assistant or agent.
+  - Light dog puns in small UI copy only: loading and empty states (for example "Fetching…" while a model loads, "Sniffing out models for this phone" while recommendations load, an empty chat list). Errors, warnings, permission requests, confirmations and settings explanations stay plain.
+  - Play listing text (TASK-017) follows the same rule.
+  - Depends on: TASK-057
