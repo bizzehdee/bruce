@@ -95,7 +95,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   do. `done`
 - **Hugging Face sign-in** — OAuth ("Sign in with Hugging Face") as the default,
   pasted access token as a fallback. Token stored in Keystore-backed storage.
-  `in progress`
+  `done` for OAuth; the pasted-token fallback is not built.
 - **Resumable downloads** — Download into app storage, resume with range requests
   after interruption, check free space first, and verify the SHA-256 the Hub
   publishes for the file. `done`
@@ -110,15 +110,26 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 ### Assistant
 
 - **BruceRuntime** — Coordinates requests, context, model calls, tool calls,
-  memory, permission requests and results. `planned`
+  memory, permission requests and results. Skills are loaded as needed rather
+  than all described to the model up front, because every tool description costs
+  prompt time on the phone (method chosen by TASK-033). `planned`
 - **Agent loop** — Multi-step tool use, bounded by maximum tool calls, maximum
   execution time and resource limits; supports cancellation and structured
   errors. `planned`
 - **Conversations** — Saved conversations ("sessions"): the drawer lists them,
-  newest first; the user starts a new chat, resumes, renames or deletes one.
-  Stored locally; export follows. `planned`
-- **Memory** — Conversation memory; long-term user-approved facts; local
-  knowledge. Basic/limited in Free, persistent in `planned`
+  newest first; the user starts a new chat, resumes, renames, archives or deletes
+  one, and can archive or delete several at once. Archived chats are kept but
+  leave the main list. Stored locally; export follows. `planned`
+- **Context management** — The chat shows how much of the model's context is in
+  use and how much is free, with a note that a full context does not stop the
+  chat: new messages push the oldest out. When the context overflows, the oldest
+  messages are dropped (the system prompt and skills are kept). Optional
+  auto-summarise, off by default: when on, older messages are summarised once use
+  reaches a user-chosen threshold (85, 90, 95 or 100%). `planned`
+- **Memory** — Facts Bruce remembers across chats. Setting: Off (default), On
+  per model (each model has its own memory) or On globally (one memory shared by
+  all models). Bruce saves facts automatically; the user reviews and deletes them
+  in a Memory screen. Local knowledge follows with Local RAG. `planned`
 - **Local RAG** — Text extraction, chunking, local embeddings, local index,
   retrieval. Basic in Free, advanced in `planned`
 - **Untrusted content handling** — Content from files, web pages and tool results
@@ -189,7 +200,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   backend); delete. Import from a file with the system picker. Browse, search and
   download from Hugging Face with fit-ranked results and download progress.
   Per-model settings (context length, backend, threads, temperature) override the
-  inference defaults. `done`
+  inference defaults. The last chosen model loads at launch; if none was chosen
+  and only one model is installed, that model loads. `done`
 - **Model browser recommendations** — The Hugging Face tab opens on a list of
   models suited to the phone, so users need not know a model's name; name search
   stays available for advanced users. Filters: parameter count (buckets), download
@@ -216,6 +228,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   Skills, Permissions (reached from Settings), Memory, Settings. `planned`
 - **Confirmation UI** — Shows the exact operation and its targets before
   approval. `planned`
+- **Response notifications** — When a reply finishes while Bruce is not on
+  screen, a notification says so; tapping it opens the chat. Generation continues
+  while the app is in the background. Needs the notification permission,
+  requested when first needed. `planned`
 - **Voice** — Speech-to-text, text-to-speech, voice conversations; local where
   practical. `planned`
 - **Vision** — Local multimodal models for images, documents, screenshots.
@@ -375,6 +391,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Hugging Face sign-in by OAuth marked done after a real sign-in on a phone; pasted-token fallback not built. |
+| 2026-09-28 | Added | Context indicator with drop-oldest overflow and optional auto-summarise; memory setting (off, per model, global) with automatic saving and review; response notifications; archive and bulk archive/delete of chats; skills loaded as needed; the only installed model loads at launch. |
 | 2026-09-28 | Changed | Skill permissions are per-skill states (Declined, Ask, Accepted) set in a Skills screen under Settings; high-risk skills warn before Accepted; grant durations dropped; Permissions screen holds folder grants and Android permissions. |
 | 2026-09-28 | Added | Model browser recommendations with filters (parameter count, download size, fit, task type); saved conversations defined. |
 | 2026-09-28 | Changed | Statuses from TASK-024 to TASK-028: chat interface and Settings screen in progress, navigation done, Hugging Face sign-in in progress. |

@@ -151,7 +151,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Shared engine moved into an app-level container (`BruceApplication`/`AppContainer`) so chat, models and diagnostics use one loaded model.
   - Each turn re-evaluates the whole conversation; reusing the KV cache between turns is a later optimisation.
   - Material 3, light and dark themes.
-  - Required by: TASK-025, TASK-032, TASK-033, TASK-036
+  - Required by: TASK-025, TASK-032, TASK-033, TASK-036, TASK-045
 - [x] TASK-025: Navigation shell
   - Side drawer with a conversation list placeholder, Models and Settings entries; chat is the start screen. Permissions are not in the drawer; they are reached from Settings.
   - Chat top bar shows the active model; tapping it opens a quick model switcher.
@@ -175,12 +175,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The switcher and Models screen share one `ModelSelection` path, so per-model settings apply wherever a model is chosen. The memory estimate shown uses the same trained-length cap as loading.
   - Depends on: TASK-010, TASK-025
   - Required by: TASK-029, TASK-030
-- [~] TASK-028: Network settings
+- [x] TASK-028: Network settings
   - Network mode (offline only, Hugging Face only, approved domains, general) and Hugging Face sign-in, in Settings. Fresh installs start offline only; the Hub client refuses requests the mode does not allow.
   - Sign-in by OAuth with PKCE through the browser, redirect `com.bizzeh.bruce:/oauth/huggingface`, scopes `openid profile read-repos gated-repos`; token stored encrypted with Android Keystore.
   - OAuth client ID `f702d81d-7b00-4ae1-9a39-8304fff2b9c5` (public). The OAuth app must be public (no client secret) and allow the `gated-repos` scope.
   - Owner set token lifetime to 1 week and added `gated-repos` (2026-09-28).
-  - Implemented and unit/device tested; open until a real sign-in on a phone succeeds.
+  - Real sign-in verified on the Xperia 1 II (2026-09-28): encrypted token, expiry and username stored after the token exchange and Hub username lookup.
   - Required by: TASK-030
   - Depends on: TASK-020, TASK-026
 - [x] TASK-029: Model management screen: Hugging Face browse and download
@@ -204,15 +204,17 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Research first: which filters the Hub API supports server-side (pipeline tag, parameter range) and how to get file sizes without one request per repository (avoid N+1). Record findings in research/ and .learnings/.
   - Depends on: TASK-029
 - [ ] TASK-032: Saved conversations
-  - Every chat is saved locally (Room) and listed in the drawer, newest first, replacing the placeholder. New chat, resume, rename and delete.
+  - Every chat is saved locally (Room) and listed in the drawer, newest first, replacing the placeholder. New chat, resume, rename, archive and delete.
+  - Bulk selection: archive or delete several chats at once. Archived chats leave the main list and are reachable from an Archived view, where they can be restored or deleted. Delete asks for confirmation.
   - A resumed conversation reloads its messages; the model in use is whichever is active.
   - Settings > data gains delete all conversations. Export is a later task.
   - Room is a new dependency (already listed in plan.md's stack for conversations).
   - Depends on: TASK-024, TASK-025, TASK-026
-  - Required by: TASK-035, TASK-036
+  - Required by: TASK-035, TASK-036, TASK-045, TASK-047, TASK-048
 - [ ] TASK-033: Tool-calling format for small models
   - Experiment on both phones with small models (1–4B) to choose how the model asks for a tool: the model's own chat-template tool format, grammar-constrained JSON (llama.cpp GBNF), or both with a fallback.
   - Measure call accuracy (right tool, valid arguments) over a fixed set of prompts for the automatic skills, and the speed cost of grammar constraint.
+  - Also test loading skills as needed: the model first sees only a short list of skill names and one-line descriptions, and a skill's full description is added only when the model picks it. Compare accuracy and prompt time against describing every skill up front.
   - Output: a decision recorded as an ADR and in `.learnings/`, closing the plan.md open question on tool-calling format.
   - Depends on: TASK-024
   - Required by: TASK-036
@@ -230,7 +232,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Depends on: TASK-032, TASK-034
   - Required by: TASK-036, TASK-038, TASK-039, TASK-040
 - [ ] TASK-036: Tool calling in chat (runtime and agent loop)
-  - `BruceRuntime` lists enabled skills to the model, parses tool requests in the TASK-033 format, runs them through the policy engine and feeds results back.
+  - `BruceRuntime` offers enabled skills to the model, loading them as needed by the TASK-033 method, parses tool requests in the TASK-033 format, runs them through the policy engine and feeds results back.
   - Bounded agent loop: maximum tool calls per turn, maximum execution time, cancellation with the stop button; structured errors on every limit.
   - Tool calls, results and denials appear inline in the conversation and are saved with it.
   - Depends on: TASK-024, TASK-032, TASK-033, TASK-034, TASK-035
@@ -272,3 +274,26 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [ ] TASK-044: File delete skill
   - Delete a single file in a granted folder; flagged high risk; default state Ask.
   - Depends on: TASK-040, TASK-041
+- [ ] TASK-045: Context indicator and drop-oldest overflow
+  - The chat shows context in use and free (tokens and a bar) for the active model's context length.
+  - Explains, when opened or when near full, that a full context does not end the chat: new messages push the oldest out.
+  - When the conversation no longer fits, the oldest messages are dropped from what is sent to the model (the system prompt and skills are kept); dropped messages stay visible in the chat and saved. Replaces today's "prompt too long" failure.
+  - Depends on: TASK-024, TASK-032
+  - Required by: TASK-046
+- [ ] TASK-046: Auto-summarise option
+  - Setting, off by default: auto-summarise older messages. When on, a threshold of 85, 90, 95 or 100% context use triggers a summary of the oldest messages, which replaces them in what is sent to the model.
+  - When off, TASK-045's drop-oldest behaviour applies.
+  - The summary is shown in the chat as a marked note so the user knows what the model now sees.
+  - Depends on: TASK-045
+- [ ] TASK-047: Memory
+  - Setting: Off (default), On per model (each model has its own memory), On globally (one memory shared by all models).
+  - When on, Bruce saves facts automatically from conversations and uses relevant ones in later chats.
+  - Memory screen, reached from Settings: review and delete facts, delete all. Switching mode does not delete stored facts.
+  - Stored in Room; included in clear all data.
+  - Open before starting: how facts are extracted (for example a short extra model pass after a reply) and how many are included per prompt, measured against prompt time on the phones.
+  - Depends on: TASK-032
+- [ ] TASK-048: Response-complete notifications
+  - When a reply finishes while Bruce is not on screen, post a notification; tapping it opens that chat. No notification while the chat is visible.
+  - Generation continues in the background through a foreground service, within Android's background rules.
+  - Requests the notification permission (Android 13 and later) the first time it is needed; if refused, replies still complete without a notification.
+  - Depends on: TASK-032
