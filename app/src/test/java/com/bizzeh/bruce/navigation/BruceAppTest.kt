@@ -38,7 +38,7 @@ class BruceAppTest {
     private val qwen = File("Qwen3-0.6B-Q4_0.gguf")
     private val models = ActiveModelState(installed = listOf(qwen, File("stories.gguf")), active = qwen)
 
-    private fun show() = compose.setContent {
+    private fun show(start: Destination = Destination.CHAT) = compose.setContent {
         BruceTheme {
             BruceApp(
                 chat = ChatState(modelName = "Qwen3-0.6B-Q4_0"),
@@ -56,6 +56,7 @@ class BruceAppTest {
                     }
                 },
                 diagnosticsScreen = { onBack -> SubScreen("Diagnostics screen", onBack) { Text("diagnostics body") } },
+                startDestination = start,
             )
         }
     }
@@ -78,6 +79,15 @@ class BruceAppTest {
         compose.onNodeWithTag("nav:models").performClick()
         compose.onNodeWithText("models body").assertIsDisplayed()
 
+        compose.onNodeWithTag("back").performClick()
+        compose.onNodeWithText("Qwen3-0.6B-Q4_0").assertIsDisplayed()
+    }
+
+    @Test
+    fun canStartOnModelsAndBackGoesToChat() {
+        show(Destination.MODELS)
+
+        compose.onNodeWithText("models body").assertIsDisplayed()
         compose.onNodeWithTag("back").performClick()
         compose.onNodeWithText("Qwen3-0.6B-Q4_0").assertIsDisplayed()
     }

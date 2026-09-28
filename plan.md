@@ -223,9 +223,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   a Skills section opening the Skills screen; a link to the permissions management screen; and Diagnostics, the Phase 0 test
   bench (hardware report, backends, benchmarks), available in every build. `in progress`
 - **Setup wizard** — Shown on first launch. Walks the user through the choices that
-  shape Bruce before first use: network mode, permission and capability toggles,
-  and getting a first model (import or download). Every choice can be changed later
-  in Settings. `planned`
+  shape Bruce before first use: network mode, notification permission, and getting
+  a first model (import or download). Skills keep their defaults until changed in
+  the Skills screen. Every choice can be changed later. `done`
 - **Skills screen** — Reached from Settings. Lists every skill with what it does,
   a high-risk flag where it applies, and its state (Declined, Ask, Accepted),
   which the user changes there. `planned`
@@ -369,7 +369,6 @@ device-to-device transfer.
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
 | Default assistant: milestone. | User |
-| Setup wizard: which permission and capability toggles it shows before the policy engine exists, and whether it includes appearance. | User |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Privacy policy URL on the owner's website. | User |
@@ -399,8 +398,9 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
-| 2026-09-28 | Added | Folder instructions: Bruce reads `AGENTS.md` and `.agents/` in a granted folder and asks before following them. |
 | 2026-09-28 | Changed | Auto backend always uses the CPU; Vulkan and OpenCL only when chosen, marked experimental (Vulkan gave wrong output on the Pixel 11). |
+| 2026-09-28 | Changed | Setup wizard settled: welcome, network mode, notification permission and a first model; no skill toggles or appearance. |
+| 2026-09-28 | Added | Folder instructions: Bruce reads `AGENTS.md` and `.agents/` in a granted folder and asks before following them. |
 | 2026-09-28 | Changed | Hugging Face sign-in by OAuth marked done after a real sign-in on a phone; pasted-token fallback not built. |
 | 2026-09-28 | Added | Context indicator with drop-oldest overflow and optional auto-summarise; memory setting (off, per model, global) with automatic saving and review; response notifications; archive and bulk archive/delete of chats; skills loaded as needed; the only installed model loads at launch. |
 | 2026-09-28 | Changed | Skill permissions are per-skill states (Declined, Ask, Accepted) set in a Skills screen under Settings; high-risk skills warn before Accepted; grant durations dropped; Permissions screen holds folder grants and Android permissions. |

@@ -101,4 +101,24 @@
     <string name="hub_error_not_found">Not found on Hugging Face.</string>
     <string name="hub_error_other">Hugging Face returned something unexpected (%1$s).</string>
     <string name="download_error">Download stopped: %1$s</string>
+    <string name="setup_welcome_title">Welcome to Bruce</string>
+    <string name="setup_welcome_text">Bruce is an assistant that runs entirely on this phone. A few choices first. You can change all of them later in Settings.</string>
+    <string name="setup_network_title">Network</string>
+    <string name="setup_network_text">Bruce works without the internet. Allow Hugging Face if you want to find and download models from inside Bruce.</string>
+    <string name="setup_notifications_title">Notifications</string>
+    <string name="setup_notifications_text">Bruce can tell you when a long reply finishes while you are using another app.</string>
+    <string name="setup_notifications_allow">Allow notifications</string>
+    <string name="setup_model_title">Get a model</string>
+    <string name="setup_model_text">Bruce needs a model file (GGUF) to chat. Import one you already have, or download one from Hugging Face.</string>
+    <string name="setup_import">Import a model file</string>
+    <string name="setup_importing">Importing…</string>
+    <string name="setup_import_failed">Import failed: %1$s</string>
+    <string name="setup_browse">Download from Hugging Face</string>
+    <string name="setup_browse_offline">To download, go back and allow Hugging Face.</string>
+    <string name="setup_installed">Installed: %1$s</string>
+    <string name="setup_back">Back</string>
+    <string name="setup_next">Next</string>
+    <string name="setup_not_now">Not now</string>
+    <string name="setup_skip">Skip for now</string>
+    <string name="setup_finish">Start chatting</string>
 </resources>

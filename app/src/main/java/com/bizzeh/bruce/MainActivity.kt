@@ -1,6 +1,9 @@
 package com.bizzeh.bruce
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,7 +15,11 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.initializer
@@ -42,6 +49,10 @@ import com.bizzeh.bruce.settings.SettingsActions
 import com.bizzeh.bruce.settings.SettingsScreen
 import com.bizzeh.bruce.settings.SettingsViewModel
 import com.bizzeh.bruce.settings.ThemeSettings
+import com.bizzeh.bruce.setup.SetupActions
+import com.bizzeh.bruce.setup.SetupExit
+import com.bizzeh.bruce.setup.SetupScreen
+import com.bizzeh.bruce.setup.SetupViewModel
 import com.bizzeh.bruce.hardware.CpuTopology
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import com.bizzeh.bruce.ui.theme.dynamicColourSupported
@@ -93,6 +104,9 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+    private val setup: SetupViewModel by viewModels {
+        factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,24 +115,62 @@ class MainActivity : ComponentActivity() {
         setContent {
             val theme by container.themeSettings.settings.collectAsState(initial = ThemeSettings())
             BruceTheme(theme) {
-                val chatState by chat.state.collectAsState()
-                val activeModel by container.activeModel.state.collectAsState()
-                LaunchedEffect(Unit) { container.modelSelection.restore() }
-                BruceApp(
-                    chat = chatState,
-                    chatActions = remember { chatActions() },
-                    activeModel = activeModel,
-                    actions = remember { appActions() },
-                    modelsScreen = { onBack -> Models(onBack) },
-                    settingsScreen = { onBack, open -> Settings(onBack, open) },
-                    diagnosticsScreen = { onBack -> Diagnostics(onBack) },
-                )
+                // Null until read, so the wizard does not flash up for a returning user.
+                val setupComplete by container.setupSettings.complete.collectAsState(initial = null)
+                var exit by rememberSaveable { mutableStateOf(SetupExit.CHAT) }
+                when (setupComplete) {
+                    null -> Unit
+                    false -> Setup { exit = it }
+                    true -> Main(exit)
+                }
             }
         }
     }
 
     @androidx.compose.runtime.Composable
-    private fun Models(onBack: () -> Unit) {
+    private fun Main(exit: SetupExit) {
+        val chatState by chat.state.collectAsState()
+        val activeModel by container.activeModel.state.collectAsState()
+        LaunchedEffect(Unit) { container.modelSelection.restore() }
+        val browse = exit == SetupExit.BROWSE_MODELS
+        BruceApp(
+            chat = chatState,
+            chatActions = remember { chatActions() },
+            activeModel = activeModel,
+            actions = remember { appActions() },
+            modelsScreen = { onBack -> Models(onBack, startOnHuggingFace = browse) },
+            settingsScreen = { onBack, open -> Settings(onBack, open) },
+            diagnosticsScreen = { onBack -> Diagnostics(onBack) },
+            startDestination = if (browse) Destination.MODELS else Destination.CHAT,
+        )
+    }
+
+    @androidx.compose.runtime.Composable
+    private fun Setup(onExit: (SetupExit) -> Unit) {
+        val state by setup.state.collectAsState()
+        val modelsState by models.state.collectAsState()
+        val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(models::import) }
+        // Refused or granted, the wizard moves on; replies still complete without notifications.
+        val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { setup.next() }
+        val actions = remember {
+            object : SetupActions {
+                override fun next() = setup.next()
+                override fun back() = setup.back()
+                override fun setNetworkMode(mode: NetworkMode) = setup.setNetworkMode(mode)
+                override fun allowNotifications() = permission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                override fun importModel() = picker.launch(arrayOf("*/*"))
+                override fun finish(exit: SetupExit) = setup.finish { onExit(exit) }
+            }
+        }
+        SetupScreen(state, modelsState, actions)
+    }
+
+    private fun needsNotificationPermission(): Boolean =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+
+    @androidx.compose.runtime.Composable
+    private fun Models(onBack: () -> Unit, startOnHuggingFace: Boolean = false) {
         val state by models.state.collectAsState()
         val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(models::import) }
         val actions = remember {
@@ -140,7 +192,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         LaunchedEffect(Unit) { models.refresh() }
-        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions)
+        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace)
     }
 
     @androidx.compose.runtime.Composable

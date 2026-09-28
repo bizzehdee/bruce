@@ -11,6 +11,7 @@ import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.models.ModelSelection
 import com.bizzeh.bruce.models.ModelSettingsRepository
 import com.bizzeh.bruce.settings.DataReset
+import com.bizzeh.bruce.setup.SetupSettingsRepository
 import com.bizzeh.bruce.huggingface.HttpTransport
 import com.bizzeh.bruce.huggingface.HubAuth
 import com.bizzeh.bruce.huggingface.HubClient
@@ -70,6 +71,8 @@ class AppContainer(private val context: Context) {
     val downloader: ModelDownloader by lazy {
         ModelDownloader(transport, modelsDir, networkSettings::huggingFaceAllowed, Dispatchers.IO, userAgent, token = hubAuth::accessToken)
     }
+
+    val setupSettings: SetupSettingsRepository by lazy { SetupSettingsRepository(context.settingsDataStore) }
 
     val modelSettings: ModelSettingsRepository by lazy { ModelSettingsRepository(context.settingsDataStore) }
 

@@ -189,10 +189,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Checked live on the XZ Premium: search, repository files ranked with fit and speed.
   - Depends on: TASK-020, TASK-022, TASK-023, TASK-027
   - Required by: TASK-031
-- [ ] TASK-030: First-launch setup wizard
-  - Shown once on first launch: network mode, permission and capability toggles, and getting a first model (import, or download when the network mode allows it).
-  - Every choice is also in Settings; the wizard writes the same settings.
-  - Open: which permission toggles to show before the policy engine exists (see plan.md open questions).
+- [x] TASK-030: First-launch setup wizard
+  - Shown once on first launch: welcome, network mode, notification permission, and getting a first model (import, or download when the network mode allows it).
+  - Every choice is also in Settings (notifications: Android's app settings until the Permissions screen, TASK-038); the wizard writes the same settings.
+  - Decided (2026-09-28): no skill or capability toggles; skills keep their defaults and the Skills screen (TASK-039) changes them. Appearance is not in the wizard.
+  - The notifications step appears only on Android 13 and later when the permission is not granted; refusing moves on. Clearing all data shows the wizard again.
+  - "Download from Hugging Face" ends the wizard on the Models screen's Hugging Face tab. When the wizard ends with one model installed, it loads (the single-model rule from TASK-027).
+  - Device-tested on the Pixel 11 (Android 17): the wizard ends in chat with the only model loaded, and does not return after recreation.
   - Depends on: TASK-027, TASK-028
 - [ ] TASK-031: Model browser recommendations and filters
   - The Hugging Face tab opens on models recommended for this phone (text-generation GGUF repositories that fit, ranked by fit then popularity) without typing a name. Name search remains for advanced users.
@@ -295,7 +298,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [ ] TASK-048: Response-complete notifications
   - When a reply finishes while Bruce is not on screen, post a notification; tapping it opens that chat. No notification while the chat is visible.
   - Generation continues in the background through a foreground service, within Android's background rules.
-  - Requests the notification permission (Android 13 and later) the first time it is needed; if refused, replies still complete without a notification.
+  - The setup wizard (TASK-030) offers the notification permission; if it was not granted there, request it (Android 13 and later) the first time it is needed. If refused, replies still complete without a notification.
   - Depends on: TASK-032
 - [ ] TASK-049: Folder instructions (AGENTS.md and .agents/)
   - When Bruce works in a granted folder, check the folder root for `AGENTS.md` and the `.agents/` directory. Only those locations; nested `AGENTS.md` files and other tools' files (`CLAUDE.md`, `GEMINI.md`) are not read.
