@@ -19,18 +19,8 @@ class BackendSelectionTest {
     }
 
     @Test
-    fun autoTriesVulkanThenOpenClThenCpu() {
-        assertEquals(
-            BackendPlan.Attempts(
-                listOf(LoadAttempt(Backend.VULKAN, listOf(vulkan)), LoadAttempt(Backend.OPENCL, listOf(openCl)), cpuAttempt),
-            ),
-            plan(BackendPreference.AUTO, cpu, openCl, vulkan),
-        )
-    }
-
-    @Test
-    fun autoSkipsUnusableDevices() {
-        assertEquals(BackendPlan.Attempts(listOf(cpuAttempt)), plan(BackendPreference.AUTO, cpu, oldVulkan))
+    fun autoUsesCpuEvenWithAUsableGpu() {
+        assertEquals(BackendPlan.Attempts(listOf(cpuAttempt)), plan(BackendPreference.AUTO, cpu, openCl, vulkan))
     }
 
     @Test

@@ -74,8 +74,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Streaming generation** — Tokens stream to the caller as generated; generation
   can be stopped. `done`
 - **Backend detection and selection** — Detect CPU features (NEON, FP16, DOTPROD),
-  Vulkan and OpenCL; select a backend; always fall back to CPU. NPU is used only
-  if a supported backend exposes it. `done`
+  Vulkan and OpenCL; select a backend; always fall back to CPU. Auto uses the CPU;
+  a GPU backend is used only when the user picks it, marked experimental, because
+  Vulkan gave wrong output on the Pixel 11's PowerVR GPU. NPU is used only if a
+  supported backend exposes it. `done`
 - **Memory estimation** — Estimate a model's RAM requirement and compare it with
   usable device RAM before loading. `done`
 - **Advanced hardware tuning** — User control over backend, threads, context and
@@ -391,6 +393,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Auto backend always uses the CPU; Vulkan and OpenCL only when chosen, marked experimental (Vulkan gave wrong output on the Pixel 11). |
 | 2026-09-28 | Changed | Hugging Face sign-in by OAuth marked done after a real sign-in on a phone; pasted-token fallback not built. |
 | 2026-09-28 | Added | Context indicator with drop-oldest overflow and optional auto-summarise; memory setting (off, per model, global) with automatic saving and review; response notifications; archive and bulk archive/delete of chats; skills loaded as needed; the only installed model loads at launch. |
 | 2026-09-28 | Changed | Skill permissions are per-skill states (Declined, Ask, Accepted) set in a Skills screen under Settings; high-risk skills warn before Accepted; grant durations dropped; Permissions screen holds folder grants and Android permissions. |

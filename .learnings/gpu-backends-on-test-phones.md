@@ -1,4 +1,4 @@
-# Why neither test phone can use a GPU backend
+# Why no test phone uses a GPU backend
 
 Established: 2026-09-27, llama.cpp v0.5.0.
 
@@ -20,3 +20,16 @@ targets Adreno 7xx and later.
 Evidence: logcat from both phones, 2026-09-27, captured with a temporary `dlopen` +
 `dlerror` probe, and the crash backtrace
 (`libvulkan.so CreateBuffer` ← `libggml-vulkan.so` ← `llama_model_base::load_tensors`).
+
+**Pixel 11 (2026-09-28, Android 17, Tensor G6, PowerVR C-Series CXTP-48-1536).** Vulkan 1.4,
+so it passes the 1.2 rule and Auto used to choose it. ggml's Vulkan backend loads and runs but
+computes wrongly: greedy stories260K gave `" happ\uFFFDenily a a..... a a a a"` instead of
+llama.cpp's CPU reference `", there was a little girl named Lily…"`, and a device test run
+under Auto froze the phone until a forced reboot (`sys.boot.reason` `reboot,longkey`). The
+same app on the CPU backend (i8mm variant), 1 and 4 threads, matches the reference.
+ggml's OpenCL backend drops the device as unsupported.
+
+So Auto always uses the CPU; Vulkan and OpenCL run only when the user picks them, marked
+experimental. A "usable" device (API version check) is not evidence that it computes
+correctly. Before trusting any GPU, run the manual-only `GpuReferenceOutputDeviceTest`.
+Evidence: `GpuReferenceOutputDeviceTest` and `ReferenceOutputDeviceTest` on the Pixel 11.

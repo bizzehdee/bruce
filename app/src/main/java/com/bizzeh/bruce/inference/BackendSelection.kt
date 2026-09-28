@@ -1,6 +1,6 @@
 package com.bizzeh.bruce.inference
 
-/** Which backend to load a model on. [AUTO] lets Bruce choose. */
+/** Which backend to load a model on. [AUTO] lets Bruce choose, and currently always chooses the CPU. */
 enum class BackendPreference {
     AUTO,
     CPU,
@@ -20,9 +20,6 @@ internal sealed interface BackendPlan {
 }
 
 internal object BackendSelection {
-    // Provisional: no test phone has a usable GPU yet, so this order is not measured.
-    private val GPU_ORDER = listOf(Backend.VULKAN, Backend.OPENCL)
-
     private val CPU_ATTEMPT = LoadAttempt(Backend.CPU, emptyList())
 
     fun plan(preference: BackendPreference, capabilities: EngineCapabilities): BackendPlan {
@@ -31,7 +28,9 @@ internal object BackendSelection {
                 ?.let { LoadAttempt(backend, listOf(it)) }
 
         return when (preference) {
-            BackendPreference.AUTO -> BackendPlan.Attempts(GPU_ORDER.mapNotNull(::gpuAttempt) + CPU_ATTEMPT)
+            // Never a GPU: Vulkan on the Pixel 11's PowerVR GPU loads fine and returns wrong text
+            // (.learnings/gpu-backends-on-test-phones.md). A GPU is used only when the user picks it.
+            BackendPreference.AUTO -> BackendPlan.Attempts(listOf(CPU_ATTEMPT))
             BackendPreference.CPU -> BackendPlan.Attempts(listOf(CPU_ATTEMPT))
             BackendPreference.VULKAN, BackendPreference.OPENCL -> {
                 val backend = Backend.valueOf(preference.name)
