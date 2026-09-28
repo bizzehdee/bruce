@@ -2,13 +2,13 @@
     <string name="app_name">Bruce</string>
     <string name="chat_no_model">No model loaded</string>
     <string name="chat_empty">Load a model to start chatting.</string>
-    <string name="chat_empty_ready">What can I help with?</string>
-    <string name="chat_input_hint">Message Bruce</string>
+    <string name="chat_empty_ready">I\'m %1$s. What can I help with?</string>
+    <string name="chat_input_hint">Message %1$s</string>
     <string name="chat_send">Send</string>
     <string name="chat_stop">Stop</string>
     <string name="chat_reasoning_show">Show reasoning</string>
     <string name="chat_reasoning_hide">Hide reasoning</string>
-    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_thinking">%1$s is thinking…</string>
     <string name="chat_error_no_model">Load a model first.</string>
     <string name="chat_error_too_long">This conversation is too long for the model. Start a new chat.</string>
     <string name="chat_error_failed">The model could not finish that reply.</string>
@@ -28,6 +28,9 @@
     <string name="switcher_empty">No models installed yet.</string>
     <string name="switcher_manage">Manage models</string>
     <string name="switcher_loading">Loading…</string>
+    <string name="settings_sidekick">Sidekick</string>
+    <string name="personality_bruce_summary">Fast, energetic and a little silly. Keeps things moving.</string>
+    <string name="personality_milo_summary">Curious, calm and thoughtful. Observes first, speaks when it helps.</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>

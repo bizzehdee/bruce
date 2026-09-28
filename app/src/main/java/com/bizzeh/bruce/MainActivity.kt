@@ -41,6 +41,7 @@ import com.bizzeh.bruce.models.BrowseFilters
 import com.bizzeh.bruce.models.DeviceProfile
 import com.bizzeh.bruce.models.ModelBrowserViewModel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import com.bizzeh.bruce.models.ModelOverrides
 import com.bizzeh.bruce.models.ModelsActions
 import com.bizzeh.bruce.models.ModelsScreen
@@ -51,6 +52,7 @@ import com.bizzeh.bruce.prototype.PrototypeScreen
 import com.bizzeh.bruce.prototype.PrototypeViewModel
 import com.bizzeh.bruce.settings.ThemeMode
 import com.bizzeh.bruce.settings.NetworkMode
+import com.bizzeh.bruce.settings.Personality
 import com.bizzeh.bruce.settings.SettingsActions
 import com.bizzeh.bruce.settings.SettingsScreen
 import com.bizzeh.bruce.settings.SettingsViewModel
@@ -71,7 +73,10 @@ class MainActivity : ComponentActivity() {
     private val prototype: PrototypeViewModel by viewModels { factory { prototypeViewModel() } }
     private val chat: ChatViewModel by viewModels {
         factory {
-            ChatViewModel(container.engine, container.activeModel.state, container.conversations::save, container.conversations::load, container.runtime::respond)
+            ChatViewModel(
+                container.engine, container.activeModel.state, container.conversations::save, container.conversations::load, container.runtime::respond,
+                container.personalitySettings.personality.map { it.displayName },
+            )
         }
     }
     private val conversations: ConversationsViewModel by viewModels {
@@ -107,6 +112,7 @@ class MainActivity : ComponentActivity() {
                 theme = container.themeSettings,
                 inference = container.inferenceSettings,
                 network = container.networkSettings,
+                personality = container.personalitySettings,
                 hubAuth = container.hubAuth,
                 dataReset = container.dataReset,
                 dynamicColourSupported = dynamicColourSupported(),
@@ -289,6 +295,7 @@ class MainActivity : ComponentActivity() {
         }
         override fun deleteAllConversations() = conversations.deleteAll()
         override fun setNetworkMode(mode: NetworkMode) = settings.setNetworkMode(mode)
+        override fun setPersonality(personality: Personality) = settings.setPersonality(personality)
         override fun signIn() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settings.beginSignIn())))
         }

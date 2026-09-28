@@ -17,6 +17,7 @@ class SettingsViewModel(
     private val theme: ThemeSettingsRepository,
     private val inference: InferenceSettingsRepository,
     private val network: NetworkSettingsRepository,
+    private val personality: PersonalitySettingsRepository,
     private val hubAuth: HubAuth,
     private val dataReset: DataReset,
     dynamicColourSupported: Boolean,
@@ -28,10 +29,13 @@ class SettingsViewModel(
     private val signInError = MutableStateFlow<SignInError?>(null)
 
     val state: StateFlow<SettingsState> = combine(
-        theme.settings, inference.defaults, network.mode, hubAuth.account, signInError,
-    ) { themeSettings, defaults, mode, account, error ->
-        initial.copy(theme = themeSettings, inference = defaults, network = mode, account = account, signInError = error)
+        combine(theme.settings, inference.defaults, network.mode, ::Triple),
+        hubAuth.account, signInError, personality.personality,
+    ) { (themeSettings, defaults, mode), account, error, chosen ->
+        initial.copy(theme = themeSettings, inference = defaults, network = mode, account = account, signInError = error, personality = chosen)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, initial)
+
+    fun setPersonality(chosen: Personality) = launch { personality.set(chosen) }
 
     fun setNetworkMode(mode: NetworkMode) = launch { network.setMode(mode) }
 

@@ -56,7 +56,8 @@ class SettingsLogicTest {
         val reset = DataReset(activeModel, dataStore, modelsDir, cacheDir, dispatcher) { databasesCleared++ }
         val network = NetworkSettingsRepository(dataStore)
         val hubAuth = HubAuth(NoNetwork, dataStore, PlainCipher, { true }, dispatcher, "client")
-        val viewModel = SettingsViewModel(theme, inference, network, hubAuth, reset, dynamicColourSupported = true, performanceCores = 4, cores = 8)
+        val personality = PersonalitySettingsRepository(dataStore)
+        val viewModel = SettingsViewModel(theme, inference, network, personality, hubAuth, reset, dynamicColourSupported = true, performanceCores = 4, cores = 8)
     }
 
     @Test
@@ -69,9 +70,12 @@ class SettingsLogicTest {
         f.viewModel.setThreads(2)
         f.viewModel.setContextLength(16384)
         f.viewModel.setNetworkMode(NetworkMode.HUGGING_FACE)
+        f.viewModel.setPersonality(Personality.MILO)
 
         // DataStore writes on real I/O threads, so wait for the state rather than for the scheduler.
-        val state = f.viewModel.state.first { it.inference.contextLength == 16384 && it.theme.dynamicColour && it.network == NetworkMode.HUGGING_FACE }
+        val state = f.viewModel.state.first {
+            it.inference.contextLength == 16384 && it.theme.dynamicColour && it.network == NetworkMode.HUGGING_FACE && it.personality == Personality.MILO
+        }
         assertNull(state.account)
         assertNull(state.signInError)
         assertEquals(ThemeSettings(ThemeMode.DARK, dynamicColour = true), state.theme)

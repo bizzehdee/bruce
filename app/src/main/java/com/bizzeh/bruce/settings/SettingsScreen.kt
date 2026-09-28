@@ -47,6 +47,7 @@ data class SettingsState(
     val performanceCores: Int = 4,
     val cores: Int = 8,
     val network: NetworkMode = NetworkMode.OFFLINE,
+    val personality: Personality = Personality.BRUCE,
     /** Backend choices this phone can use (BackendSelection.choices). */
     val backends: List<BackendPreference> = BackendPreference.entries,
     val account: HubAccount? = null,
@@ -62,6 +63,7 @@ interface SettingsActions {
     fun clearAllData()
     fun deleteAllConversations()
     fun setNetworkMode(mode: NetworkMode)
+    fun setPersonality(personality: Personality)
     fun signIn()
     fun signOut()
     fun openPermissions()
@@ -76,6 +78,18 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
     var confirmDeleteChats by rememberSaveable { mutableStateOf(false) }
     SubScreen(stringResource(R.string.nav_settings), onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).testTag("settings")) {
+            Heading(R.string.settings_sidekick)
+            Personality.entries.forEach { personality ->
+                ListItem(
+                    headlineContent = { Text(personality.displayName) },
+                    supportingContent = { Text(stringResource(SettingsText.personalitySummary(personality))) },
+                    leadingContent = { RadioButton(selected = personality == state.personality, onClick = null) },
+                    modifier = Modifier
+                        .selectable(selected = personality == state.personality, role = Role.RadioButton) { actions.setPersonality(personality) }
+                        .testTag("personality:$personality"),
+                )
+            }
+
             Heading(R.string.settings_appearance)
             Choice(
                 options = ThemeMode.entries,
@@ -299,6 +313,11 @@ internal object SettingsText {
         NetworkMode.HUGGING_FACE -> R.string.network_huggingface
         NetworkMode.APPROVED_DOMAINS -> R.string.network_approved
         NetworkMode.GENERAL -> R.string.network_general
+    }
+
+    fun personalitySummary(personality: Personality) = when (personality) {
+        Personality.BRUCE -> R.string.personality_bruce_summary
+        Personality.MILO -> R.string.personality_milo_summary
     }
 
     fun networkSummary(mode: NetworkMode) = when (mode) {

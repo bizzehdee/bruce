@@ -100,7 +100,7 @@ class ToolCallDeviceTest {
         }
         val registry = SkillRegistry(listOf(time))
         val states = SkillStateStore(database.policy())
-        val runtime = BruceRuntime(engine, registry, states, PolicyEngine(registry, states, ToolOutput(), { true }), temperature = { 0f })
+        val runtime = BruceRuntime(engine, registry, states, PolicyEngine(registry, states, ToolOutput(), { true }), temperature = { 0f }, personality = { "You are Bruce." })
 
         val events = runtime.respond(listOf(ToolChatMessage(ChatRole.USER, "What time is it?"))).toList()
         database.close()

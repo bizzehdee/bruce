@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,6 +41,8 @@ data class ToolUse(val callId: String, val name: String, val resultJson: String,
 
 data class ChatState(
     val modelName: String? = null,
+    /** The chosen personality's name, which the chat uses for the sidekick. */
+    val sidekick: String = "Bruce",
     /** The saved conversation shown; null until the first turn of a new chat is saved. */
     val conversationId: Long? = null,
     val entries: List<ChatEntry> = emptyList(),
@@ -68,6 +71,7 @@ class ChatViewModel(
     private val load: suspend (id: Long) -> List<ChatEntry>?,
     /** One turn of the runtime (BruceRuntime.respond): replies, skill calls and results. */
     private val respond: (List<ToolChatMessage>) -> Flow<RuntimeEvent>,
+    sidekick: Flow<String> = emptyFlow(),
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -79,6 +83,9 @@ class ChatViewModel(
     init {
         viewModelScope.launch {
             activeModel.collect { model -> mutableState.update { it.copy(modelName = model.active?.nameWithoutExtension) } }
+        }
+        viewModelScope.launch {
+            sidekick.collect { name -> mutableState.update { it.copy(sidekick = name) } }
         }
     }
 
@@ -134,7 +141,7 @@ class ChatViewModel(
             val entries = load(id) ?: return@launch
             endTurn()
             session++
-            mutableState.update { ChatState(modelName = it.modelName, conversationId = id, entries = entries) }
+            mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries) }
         }
     }
 
@@ -148,7 +155,7 @@ class ChatViewModel(
     fun newChat() {
         endTurn()
         session++
-        mutableState.update { ChatState(modelName = it.modelName) }
+        mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick) }
     }
 
     /** Stops generation and the turn, so no skill runs after the user has moved on. */

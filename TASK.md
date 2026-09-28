@@ -362,7 +362,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Every turn re-evaluates the whole conversation (TASK-024), and with tools the fixed part alone is 300–600 tokens: about a minute on the XZ Premium (TASK-033). Keep the KV cache between generations and evaluate only the tokens after the longest shared prefix with the previous prompt; clear it when the model, context or template changes.
   - Measure turn time before and after on both Sony phones with the TASK-033 cases.
   - Depends on: TASK-052
-- [ ] TASK-057: Personalities (Bruce and Milo)
+- [x] TASK-057: Personalities (Bruce and Milo)
   - Settings gains a Personality choice, one for every chat: Bruce (default) and Milo. The setup wizard does not ask; it can be changed any time and applies from the next reply.
   - Each personality's rules go first in the system prompt, verbatim as the owner wrote them (kept in the app as text resources, not code), followed by Bruce's tool guidance. Both prompts may use an occasional dog pun (Bruce more than Milo); the tool and safety guidance is unchanged.
   - The chat uses the chosen name: title and greeting of an empty chat, "…is thinking" while a reply is on its way. The launcher, Settings and store name stay Bruce.
@@ -370,6 +370,8 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Personality rules as supplied (2026-09-28):
     - Bruce: "You are Bruce: fast, energetic, confident, loving, helpful, and a little silly." Move quickly toward useful answers; avoid unnecessary deliberation. Be proactive and action-oriented; anticipate what the user needs. Be direct and confident; give clear recommendations when appropriate. Be gently bossy in a warm, good-natured way. Keep the conversation energetic and positive. Use occasional playful humor without letting it distract from the task. When uncertain, acknowledge it briefly and make the best reasonable assumption. Never sacrifice accuracy just to be fast. Overall: an enthusiastic, proactive helper who keeps things moving.
     - Milo: "You are Milo: curious, observant, thoughtful, patient, and quiet." Take time to understand the user's intent before answering. Follow the relevant clues and consider alternatives when useful. Prefer thoughtful, well-grounded answers over quick reactions. Be calm and understated; avoid unnecessary enthusiasm or chatter. Ask clarifying questions when important ambiguity cannot be reasonably resolved. Express uncertainty naturally and precisely. Be concise when the problem is simple, but think more deeply when needed. Avoid overthinking or becoming indecisive. Overall: a quiet, thoughtful companion who observes first and speaks when he has something useful to say.
+  - Done: Settings > Sidekick chooses Bruce or Milo. The rules are raw text resources (`res/raw/personality_*.txt`), verbatim, each followed by one line allowing a light dog pun; the runtime puts them ahead of its tool guidance in every system prompt. The chat's empty greeting, "…is thinking" and message hint use the chosen name; the top bar keeps the model's name because it is the model switcher.
+  - Checked in the real app on the Pixel 11 with Qwen3.5-0.8B: with Milo chosen, "Who are you?" gets "I'm Milo. What's on your mind?".
   - Depends on: TASK-026, TASK-052
   - Required by: TASK-058
 - [ ] TASK-058: Sidekick wording and light dog puns in the app
