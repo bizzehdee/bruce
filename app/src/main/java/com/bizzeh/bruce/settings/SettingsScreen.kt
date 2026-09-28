@@ -47,6 +47,8 @@ data class SettingsState(
     val performanceCores: Int = 4,
     val cores: Int = 8,
     val network: NetworkMode = NetworkMode.OFFLINE,
+    /** Backend choices this phone can use (BackendSelection.choices). */
+    val backends: List<BackendPreference> = BackendPreference.entries,
     val account: HubAccount? = null,
     val signInError: SignInError? = null,
 )
@@ -93,17 +95,19 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             Heading(R.string.settings_inference)
             Label(R.string.settings_backend)
             Choice(
-                options = BackendPreference.entries,
+                options = state.backends,
                 selected = state.inference.backend,
                 label = { if (it == BackendPreference.AUTO) stringResource(R.string.settings_backend_auto) else it.name.let(SettingsText::backendName) },
                 onSelect = actions::setBackend,
             )
-            Text(
-                stringResource(R.string.settings_backend_note),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            )
+            if (state.backends.any { it.isGpu }) {
+                Text(
+                    stringResource(R.string.settings_backend_note),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                )
+            }
             Label(R.string.settings_threads)
             Chips {
                 FilterChip(

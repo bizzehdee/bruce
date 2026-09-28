@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.inference
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class BackendSelectionTest {
@@ -48,5 +49,21 @@ class BackendSelectionTest {
     fun forcedBackendWithoutUsableDeviceIsUnavailable() {
         assertEquals(BackendPlan.Unavailable(Backend.VULKAN), plan(BackendPreference.VULKAN, cpu, oldVulkan))
         assertEquals(BackendPlan.Unavailable(Backend.OPENCL), plan(BackendPreference.OPENCL, cpu))
+    }
+
+    private fun choices(current: BackendPreference?, vararg devices: ComputeDevice) =
+        BackendSelection.choices(EngineCapabilities(devices.toList(), emptyList()), current)
+
+    @Test
+    fun onlyUsableGpuBackendsAreOffered() {
+        assertEquals(listOf(BackendPreference.AUTO, BackendPreference.CPU), choices(null, cpu, oldVulkan))
+        assertEquals(listOf(BackendPreference.AUTO, BackendPreference.CPU, BackendPreference.VULKAN), choices(null, cpu, vulkan))
+        assertEquals(BackendPreference.entries, choices(BackendPreference.AUTO, cpu, vulkan, openCl))
+    }
+
+    @Test
+    fun aSavedChoiceThatIsNoLongerUsableStaysVisibleSoItCanBeChanged() {
+        assertEquals(listOf(BackendPreference.AUTO, BackendPreference.CPU, BackendPreference.OPENCL), choices(BackendPreference.OPENCL, cpu, oldVulkan))
+        assertTrue(BackendPreference.VULKAN.isGpu && BackendPreference.OPENCL.isGpu && !BackendPreference.CPU.isGpu && !BackendPreference.AUTO.isGpu)
     }
 }

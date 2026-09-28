@@ -31,7 +31,7 @@
     <string name="settings_inference">Model defaults</string>
     <string name="settings_backend">Backend</string>
     <string name="settings_backend_auto">Auto</string>
-    <string name="settings_backend_note">Auto uses the CPU. Vulkan and OpenCL are experimental: on some phones they give wrong answers or freeze the phone.</string>
+    <string name="settings_backend_note">Auto uses the CPU. GPU backends are experimental: on some phones they give wrong answers or freeze the phone.</string>
     <string name="settings_threads">Threads</string>
     <string name="settings_threads_auto">Auto (%1$d)</string>
     <string name="settings_context">Context length (tokens)</string>

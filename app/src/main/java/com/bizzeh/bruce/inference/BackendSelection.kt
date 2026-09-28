@@ -6,6 +6,9 @@ enum class BackendPreference {
     CPU,
     VULKAN,
     OPENCL,
+    ;
+
+    val isGpu: Boolean get() = this == VULKAN || this == OPENCL
 }
 
 /** One way to load a model: a backend and the devices it uses. An empty list means the CPU. */
@@ -19,10 +22,24 @@ internal sealed interface BackendPlan {
     data class Unavailable(val backend: Backend) : BackendPlan
 }
 
-internal object BackendSelection {
+object BackendSelection {
     private val CPU_ATTEMPT = LoadAttempt(Backend.CPU, emptyList())
 
-    fun plan(preference: BackendPreference, capabilities: EngineCapabilities): BackendPlan {
+    /**
+     * The choices to offer on this phone: Auto, CPU, and each GPU backend with a usable device.
+     * [current] is kept even when unavailable (a setting saved on another build), so it can be changed.
+     */
+    fun choices(capabilities: EngineCapabilities, current: BackendPreference? = null): List<BackendPreference> {
+        val usable = capabilities.usableBackends
+        return BackendPreference.entries.filter { preference ->
+            when (preference) {
+                BackendPreference.AUTO, BackendPreference.CPU -> true
+                BackendPreference.VULKAN, BackendPreference.OPENCL -> Backend.valueOf(preference.name) in usable || preference == current
+            }
+        }
+    }
+
+    internal fun plan(preference: BackendPreference, capabilities: EngineCapabilities): BackendPlan {
         fun gpuAttempt(backend: Backend): LoadAttempt? =
             capabilities.devices.firstOrNull { it.backend == backend && it.usable }
                 ?.let { LoadAttempt(backend, listOf(it)) }

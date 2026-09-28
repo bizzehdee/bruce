@@ -29,6 +29,9 @@ import com.bizzeh.bruce.chat.ChatViewModel
 import com.bizzeh.bruce.conversations.ConversationActions
 import com.bizzeh.bruce.conversations.ConversationsViewModel
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.BackendSelection
+import com.bizzeh.bruce.inference.EngineCapabilities
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.bizzeh.bruce.navigation.AppActions
 import com.bizzeh.bruce.navigation.BruceApp
 import com.bizzeh.bruce.huggingface.HubModel
@@ -122,6 +125,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState == null) handleSignInRedirect(intent)
+        lifecycleScope.launch(Dispatchers.IO) { capabilities.value = container.engine.getCapabilities() }
         enableEdgeToEdge()
         setContent {
             val theme by container.themeSettings.settings.collectAsState(initial = ThemeSettings())
@@ -210,14 +214,16 @@ class MainActivity : ComponentActivity() {
             }
         }
         LaunchedEffect(Unit) { models.refresh() }
-        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace)
+        val known by capabilities.collectAsState()
+        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace) { backendChoices(known, it) }
     }
 
     @androidx.compose.runtime.Composable
     private fun Settings(onBack: () -> Unit, open: (Destination) -> Unit) {
         val state by settings.state.collectAsState()
+        val known by capabilities.collectAsState()
         val actions = remember { settingsActions(open) }
-        SettingsScreen(state, actions, onBack)
+        SettingsScreen(state.copy(backends = backendChoices(known, state.inference.backend)), actions, onBack)
     }
 
     @androidx.compose.runtime.Composable
@@ -241,6 +247,12 @@ class MainActivity : ComponentActivity() {
         if (intent.action != Intent.ACTION_VIEW || uri.scheme != "com.bizzeh.bruce" || uri.path != "/oauth/huggingface") return
         settings.completeSignIn(uri.queryParameterNames.associateWith(uri::getQueryParameter))
     }
+
+    /** Read once off the main thread (it probes the GPU drivers); until then only Auto and CPU are offered. */
+    private val capabilities = MutableStateFlow<EngineCapabilities?>(null)
+
+    private fun backendChoices(known: EngineCapabilities?, current: BackendPreference?) =
+        BackendSelection.choices(known ?: EngineCapabilities(emptyList(), emptyList()), current)
 
     private fun deviceProfile(): DeviceProfile {
         val memory = container.memoryInfo()
