@@ -1,8 +1,9 @@
 # Bruce — project plan
 
-Bruce is a local-first personal AI assistant for Android. It runs open-weight
-models on the device and acts on the user's behalf through tools, within
-permissions the user grants.
+Bruce is a local-first AI sidekick for Android. It runs open-weight models on
+the device and acts on the user's behalf through skills, within permissions the
+user grants. The user picks the sidekick's personality: Bruce (the default) or
+Milo.
 
 Motto: *Your AI. Your model. Your phone. Your permissions. No ads. No
 subscription. Just Bruce.*
@@ -16,8 +17,12 @@ phone, works offline, and can carry out multi-step tasks using phone
 capabilities. The model is never the security boundary: a policy engine decides
 what Bruce may do, and the user decides the policy.
 
-Bruce is a personal assistant, not a chatbot. Chat is the main interface to the
-assistant, not the product itself.
+Bruce is a sidekick, not a chatbot. Chat is the main interface to the
+sidekick, not the product itself. User-facing text says "sidekick"; technical
+text keeps terms such as agent loop and runtime. The tone leans, lightly, into
+dog puns: small UI copy (loading and empty states), the personalities' replies,
+and the README and store text. Errors, warnings, permissions and confirmations
+stay plain.
 
 ## Users
 
@@ -204,6 +209,12 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   permission requests and confirmations appear inline in the conversation.
   This familiar layout is the starting point because it is what users expect;
   how Bruce's interface stands apart is decided later. `in progress`
+- **Personalities** — Settings offers personalities, one choice for every chat:
+  **Bruce** (fast, energetic, confident, warm, a little silly; the default) and
+  **Milo** (curious, observant, calm, thoughtful). Each has fixed personality
+  rules, written by the owner, placed ahead of the rest of the system prompt; the
+  chat shows the chosen name (title, "Milo is thinking…", greetings) while the
+  app itself stays Bruce. A change applies from the next reply. `planned`
 - **Formatted replies** — Replies are rendered as Markdown (headings, emphasis,
   lists, code, tables, quotes) in Bruce's own theme, parsed by commonmark-java and
   drawn in Compose, with no web view. Links show their full address and open in
@@ -411,6 +422,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Added | Personalities (Bruce default, Milo) chosen in Settings; user-facing text calls Bruce a sidekick; light dog puns in small UI copy, replies, README and store text. |
 | 2026-09-28 | Changed | Skill states and policy engine done; states stored in their own database with a policy version; Clear all data resets them. |
 | 2026-09-28 | Added | Formatted replies: Markdown rendered natively; links confirmed before opening; images only where the network mode allows. |
 | 2026-09-28 | Changed | Tool-calling format decided (ADR 0001): each model's own format via a narrow build of llama.cpp's chat code, Bruce's format with a grammar as fallback; full skill descriptions until a prompt budget. Open question closed. |
