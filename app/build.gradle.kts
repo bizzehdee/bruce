@@ -141,4 +141,6 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
+    // Compose's test library brings Espresso 3.5.0, which fails on Android 17 (no InputManager.getInstance).
+    androidTestImplementation(libs.espresso.core)
 }
