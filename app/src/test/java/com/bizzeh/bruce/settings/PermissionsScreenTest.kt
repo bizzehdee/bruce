@@ -13,6 +13,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
+import com.bizzeh.bruce.policy.Grant
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -31,6 +32,12 @@ class PermissionsScreenTest {
     val compose = createComposeRule()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
+
+    private val noGrantActions = object : GrantActions {
+        override fun addFolder() = Unit
+        override fun addFile() = Unit
+        override fun revoke(grant: Grant) = Unit
+    }
 
     private fun definePermission(name: String, protection: Int, packageName: String = "android") {
         shadowOf(context.packageManager).addPermissionInfo(
@@ -106,7 +113,7 @@ class PermissionsScreenTest {
             HeldPermission("com.example.OTHER", "Other thing", true, PermissionKind.USER_CONTROLLED),
         )
         compose.setContent {
-            BruceTheme { PermissionsContent(permissions, { calls += it.name }, { calls += "network" }, {}) }
+            BruceTheme { PermissionsContent(emptyList(), false, noGrantActions, permissions, { calls += it.name }, { calls += "network" }, {}) }
         }
 
         compose.onNodeWithText("No files or folders granted yet.").assertIsDisplayed()
@@ -123,9 +130,35 @@ class PermissionsScreenTest {
     }
 
     @Test
+    fun grantsAreListedWithTheirStateAndCanBeRevokedOrAdded() {
+        val calls = mutableListOf<String>()
+        val actions = object : GrantActions {
+            override fun addFolder() { calls += "folder" }
+            override fun addFile() { calls += "file" }
+            override fun revoke(grant: Grant) { calls += "revoke ${grant.name}" }
+        }
+        val grants = listOf(
+            Grant(1, android.net.Uri.parse("content://docs/tree/a"), "Documents", com.bizzeh.bruce.policy.GrantKind.FOLDER, 0, available = true),
+            Grant(2, android.net.Uri.parse("content://docs/b"), "report.pdf", com.bizzeh.bruce.policy.GrantKind.FILE, 0, available = false),
+        )
+        compose.setContent { BruceTheme { PermissionsContent(grants, true, actions, emptyList(), {}, {}, {}) } }
+
+        compose.onNodeWithTag("grantsEmpty").assertDoesNotExist()
+        compose.onNodeWithText("Documents").assertIsDisplayed()
+        compose.onNodeWithTag("lost:1", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("lost:2", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("addFailed").assertIsDisplayed()
+
+        compose.onNodeWithTag("revoke:2").performClick()
+        compose.onNodeWithTag("addFolder").performClick()
+        compose.onNodeWithTag("addFile").performClick()
+        assertEquals(listOf("revoke report.pdf", "folder", "file"), calls)
+    }
+
+    @Test
     fun screenOpensAndroidSettingsWhenAskedToChange() {
         request(Manifest.permission.POST_NOTIFICATIONS to false)
-        compose.setContent { BruceTheme { PermissionsScreen({}, {}) } }
+        compose.setContent { BruceTheme { PermissionsScreen(emptyList(), false, noGrantActions, {}, {}) } }
 
         compose.onNodeWithTag("change:${Manifest.permission.POST_NOTIFICATIONS}").performClick()
 

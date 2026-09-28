@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.room.Room
 import com.bizzeh.bruce.policy.PolicyDatabase
 import com.bizzeh.bruce.policy.PolicyEngine
+import com.bizzeh.bruce.policy.ScopeCheck
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.runtime.BruceRuntime
 import com.bizzeh.bruce.runtime.RuntimeEvent
@@ -100,7 +101,7 @@ class ToolCallDeviceTest {
         }
         val registry = SkillRegistry(listOf(time))
         val states = SkillStateStore(database.policy())
-        val runtime = BruceRuntime(engine, registry, states, PolicyEngine(registry, states, ToolOutput(), { true }), temperature = { 0f }, personality = { "You are Bruce." })
+        val runtime = BruceRuntime(engine, registry, states, PolicyEngine(registry, states, ToolOutput(), { true }, { ScopeCheck.OutOfScope("No grants in this test.") }), temperature = { 0f }, personality = { "You are Bruce." })
 
         val events = runtime.respond(listOf(ToolChatMessage(ChatRole.USER, "What time is it?"))).toList()
         database.close()

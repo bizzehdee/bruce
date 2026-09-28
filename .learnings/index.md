@@ -1,5 +1,6 @@
 # Learnings index
 
+- [viewmodel-before-setmain.md](viewmodel-before-setmain.md) — A ViewModel built before Dispatchers.setMain never updates under runBlocking. Read when a ViewModel test times out on a StateFlow.
 - [android-17-local-network-permission.md](android-17-local-network-permission.md) — Android 17 grants Bruce local network access by itself at targetSdk 36. Read when a permission appears that the manifest does not declare, or when raising targetSdk.
 - [jdk-for-unit-tests.md](jdk-for-unit-tests.md) — Which JDK runs the build and Robolectric tests on this machine. Read when Gradle fails on the toolchain or Robolectric cannot create a sandbox.
 - [robolectric-jdk-module-export.md](robolectric-jdk-module-export.md) — Robolectric fails on JDK 17+ without a module export. Read when Robolectric tests fail at setup or when changing the test JVM.

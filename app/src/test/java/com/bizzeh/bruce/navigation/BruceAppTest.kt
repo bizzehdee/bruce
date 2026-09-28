@@ -40,6 +40,12 @@ class BruceAppTest {
     private val qwen = File("Qwen3-0.6B-Q4_0.gguf")
     private val models = ActiveModelState(installed = listOf(qwen, File("stories.gguf")), active = qwen)
 
+    private val noGrantActions = object : com.bizzeh.bruce.settings.GrantActions {
+        override fun addFolder() = Unit
+        override fun addFile() = Unit
+        override fun revoke(grant: com.bizzeh.bruce.policy.Grant) = Unit
+    }
+
     private fun show(start: Destination = Destination.CHAT) = compose.setContent {
         BruceTheme {
             BruceApp(
@@ -59,6 +65,9 @@ class BruceAppTest {
                     }
                 },
                 diagnosticsScreen = { onBack -> SubScreen("Diagnostics screen", onBack) { Text("diagnostics body") } },
+                permissionsScreen = { onBack, openNetwork ->
+                    com.bizzeh.bruce.settings.PermissionsScreen(emptyList(), false, noGrantActions, openNetwork, onBack)
+                },
                 skillsScreen = { onBack, openPermissions ->
                     SubScreen("Skills screen", onBack) {
                         androidx.compose.material3.TextButton(onClick = openPermissions, modifier = androidx.compose.ui.Modifier.testTag("skills:permissions")) { Text("To permissions") }

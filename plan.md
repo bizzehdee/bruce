@@ -169,7 +169,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Scoped grants** — File skills act only inside files and folders the user
   granted through the Storage Access Framework, whatever the skill's state.
   Grants last until the user revokes them; the spec's grant durations (once, this
-  chat, until revoked, permanent) are replaced by the skill states. `planned`
+  chat, until revoked, permanent) are replaced by the skill states. The model
+  names a target as `<grant name>/<folder>/<file>`, resolved only through the
+  granted folder's real children. `done`
 - **Exact-operation confirmation** — For skills in the Ask state, confirmation binds tool ID, arguments,
   target resources, timestamp and policy version; execution is refused if the
   operation differs. `planned`
@@ -425,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | File and folder grants done: added and revoked in Permissions; the model names targets as `<grant name>/<path>`. |
 | 2026-09-28 | Changed | Skills screen done: per-skill Declined, Ask or Accepted in Settings > Skills, with the high-risk warning. |
 | 2026-09-28 | Changed | Permissions screen done: Android permissions with a link to change each in Android settings; files and folders section empty until TASK-040. |
 | 2026-09-28 | Changed | Sidekick wording and light dog puns in loading and empty states done. |
