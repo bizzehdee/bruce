@@ -154,10 +154,20 @@ class LlamaCppEngineTest {
     }
 
     @Test
-    fun autoLoadsOnUsableGpuWithAllLayersOffloaded() = test {
+    fun autoUsesCpuEvenWithAUsableGpu() = test {
         withVulkanAndOpenCl()
 
         val result = engine.loadModel(ggufFile()) as LoadResult.Loaded
+
+        assertEquals(Backend.CPU, result.backend)
+        assertEquals(listOf(emptyList<Int>() to 0), llama.loadRequests)
+    }
+
+    @Test
+    fun chosenGpuLoadsWithAllLayersOffloaded() = test {
+        withVulkanAndOpenCl()
+
+        val result = engine.loadModel(ggufFile(), LoadConfig(backend = BackendPreference.VULKAN)) as LoadResult.Loaded
 
         assertEquals(Backend.VULKAN, result.backend)
         assertEquals(emptyList<Backend>(), result.failedBackends)
@@ -165,15 +175,15 @@ class LlamaCppEngineTest {
     }
 
     @Test
-    fun gpuLoadFailureFallsBackThroughEachBackendToCpu() = test {
+    fun chosenGpuLoadFailureFallsBackToCpu() = test {
         withVulkanAndOpenCl()
-        llama.modelHandles += listOf(0L, 0L, 10L)
+        llama.modelHandles += listOf(0L, 10L)
 
-        val result = engine.loadModel(ggufFile()) as LoadResult.Loaded
+        val result = engine.loadModel(ggufFile(), LoadConfig(backend = BackendPreference.OPENCL)) as LoadResult.Loaded
 
         assertEquals(Backend.CPU, result.backend)
-        assertEquals(listOf(Backend.VULKAN, Backend.OPENCL), result.failedBackends)
-        assertEquals(listOf(listOf(1) to 999, listOf(2) to 999, emptyList<Int>() to 0), llama.loadRequests)
+        assertEquals(listOf(Backend.OPENCL), result.failedBackends)
+        assertEquals(listOf(listOf(2) to 999, emptyList<Int>() to 0), llama.loadRequests)
     }
 
     @Test
@@ -212,10 +222,10 @@ class LlamaCppEngineTest {
     @Test
     fun whenEveryAttemptFailsTheLastErrorIsReported() = test {
         withVulkanAndOpenCl()
-        llama.modelHandles += listOf(0L, 0L, 13L)
+        llama.modelHandles += listOf(0L, 13L)
         llama.contextHandles += listOf(0L)
 
-        assertEquals(LoadResult.Failed(LoadError.CONTEXT_CREATION_FAILED), engine.loadModel(ggufFile()))
+        assertEquals(LoadResult.Failed(LoadError.CONTEXT_CREATION_FAILED), engine.loadModel(ggufFile(), LoadConfig(backend = BackendPreference.VULKAN)))
         assertEquals(listOf(13L), llama.freedModels)
     }
 

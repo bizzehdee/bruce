@@ -171,6 +171,7 @@ private fun ModelCard(
                     text = { it?.name?.let(SettingsText::backendName) },
                     tag = "backend",
                 ) { actions.setOverrides(model.file, model.overrides.copy(backend = it)) }
+                Text(stringResource(R.string.settings_backend_note), style = MaterialTheme.typography.bodySmall)
                 OverrideChips(
                     label = stringResource(R.string.settings_threads),
                     options = listOf(null) + SettingsText.threadChoices(cores),
