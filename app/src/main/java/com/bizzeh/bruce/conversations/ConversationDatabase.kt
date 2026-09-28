@@ -10,6 +10,8 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
 @Entity(tableName = "conversations", indices = [Index("archived", "updatedAt")])
@@ -33,6 +35,12 @@ data class MessageEntity(
     /** A [com.bizzeh.bruce.inference.ChatRole] name. */
     val role: String,
     val text: String,
+    /** JSON array of the tool calls a reply asked for (version 2). */
+    val toolCallsJson: String? = null,
+    val toolCallId: String? = null,
+    val toolName: String? = null,
+    /** A [com.bizzeh.bruce.chat.ToolStatus] name. */
+    val toolStatus: String? = null,
 )
 
 @Dao
@@ -79,11 +87,18 @@ interface ConversationDao {
     suspend fun deleteAll()
 }
 
-@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 1)
+@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 2)
 abstract class ConversationDatabase : RoomDatabase() {
     abstract fun conversations(): ConversationDao
 
     companion object {
         const val NAME = "conversations.db"
+
+        /** Version 2 (TASK-053): tool calls and tool results are saved with the chat. */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                listOf("toolCallsJson", "toolCallId", "toolName", "toolStatus").forEach { db.execSQL("ALTER TABLE messages ADD COLUMN $it TEXT") }
+            }
+        }
     }
 }

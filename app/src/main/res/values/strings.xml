@@ -12,6 +12,11 @@
     <string name="chat_error_no_model">Load a model first.</string>
     <string name="chat_error_too_long">This conversation is too long for the model. Start a new chat.</string>
     <string name="chat_error_failed">The model could not finish that reply.</string>
+    <string name="chat_error_too_many_tools">Stopped: the model kept asking for skills without answering.</string>
+    <string name="chat_error_timed_out">Stopped: that took too long.</string>
+    <string name="chat_tool_ran">Used %1$s</string>
+    <string name="chat_tool_refused">Not allowed: %1$s</string>
+    <string name="chat_tool_awaiting">Waiting for your approval: %1$s</string>
     <string name="nav_open_drawer">Open menu</string>
     <string name="nav_back">Back</string>
     <string name="nav_new_chat">New chat</string>

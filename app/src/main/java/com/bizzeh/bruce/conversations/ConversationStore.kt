@@ -1,7 +1,13 @@
 package com.bizzeh.bruce.conversations
 
 import com.bizzeh.bruce.chat.ChatEntry
+import com.bizzeh.bruce.chat.ToolStatus
+import com.bizzeh.bruce.chat.ToolUse
 import com.bizzeh.bruce.inference.ChatRole
+import com.bizzeh.bruce.inference.ToolCall
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -22,9 +28,7 @@ class ConversationStore(
      */
     suspend fun save(id: Long?, entries: List<ChatEntry>): Long {
         val now = clock()
-        val messages = { target: Long ->
-            entries.mapIndexed { index, entry -> MessageEntity(conversationId = target, position = index, role = entry.role.name, text = entry.text) }
-        }
+        val messages = { target: Long -> entries.mapIndexed { index, entry -> toEntity(target, index, entry) } }
         if (id != null && dao.replaceMessages(id, messages(id), now)) return id
         val created = dao.insert(ConversationEntity(title = titleFor(entries), createdAt = now, updatedAt = now))
         dao.insert(messages(created))
@@ -34,9 +38,40 @@ class ConversationStore(
     /** The conversation's messages, or null if it no longer exists. Messages with a role this version does not know are skipped. */
     suspend fun load(id: Long): List<ChatEntry>? {
         dao.conversation(id) ?: return null
-        return dao.messages(id).mapNotNull { message ->
-            ChatRole.entries.firstOrNull { it.name == message.role }?.let { ChatEntry(it, message.text) }
+        return dao.messages(id).mapNotNull(::toEntry)
+    }
+
+    private fun toEntity(conversationId: Long, position: Int, entry: ChatEntry) = MessageEntity(
+        conversationId = conversationId,
+        position = position,
+        role = entry.role.name,
+        text = entry.text,
+        toolCallsJson = entry.toolCalls.takeIf { it.isNotEmpty() }?.let { calls ->
+            JSONArray(calls.map { JSONObject().put("name", it.name).put("arguments", it.argumentsJson).put("id", it.id) }).toString()
+        },
+        toolCallId = entry.tool?.callId,
+        toolName = entry.tool?.name,
+        toolStatus = entry.tool?.status?.name,
+    )
+
+    private fun toEntry(message: MessageEntity): ChatEntry? {
+        val role = ChatRole.entries.firstOrNull { it.name == message.role } ?: return null
+        val calls = message.toolCallsJson?.let { json ->
+            try {
+                val array = JSONArray(json)
+                (0 until array.length()).map { array.getJSONObject(it) }.map { ToolCall(it.getString("name"), it.getString("arguments"), it.optString("id")) }
+            } catch (e: JSONException) {
+                emptyList()
+            }
+        }.orEmpty()
+        val tool = if (role == ChatRole.TOOL) {
+            // An unknown status from another version is shown as refused rather than as having run.
+            val status = ToolStatus.entries.firstOrNull { it.name == message.toolStatus } ?: ToolStatus.REFUSED
+            ToolUse(message.toolCallId.orEmpty(), message.toolName.orEmpty(), message.text, status)
+        } else {
+            null
         }
+        return ChatEntry(role, message.text, toolCalls = calls, tool = tool)
     }
 
     /** Blank titles are ignored; titles are trimmed and capped at [MAX_TITLE_LENGTH]. */

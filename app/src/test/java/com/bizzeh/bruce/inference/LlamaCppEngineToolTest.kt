@@ -40,9 +40,9 @@ class LlamaCppEngineToolTest {
         load()
         llama.applyChatReply = applied
         val messages = listOf(
-            ToolChatMessage(ToolChatRole.USER, "What time is it?"),
-            ToolChatMessage(ToolChatRole.ASSISTANT, "", toolCalls = listOf(ToolCall("get_datetime", "{}", "c1"))),
-            ToolChatMessage(ToolChatRole.TOOL, "12:00", toolCallId = "c1", toolName = "get_datetime"),
+            ToolChatMessage(ChatRole.USER, "What time is it?"),
+            ToolChatMessage(ChatRole.ASSISTANT, "", toolCalls = listOf(ToolCall("get_datetime", "{}", "c1"))),
+            ToolChatMessage(ChatRole.TOOL, "12:00", toolCallId = "c1", toolName = "get_datetime"),
         )
 
         val prompt = engine.formatToolChat(messages, listOf(clock))!!
@@ -75,7 +75,7 @@ class LlamaCppEngineToolTest {
         load()
         llama.applyChatReply = JSONObject(applied).put("grammar", "").put("supports_tools", false).toString()
 
-        val format = engine.formatToolChat(listOf(ToolChatMessage(ToolChatRole.USER, "hi")), emptyList())!!.format
+        val format = engine.formatToolChat(listOf(ToolChatMessage(ChatRole.USER, "hi")), emptyList())!!.format
 
         assertNull(format.grammar)
         assertFalse(format.supportsTools)
@@ -83,7 +83,7 @@ class LlamaCppEngineToolTest {
 
     @Test
     fun noModelUnusableTemplatesOrAFailedApplyGiveNothing() = runTest(dispatcher) {
-        val hi = listOf(ToolChatMessage(ToolChatRole.USER, "hi"))
+        val hi = listOf(ToolChatMessage(ChatRole.USER, "hi"))
         assertNull(engine.formatToolChat(hi, emptyList()))
 
         load()
@@ -100,7 +100,7 @@ class LlamaCppEngineToolTest {
     fun templatesAreFreedWithTheModel() = runTest(dispatcher) {
         load()
         llama.applyChatReply = applied
-        engine.formatToolChat(listOf(ToolChatMessage(ToolChatRole.USER, "hi")), emptyList())
+        engine.formatToolChat(listOf(ToolChatMessage(ChatRole.USER, "hi")), emptyList())
 
         engine.unloadModel()
 

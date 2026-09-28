@@ -102,7 +102,32 @@ private fun Messages(state: ChatState, modifier: Modifier) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         itemsIndexed(state.entries) { index, entry ->
-            if (entry.role == ChatRole.USER) UserMessage(entry.text) else Reply(index, entry)
+            when {
+                entry.role == ChatRole.USER -> UserMessage(entry.text)
+                entry.tool != null -> ToolRow(index, entry.tool)
+                // A reply that only asked for skills has nothing to show; its tool rows follow.
+                entry.text.isEmpty() && entry.toolCalls.isNotEmpty() -> Unit
+                else -> Reply(index, entry)
+            }
+        }
+    }
+}
+
+/** One skill use: its name and outcome; tapping shows exactly what the model was given. */
+@Composable
+private fun ToolRow(index: Int, tool: ToolUse) {
+    var open by rememberSaveable(index) { mutableStateOf(false) }
+    Column(modifier = Modifier.fillMaxWidth().testTag("tool:$index")) {
+        TextButton(onClick = { open = !open }, modifier = Modifier.testTag("toolToggle:$index")) {
+            Text(stringResource(ChatText.toolStatus(tool.status), tool.name), style = MaterialTheme.typography.labelLarge)
+        }
+        if (open) {
+            Text(
+                ChatText.toolDetail(tool.resultJson),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 12.dp).testTag("toolDetail:$index"),
+            )
         }
     }
 }
@@ -190,5 +215,22 @@ internal object ChatText {
         ChatError.NO_MODEL_LOADED -> R.string.chat_error_no_model
         ChatError.CONVERSATION_TOO_LONG -> R.string.chat_error_too_long
         ChatError.GENERATION_FAILED -> R.string.chat_error_failed
+        ChatError.TOO_MANY_TOOL_CALLS -> R.string.chat_error_too_many_tools
+        ChatError.TIMED_OUT -> R.string.chat_error_timed_out
+    }
+
+    @StringRes
+    fun toolStatus(status: ToolStatus): Int = when (status) {
+        ToolStatus.RAN -> R.string.chat_tool_ran
+        ToolStatus.REFUSED -> R.string.chat_tool_refused
+        ToolStatus.AWAITING_APPROVAL -> R.string.chat_tool_awaiting
+    }
+
+    /** What the tool gave the model, for the expanded row: the result itself, or the refusal's message. */
+    fun toolDetail(resultJson: String): String = try {
+        val json = org.json.JSONObject(resultJson)
+        json.optString("untrusted_data").ifEmpty { json.optString("message") }.ifEmpty { resultJson }
+    } catch (e: org.json.JSONException) {
+        resultJson
     }
 }

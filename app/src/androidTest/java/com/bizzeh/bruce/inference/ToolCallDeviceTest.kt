@@ -68,7 +68,7 @@ class ToolCallDeviceTest {
 
     private fun native(question: String): ParsedReply = runBlocking {
         val prompt = engine.formatToolChat(
-            listOf(ToolChatMessage(ToolChatRole.SYSTEM, system), ToolChatMessage(ToolChatRole.USER, question)),
+            listOf(ToolChatMessage(ChatRole.SYSTEM, system), ToolChatMessage(ChatRole.USER, question)),
             tools,
         )
         assertNotNull(prompt)
@@ -102,12 +102,12 @@ class ToolCallDeviceTest {
         val states = SkillStateStore(database.policy())
         val runtime = BruceRuntime(engine, registry, states, PolicyEngine(registry, states, ToolOutput(), { true }), temperature = { 0f })
 
-        val events = runtime.respond(listOf(ToolChatMessage(ToolChatRole.USER, "What time is it?"))).toList()
+        val events = runtime.respond(listOf(ToolChatMessage(ChatRole.USER, "What time is it?"))).toList()
         database.close()
 
         assertTrue(events.filterIsInstance<RuntimeEvent.ToolResult>().single().ran)
         val answer = (events.last() as RuntimeEvent.Finished).messages.last()
-        assertEquals(ToolChatRole.ASSISTANT, answer.role)
+        assertEquals(ChatRole.ASSISTANT, answer.role)
         assertTrue(answer.content, answer.content.contains("14:37") || answer.content.contains("2:37"))
     }
 

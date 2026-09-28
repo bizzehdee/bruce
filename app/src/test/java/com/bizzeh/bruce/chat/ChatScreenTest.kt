@@ -96,4 +96,32 @@ class ChatScreenTest {
 
         compose.onNodeWithTag("chatError").assertIsDisplayed()
     }
+
+    @Test
+    fun skillUsesShowAsRowsThatOpenToWhatTheModelWasGiven() {
+        val call = com.bizzeh.bruce.inference.ToolCall("get_datetime", "{}", "c1")
+        show(
+            ChatState(
+                modelName = "qwen3",
+                entries = listOf(
+                    ChatEntry(ChatRole.USER, "What time is it?"),
+                    ChatEntry(ChatRole.ASSISTANT, "", toolCalls = listOf(call)),
+                    ChatEntry(ChatRole.TOOL, "", tool = ToolUse("c1", "get_datetime", """{"status":"ok","untrusted_data":"Monday, 14:37"}""", ToolStatus.RAN)),
+                    ChatEntry(ChatRole.TOOL, "", tool = ToolUse("c2", "read_file", """{"status":"denied","message":"The user has turned this skill off."}""", ToolStatus.REFUSED)),
+                    ChatEntry(ChatRole.ASSISTANT, "It is 14:37."),
+                ),
+            ),
+        )
+
+        compose.onNodeWithTag("reply:1").assertDoesNotExist()
+        compose.onNodeWithText("Used get_datetime").assertIsDisplayed()
+        compose.onNodeWithText("Not allowed: read_file").assertIsDisplayed()
+        compose.onNodeWithTag("toolToggle:2").performClick()
+        compose.onNodeWithText("Monday, 14:37").assertIsDisplayed()
+        compose.onNodeWithTag("toolToggle:3").performClick()
+        compose.onNodeWithText("The user has turned this skill off.").assertIsDisplayed()
+        compose.onNodeWithTag("answer:4").assertIsDisplayed()
+        assertEquals("not JSON: shown as is", "raw", ChatText.toolDetail("raw"))
+        assertEquals("{}", ChatText.toolDetail("{}"))
+    }
 }

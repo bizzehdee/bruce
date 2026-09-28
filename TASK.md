@@ -346,9 +346,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Not wired into the chat screen yet (TASK-053).
   - Depends on: TASK-034, TASK-035, TASK-036
   - Required by: TASK-037, TASK-042, TASK-049, TASK-053, TASK-054, TASK-057, TASK-056
-- [ ] TASK-053: Tool calls in the chat
+- [x] TASK-053: Tool calls in the chat
   - Tool calls, results and denials appear inline in the conversation (collapsed, with the skill's name and outcome) and are saved with it; a resumed chat shows them again.
   - Room schema version 2 with a tested migration from version 1.
+  - Done: the chat runs each turn through `BruceRuntime`. A skill use shows as a row ("Used get_datetime", "Not allowed: …", "Waiting for your approval: …") that opens to exactly what the model was given; a reply that only asked for skills is not shown as an empty bubble. Stop, New chat and opening another chat cancel the turn so no skill runs after the user moves on; what was said so far is saved to the chat the turn began in. A failed turn now keeps the user's message. `ChatRole` gained TOOL (replacing TASK-036's separate `ToolChatRole`).
+  - Migration test on the Pixel builds a version 1 database from the exported schema with plain SQLite (Room's MigrationTestHelper needs a newer kotlinx-serialization than the app ships, so `room-testing` was dropped). In the real app on the Pixel 11, Qwen3.5-0.8B answered "What time is it?" through the date-and-time skill.
   - Depends on: TASK-032, TASK-052
   - Required by: TASK-041
 - [ ] TASK-054: Short skill list past a prompt budget

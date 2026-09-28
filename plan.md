@@ -121,10 +121,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   chat template's tool format (llama.cpp's chat code), with Bruce's own format and
   a grammar for models without tool support (ADR 0001). Skills are described in
   full while there are few, then as a one-line list with a skill's full
-  description loaded when it is used, once a prompt budget is passed. `planned`
+  description loaded when it is used, once a prompt budget is passed. `in progress`
+  (tool calling works in chat; memory and the prompt budget are still to come)
 - **Agent loop** — Multi-step tool use, bounded by maximum tool calls, maximum
   execution time and resource limits; supports cancellation and structured
-  errors. `planned`
+  errors. `done` (5 tool calls and 3 minutes per turn)
 - **Conversations** — Saved conversations ("sessions"): the drawer lists them,
   newest first; the user starts a new chat, resumes, renames, archives or deletes
   one, and can archive or delete several at once. Archived chats are kept but
@@ -422,6 +423,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Tool calling works in chat: skill uses shown inline and saved with the chat; agent loop done. |
 | 2026-09-28 | Changed | Automatic skills done (date and time, calculator, battery, device, storage, network). |
 | 2026-09-28 | Added | Personalities (Bruce default, Milo) chosen in Settings; user-facing text calls Bruce a sidekick; light dog puns in small UI copy, replies, README and store text. |
 | 2026-09-28 | Changed | Skill states and policy engine done; states stored in their own database with a policy version; Clear all data resets them. |

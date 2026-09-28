@@ -1,16 +1,21 @@
 package com.bizzeh.bruce.chat
 
 import com.bizzeh.bruce.R
-import com.bizzeh.bruce.inference.ChatMessage
 import com.bizzeh.bruce.inference.ChatRole
-import com.bizzeh.bruce.inference.GenerationError
-import com.bizzeh.bruce.inference.GenerationEvent
 import com.bizzeh.bruce.inference.GenerationStats
-import com.bizzeh.bruce.inference.ModelInfo
-import com.bizzeh.bruce.inference.StopReason
+import com.bizzeh.bruce.inference.ToolCall
+import com.bizzeh.bruce.inference.ToolChatMessage
+import com.bizzeh.bruce.models.ActiveModelState
+import com.bizzeh.bruce.runtime.RuntimeError
+import com.bizzeh.bruce.runtime.RuntimeEvent
 import com.bizzeh.bruce.testing.FakeEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -24,15 +29,14 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.bizzeh.bruce.models.ActiveModelState
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
+/** The chat over a scripted runtime (the runtime itself is tested in BruceRuntimeTest). */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ChatViewModelTest {
     private val dispatcher = StandardTestDispatcher()
-    private val engine = FakeEngine().apply { loadedModel = ModelInfo("qwen3 0.6B Q4_0", 1, 1, 40_960) }
+    private val engine = FakeEngine()
     private val stats = GenerationStats(10, 1.seconds, 3, 1.seconds)
 
     @BeforeEach
@@ -40,12 +44,6 @@ class ChatViewModelTest {
 
     @AfterEach
     fun tearDown() = Dispatchers.resetMain()
-
-    private fun TestScope.chat(text: String, vm: ChatViewModel) {
-        vm.setInput(text)
-        vm.send()
-        advanceUntilIdle()
-    }
 
     private val activeModel = MutableStateFlow(ActiveModelState(active = File("Qwen3-0.6B-Q4_0.gguf")))
 
@@ -56,7 +54,23 @@ class ChatViewModelTest {
     }
     private val load: suspend (Long) -> List<ChatEntry>? = { saved[it] }
 
-    private fun TestScope.viewModel() = ChatViewModel(engine, activeModel, save, load).also { advanceUntilIdle() }
+    /** What the runtime does on each turn, in order; and the history it was given. */
+    private val turns = ArrayDeque<Flow<RuntimeEvent>>()
+    private val histories = mutableListOf<List<ToolChatMessage>>()
+    private val respond: (List<ToolChatMessage>) -> Flow<RuntimeEvent> = { history ->
+        histories += history
+        turns.removeFirstOrNull() ?: flowOf(RuntimeEvent.Finished(emptyList()))
+    }
+
+    private fun reply(text: String) = flowOf(RuntimeEvent.Text(text), RuntimeEvent.Step(text, "", emptyList(), stats), RuntimeEvent.Finished(emptyList()))
+
+    private fun TestScope.viewModel() = ChatViewModel(engine, activeModel, save, load, respond).also { advanceUntilIdle() }
+
+    private fun TestScope.chat(text: String, vm: ChatViewModel) {
+        vm.setInput(text)
+        vm.send()
+        advanceUntilIdle()
+    }
 
     @Test
     fun titleFollowsTheActiveModel() = runTest(dispatcher) {
@@ -70,159 +84,145 @@ class ChatViewModelTest {
     }
 
     @Test
-    fun sendStreamsTheReplyAndClearsTheComposer() = runTest(dispatcher) {
-        engine.events = listOf(GenerationEvent.Token("Hel"), GenerationEvent.Token("lo!"), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
+    fun aReplyStreamsThenSettlesAndIsSaved() = runTest(dispatcher) {
+        turns += flow {
+            emit(RuntimeEvent.Text("Hel"))
+            emit(RuntimeEvent.Text("lo!"))
+            emit(RuntimeEvent.Step("Hello!", "", emptyList(), stats))
+            emit(RuntimeEvent.Finished(emptyList()))
+        }
         val vm = viewModel()
-
-        chat("  Hi Bruce  ", vm)
-
-        val state = vm.state.value
-        assertEquals(listOf(ChatEntry(ChatRole.USER, "Hi Bruce"), ChatEntry(ChatRole.ASSISTANT, "Hello!", stats)), state.entries)
-        assertEquals("", state.input)
-        assertFalse(state.generating)
-        assertEquals("<formatted>", engine.requests.single().prompt)
-    }
-
-    @Test
-    fun laterTurnsSendHistoryWithoutEarlierReasoning() = runTest(dispatcher) {
-        val vm = viewModel()
-        engine.events = listOf(GenerationEvent.Token("<think>greeting</think>\n\nHello!"), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
-        chat("Hi", vm)
-        engine.events = listOf(GenerationEvent.Token("Fine."), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
-
-        chat("How are you?", vm)
-
-        assertEquals(
-            listOf(
-                ChatMessage(ChatRole.USER, "Hi"),
-                ChatMessage(ChatRole.ASSISTANT, "Hello!"),
-                ChatMessage(ChatRole.USER, "How are you?"),
-            ),
-            engine.formatted.last(),
-        )
-        assertEquals(4, vm.state.value.entries.size)
-    }
-
-    @Test
-    fun blankInputAndSendWhileGeneratingAreIgnored() = runTest(dispatcher) {
-        val vm = viewModel()
-
-        vm.setInput("   ")
+        vm.setInput("  Hi Bruce  ")
         vm.send()
-        vm.setInput("one")
-        vm.send()
-        vm.setInput("two")
-        vm.send()
+        assertTrue(vm.state.value.generating)
+        assertEquals("", vm.state.value.input)
         advanceUntilIdle()
 
-        assertEquals(1, engine.formatted.size)
+        val expected = listOf(ChatEntry(ChatRole.USER, "Hi Bruce"), ChatEntry(ChatRole.ASSISTANT, "Hello!", stats))
+        assertEquals(expected, vm.state.value.entries)
+        assertFalse(vm.state.value.generating)
+        assertEquals(expected, saved.getValue(1))
+        assertEquals(1L, vm.state.value.conversationId)
+        assertEquals(listOf(ToolChatMessage(ChatRole.USER, "Hi Bruce")), histories.single())
     }
 
     @Test
-    fun noModelLoadedShowsAnErrorAndDropsTheEmptyReply() = runTest(dispatcher) {
-        engine.prompt = null
+    fun skillUsesAreShownSavedAndSentBackNextTurn() = runTest(dispatcher) {
+        val call = ToolCall("get_datetime", "{}", "call_1")
+        val refused = ToolCall("read_file", "{}", "call_2")
+        turns += flowOf(
+            RuntimeEvent.Step("", "", listOf(call), stats),
+            RuntimeEvent.ToolResult(call, """{"status":"ok"}""", ran = true),
+            RuntimeEvent.Step("", "", listOf(refused), stats),
+            RuntimeEvent.ToolResult(refused, """{"status":"denied"}""", ran = false),
+            RuntimeEvent.Text("<think>hmm</think>It is noon."),
+            RuntimeEvent.Step("<think>hmm</think>It is noon.", "", emptyList(), stats),
+            RuntimeEvent.Finished(emptyList()),
+        )
         val vm = viewModel()
 
-        chat("Hi", vm)
+        chat("What time is it?", vm)
+        chat("Thanks", vm)
 
-        assertEquals(ChatError.NO_MODEL_LOADED, vm.state.value.error)
-        assertEquals(listOf(ChatEntry(ChatRole.USER, "Hi")), vm.state.value.entries)
-        assertFalse(vm.state.value.generating)
+        val entries = saved.getValue(1)
+        assertEquals(
+            listOf(ChatRole.USER, ChatRole.ASSISTANT, ChatRole.TOOL, ChatRole.ASSISTANT, ChatRole.TOOL, ChatRole.ASSISTANT, ChatRole.USER),
+            entries.map { it.role },
+        )
+        assertEquals(listOf(call), entries[1].toolCalls)
+        assertEquals(ToolUse("call_1", "get_datetime", """{"status":"ok"}""", ToolStatus.RAN), entries[2].tool)
+        assertEquals(ToolStatus.REFUSED, entries[4].tool!!.status)
+        val sent = histories[1]
+        assertEquals(listOf(call), sent[1].toolCalls)
+        assertEquals("call_1", sent[2].toolCallId)
+        assertEquals("get_datetime", sent[2].toolName)
+        assertEquals("It is noon.", sent[5].content, "earlier reasoning is not sent back")
     }
 
     @Test
-    fun generationFailuresMapToChatErrors() = runTest(dispatcher) {
-        val cases = mapOf(
-            GenerationError.PROMPT_TOO_LONG to ChatError.CONVERSATION_TOO_LONG,
-            GenerationError.DECODE_FAILED to ChatError.GENERATION_FAILED,
-            GenerationError.NO_MODEL_LOADED to ChatError.NO_MODEL_LOADED,
-        )
-        for ((generationError, chatError) in cases) {
+    fun failuresMapToChatErrorsAndKeepTheQuestion() = runTest(dispatcher) {
+        mapOf(
+            RuntimeError.NO_MODEL_LOADED to ChatError.NO_MODEL_LOADED,
+            RuntimeError.CONVERSATION_TOO_LONG to ChatError.CONVERSATION_TOO_LONG,
+            RuntimeError.GENERATION_FAILED to ChatError.GENERATION_FAILED,
+            RuntimeError.TOO_MANY_TOOL_CALLS to ChatError.TOO_MANY_TOOL_CALLS,
+            RuntimeError.TIMED_OUT to ChatError.TIMED_OUT,
+        ).forEach { (runtimeError, chatError) ->
+            turns += flowOf(RuntimeEvent.Failed(runtimeError, emptyList()))
             val vm = viewModel()
-            engine.events = listOf(GenerationEvent.Failed(generationError))
             chat("Hi", vm)
             assertEquals(chatError, vm.state.value.error)
+            assertEquals(listOf(ChatEntry(ChatRole.USER, "Hi")), vm.state.value.entries)
+            assertFalse(vm.state.value.generating)
         }
     }
 
     @Test
-    fun failureAfterPartialReplyKeepsWhatWasSaid() = runTest(dispatcher) {
+    fun theNextMessageClearsThePreviousError() = runTest(dispatcher) {
+        turns += flowOf(RuntimeEvent.Failed(RuntimeError.GENERATION_FAILED, emptyList()))
+        turns += reply("ok")
         val vm = viewModel()
-        engine.events = listOf(GenerationEvent.Token("Partial"), GenerationEvent.Failed(GenerationError.DECODE_FAILED))
 
-        chat("Hi", vm)
-
-        assertEquals("Partial", vm.state.value.entries.last().text)
-        assertEquals(ChatError.GENERATION_FAILED, vm.state.value.error)
-    }
-
-    @Test
-    fun nextMessageClearsThePreviousError() = runTest(dispatcher) {
-        engine.prompt = null
-        val vm = viewModel()
-        chat("Hi", vm)
-        engine.prompt = com.bizzeh.bruce.inference.ChatPrompt("<p>", false)
-
-        chat("Again", vm)
+        chat("one", vm)
+        chat("two", vm)
 
         assertNull(vm.state.value.error)
     }
 
     @Test
-    fun stopAndNewChat() = runTest(dispatcher) {
+    fun blankInputAndSendWhileGeneratingAreIgnored() = runTest(dispatcher) {
+        turns += flow { awaitCancellation() }
         val vm = viewModel()
-        chat("Hi", vm)
+
+        chat("   ", vm)
+        assertTrue(histories.isEmpty())
+        chat("first", vm)
+        chat("second", vm)
+
+        assertEquals(1, histories.size)
+    }
+
+    @Test
+    fun stopKeepsWhatWasSaidAndSavesIt() = runTest(dispatcher) {
+        turns += flow {
+            emit(RuntimeEvent.Text("Once upon"))
+            awaitCancellation()
+        }
+        val vm = viewModel()
+        chat("Story", vm)
 
         vm.stop()
-        vm.newChat()
+        advanceUntilIdle()
 
         assertEquals(1, engine.stops)
-        assertTrue(vm.state.value.entries.isEmpty())
-        assertEquals("Qwen3-0.6B-Q4_0", vm.state.value.modelName)
+        assertFalse(vm.state.value.generating)
+        assertEquals(listOf("Story", "Once upon"), saved.getValue(1).map { it.text })
+        vm.stop()
+        assertEquals(1, engine.stops, "stop with nothing running does nothing")
     }
 
     @Test
-    fun newChatWhileGeneratingStopsTheReply() = runTest(dispatcher) {
+    fun newChatDuringATurnEndsItAndSavesItToItsOwnChat() = runTest(dispatcher) {
+        turns += flow {
+            emit(RuntimeEvent.Text("Late"))
+            awaitCancellation()
+        }
         val vm = viewModel()
-        vm.setInput("Hi")
-        vm.send()
+        chat("Hi", vm)
 
         vm.newChat()
+        advanceUntilIdle()
 
+        assertEquals(listOf("Hi", "Late"), saved.getValue(1).map { it.text })
+        assertEquals(ChatState(modelName = "Qwen3-0.6B-Q4_0"), vm.state.value)
         assertEquals(1, engine.stops)
-    }
-
-    @Test
-    fun eachTurnIsSavedToOneConversation() = runTest(dispatcher) {
-        engine.events = listOf(GenerationEvent.Token("Hello!"), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
-        val vm = viewModel()
-
-        chat("Hi", vm)
-        assertEquals(1L, vm.state.value.conversationId)
-        chat("Again", vm)
-
-        assertEquals(1, saved.size)
-        assertEquals(listOf("Hi", "Hello!", "Again", "Hello!"), saved.getValue(1).map { it.text })
-        assertEquals(1L, vm.state.value.conversationId)
-    }
-
-    @Test
-    fun noModelLoadedSavesNothing() = runTest(dispatcher) {
-        engine.prompt = null
-        val vm = viewModel()
-
-        chat("Hi", vm)
-
-        assertTrue(saved.isEmpty())
-        assertNull(vm.state.value.conversationId)
     }
 
     @Test
     fun openingASavedConversationShowsAndContinuesIt() = runTest(dispatcher) {
-        engine.events = listOf(GenerationEvent.Token("Sure."), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
         saved[7] = listOf(ChatEntry(ChatRole.USER, "Earlier"), ChatEntry(ChatRole.ASSISTANT, "Reply"))
+        turns += reply("Sure.")
         val vm = viewModel()
-        vm.setInput("draft")
 
         vm.open(7)
         advanceUntilIdle()
@@ -236,20 +236,6 @@ class ChatViewModelTest {
     }
 
     @Test
-    fun switchingChatsMidReplySavesTheReplyToItsOwnChat() = runTest(dispatcher) {
-        engine.events = listOf(GenerationEvent.Token("Late reply"), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
-        val vm = viewModel()
-        vm.setInput("Hi")
-
-        vm.send()
-        vm.newChat()
-        advanceUntilIdle()
-
-        assertEquals(listOf("Hi", "Late reply"), saved.getValue(1).map { it.text })
-        assertEquals(ChatState(modelName = "Qwen3-0.6B-Q4_0"), vm.state.value)
-    }
-
-    @Test
     fun forgettingTheShownConversationStartsANewChat() = runTest(dispatcher) {
         saved[3] = listOf(ChatEntry(ChatRole.USER, "x"))
         val vm = viewModel()
@@ -260,23 +246,18 @@ class ChatViewModelTest {
         assertEquals(3L, vm.state.value.conversationId)
         vm.forget(setOf(3, 4))
         assertNull(vm.state.value.conversationId)
-        assertTrue(vm.state.value.entries.isEmpty())
     }
 
     @Test
-    fun repliesUseTheActiveModelsTemperature() = runTest(dispatcher) {
-        val vm = ChatViewModel(engine, activeModel, save, load) { 0.3f }.also { advanceUntilIdle() }
-
-        chat("Hi", vm)
-
-        assertEquals(0.3f, engine.requests.single().temperature)
-    }
-
-    @Test
-    fun errorText() {
+    fun errorAndToolText() {
         assertNull(ChatText.error(null))
         assertEquals(R.string.chat_error_no_model, ChatText.error(ChatError.NO_MODEL_LOADED))
         assertEquals(R.string.chat_error_too_long, ChatText.error(ChatError.CONVERSATION_TOO_LONG))
         assertEquals(R.string.chat_error_failed, ChatText.error(ChatError.GENERATION_FAILED))
+        assertEquals(R.string.chat_error_too_many_tools, ChatText.error(ChatError.TOO_MANY_TOOL_CALLS))
+        assertEquals(R.string.chat_error_timed_out, ChatText.error(ChatError.TIMED_OUT))
+        assertEquals(R.string.chat_tool_ran, ChatText.toolStatus(ToolStatus.RAN))
+        assertEquals(R.string.chat_tool_refused, ChatText.toolStatus(ToolStatus.REFUSED))
+        assertEquals(R.string.chat_tool_awaiting, ChatText.toolStatus(ToolStatus.AWAITING_APPROVAL))
     }
 }
