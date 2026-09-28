@@ -13,6 +13,8 @@ object SkillText {
         "get_device_info" to (R.string.skill_device to R.string.skill_device_summary),
         "get_storage_status" to (R.string.skill_storage to R.string.skill_storage_summary),
         "get_network_status" to (R.string.skill_network to R.string.skill_network_summary),
+        "list_files" to (R.string.skill_list_files to R.string.skill_list_files_summary),
+        "read_file" to (R.string.skill_read_file to R.string.skill_read_file_summary),
     )
 
     fun state(state: SkillState): Int = when (state) {

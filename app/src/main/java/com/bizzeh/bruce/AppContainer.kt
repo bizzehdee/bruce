@@ -26,6 +26,7 @@ import com.bizzeh.bruce.runtime.BruceRuntime
 import android.content.pm.PackageManager
 import com.bizzeh.bruce.skills.automatic.AndroidPhoneReaders
 import com.bizzeh.bruce.skills.automatic.AutomaticSkills
+import com.bizzeh.bruce.skills.files.FileSkills
 import androidx.room.Room
 import com.bizzeh.bruce.setup.SetupSettingsRepository
 import com.bizzeh.bruce.huggingface.HttpTransport
@@ -128,13 +129,15 @@ class AppContainer(private val context: Context) {
 
     private val grantScope: GrantScope by lazy { GrantScope(grants, documentAccess) }
 
-    val skills: SkillRegistry by lazy { SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context))) }
+    val skills: SkillRegistry by lazy {
+        SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context)) + FileSkills(grantScope, documentAccess, Dispatchers.IO).create())
+    }
 
     val runtime: BruceRuntime by lazy {
         val policy = PolicyEngine(skills, skillStates, ToolOutput(reservedMarkers = RESERVED_MARKERS), permissionGranted = { permission ->
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
         }, scope = grantScope::check)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules)
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = grantScope::names)
     }
 
     val dataReset: DataReset by lazy {

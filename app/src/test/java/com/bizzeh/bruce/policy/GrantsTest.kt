@@ -15,6 +15,7 @@ import com.bizzeh.bruce.skills.SkillOutcome
 import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.ToolOutput
+import com.bizzeh.bruce.testing.FakeDocuments
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -30,30 +31,6 @@ import org.robolectric.RobolectricTestRunner
 class GrantsTest {
     private val database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), PolicyDatabase::class.java).build()
     private val dao = database.policy()
-
-    /** A document provider in memory: each folder URI maps to its children. */
-    private class FakeDocuments : DocumentAccess {
-        val held = mutableSetOf<Uri>()
-        val released = mutableListOf<Uri>()
-        val names = mutableMapOf<Uri, String>()
-        val tree = mutableMapOf<Uri, List<Pair<String, DocumentRef>>>()
-        var refuseTake = false
-
-        override fun take(uri: Uri) {
-            if (refuseTake) throw SecurityException("not persistable")
-            held += uri
-        }
-
-        override fun release(uri: Uri) {
-            if (!held.remove(uri)) throw SecurityException("not held")
-            released += uri
-        }
-
-        override fun persisted(): Set<Uri> = held.toSet()
-        override fun displayName(uri: Uri, kind: GrantKind): String? = names[uri]
-        override fun root(tree: Uri) = DocumentRef(Uri.parse("$tree#root"), isDirectory = true)
-        override fun children(tree: Uri, folder: DocumentRef) = this.tree[folder.uri].orEmpty()
-    }
 
     private val documents = FakeDocuments()
     private var now = 1_000L

@@ -60,6 +60,10 @@
     <string name="skill_storage_summary">Reads total, used and free storage space.</string>
     <string name="skill_network">Network status</string>
     <string name="skill_network_summary">Reads whether the phone is online and whether it uses Wi-Fi or mobile data. No addresses.</string>
+    <string name="skill_list_files">List files</string>
+    <string name="skill_list_files_summary">Lists what is inside files and folders you have granted.</string>
+    <string name="skill_read_file">Read files</string>
+    <string name="skill_read_file_summary">Reads plain-text files you have granted, or files inside folders you have granted.</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>

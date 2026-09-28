@@ -18,6 +18,8 @@ import com.bizzeh.bruce.policy.PolicyEngine
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.skills.Denial
 import com.bizzeh.bruce.skills.DenialCode
+import com.bizzeh.bruce.skills.ResourceScope
+import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.SkillState
 import kotlinx.coroutines.TimeoutCancellationException
@@ -69,6 +71,8 @@ class BruceRuntime(
     private val temperature: suspend () -> Float,
     /** The chosen personality's rules, which lead the system prompt. */
     private val personality: suspend () -> String,
+    /** Names of the user's file and folder grants, which file skills' paths start with. */
+    private val grantNames: suspend () -> List<String> = { emptyList() },
     private val maxToolCalls: Int = MAX_TOOL_CALLS,
     private val maxDuration: Duration = MAX_DURATION,
     private val maxReplyTokens: Int = MAX_REPLY_TOKENS,
@@ -84,10 +88,12 @@ class BruceRuntime(
     }
 
     private suspend fun FlowCollector<RuntimeEvent>.loop(history: List<ToolChatMessage>, added: MutableList<ToolChatMessage>) {
-        val tools = offeredTools()
+        val skills = offeredSkills()
+        val tools = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
+        val guidance = guidance(skills)
         var calls = 0
         while (true) {
-            val prompt = prompt(history + added, tools) ?: return emit(RuntimeEvent.Failed(RuntimeError.NO_MODEL_LOADED, added.toList()))
+            val prompt = prompt(history + added, tools, guidance) ?: return emit(RuntimeEvent.Failed(RuntimeError.NO_MODEL_LOADED, added.toList()))
             val text = StringBuilder()
             var stats: GenerationStats? = null
             val request = GenerationRequest(prompt.text, maxTokens = maxReplyTokens, temperature = temperature(), grammar = prompt.format.grammar, stops = prompt.format.stops)
@@ -150,15 +156,25 @@ class BruceRuntime(
     }
 
     /** Skills the user has not declined; the policy engine still checks every call. */
-    private suspend fun offeredTools(): List<ToolDefinition> = registry.skills
-        .filter { states.state(it) != SkillState.DECLINED }
-        .map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
+    private suspend fun offeredSkills(): List<Skill> = registry.skills.filter { states.state(it) != SkillState.DECLINED }
+
+    /** [GUIDANCE], plus the granted names when a file skill is offered, since every path starts with one. */
+    private suspend fun guidance(skills: List<Skill>): String {
+        if (skills.none { it.scope == ResourceScope.GRANTED_FILES }) return GUIDANCE
+        val names = grantNames()
+        val grants = if (names.isEmpty()) {
+            "The user has not granted any files or folders. If they ask about files, tell them to grant one in Settings, Permissions."
+        } else {
+            "Files and folders the user has granted (every path starts with one of these names): " + names.joinToString(", ") + "."
+        }
+        return "$GUIDANCE $grants"
+    }
 
     private data class Prompt(val text: String, val format: ToolFormat)
 
     /** The model's own tool format when its template supports tools, otherwise Bruce's (ADR 0001). */
-    private suspend fun prompt(messages: List<ToolChatMessage>, tools: List<ToolDefinition>): Prompt? {
-        val systemPrompt = personality().trim() + "\n\n" + GUIDANCE
+    private suspend fun prompt(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, guidance: String): Prompt? {
+        val systemPrompt = personality().trim() + "\n\n" + guidance
         val system = ToolChatMessage(ChatRole.SYSTEM, systemPrompt)
         val native = engine.formatToolChat(listOf(system) + messages, tools) ?: return null
         if (tools.isEmpty() || native.format.supportsTools) return Prompt(native.text, native.format)
