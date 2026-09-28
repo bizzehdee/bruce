@@ -294,9 +294,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Pixel 11 with Date and time set to Ask: the card appeared, Allow once ran the skill and the model answered with the correct time.
   - Depends on: TASK-053
   - Required by: TASK-043, TASK-044
-- [ ] TASK-042: File read skill
+- [x] TASK-042: File read skill
   - Read granted files and list granted folders; default state Declined.
   - Plain-text formats only at first; size limits on what is read into the prompt; content passed to the model as untrusted data.
+  - Done (`skills/files/FileSkills.kt`): `list_files` and `read_file`, both Declined by default. Reading accepts a text MIME type (or none, or `application/octet-stream`) and then only valid UTF-8 without NUL bytes; at most 16 KB is read and a cut is reported; the result goes through `ToolOutput` (4,000 characters, untrusted-data envelope). Listings are sorted, folders end in `/`, at most 200 entries. When a file skill is offered, the system prompt names the user's grants (or says there are none); grant names are capped at 80 characters.
+  - Device-tested on the Pixel 11 with Documents granted: `read_file` returned the pushed file's lines and `list_files` listed the folder through Android's real document provider. Qwen3.5-0.8B only called the skills when named; a larger model is needed for reliable use.
   - Depends on: TASK-040, TASK-052
 - [ ] TASK-043: File create and write skills
   - Create a file and write or replace a file's contents in a granted folder; default state Ask, confirmed per operation through TASK-041.

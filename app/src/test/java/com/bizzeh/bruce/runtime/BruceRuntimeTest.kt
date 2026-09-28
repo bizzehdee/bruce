@@ -31,6 +31,7 @@ import com.bizzeh.bruce.skills.Capability
 import com.bizzeh.bruce.skills.InputSchema
 import com.bizzeh.bruce.skills.Parameter
 import com.bizzeh.bruce.skills.ParameterType
+import com.bizzeh.bruce.skills.ResourceScope
 import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillOutcome
 import com.bizzeh.bruce.skills.SkillRegistry
@@ -177,6 +178,24 @@ class BruceRuntimeTest {
         assertEquals(listOf("write_note"), ran)
         assertEquals(false, declined.ran)
         assertEquals("USER_DENIED", JSONObject(declined.resultJson).getString("code"))
+    }
+
+    @Test
+    fun theModelIsToldTheGrantNamesWhenFileSkillsAreOffered() = runBlocking {
+        val reader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, scope = ResourceScope.GRANTED_FILES) { SkillOutcome.Done("") }
+        val files = SkillRegistry(listOf(clock, reader))
+        var names = listOf("Documents", "report.pdf")
+        fun system(registry: SkillRegistry): String {
+            engine.steps += Step("", ParsedReply("Hi.", "", emptyList()))
+            val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" }, grantNames = { names })
+            runBlocking { runtime.respond(question).toList() }
+            return engine.formatted.last().first().content
+        }
+
+        assertTrue(system(files).endsWith("every path starts with one of these names): Documents, report.pdf."))
+        names = emptyList()
+        assertTrue(system(files).contains("has not granted any files or folders"))
+        assertEquals("P\n\n" + BruceRuntime.GUIDANCE, system(SkillRegistry(listOf(clock))))
     }
 
     @Test

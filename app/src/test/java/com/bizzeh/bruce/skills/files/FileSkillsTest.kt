@@ -1,0 +1,115 @@
+package com.bizzeh.bruce.skills.files
+
+import android.content.Context
+import android.net.Uri
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import com.bizzeh.bruce.policy.DocumentRef
+import com.bizzeh.bruce.policy.GrantKind
+import com.bizzeh.bruce.policy.GrantScope
+import com.bizzeh.bruce.policy.GrantStore
+import com.bizzeh.bruce.policy.PolicyDatabase
+import com.bizzeh.bruce.skills.DenialCode
+import com.bizzeh.bruce.skills.SkillArguments
+import com.bizzeh.bruce.skills.SkillOutcome
+import com.bizzeh.bruce.skills.SkillState
+import com.bizzeh.bruce.testing.FakeDocuments
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+
+@RunWith(RobolectricTestRunner::class)
+class FileSkillsTest {
+    private val database = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext<Context>(), PolicyDatabase::class.java).build()
+    private val documents = FakeDocuments()
+    private val grants = GrantStore(database.policy(), documents)
+    private val skills = FileSkills(GrantScope(grants, documents), documents, Dispatchers.Unconfined).create().associateBy { it.id }
+
+    private val tree = Uri.parse("content://docs/tree/documents")
+    private val root = Uri.parse("$tree#root")
+    private val notes = DocumentRef(Uri.parse("content://docs/notes"), isDirectory = true)
+    private val todo = DocumentRef(Uri.parse("content://docs/todo"), isDirectory = false)
+    private val photo = DocumentRef(Uri.parse("content://docs/photo"), isDirectory = false)
+
+    @Before
+    fun setUp() = runBlocking {
+        documents.names[tree] = "Documents"
+        documents.tree[root] = listOf("todo.txt" to todo, "notes" to notes, "photo.jpg" to photo)
+        documents.contents[todo.uri] = "text/plain" to "milk\neggs".toByteArray()
+        documents.contents[photo.uri] = "image/jpeg" to byteArrayOf(-1, -40, 0)
+        grants.add(tree, GrantKind.FOLDER)
+        Unit
+    }
+
+    @After
+    fun tearDown() = database.close()
+
+    private fun run(id: String, path: String) = runBlocking { skills.getValue(id).execute(SkillArguments(mapOf("path" to path))) }
+
+    private fun failure(outcome: SkillOutcome) = (outcome as SkillOutcome.Failed).code
+
+    @Test
+    fun bothAreReadOnlyAndOffByDefault() {
+        assertEquals(setOf("list_files", "read_file"), skills.keys)
+        skills.values.forEach { assertEquals(SkillState.DECLINED, it.defaultState) }
+    }
+
+    @Test
+    fun listingShowsFoldersWithASlashInNameOrder() {
+        assertEquals(SkillOutcome.Done("notes/\nphoto.jpg\ntodo.txt"), run("list_files", "Documents"))
+        assertEquals(SkillOutcome.Done("The folder is empty."), run("list_files", "Documents/notes"))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("list_files", "Documents/todo.txt")))
+        assertEquals(DenialCode.RESOURCE_NOT_FOUND, failure(run("list_files", "Documents/missing")))
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(run("list_files", "Pictures")))
+    }
+
+    @Test
+    fun longListingsAreCut() {
+        documents.tree[notes.uri] = (1..FileSkills.MAX_LISTED + 3).map { "f$it" to DocumentRef(Uri.parse("content://docs/f$it"), false) }
+
+        val text = (run("list_files", "Documents/notes") as SkillOutcome.Done).content
+        assertTrue(text.endsWith("[3 more not shown]"))
+    }
+
+    @Test
+    fun readingReturnsPlainTextOnly() {
+        assertEquals(SkillOutcome.Done("milk\neggs"), run("read_file", "Documents/todo.txt"))
+        assertEquals(DenialCode.TOOL_UNAVAILABLE, failure(run("read_file", "Documents/photo.jpg")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("read_file", "Documents/notes")))
+        assertEquals(DenialCode.RESOURCE_NOT_FOUND, failure(run("read_file", "Documents/new.txt")))
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(run("read_file", "Documents/../secret.txt")))
+    }
+
+    @Test
+    fun binaryDisguisedAsTextIsRefused() {
+        documents.contents[todo.uri] = "application/octet-stream" to byteArrayOf(0x50, 0x4B, 0x03, 0x04, 0)
+        assertEquals(DenialCode.TOOL_UNAVAILABLE, failure(run("read_file", "Documents/todo.txt")))
+    }
+
+    @Test
+    fun longFilesAreCutAndSaySo() {
+        documents.contents[todo.uri] = "text/plain" to "é".repeat(FileSkills.MAX_READ_BYTES).toByteArray()
+
+        val text = (run("read_file", "Documents/todo.txt") as SkillOutcome.Done).content
+        assertTrue(text.endsWith("[Only the start of this file was read.]"))
+        assertEquals(FileSkills.MAX_READ_BYTES / 2, text.substringBefore("\n[").length)
+    }
+
+    @Test
+    fun plainTextRules() {
+        assertTrue(PlainText.allowedType(null))
+        assertTrue(PlainText.allowedType("text/markdown"))
+        assertTrue(PlainText.allowedType("application/json; charset=utf-8"))
+        assertEquals(false, PlainText.allowedType("application/pdf"))
+        assertEquals("hi", PlainText.decode("﻿hi".toByteArray()))
+        assertEquals("a", PlainText.decode(byteArrayOf(0x61, 0xC3.toByte())))
+        assertNull(PlainText.decode(byteArrayOf(0x61, 0xFF.toByte(), 0x62)))
+    }
+}

@@ -43,6 +43,8 @@ class GrantsViewModelTest {
         override fun displayName(uri: Uri, kind: GrantKind) = "Documents"
         override fun root(tree: Uri) = DocumentRef(tree, isDirectory = true)
         override fun children(tree: Uri, folder: DocumentRef) = emptyList<Pair<String, DocumentRef>>()
+        override fun mimeType(document: Uri): String? = null
+        override fun read(document: Uri, maxBytes: Int): ByteArray? = null
     }
     /** Built after setUp, so its flows start on the test Main dispatcher rather than the blocked main looper. */
     private val viewModel by lazy { GrantsViewModel(GrantStore(database.policy(), documents), Dispatchers.IO) }

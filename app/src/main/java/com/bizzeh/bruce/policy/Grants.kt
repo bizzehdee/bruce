@@ -33,6 +33,11 @@ interface DocumentAccess {
 
     /** [folder]'s children with their display names, built from [tree] so the provider checks they belong to it. */
     fun children(tree: Uri, folder: DocumentRef): List<Pair<String, DocumentRef>>
+
+    fun mimeType(document: Uri): String?
+
+    /** Reads at most [maxBytes] of [document]; null if it cannot be opened. */
+    fun read(document: Uri, maxBytes: Int): ByteArray?
 }
 
 /** The user's grants. Only the Permissions screen adds or revokes them; nothing the model reaches holds this store. */
@@ -118,7 +123,10 @@ object PathRules {
 
     /** A grant name built from a display name, or null if nothing usable is left. */
     fun cleanName(displayName: String?): String? =
-        displayName?.replace('/', '_')?.filterNot { it.isISOControl() }?.trim()?.takeIf(::isPlainName)
+        displayName?.replace('/', '_')?.filterNot { it.isISOControl() }?.trim()?.take(MAX_NAME)?.trim()?.takeIf(::isPlainName)
+
+    /** Grant names go into the system prompt, so they are kept short. */
+    private const val MAX_NAME = 80
 
     private fun isPlainName(segment: String) =
         segment.isNotBlank() && segment != "." && segment != ".." && segment.none { it == '\\' || it.isISOControl() }
@@ -130,6 +138,9 @@ object PathRules {
  * and look-alike names are refused rather than interpreted.
  */
 class GrantScope(private val grants: GrantStore, private val access: DocumentAccess) {
+    /** The names the model starts paths with, for grants Android still honours. */
+    suspend fun names(): List<String> = grants.current().filter { it.available }.map { it.name }
+
     suspend fun resolve(path: String): PathResolution {
         val segments = PathRules.segments(path) ?: return PathResolution.Refused("The path is not valid. Use the granted name, then folder and file names separated by '/'.")
         val grant = grants.current().firstOrNull { it.name == segments.first() }

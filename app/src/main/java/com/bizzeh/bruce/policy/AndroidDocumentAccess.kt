@@ -50,4 +50,17 @@ class AndroidDocumentAccess(private val resolver: ContentResolver) : DocumentAcc
             }
         }.orEmpty()
     }
+
+    override fun mimeType(document: Uri): String? = resolver.getType(document)
+
+    override fun read(document: Uri, maxBytes: Int): ByteArray? = resolver.openInputStream(document)?.use { stream ->
+        val buffer = ByteArray(maxBytes)
+        var read = 0
+        while (read < maxBytes) {
+            val n = stream.read(buffer, read, maxBytes - read)
+            if (n < 0) break
+            read += n
+        }
+        buffer.copyOf(read)
+    }
 }
