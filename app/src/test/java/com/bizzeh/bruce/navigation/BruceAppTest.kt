@@ -150,7 +150,7 @@ class BruceAppTest {
         compose.activity.onBackPressedDispatcher.onBackPressed()
 
         compose.onNodeWithTag("settings:permissions").performClick()
-        compose.onNodeWithTag("permissionsPlaceholder").assertIsDisplayed()
+        compose.onNodeWithTag("grantsEmpty").assertIsDisplayed()
     }
 
     @Test

@@ -263,9 +263,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Registered in the app container; usable in chat once TASK-053 wires the runtime in. Device test on the Pixel 11: every skill answers, and no build fingerprint, MAC or IP address appears in their output.
   - Depends on: TASK-034, TASK-052
   - Required by: TASK-039
-- [ ] TASK-038: Permissions screen
+- [x] TASK-038: Permissions screen
   - Replaces the placeholder reached from Settings. Lists granted files and folders (with granted date) and the Android permissions Bruce holds; each can be revoked.
   - Skill states are not here; they are in the Skills screen (TASK-039).
+  - Decided (2026-09-28): Android permissions are changed in Android's settings, opened from each row (notifications open the app's notification page); install-time permissions are listed as always granted, the internet row linking to Network mode; the files and folders section shows an empty state until TASK-040 stores grants.
+  - Done (`settings/AndroidPermissions.kt`, `PermissionsScreen.kt`): permissions are read from the package manager, so the list follows the manifest; library permissions defined in Bruce's own package are left out. The screen re-reads on resume.
+  - Device-tested on the Pixel 11: turning notifications on and off in Android settings shows Allowed / Not allowed on return. Android 17 also grants `ACCESS_LOCAL_NETWORK` by itself (targetSdk 36); the screen names it and says Bruce does not need it.
   - Depends on: TASK-035
   - Required by: TASK-040, TASK-049
 - [ ] TASK-039: Skills screen

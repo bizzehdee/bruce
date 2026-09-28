@@ -240,7 +240,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
 }
 
 @Composable
-private fun Heading(text: Int) {
+internal fun Heading(text: Int) {
     Column {
         HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
         Text(

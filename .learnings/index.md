@@ -1,5 +1,6 @@
 # Learnings index
 
+- [android-17-local-network-permission.md](android-17-local-network-permission.md) — Android 17 grants Bruce local network access by itself at targetSdk 36. Read when a permission appears that the manifest does not declare, or when raising targetSdk.
 - [jdk-for-unit-tests.md](jdk-for-unit-tests.md) — Which JDK runs the build and Robolectric tests on this machine. Read when Gradle fails on the toolchain or Robolectric cannot create a sandbox.
 - [robolectric-jdk-module-export.md](robolectric-jdk-module-export.md) — Robolectric fails on JDK 17+ without a module export. Read when Robolectric tests fail at setup or when changing the test JVM.
 - [robolectric-max-sdk.md](robolectric-max-sdk.md) — Why `targetSdk` is 36. Read before raising `targetSdk` or upgrading Robolectric.
