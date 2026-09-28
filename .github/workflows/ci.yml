@@ -1,9 +1,12 @@
 name: CI
 
+# Automatic runs are off until GitHub Actions minutes are available again (2026-09-28).
+# To re-enable, restore:
+#   push:
+#     branches: [main]
+#   pull_request:
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read

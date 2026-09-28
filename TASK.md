@@ -19,6 +19,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - On push and pull request: build debug APK including native code, run JVM unit tests, enforce 90% branch coverage via Kover.
   - GoogleTest native tests are added to CI by TASK-004, when the first native logic exists.
   - Done when the workflow has passed once on GitHub.
+  - Paused 2026-09-28: automatic runs disabled (manual trigger only) because the account is out of Actions minutes. The first run on GitHub failed dependency verification on a cold Gradle cache; fixed separately.
   - No emulator tests.
   - Depends on: TASK-001, TASK-002
 - [x] TASK-004: `InferenceEngine` interface and `LlamaCppEngine` load/unload
