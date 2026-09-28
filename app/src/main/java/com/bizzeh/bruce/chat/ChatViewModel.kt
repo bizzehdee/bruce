@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bizzeh.bruce.inference.ChatRole
@@ -11,9 +12,11 @@ import com.bizzeh.bruce.models.ActiveModelState
 import com.bizzeh.bruce.policy.PolicyDecision
 import com.bizzeh.bruce.runtime.ContextUse
 import com.bizzeh.bruce.runtime.RuntimeError
+import com.bizzeh.bruce.settings.SummarySettings
 import com.bizzeh.bruce.runtime.RuntimeEvent
 import com.bizzeh.bruce.skills.Denial
 import com.bizzeh.bruce.skills.DenialCode
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +24,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,7 +63,11 @@ data class ChatState(
     val input: String = "",
     /** How much of the context this chat takes, as the next prompt would; null until measured. */
     val context: ContextUse? = null,
+    /** The first entry the model still sees, when older ones had to be left out. */
+    val firstSeen: Int = 0,
     val generating: Boolean = false,
+    /** Older messages are being summarised before the reply starts. */
+    val summarising: Boolean = false,
     val error: ChatError? = null,
 )
 
@@ -87,6 +96,9 @@ class ChatViewModel(
     sidekick: Flow<String> = emptyFlow(),
     /** Context use of a conversation (BruceRuntime.measure). */
     private val measure: suspend (List<ToolChatMessage>) -> ContextUse? = { null },
+    private val summarySettings: Flow<SummarySettings> = flowOf(SummarySettings()),
+    /** A summary of messages written by the model, raw (BruceRuntime.summarise). */
+    private val summarise: suspend (List<ToolChatMessage>) -> String? = { null },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -116,9 +128,53 @@ class ChatViewModel(
         val current = mutableState.value
         val text = current.input.trim()
         if (text.isEmpty() || current.generating) return
-        mutableState.update { it.copy(input = "") }
-        runTurn(current.entries + ChatEntry(ChatRole.USER, text))
+        val history = current.entries + ChatEntry(ChatRole.USER, text)
+        val turnSession = session
+        mutableState.update { it.copy(input = "", entries = history, generating = true, error = null) }
+        turn = viewModelScope.launch {
+            val summarised = try {
+                summariseIfDue(history)
+            } catch (e: CancellationException) {
+                // Stopped while summarising: the request is kept, unanswered and without a summary.
+                withContext(NonCancellable) {
+                    val saved = save(current.conversationId, history)
+                    if (session == turnSession) mutableState.update { it.copy(generating = false, summarising = false, conversationId = saved) }
+                }
+                throw e
+            }
+            if (session == turnSession) runTurn(summarised)
+        }
     }
+
+    /**
+     * With auto-summarise on and the chat at its threshold, replaces everything the model sees
+     * before the previous request with a summary note. The replaced entries stay on screen.
+     */
+    private suspend fun summariseIfDue(history: List<ChatEntry>): List<ChatEntry> {
+        val settings = summarySettings.first()
+        if (!settings.enabled) return history
+        val use = measure(sent(history)) ?: return history
+        if (use.dropped == 0 && use.used * 100L < settings.threshold.toLong() * use.limit) return history
+        val from = firstSent(history)
+        val requests = history.indices.filter { history[it].role == ChatRole.USER && it > from }
+        // Keep the previous exchange and the new request as they are; there must be something before them.
+        val cut = requests.getOrNull(requests.size - 2) ?: return history
+        mutableState.update { it.copy(summarising = true) }
+        val raw = try {
+            summarise(history.subList(from, cut).map(::toMessage))
+        } finally {
+            mutableState.update { it.copy(summarising = false) }
+        }
+        val summary = raw?.let { ThinkingText.split(it).answer.trim() }?.takeIf { it.isNotEmpty() } ?: return history.also {
+            if (raw != null) Log.w(TAG, "summary had only reasoning; nothing replaced")
+        }
+        return history.take(cut) + ChatEntry(ChatRole.SYSTEM, summary) + history.drop(cut)
+    }
+
+    /** Where what the model sees starts: the latest summary, or the first message. */
+    private fun firstSent(entries: List<ChatEntry>): Int = entries.indexOfLast { it.role == ChatRole.SYSTEM }.coerceAtLeast(0)
+
+    private fun sent(entries: List<ChatEntry>): List<ToolChatMessage> = entries.drop(firstSent(entries)).map(::toMessage)
 
     /** Approves or declines a call awaiting approval, then lets the model carry on with the outcome. */
     fun decide(callId: String, approved: Boolean) {
@@ -155,7 +211,7 @@ class ChatViewModel(
                 if (onScreen()) mutableState.update { it.copy(entries = history + added + streaming) }
             }
             try {
-                respond(history.map(::toMessage)).collect { event ->
+                respond(sent(history)).collect { event ->
                     when (event) {
                         is RuntimeEvent.Text -> streaming = streaming.copy(text = streaming.text + event.text)
                         is RuntimeEvent.Step -> {
@@ -220,8 +276,11 @@ class ChatViewModel(
         val measuredSession = session
         viewModelScope.launch {
             if (mutableState.value.generating) return@launch
-            val use = measure(mutableState.value.entries.map(::toMessage))
-            if (session == measuredSession && !mutableState.value.generating) mutableState.update { it.copy(context = use) }
+            val entries = mutableState.value.entries
+            val use = measure(sent(entries))
+            if (session == measuredSession && !mutableState.value.generating) {
+                mutableState.update { it.copy(context = use, firstSeen = firstSent(entries) + (use?.dropped ?: 0)) }
+            }
         }
     }
 
@@ -254,6 +313,8 @@ class ChatViewModel(
     private fun toMessage(entry: ChatEntry) = when (entry.role) {
         ChatRole.ASSISTANT -> ToolChatMessage(ChatRole.ASSISTANT, ThinkingText.split(entry.text).answer, toolCalls = entry.toolCalls)
         ChatRole.TOOL -> ToolChatMessage(ChatRole.TOOL, entry.text, toolCallId = entry.tool?.callId.orEmpty(), toolName = entry.tool?.name.orEmpty())
+        // A summary note: the runtime puts it in the system prompt in place of the messages before it.
+        ChatRole.SYSTEM -> ToolChatMessage(ChatRole.SYSTEM, entry.text)
         else -> ToolChatMessage(entry.role, entry.text)
     }
 
@@ -266,6 +327,8 @@ class ChatViewModel(
     }
 
     private companion object {
+        const val TAG = "BruceChat"
+
         /** What the model sees for a call still awaiting the user's approval (TASK-041). */
         val AWAITING_APPROVAL: String by lazy {
             Denial(DenialCode.CONFIRMATION_REQUIRED, "", "The user has not approved this yet.", userCanChange = true, retryable = true)

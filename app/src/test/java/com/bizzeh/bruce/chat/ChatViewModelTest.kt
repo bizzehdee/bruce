@@ -10,6 +10,7 @@ import com.bizzeh.bruce.policy.PolicyDecision
 import com.bizzeh.bruce.runtime.ContextUse
 import com.bizzeh.bruce.runtime.RuntimeError
 import com.bizzeh.bruce.runtime.RuntimeEvent
+import com.bizzeh.bruce.settings.SummarySettings
 import com.bizzeh.bruce.testing.FakeEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -94,6 +95,59 @@ class ChatViewModelTest {
         advanceUntilIdle()
         assertEquals(ContextUse(0, 100, 0), vm.state.value.context)
         assertEquals(listOf(0, 2, 0), measured)
+    }
+
+    /** A chat of two finished exchanges, with auto-summarise on and every measurement at [used] of 100. */
+    private fun TestScope.summarisingChat(enabled: Boolean, used: Int, summary: String?, summarised: MutableList<List<ToolChatMessage>>): ChatViewModel {
+        val vm = ChatViewModel(
+            engine, activeModel, save, load, respond, noAnswer,
+            measure = { ContextUse(used = used, total = 100, dropped = 0, limit = 100) },
+            summarySettings = flowOf(SummarySettings(enabled = enabled, threshold = 90)),
+            summarise = { messages -> summarised += messages; summary },
+        )
+        advanceUntilIdle()
+        turns += reply("A1")
+        chat("Q1", vm)
+        turns += reply("A2")
+        chat("Q2", vm)
+        return vm
+    }
+
+    @Test
+    fun atTheThresholdEverythingBeforeThePreviousRequestIsSummarised() = runTest(dispatcher) {
+        val summarised = mutableListOf<List<ToolChatMessage>>()
+        val vm = summarisingChat(enabled = true, used = 95, summary = "<think>hmm</think>They chatted.", summarised)
+
+        turns += reply("A3")
+        chat("Q3", vm)
+
+        assertEquals(listOf("Q1", "A1"), summarised.last().map { it.content })
+        val entries = vm.state.value.entries
+        assertEquals(listOf("Q1", "A1", "They chatted.", "Q2", "A2", "Q3", "A3"), entries.map { it.text })
+        assertEquals(ChatRole.SYSTEM, entries[2].role)
+        assertEquals(listOf(ChatRole.SYSTEM, ChatRole.USER, ChatRole.ASSISTANT, ChatRole.USER), histories.last().map { it.role })
+        assertEquals(false, vm.state.value.summarising)
+        assertEquals(entries, saved.values.last())
+    }
+
+    @Test
+    fun belowTheThresholdOrWhenOffNothingIsSummarised() = runTest(dispatcher) {
+        val summarised = mutableListOf<List<ToolChatMessage>>()
+        summarisingChat(enabled = true, used = 80, summary = "S", summarised).also { turns += reply("A3"); chat("Q3", it) }
+        summarisingChat(enabled = false, used = 99, summary = "S", summarised).also { turns += reply("A3"); chat("Q3", it) }
+
+        assertEquals(emptyList<List<ToolChatMessage>>(), summarised)
+    }
+
+    @Test
+    fun aFailedSummaryLeavesTheChatAsItWas() = runTest(dispatcher) {
+        val summarised = mutableListOf<List<ToolChatMessage>>()
+        val vm = summarisingChat(enabled = true, used = 99, summary = null, summarised)
+
+        turns += reply("A3")
+        chat("Q3", vm)
+
+        assertEquals(listOf("Q1", "A1", "Q2", "A2", "Q3", "A3"), vm.state.value.entries.map { it.text })
     }
 
     @Test

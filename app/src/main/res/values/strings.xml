@@ -17,6 +17,8 @@
     <string name="chat_context_use">%1$,d of %2$,d tokens used · %3$,d free</string>
     <string name="chat_context_nearly_full">Nearly full. New messages will push the oldest out; the chat carries on.</string>
     <string name="chat_context_dropped">The model no longer sees the messages above. They stay here and in the saved chat.</string>
+    <string name="chat_summary_title">Summary: the model now sees this instead of the messages above</string>
+    <string name="chat_summarising">Summarising older messages…</string>
     <string name="chat_context_title">Context</string>
     <string name="chat_context_explained">The context is how much of this chat the model can read at once. When it is full, the chat does not end: each new message pushes the oldest ones out of what the model sees. They stay on screen and in the saved chat.</string>
     <string name="chat_context_ok">OK</string>
@@ -81,6 +83,11 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_dynamic_colour">Use wallpaper colours</string>
+    <string name="settings_long_chats">Long chats</string>
+    <string name="settings_summarise">Summarise older messages</string>
+    <string name="settings_summarise_summary">When a chat nears the model\'s limit, the oldest messages are replaced, in what the model sees, by a short summary shown in the chat. Off: the oldest messages are left out instead.</string>
+    <string name="settings_summarise_threshold">Summarise when the chat uses</string>
+    <string name="settings_percent">%1$d%%</string>
     <string name="settings_inference">Model defaults</string>
     <string name="settings_backend">Backend</string>
     <string name="settings_backend_auto">Auto</string>

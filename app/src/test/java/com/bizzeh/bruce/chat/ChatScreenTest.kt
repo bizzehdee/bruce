@@ -32,9 +32,19 @@ class ChatScreenTest {
     private fun show(state: ChatState) = compose.setContent { BruceTheme { ChatScreen(state, actions) } }
 
     @Test
+    fun summariesAreMarkedAndSummarisingIsShown() {
+        val entries = listOf(ChatEntry(ChatRole.USER, "old"), ChatEntry(ChatRole.SYSTEM, "They talked about dogs."), ChatEntry(ChatRole.USER, "new"))
+        show(ChatState(modelName = "m", entries = entries, summarising = true, generating = true))
+
+        compose.onNodeWithText("Summary: the model now sees this instead of the messages above").assertIsDisplayed()
+        compose.onNodeWithText("They talked about dogs.").assertIsDisplayed()
+        compose.onNodeWithTag("summarising").assertIsDisplayed()
+    }
+
+    @Test
     fun contextBarShowsUseMarksDroppedMessagesAndExplains() {
         val entries = listOf(ChatEntry(ChatRole.USER, "old"), ChatEntry(ChatRole.ASSISTANT, "reply"), ChatEntry(ChatRole.USER, "new"))
-        show(ChatState(modelName = "m", entries = entries, context = com.bizzeh.bruce.runtime.ContextUse(used = 900, total = 1000, dropped = 2, limit = 1000)))
+        show(ChatState(modelName = "m", entries = entries, context = com.bizzeh.bruce.runtime.ContextUse(used = 900, total = 1000, dropped = 2, limit = 1000), firstSeen = 2))
 
         compose.onNodeWithText("900 of 1,000 tokens used · 100 free").assertIsDisplayed()
         compose.onNodeWithTag("contextNearlyFull", useUnmergedTree = true).assertIsDisplayed()

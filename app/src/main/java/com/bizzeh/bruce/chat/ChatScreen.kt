@@ -115,7 +115,7 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
     ) {
         itemsIndexed(state.entries) { index, entry ->
             val dropped = state.context?.dropped ?: 0
-            if (dropped > 0 && index == dropped) {
+            if (dropped > 0 && index == state.firstSeen) {
                 Text(
                     stringResource(R.string.chat_context_dropped),
                     style = MaterialTheme.typography.labelMedium,
@@ -125,11 +125,22 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
             }
             when {
                 entry.role == ChatRole.USER -> UserMessage(entry.text)
+                entry.role == ChatRole.SYSTEM -> SummaryNote(index, entry.text)
                 entry.tool?.status == ToolStatus.AWAITING_APPROVAL -> ConfirmationCard(entry.tool, state.confirmations[entry.tool.callId], !state.generating, actions)
                 entry.tool != null -> ToolRow(index, entry.tool)
                 // A reply that only asked for skills has nothing to show; its tool rows follow.
                 entry.text.isEmpty() && entry.toolCalls.isNotEmpty() -> Unit
                 else -> Reply(index, entry, state.sidekick)
+            }
+        }
+        if (state.summarising) {
+            item {
+                Text(
+                    stringResource(R.string.chat_summarising),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag("summarising"),
+                )
             }
         }
     }
@@ -194,6 +205,17 @@ private fun ConfirmationCard(tool: ToolUse, confirmation: Confirmation?, enabled
                     Text(stringResource(R.string.chat_confirm_deny))
                 }
             }
+        }
+    }
+}
+
+/** A summary that replaced the messages above it in what the model sees (auto-summarise). */
+@Composable
+private fun SummaryNote(index: Int, text: String) {
+    OutlinedCard(modifier = Modifier.fillMaxWidth().testTag("summary:$index")) {
+        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(stringResource(R.string.chat_summary_title), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+            Text(text, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

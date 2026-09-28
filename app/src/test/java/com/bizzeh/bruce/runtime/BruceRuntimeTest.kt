@@ -271,6 +271,72 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun aSummaryIsWrittenFromATranscriptOfTheMessages() = runBlocking {
+        engine.steps += Step("<think>hmm</think>  They planned a picnic.  ", ParsedReply("  They planned a picnic.  ", "hmm", emptyList()))
+        val messages = listOf(
+            ToolChatMessage(ChatRole.SYSTEM, "Met at noon."),
+            ToolChatMessage(ChatRole.USER, "Plan a picnic"),
+            ToolChatMessage(ChatRole.ASSISTANT, "", toolCalls = listOf(ToolCall("get_datetime", "{}", "c1"))),
+            ToolChatMessage(ChatRole.TOOL, "12:00", toolCallId = "c1", toolName = "get_datetime"),
+            ToolChatMessage(ChatRole.ASSISTANT, "Sure."),
+        )
+
+        assertEquals("They planned a picnic.", runtime().summarise(messages))
+        val (system, transcript) = engine.formatted.last()
+        assertEquals(emptyList<ToolDefinition>(), engine.offered.last())
+        assertEquals(BruceRuntime.SUMMARY_INSTRUCTIONS, system.content)
+        assertEquals(
+            "Earlier summary: Met at noon.\n\nUser: Plan a picnic\n\nAssistant: (used get_datetime)\n\nResult of get_datetime: 12:00\n\nAssistant: Sure.",
+            transcript.content,
+        )
+        assertEquals(BruceRuntime.SUMMARY_TOKENS, engine.requests.last().maxTokens)
+    }
+
+    @Test
+    fun aSummaryIsAskedForWithoutThinkingAndReasoningAloneIsNoSummary() = runBlocking {
+        engine.steps += Step("<think>only thoughts</think>", ParsedReply("", "only thoughts", emptyList()))
+
+        assertNull(runtime().summarise(listOf(ToolChatMessage(ChatRole.USER, "hi"))))
+        assertEquals(listOf(false), engine.thinking)
+    }
+
+    @Test
+    fun aSummaryCannotBeMadeWithoutAModelOrWhenGenerationFails() = runBlocking {
+        engine.steps += Step("", null, failure = GenerationError.DECODE_FAILED)
+        assertNull(runtime().summarise(listOf(ToolChatMessage(ChatRole.USER, "hi"))))
+        engine.noModel = true
+        assertNull(runtime().summarise(listOf(ToolChatMessage(ChatRole.USER, "hi"))))
+    }
+
+    @Test
+    fun anOverlongTranscriptLosesItsOldestPartAndTooLittleGivesUp() = runBlocking {
+        engine.steps += Step("Short.", null)
+        engine.contextLength = 1000
+        var calls = 0
+        engine.tokensPerMessage = { if (calls++ < 2) 2_500 else 5 }
+        val long = listOf(ToolChatMessage(ChatRole.USER, "x".repeat(1000)))
+
+        assertEquals("Short.", runtime().summarise(long))
+        assertTrue(engine.formatted.last()[1].content.length < 1000)
+
+        engine.tokensPerMessage = { 5_000 }
+        assertNull(runtime().summarise(long))
+    }
+
+    @Test
+    fun summariesGoIntoTheSystemPromptAndAreNeverDropped() = runBlocking {
+        engine.steps += Step("", ParsedReply("Hi.", "", emptyList()))
+        val history = listOf(ToolChatMessage(ChatRole.SYSTEM, "They met.")) + longChat()
+
+        runtime().respond(history).toList()
+
+        val sent = engine.formatted.last()
+        assertTrue(sent.first().content.endsWith(BruceRuntime.SUMMARY_LEAD + "They met."))
+        assertEquals(1, sent.count { it.role == ChatRole.SYSTEM })
+        assertEquals("newest", sent.last().content)
+    }
+
+    @Test
     fun tooManyToolCallsEndTheTurn() {
         repeat(3) { engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}")))) }
 
@@ -358,8 +424,11 @@ class BruceRuntimeTest {
         var tokensPerMessage: (ToolChatMessage) -> Int = { 1 }
         private var current: Step? = null
 
+        val thinking = mutableListOf<Boolean>()
+
         override suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean): ToolChatPrompt? {
             if (noModel) return null
+            thinking += enableThinking
             formatted += messages
             offered += tools
             lastCount = messages.sumOf { tokensPerMessage(it) }

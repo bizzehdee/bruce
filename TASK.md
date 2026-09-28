@@ -319,10 +319,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Pixel 11 with Qwen3.5-0.8B at a 2K context: an empty chat used 1,382 tokens of 4,096 (system prompt and nine skills); at 2K, three story requests dropped the oldest exchanges, the marker appeared and replies continued. First try showed no bar: measuring an empty chat failed in the template, found in the log and fixed.
   - Depends on: TASK-024, TASK-032
   - Required by: TASK-046
-- [ ] TASK-046: Auto-summarise option
+- [x] TASK-046: Auto-summarise option
   - Setting, off by default: auto-summarise older messages. When on, a threshold of 85, 90, 95 or 100% context use triggers a summary of the oldest messages, which replaces them in what is sent to the model.
   - When off, TASK-045's drop-oldest behaviour applies.
   - The summary is shown in the chat as a marked note so the user knows what the model now sees.
+  - Done: Settings, Long chats: "Summarise older messages" (off) with 85/90/95/100% (default 90%, chosen here as the task named none), measured against what fits after the reply reserve; 100% means only when something would otherwise be dropped. Before a turn at the threshold, everything the model sees before the previous request is summarised (at most 400 tokens, thinking off) and saved as a summary note in the chat; the runtime puts the latest summary into the system prompt and never drops it, and later summaries roll up earlier ones. A failed or empty summary changes nothing, and drop-oldest applies. Stopping while summarising keeps the request unanswered. Summary outcomes are logged by length only.
+  - Device-tested on the Pixel 11 (2K context, 85%): the first attempt wrote no summary because Qwen3.5 spent the whole budget reasoning under the plain chat template (found by adding the outcome log); with thinking off the summary named the dog, cat and fox stories correctly and showed as a marked note.
   - Depends on: TASK-045
 - [ ] TASK-047: Memory
   - Setting: Off (default), On per model (each model has its own memory), On globally (one memory shared by all models).
