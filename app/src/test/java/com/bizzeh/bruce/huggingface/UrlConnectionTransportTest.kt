@@ -89,6 +89,85 @@ class UrlConnectionTransportTest {
     }
 
     @Test
+    fun tokenIsKeptOnSameHostRedirectsButDroppedWhenTheHostChanges() {
+        val cdn = HttpServer.create(InetSocketAddress("127.0.0.1", 0), 0)
+        var cdnAuth: String? = "unset"
+        cdn.createContext("/file") { exchange ->
+            cdnAuth = exchange.requestHeaders.getFirst("Authorization")
+            exchange.sendResponseHeaders(200, -1)
+            exchange.close()
+        }
+        cdn.start()
+        var sameHostAuth: String? = null
+        server.createContext("/to-cdn") { exchange ->
+            exchange.responseHeaders.add("Location", "http://127.0.0.1:${cdn.address.port}/file")
+            exchange.sendResponseHeaders(302, -1)
+            exchange.close()
+        }
+        server.createContext("/same") { exchange ->
+            exchange.responseHeaders.add("Location", "/landing")
+            exchange.sendResponseHeaders(307, -1)
+            exchange.close()
+        }
+        server.createContext("/landing") { exchange ->
+            sameHostAuth = exchange.requestHeaders.getFirst("Authorization")
+            exchange.sendResponseHeaders(200, -1)
+            exchange.close()
+        }
+        try {
+            transport.open("$base/to-cdn", mapOf("Authorization" to "Bearer tok")).close()
+            transport.open("$base/same", mapOf("Authorization" to "Bearer tok")).close()
+        } finally {
+            cdn.stop(0)
+        }
+
+        assertNull(cdnAuth)
+        assertEquals("Bearer tok", sameHostAuth)
+    }
+
+    @Test
+    fun redirectLoopsAreCapped() {
+        server.createContext("/loop") { exchange ->
+            exchange.responseHeaders.add("Location", "/loop")
+            exchange.sendResponseHeaders(302, -1)
+            exchange.close()
+        }
+
+        assertThrows<IOException> { transport.open("$base/loop", emptyMap()) }
+    }
+
+    @Test
+    fun postFormEncodesTheBody() {
+        var received = ""
+        var contentType: String? = null
+        server.createContext("/token") { exchange ->
+            contentType = exchange.requestHeaders.getFirst("Content-Type")
+            received = exchange.requestBody.readBytes().decodeToString()
+            val body = "{\"ok\":true}".toByteArray()
+            exchange.sendResponseHeaders(200, body.size.toLong())
+            exchange.responseBody.use { it.write(body) }
+        }
+
+        val response = transport.postForm("$base/token", emptyMap(), mapOf("code" to "a b&c", "x" to "1"), maxBytes = 1_000)!!
+
+        assertEquals(200, response.status)
+        assertEquals("code=a+b%26c&x=1", received)
+        assertEquals("application/x-www-form-urlencoded", contentType)
+    }
+
+    @Test
+    fun postFormErrorBodyAndSizeLimit() {
+        server.createContext("/bad") { exchange ->
+            val body = ByteArray(5_000)
+            exchange.sendResponseHeaders(400, body.size.toLong())
+            exchange.responseBody.use { it.write(body) }
+        }
+
+        assertEquals(400, transport.postForm("$base/bad", emptyMap(), emptyMap(), maxBytes = 10_000)!!.status)
+        assertNull(transport.postForm("$base/bad", emptyMap(), emptyMap(), maxBytes = 100))
+    }
+
+    @Test
     fun unreachableServerThrowsIOException() {
         val port = server.address.port
         server.stop(0)

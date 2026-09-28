@@ -1,6 +1,12 @@
 package com.bizzeh.bruce.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.bizzeh.bruce.huggingface.HttpResponse
+import com.bizzeh.bruce.huggingface.HttpTransport
+import com.bizzeh.bruce.huggingface.HubAuth
+import com.bizzeh.bruce.huggingface.SignInError
+import com.bizzeh.bruce.huggingface.StreamingResponse
+import com.bizzeh.bruce.huggingface.TokenCipher
 import com.bizzeh.bruce.inference.Backend
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.LoadResult
@@ -47,7 +53,9 @@ class SettingsLogicTest {
         val theme = ThemeSettingsRepository(dataStore)
         val inference = InferenceSettingsRepository(dataStore)
         val reset = DataReset(activeModel, dataStore, modelsDir, cacheDir, dispatcher)
-        val viewModel = SettingsViewModel(theme, inference, reset, dynamicColourSupported = true, performanceCores = 4, cores = 8)
+        val network = NetworkSettingsRepository(dataStore)
+        val hubAuth = HubAuth(NoNetwork, dataStore, PlainCipher, { true }, dispatcher, "client")
+        val viewModel = SettingsViewModel(theme, inference, network, hubAuth, reset, dynamicColourSupported = true, performanceCores = 4, cores = 8)
     }
 
     @Test
@@ -59,9 +67,12 @@ class SettingsLogicTest {
         f.viewModel.setBackend(BackendPreference.CPU)
         f.viewModel.setThreads(2)
         f.viewModel.setContextLength(16384)
+        f.viewModel.setNetworkMode(NetworkMode.HUGGING_FACE)
 
         // DataStore writes on real I/O threads, so wait for the state rather than for the scheduler.
-        val state = f.viewModel.state.first { it.inference.contextLength == 16384 && it.theme.dynamicColour }
+        val state = f.viewModel.state.first { it.inference.contextLength == 16384 && it.theme.dynamicColour && it.network == NetworkMode.HUGGING_FACE }
+        assertNull(state.account)
+        assertNull(state.signInError)
         assertEquals(ThemeSettings(ThemeMode.DARK, dynamicColour = true), state.theme)
         assertEquals(InferenceDefaults(BackendPreference.CPU, 2, 16384), state.inference)
         assertTrue(state.dynamicColourSupported)
@@ -91,6 +102,16 @@ class SettingsLogicTest {
     }
 
     @Test
+    fun signOutAndRejectedRedirectReachTheState() = runTest(dispatcher) {
+        val f = Fixture(this)
+
+        f.viewModel.completeSignIn(mapOf("state" to "forged", "code" to "c"))
+        f.viewModel.signOut()
+
+        assertEquals(SignInError.UNEXPECTED_CALLBACK, f.viewModel.state.first { it.signInError != null }.signInError)
+    }
+
+    @Test
     fun threadChoicesAndLabels() {
         assertEquals(listOf(1, 2, 4, 8), SettingsText.threadChoices(8))
         assertEquals(listOf(1, 2, 4, 6), SettingsText.threadChoices(6))
@@ -100,5 +121,16 @@ class SettingsLogicTest {
         assertEquals("Vulkan", SettingsText.backendName("VULKAN"))
         assertEquals("OpenCL", SettingsText.backendName("OPENCL"))
         assertEquals("CPU", SettingsText.backendName("CPU"))
+    }
+
+    private object NoNetwork : HttpTransport {
+        override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse = error("offline test")
+        override fun open(url: String, headers: Map<String, String>): StreamingResponse = error("offline test")
+        override fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse = error("offline test")
+    }
+
+    private object PlainCipher : TokenCipher {
+        override fun encrypt(plain: ByteArray) = plain
+        override fun decrypt(sealed: ByteArray) = sealed
     }
 }

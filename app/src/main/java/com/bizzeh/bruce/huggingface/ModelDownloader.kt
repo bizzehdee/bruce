@@ -46,6 +46,8 @@ class ModelDownloader(
     private val userAgent: String,
     private val usableSpace: (File) -> Long = File::getUsableSpace,
     private val baseUrl: String = "https://huggingface.co",
+    /** The signed-in user's token; the transport drops it when the download redirects to the CDN. */
+    private val token: suspend () -> String? = { null },
 ) {
     init {
         require(baseUrl.startsWith("https://")) { "Hub base URL must use HTTPS" }
@@ -91,7 +93,9 @@ class ModelDownloader(
     /** Appends the rest of the file to [partial]; returns an error, or null when the body was read to the end. */
     private suspend fun fetchInto(partial: File, url: String, sizeBytes: Long, onProgress: (Long, Long) -> Unit): DownloadError? {
         val resumeFrom = partial.length()
-        val headers = mapOf("User-Agent" to userAgent) + if (resumeFrom > 0) mapOf("Range" to "bytes=$resumeFrom-") else emptyMap()
+        val headers = mapOf("User-Agent" to userAgent) +
+            (if (resumeFrom > 0) mapOf("Range" to "bytes=$resumeFrom-") else emptyMap()) +
+            (token()?.let { mapOf("Authorization" to "Bearer $it") } ?: emptyMap())
         val response = try {
             transport.open(url, headers)
         } catch (e: IOException) {

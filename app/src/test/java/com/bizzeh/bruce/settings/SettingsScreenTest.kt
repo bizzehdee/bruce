@@ -7,6 +7,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
+import com.bizzeh.bruce.huggingface.HubAccount
+import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import org.junit.Assert.assertEquals
@@ -32,6 +34,9 @@ class SettingsScreenTest {
         override fun setThreads(threads: Int?) { calls += "threads $threads" }
         override fun setContextLength(contextLength: Int) { calls += "context $contextLength" }
         override fun clearAllData() { calls += "clear" }
+        override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
+        override fun signIn() { calls += "signIn" }
+        override fun signOut() { calls += "signOut" }
         override fun openPermissions() { calls += "permissions" }
         override fun openLicences() { calls += "licences" }
         override fun openDiagnostics() { calls += "diagnostics" }
@@ -53,6 +58,48 @@ class SettingsScreenTest {
 
         assertEquals(listOf("theme DARK", "dynamic true", "backend CPU", "threads 2", "threads null", "context 8192"), calls)
         compose.onNodeWithText("Auto (4)").assertIsDisplayed()
+    }
+
+    @Test
+    fun networkModeAndSignIn() {
+        show(SettingsState(network = NetworkMode.HUGGING_FACE))
+
+        compose.onNodeWithText("Hugging Face").performClick()
+        compose.onNodeWithText("Offline").performClick()
+        compose.onNodeWithTag("signIn").performClick()
+
+        assertEquals(listOf("network HUGGING_FACE", "network OFFLINE", "signIn"), calls)
+    }
+
+    @Test
+    fun signInIsUnavailableOffline() {
+        show(SettingsState(network = NetworkMode.OFFLINE))
+
+        compose.onNodeWithText("Allow Hugging Face in Network to sign in.").assertIsDisplayed()
+        compose.onNodeWithTag("signIn").performClick()
+
+        assertTrue(calls.isEmpty())
+    }
+
+    @Test
+    fun signedInAccountCanSignOut() {
+        show(SettingsState(network = NetworkMode.HUGGING_FACE, account = HubAccount("bruce-owner", 0)))
+
+        compose.onNodeWithText("Signed in as bruce-owner").assertIsDisplayed()
+        compose.onNodeWithTag("signOut").performClick()
+
+        assertEquals(listOf("signOut"), calls)
+    }
+
+    @Test
+    fun signInErrorAndModeSummaries() {
+        show(SettingsState(network = NetworkMode.GENERAL, signInError = SignInError.DENIED))
+
+        compose.onNodeWithTag("signInError").assertIsDisplayed()
+        compose.onNodeWithText("Any site, once Bruce has skills that use the web.").assertIsDisplayed()
+        assertEquals(com.bizzeh.bruce.R.string.network_approved_summary, SettingsText.networkSummary(NetworkMode.APPROVED_DOMAINS))
+        assertEquals(com.bizzeh.bruce.R.string.network_approved, SettingsText.networkLabel(NetworkMode.APPROVED_DOMAINS))
+        assertEquals("1 Jan 1970, 00:00", SettingsText.date(0, java.util.Locale.UK).let { it.substringBefore(',') + ", 00:00" })
     }
 
     @Test

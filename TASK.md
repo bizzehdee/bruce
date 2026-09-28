@@ -175,10 +175,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The switcher and Models screen share one `ModelSelection` path, so per-model settings apply wherever a model is chosen. The memory estimate shown uses the same trained-length cap as loading.
   - Depends on: TASK-010, TASK-025
   - Required by: TASK-029, TASK-030
-- [ ] TASK-028: Network settings
+- [~] TASK-028: Network settings
   - Network mode (offline only, Hugging Face only, approved domains, general) and Hugging Face sign-in, in Settings. Fresh installs start offline only; the Hub client refuses requests the mode does not allow.
-  - Sign-in by OAuth with PKCE through the browser, redirect `com.bizzeh.bruce:/oauth/huggingface`, scopes `openid profile read-repos`; token stored encrypted with Android Keystore.
-  - Open: OAuth client ID from the owner's Hugging Face OAuth app.
+  - Sign-in by OAuth with PKCE through the browser, redirect `com.bizzeh.bruce:/oauth/huggingface`, scopes `openid profile read-repos gated-repos`; token stored encrypted with Android Keystore.
+  - OAuth client ID `f702d81d-7b00-4ae1-9a39-8304fff2b9c5` (public). The OAuth app must be public (no client secret) and allow the `gated-repos` scope.
+  - Owner set token lifetime to 1 week and added `gated-repos` (2026-09-28).
+  - Implemented and unit/device tested; open until a real sign-in on a phone succeeds.
   - Required by: TASK-030
   - Depends on: TASK-020, TASK-026
 - [ ] TASK-029: Model management screen: Hugging Face browse and download

@@ -95,7 +95,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   do. `planned`
 - **Hugging Face sign-in** — OAuth ("Sign in with Hugging Face") as the default,
   pasted access token as a fallback. Token stored in Keystore-backed storage.
-  `planned`
+  `in progress`
 - **Resumable downloads** — Download into app storage, resume with range requests
   after interruption, check free space first, and verify the SHA-256 the Hub
   publishes for the file. `planned`
@@ -141,7 +141,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `CAPABILITY_DISABLED`, `RESOURCE_OUTSIDE_SCOPE`, and the others in the spec),
   message, `user_can_change`, `retryable`. `planned`
 - **Network modes** — Offline only, Hugging Face only, approved domains, general
-  internet. A fresh install starts in offline only. `planned`
+  internet. A fresh install starts in offline only. `in progress`
 
 ### Skills
 

@@ -55,6 +55,8 @@ class HubClient(
     private val dispatcher: CoroutineDispatcher,
     private val userAgent: String,
     private val baseUrl: String = "https://huggingface.co",
+    /** The signed-in user's token, attached when present so gated and private repos work. */
+    private val token: suspend () -> String? = { null },
 ) {
     init {
         require(baseUrl.startsWith("https://")) { "Hub base URL must use HTTPS" }
@@ -123,7 +125,8 @@ class HubClient(
     private suspend fun fetch(url: String, maxBytes: Int, headers: Map<String, String>): HubResult<HttpResponse> {
         if (!networkAllowed()) return HubResult.Failure(HubError.NETWORK_DISABLED)
         val response = try {
-            withContext(dispatcher) { transport.get(url, headers + ("User-Agent" to userAgent), maxBytes) }
+            val auth = token()?.let { mapOf("Authorization" to "Bearer $it") }.orEmpty()
+            withContext(dispatcher) { transport.get(url, headers + auth + ("User-Agent" to userAgent), maxBytes) }
         } catch (e: IOException) {
             return HubResult.Failure(HubError.OFFLINE)
         } ?: return HubResult.Failure(HubError.RESPONSE_TOO_LARGE)

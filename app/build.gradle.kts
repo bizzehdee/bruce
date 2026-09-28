@@ -17,6 +17,11 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField(
+            "String",
+            "HUGGING_FACE_CLIENT_ID",
+            "\"${providers.gradleProperty("bruce.huggingFaceClientId").get()}\"",
+        )
         testInstrumentationRunnerArguments["notAnnotation"] = "com.bizzeh.bruce.testing.ManualOnly"
 
         ndk {
@@ -63,6 +68,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     testOptions {
@@ -89,6 +95,8 @@ kover {
                 // Branching logic lives in plain functions, which the gate still counts.
                 annotatedBy("androidx.compose.runtime.Composable")
                 classes("*.ComposableSingletons*", "*.BuildConfig", "*.R", "*.R\$*")
+                // Composition root: wiring only, excluded by the testing standard; covered by device tests.
+                classes("com.bizzeh.bruce.MainActivity*", "com.bizzeh.bruce.AppContainer*", "com.bizzeh.bruce.BruceApplication*")
             }
         }
         variant("debug") {

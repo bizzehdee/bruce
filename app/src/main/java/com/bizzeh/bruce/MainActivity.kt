@@ -1,5 +1,7 @@
 package com.bizzeh.bruce
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -30,6 +32,7 @@ import com.bizzeh.bruce.prototype.PrototypeActions
 import com.bizzeh.bruce.prototype.PrototypeScreen
 import com.bizzeh.bruce.prototype.PrototypeViewModel
 import com.bizzeh.bruce.settings.ThemeMode
+import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.settings.SettingsActions
 import com.bizzeh.bruce.settings.SettingsScreen
 import com.bizzeh.bruce.settings.SettingsViewModel
@@ -68,6 +71,8 @@ class MainActivity : ComponentActivity() {
             SettingsViewModel(
                 theme = container.themeSettings,
                 inference = container.inferenceSettings,
+                network = container.networkSettings,
+                hubAuth = container.hubAuth,
                 dataReset = container.dataReset,
                 dynamicColourSupported = dynamicColourSupported(),
                 performanceCores = CpuTopology.performanceCoreCount(),
@@ -78,6 +83,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) handleSignInRedirect(intent)
         enableEdgeToEdge()
         setContent {
             val theme by container.themeSettings.settings.collectAsState(initial = ThemeSettings())
@@ -131,6 +137,18 @@ class MainActivity : ComponentActivity() {
         PrototypeScreen(state, actions, onBack)
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleSignInRedirect(intent)
+    }
+
+    /** The Hugging Face sign-in redirect; HubAuth rejects anything that does not match the sign-in it started. */
+    private fun handleSignInRedirect(intent: Intent?) {
+        val uri = intent?.data ?: return
+        if (intent.action != Intent.ACTION_VIEW || uri.scheme != "com.bizzeh.bruce" || uri.path != "/oauth/huggingface") return
+        settings.completeSignIn(uri.queryParameterNames.associateWith(uri::getQueryParameter))
+    }
+
     private fun chatActions() = object : ChatActions {
         override fun setInput(input: String) = chat.setInput(input)
         override fun send() = chat.send()
@@ -151,6 +169,11 @@ class MainActivity : ComponentActivity() {
         override fun setThreads(threads: Int?) = settings.setThreads(threads)
         override fun setContextLength(contextLength: Int) = settings.setContextLength(contextLength)
         override fun clearAllData() = settings.clearAllData()
+        override fun setNetworkMode(mode: NetworkMode) = settings.setNetworkMode(mode)
+        override fun signIn() {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settings.beginSignIn())))
+        }
+        override fun signOut() = settings.signOut()
         override fun openPermissions() = open(Destination.PERMISSIONS)
         override fun openLicences() = open(Destination.LICENCES)
         override fun openDiagnostics() = open(Destination.DIAGNOSTICS)
