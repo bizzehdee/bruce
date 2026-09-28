@@ -28,4 +28,20 @@ class FakeDocuments : DocumentAccess {
     override fun children(tree: Uri, folder: DocumentRef) = this.tree[folder.uri].orEmpty()
     override fun mimeType(document: Uri) = contents[document]?.first
     override fun read(document: Uri, maxBytes: Int) = contents[document]?.second?.let { it.copyOf(minOf(it.size, maxBytes)) }
+
+    var refuseCreate = false
+    val created = mutableListOf<String>()
+
+    override fun create(tree: Uri, parent: DocumentRef, name: String): DocumentRef? {
+        if (refuseCreate) return null
+        val document = DocumentRef(Uri.parse("${parent.uri}/$name"), isDirectory = false)
+        this.tree[parent.uri] = this.tree[parent.uri].orEmpty() + (name to document)
+        contents[document.uri] = "text/plain" to ByteArray(0)
+        created += name
+        return document
+    }
+
+    override fun write(document: Uri, bytes: ByteArray) {
+        contents[document] = contents[document]?.first to bytes
+    }
 }

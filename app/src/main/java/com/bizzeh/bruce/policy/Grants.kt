@@ -38,6 +38,12 @@ interface DocumentAccess {
 
     /** Reads at most [maxBytes] of [document]; null if it cannot be opened. */
     fun read(document: Uri, maxBytes: Int): ByteArray?
+
+    /** Creates an empty file called [name] in [parent], typed by its extension; null if the provider refused. */
+    fun create(tree: Uri, parent: DocumentRef, name: String): DocumentRef?
+
+    /** Replaces [document]'s contents with [bytes]. */
+    fun write(document: Uri, bytes: ByteArray)
 }
 
 /** The user's grants. Only the Permissions screen adds or revokes them; nothing the model reaches holds this store. */
