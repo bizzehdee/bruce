@@ -110,7 +110,7 @@ class SkillFrameworkTest {
         assertThrows(IllegalArgumentException::class.java) { calculatorWith(id = "Bad-Id") }
         assertThrows(IllegalArgumentException::class.java) { calculatorWith(version = 0) }
         assertThrows(IllegalArgumentException::class.java) { calculatorWith(description = " ") }
-        assertThrows(IllegalArgumentException::class.java) { calculatorWith(capabilities = emptySet()) }
+        assertEquals("a skill that touches nothing needs no capability", emptySet<Capability>(), calculatorWith(capabilities = emptySet()).capabilities)
         assertThrows(IllegalArgumentException::class.java) { SkillRegistry(listOf(calculator, calculator)) }
     }
 

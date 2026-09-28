@@ -255,10 +255,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - `ToolCallDeviceTest` (manual: needs the model copied onto the phone, `docs/building.md`) passed on the Pixel 11 with Qwen3.5-0.8B Q8_0: own format calls `get_datetime` and `calculate` with both numbers, answers "Austen" without a tool; Bruce's format with its grammar calls `get_datetime`. Full device suite 35/35.
   - Depends on: TASK-024, TASK-033
   - Required by: TASK-052
-- [ ] TASK-037: Automatic skills
+- [x] TASK-037: Automatic skills
   - Date/time, calculator, battery, device information, storage status, network status; default state Accepted; no Android runtime permissions.
   - Calculator uses a bounded arithmetic parser, never code evaluation.
   - Device and network status report only what the spec needs (no identifiers such as serials or MAC addresses).
+  - Done (`skills/automatic`): ids and descriptions as measured in TASK-033. Calculator: recursive descent over `BigDecimal` (34 significant digits), `+ - * / ^ %`, parentheses, `×`, `÷` and thousands commas; spaces separate tokens but never join them ("1 2" is refused); input, nesting, exponents and result size bounded. Network status needs `ACCESS_NETWORK_STATE`, an install-time permission. The calculator declares no capability (it touches nothing), so the framework now allows skills with none.
+  - Registered in the app container; usable in chat once TASK-053 wires the runtime in. Device test on the Pixel 11: every skill answers, and no build fingerprint, MAC or IP address appears in their output.
   - Depends on: TASK-034, TASK-052
   - Required by: TASK-039
 - [ ] TASK-038: Permissions screen
