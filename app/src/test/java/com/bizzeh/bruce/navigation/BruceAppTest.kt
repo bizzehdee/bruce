@@ -3,6 +3,8 @@ package com.bizzeh.bruce.navigation
 import androidx.activity.ComponentActivity
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -68,6 +70,17 @@ class BruceAppTest {
     }
 
     private fun openDrawer() = compose.onNodeWithTag("openDrawer").performClick()
+
+    @Test
+    fun openingTheDrawerPutsTheKeyboardAway() {
+        show()
+        compose.onNodeWithTag("composer").performClick()
+        compose.onNodeWithTag("composer").assertIsFocused()
+
+        openDrawer()
+
+        compose.onNodeWithTag("composer").assertIsNotFocused()
+    }
 
     @Test
     fun chatIsTheStartScreen() {
