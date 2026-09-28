@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.BackendSelection
 import java.io.File
 
 /** Callbacks from the prototype screen. */
@@ -102,7 +103,7 @@ fun PrototypeScreen(
                             Text("Warning: this model may not fit in memory.", color = MaterialTheme.colorScheme.error)
                         }
                     }
-                    BackendChooser(state.backend, actions::setBackend)
+                    BackendChooser(state.backend, state.capabilities?.let { BackendSelection.choices(it, state.backend) } ?: BackendPreference.entries, actions::setBackend)
                     Button(onClick = actions::load, enabled = state.load != LoadState.Loading) { Text("Load") }
                     Text(PrototypeText.load(state.load), modifier = Modifier.testTag("loadStatus"))
                 }
@@ -139,8 +140,7 @@ private fun Section(title: String, content: @Composable () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BackendChooser(selected: BackendPreference, onSelect: (BackendPreference) -> Unit) {
-    val options = BackendPreference.entries
+private fun BackendChooser(selected: BackendPreference, options: List<BackendPreference>, onSelect: (BackendPreference) -> Unit) {
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         options.forEachIndexed { index, option ->
             SegmentedButton(

@@ -4,6 +4,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -29,6 +31,24 @@ class ReferenceOutputDeviceTest {
     @Test
     fun cpuGreedyOutputMatchesLlamaCpp() {
         assertEquals(STORIES_REFERENCE, engine.greedyStoryText(BackendPreference.CPU, threads = 1).take(STORIES_REFERENCE.length))
+    }
+
+    /** A prompt sent while the model reloads with other settings must wait for the reload, not reach a half-loaded model. */
+    @Test
+    fun promptDuringReloadGetsTheReloadedModelsOutput() = runBlocking {
+        assertEquals(STORIES_REFERENCE, engine.greedyStoryText(BackendPreference.CPU, threads = 1).take(STORIES_REFERENCE.length))
+        val model = File(InstrumentationRegistry.getInstrumentation().targetContext.cacheDir, "stories260K.gguf")
+
+        repeat(5) { attempt ->
+            val reload = launch(Dispatchers.Default) {
+                assertTrue(engine.loadModel(model, LoadConfig(contextLength = 256, threads = 2 + attempt % 2, backend = BackendPreference.CPU)) is LoadResult.Loaded)
+            }
+            val prompt = engine.formatChat(listOf(ChatMessage(ChatRole.USER, "unused")))
+            val text = engine.generate(GenerationRequest("Once upon a time", maxTokens = 24, temperature = 0f)).toList()
+                .filterIsInstance<GenerationEvent.Token>().joinToString("") { it.text }
+            reload.join()
+            assertEquals("attempt $attempt (prompt formatted: ${prompt != null})", STORIES_REFERENCE, text.take(STORIES_REFERENCE.length))
+        }
     }
 
     @Test

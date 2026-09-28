@@ -58,6 +58,8 @@ fun ModelsScreen(
     browse: BrowseState = BrowseState(),
     browseActions: BrowseActions? = null,
     startOnHuggingFace: Boolean = false,
+    /** Backend choices this phone can use, plus a model's saved one if it is no longer usable. */
+    backendChoices: (BackendPreference?) -> List<BackendPreference> = { BackendPreference.entries },
 ) {
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<String?>(null) }
@@ -77,7 +79,7 @@ fun ModelsScreen(
                 if (tab == 1 && browseActions != null) {
                     BrowsePane(browse, browseActions)
                 } else {
-                    Installed(state, actions, cores, expanded, { expanded = it }, { confirmDelete = it })
+                    Installed(state, actions, cores, backendChoices, expanded, { expanded = it }, { confirmDelete = it })
                 }
             }
         }
@@ -103,6 +105,7 @@ private fun Installed(
     state: ModelsState,
     actions: ModelsActions,
     cores: Int,
+    backendChoices: (BackendPreference?) -> List<BackendPreference>,
     expanded: String?,
     onExpand: (String?) -> Unit,
     onDelete: (String) -> Unit,
@@ -125,6 +128,7 @@ private fun Installed(
             loading = model.file == state.loading,
             expanded = expanded == model.file.name,
             cores = cores,
+            backendChoices = backendChoices,
             onToggle = { onExpand(if (expanded == model.file.name) null else model.file.name) },
             actions = actions,
             onDelete = { onDelete(model.file.name) },
@@ -140,6 +144,7 @@ private fun ModelCard(
     loading: Boolean,
     expanded: Boolean,
     cores: Int,
+    backendChoices: (BackendPreference?) -> List<BackendPreference>,
     onToggle: () -> Unit,
     actions: ModelsActions,
     onDelete: () -> Unit,
@@ -167,12 +172,14 @@ private fun ModelCard(
                 Text(stringResource(R.string.models_settings), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
                 OverrideChips(
                     label = stringResource(R.string.settings_backend),
-                    options = listOf(null) + BackendPreference.entries,
+                    options = listOf(null) + backendChoices(model.overrides.backend),
                     selected = model.overrides.backend,
                     text = { it?.name?.let(SettingsText::backendName) },
                     tag = "backend",
                 ) { actions.setOverrides(model.file, model.overrides.copy(backend = it)) }
-                Text(stringResource(R.string.settings_backend_note), style = MaterialTheme.typography.bodySmall)
+                if (backendChoices(model.overrides.backend).any { it.isGpu }) {
+                    Text(stringResource(R.string.settings_backend_note), style = MaterialTheme.typography.bodySmall)
+                }
                 OverrideChips(
                     label = stringResource(R.string.settings_threads),
                     options = listOf(null) + SettingsText.threadChoices(cores),

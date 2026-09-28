@@ -399,6 +399,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Backend choices list only backends this phone can use (Auto, CPU, and usable GPUs). |
 | 2026-09-28 | Changed | Saved conversations done (drawer list, resume, rename, archive, delete, bulk actions, Archived view, delete all chats); export still to come. |
 | 2026-09-28 | Changed | Model browser recommendations and filters done; list sizes are estimates, exact when a repository is opened. |
 | 2026-09-28 | Changed | Auto backend always uses the CPU; Vulkan and OpenCL only when chosen, marked experimental (Vulkan gave wrong output on the Pixel 11). |

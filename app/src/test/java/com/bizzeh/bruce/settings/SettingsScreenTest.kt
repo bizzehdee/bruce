@@ -104,6 +104,23 @@ class SettingsScreenTest {
     }
 
     @Test
+    fun onlyOfferedBackendsAreShownAndTheGpuNoteOnlyWithAGpu() {
+        show(SettingsState(backends = listOf(BackendPreference.AUTO, BackendPreference.CPU)))
+
+        compose.onNodeWithText("OpenCL").assertDoesNotExist()
+        compose.onNodeWithText("Vulkan").assertDoesNotExist()
+        compose.onNodeWithText("Auto uses the CPU", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun gpuNoteShownWhenAGpuIsOffered() {
+        show(SettingsState(backends = listOf(BackendPreference.AUTO, BackendPreference.CPU, BackendPreference.VULKAN)))
+
+        compose.onNodeWithText("Vulkan").assertExists()
+        compose.onNodeWithText("Auto uses the CPU", substring = true).assertExists()
+    }
+
+    @Test
     fun dynamicColourHiddenWhereUnsupported() {
         show()
 

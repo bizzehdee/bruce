@@ -47,6 +47,18 @@ class ModelsScreenTest {
     private fun show(state: ModelsState) = compose.setContent { BruceTheme { ModelsScreen(state, actions, onBack = {}) } }
 
     @Test
+    fun modelSettingsOfferOnlyTheBackendsGiven() {
+        compose.setContent {
+            BruceTheme { ModelsScreen(ModelsState(models = listOf(stories)), actions, onBack = {}) { listOf(BackendPreference.AUTO, BackendPreference.CPU) } }
+        }
+
+        compose.onNodeWithText("stories260K").performClick()
+        compose.onNodeWithTag("backend:CPU").assertExists()
+        compose.onNodeWithTag("backend:OPENCL").assertDoesNotExist()
+        compose.onNodeWithText("Auto uses the CPU", substring = true).assertDoesNotExist()
+    }
+
+    @Test
     fun emptyStateOffersImport() {
         show(ModelsState())
 
