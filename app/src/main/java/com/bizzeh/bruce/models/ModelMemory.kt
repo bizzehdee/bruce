@@ -5,6 +5,11 @@ import com.bizzeh.bruce.gguf.GgufMetadata
 
 /**
  * Estimated RAM for a model: its weights plus the KV cache for [contextLength] tokens.
+ * This is memory that cannot be reclaimed. On CPUs where llama.cpp repacks weights (DOTPROD
+ * and later), the original memory-mapped file pages also stay resident, so the process's RSS
+ * can read up to about 1.6 times this; those pages are clean page cache that Android can drop.
+ * Compute buffers measured about 20 MB and are not included
+ * (.learnings/phase0-cpu-benchmarks.md).
  * [kvCacheBytes] is null when the file does not declare the attention shape, in which case
  * [totalBytes] covers the weights only and [complete] is false.
  */

@@ -12,6 +12,6 @@
 - [ggml-backend-loading-is-silent.md](ggml-backend-loading-is-silent.md) — How to diagnose a backend that does not appear. Read when a backend is missing.
 - [ndk-glslc-too-old.md](ndk-glslc-too-old.md) — Why the build needs a host glslc. Read when the Vulkan shader build fails or when upgrading the NDK.
 - [vtracer-python-binding-crashes.md](vtracer-python-binding-crashes.md) — How the logo was traced, and why with the vtracer CLI. Read before re-tracing artwork.
-- [phase0-cpu-benchmarks.md](phase0-cpu-benchmarks.md) — Measured speed and memory on both test phones, with thread-count and memory-estimate conclusions. Read before tuning threads, recommending models or changing the memory estimate.
+- [phase0-cpu-benchmarks.md](phase0-cpu-benchmarks.md) — Measured speed and memory on both test phones, thread-count conclusions, and why RSS exceeds the memory estimate on repacking CPUs. Read before tuning threads, recommending models or changing the memory estimate.
 - [hf-hub-api-for-model-discovery.md](hf-hub-api-for-model-discovery.md) — Verified Hub API calls for GGUF search, metadata, hashes and partial downloads. Read before any Hugging Face work.
 - [build-memory-limits.md](build-memory-limits.md) — Why Gradle, Kotlin and native compiles are memory-capped, and the rule against a second Gradle daemon. Read before changing build parallelism or running builds with another Gradle home.

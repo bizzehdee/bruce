@@ -48,7 +48,7 @@ class InferenceBenchmark {
                 val estimate = ModelMemory.estimate(metadata, CONTEXT)
                 for (threads in threadCounts) {
                     runBlocking {
-                        val rssBefore = residentBytes()
+                        val before = residentMemory()
                         lateinit var loaded: LoadResult
                         val loadTime = measureTime {
                             loaded = engine.loadModel(
@@ -60,17 +60,18 @@ class InferenceBenchmark {
                         engine.generate(GenerationRequest(PROMPT, maxTokens = 8, temperature = 0f)).toList()
                         val events = engine.generate(GenerationRequest(PROMPT, maxTokens = TOKENS, temperature = 0f)).toList()
                         val stats = (events.last() as GenerationEvent.Completed).stats
-                        val rssAfter = residentBytes()
+                        val after = residentMemory()
                         engine.unloadModel()
                         Log.i(
                             TAG,
                             String.format(
                                 Locale.ROOT,
                                 "model=%s threads=%d load_ms=%d prompt_tokens=%d pp_tps=%.1f gen_tokens=%d tg_tps=%.2f " +
-                                    "rss_delta_mb=%d estimate_mb=%d kv_mb=%d",
+                                    "rss_delta_mb=%d anon_delta_mb=%d file_delta_mb=%d estimate_mb=%d kv_mb=%d",
                                 model.name, threads, loadTime.inWholeMilliseconds, stats.promptTokens,
                                 stats.promptTokensPerSecond, stats.generatedTokens, stats.generationTokensPerSecond,
-                                (rssAfter - rssBefore) shr 20, estimate.totalBytes shr 20, (estimate.kvCacheBytes ?: 0) shr 20,
+                                (after.total - before.total) shr 20, (after.anonymous - before.anonymous) shr 20,
+                                (after.file - before.file) shr 20, estimate.totalBytes shr 20, (estimate.kvCacheBytes ?: 0) shr 20,
                             ),
                         )
                     }
@@ -79,12 +80,21 @@ class InferenceBenchmark {
         }
     }
 
-    private fun residentBytes(): Long = File("/proc/self/status").readLines()
-        .first { it.startsWith("VmRSS:") }
-        .filter(Char::isDigit).toLong() * 1024
+    /** Resident memory split into anonymous (heap, buffers) and file-backed (mapped model) pages. */
+    private data class ResidentMemory(val total: Long, val anonymous: Long, val file: Long)
+
+    // statm rather than RssAnon/RssFile in /proc/self/status, which kernels before 4.5
+    // (the XZ Premium's) do not report. Fields are pages: size, resident, shared (file-backed) ...
+    private fun residentMemory(): ResidentMemory {
+        val fields = File("/proc/self/statm").readText().trim().split(" ").map(String::toLong)
+        val resident = fields[1] * PAGE_BYTES
+        val fileBacked = fields[2] * PAGE_BYTES
+        return ResidentMemory(total = resident, anonymous = resident - fileBacked, file = fileBacked)
+    }
 
     private companion object {
         const val TAG = "BruceBench"
+        val PAGE_BYTES = android.system.Os.sysconf(android.system.OsConstants._SC_PAGESIZE)
         const val CONTEXT = 2048
         const val TOKENS = 64
         const val PROMPT = "You are a helpful assistant living on a phone. Explain in a few sentences why " +

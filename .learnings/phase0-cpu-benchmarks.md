@@ -36,11 +36,31 @@ Conclusions:
 1. **Threads.** 4 threads gives the best generation speed on both phones; all 8 cores is
    25–35% slower. Both SoCs have 4 performance cores. The engine's current default (all
    cores) is wrong for these phones.
-2. **Memory estimate.** Accurate within 2% on the baseline ARMv8.0 phone. On the DOTPROD
-   phone real use is 39–56% higher. Hypothesis, not yet verified: the DOTPROD CPU variant
-   repacks weights into a second, anonymous buffer while the memory-mapped file pages stay
-   resident. The mapped pages are clean and reclaimable, so `VmRSS` may overstate true
-   memory pressure.
+2. **Memory estimate.** Accurate on both phones for memory that cannot be reclaimed; see
+   the memory breakdown below (TASK-019, 2026-09-28).
 3. **Budget phone.** On the 4 GB XZ Premium, a 0.6B Q4 model generates 14 tok/s; a 1.7B
    Q4_K_M model manages 5 tok/s, which is slow for chat.
 4. **GPU order** (Vulkan before OpenCL) remains unmeasured.
+
+## Memory breakdown (TASK-019, 2026-09-28)
+
+`/proc/self/statm` resident memory split into anonymous and file-backed pages, after load and
+generation, 4 threads, context 2048 (KV cache 224 MB for both models):
+
+| Phone | Model (file size) | Anonymous | File-backed | Estimate |
+|---|---|---|---|---|
+| Xperia 1 II | 0.6B Q4_0 (409 MB) | 560 MB | 318 MB | 633 MB |
+| Xperia 1 II | 1.7B Q4_K_M (1,223 MB) | 1,288 MB | 967 MB | 1,447 MB |
+| XZ Premium | 0.6B Q4_0 (409 MB) | 244 MB | 403 MB | 633 MB |
+| XZ Premium | 1.7B Q4_K_M (1,223 MB) | 243 MB | 1,216 MB | 1,447 MB |
+
+Cause of the earlier gap, confirmed: on the DOTPROD phone llama.cpp repacks weights into an
+anonymous buffer (anonymous minus KV cache ≈ the weights: 336 of 409 MB, 1,064 of 1,223 MB),
+and most of the memory-mapped file stays resident too. On the baseline phone there is no
+repacking: anonymous memory is the KV cache plus about 20 MB of compute buffers, and the file
+is fully mapped. Compute buffers are therefore not the cause.
+
+The resident file pages are clean page cache; Android can drop them under pressure because
+the repacked copy is what inference uses. So the memory Bruce needs is weights + KV cache +
+~20 MB, which the estimate covers on both phones. `ModelMemory` is unchanged apart from
+documenting this.
