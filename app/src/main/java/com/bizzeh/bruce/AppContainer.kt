@@ -32,6 +32,9 @@ import com.bizzeh.bruce.huggingface.ModelDownloader
 import com.bizzeh.bruce.huggingface.UrlConnectionTransport
 import com.bizzeh.bruce.settings.InferenceSettingsRepository
 import com.bizzeh.bruce.settings.NetworkSettingsRepository
+import com.bizzeh.bruce.settings.PersonalitySettingsRepository
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.settings.ThemeSettingsRepository
 import com.bizzeh.bruce.settings.settingsDataStore
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +67,13 @@ class AppContainer(private val context: Context) {
     val inferenceSettings: InferenceSettingsRepository by lazy { InferenceSettingsRepository(context.settingsDataStore) }
 
     val networkSettings: NetworkSettingsRepository by lazy { NetworkSettingsRepository(context.settingsDataStore) }
+
+    val personalitySettings: PersonalitySettingsRepository by lazy { PersonalitySettingsRepository(context.settingsDataStore) }
+
+    private suspend fun personalityRules(): String {
+        val personality = personalitySettings.personality.first()
+        return withContext(Dispatchers.IO) { context.resources.openRawResource(personality.rules).bufferedReader().use { it.readText() } }
+    }
 
     private val transport: HttpTransport by lazy { UrlConnectionTransport() }
 
@@ -112,7 +122,7 @@ class AppContainer(private val context: Context) {
         val policy = PolicyEngine(skills, skillStates, ToolOutput(reservedMarkers = RESERVED_MARKERS), permissionGranted = { permission ->
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
         })
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() })
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules)
     }
 
     val dataReset: DataReset by lazy {

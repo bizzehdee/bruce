@@ -42,7 +42,7 @@ class ChatScreenTest {
     fun typingReportsInput() {
         show(ChatState(modelName = "qwen3"))
 
-        compose.onNodeWithText("What can I help with?").assertIsDisplayed()
+        compose.onNodeWithText("I'm Bruce. What can I help with?").assertIsDisplayed()
         compose.onNodeWithTag("composer").performTextInput("Hello")
 
         assertEquals(listOf("input Hello"), calls)
@@ -84,7 +84,7 @@ class ChatScreenTest {
             ),
         )
 
-        compose.onNodeWithText("Thinking…").assertIsDisplayed()
+        compose.onNodeWithText("Bruce is thinking…").assertIsDisplayed()
         compose.onNodeWithTag("stop").performClick()
 
         assertEquals(listOf("stop"), calls)

@@ -215,7 +215,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   **Milo** (curious, observant, calm, thoughtful). Each has fixed personality
   rules, written by the owner, placed ahead of the rest of the system prompt; the
   chat shows the chosen name (title, "Milo is thinking…", greetings) while the
-  app itself stays Bruce. A change applies from the next reply. `planned`
+  app itself stays Bruce. A change applies from the next reply. `done`
 - **Formatted replies** — Replies are rendered as Markdown (headings, emphasis,
   lists, code, tables, quotes) in Bruce's own theme, parsed by commonmark-java and
   drawn in Compose, with no web view. Links show their full address and open in
@@ -423,6 +423,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Personalities done: Bruce and Milo in Settings > Sidekick. |
 | 2026-09-28 | Changed | Tool calling works in chat: skill uses shown inline and saved with the chat; agent loop done. |
 | 2026-09-28 | Changed | Automatic skills done (date and time, calculator, battery, device, storage, network). |
 | 2026-09-28 | Added | Personalities (Bruce default, Milo) chosen in Settings; user-facing text calls Bruce a sidekick; light dog puns in small UI copy, replies, README and store text. |

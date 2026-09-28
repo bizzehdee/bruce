@@ -36,6 +36,7 @@ class SettingsScreenTest {
         override fun clearAllData() { calls += "clear" }
         override fun deleteAllConversations() { calls += "deleteChats" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
+        override fun setPersonality(personality: Personality) { calls += "personality $personality" }
         override fun signIn() { calls += "signIn" }
         override fun signOut() { calls += "signOut" }
         override fun openPermissions() { calls += "permissions" }
@@ -118,6 +119,16 @@ class SettingsScreenTest {
 
         compose.onNodeWithText("Vulkan").assertExists()
         compose.onNodeWithText("Auto uses the CPU", substring = true).assertExists()
+    }
+
+    @Test
+    fun sidekickPersonalityIsChosenHere() {
+        show(SettingsState(personality = Personality.BRUCE))
+
+        compose.onNodeWithText("Curious, calm and thoughtful. Observes first, speaks when it helps.").assertExists()
+        compose.onNodeWithTag("personality:MILO").performClick()
+
+        assertEquals(listOf("personality MILO"), calls)
     }
 
     @Test

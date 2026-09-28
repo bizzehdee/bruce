@@ -84,6 +84,17 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun theChatUsesTheChosenSidekicksNameAndKeepsItOnNewChats() = runTest(dispatcher) {
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, flowOf("Milo"))
+        advanceUntilIdle()
+        assertEquals("Milo", vm.state.value.sidekick)
+
+        vm.newChat()
+
+        assertEquals("Milo", vm.state.value.sidekick)
+    }
+
+    @Test
     fun aReplyStreamsThenSettlesAndIsSaved() = runTest(dispatcher) {
         turns += flow {
             emit(RuntimeEvent.Text("Hel"))

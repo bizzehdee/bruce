@@ -84,7 +84,7 @@ private fun Messages(state: ChatState, modifier: Modifier) {
     if (state.entries.isEmpty()) {
         Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Text(
-                stringResource(if (state.modelName == null) R.string.chat_empty else R.string.chat_empty_ready),
+                if (state.modelName == null) stringResource(R.string.chat_empty) else stringResource(R.string.chat_empty_ready, state.sidekick),
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -107,7 +107,7 @@ private fun Messages(state: ChatState, modifier: Modifier) {
                 entry.tool != null -> ToolRow(index, entry.tool)
                 // A reply that only asked for skills has nothing to show; its tool rows follow.
                 entry.text.isEmpty() && entry.toolCalls.isNotEmpty() -> Unit
-                else -> Reply(index, entry)
+                else -> Reply(index, entry, state.sidekick)
             }
         }
     }
@@ -146,20 +146,18 @@ private fun UserMessage(text: String) {
 }
 
 @Composable
-private fun Reply(index: Int, entry: ChatEntry) {
+private fun Reply(index: Int, entry: ChatEntry, sidekick: String) {
     val reply = ThinkingText.split(entry.text)
     var showReasoning by rememberSaveable(index) { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth().testTag("reply:$index"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         if (reply.thinking != null || reply.stillThinking) {
             TextButton(onClick = { showReasoning = !showReasoning }, modifier = Modifier.testTag("reasoningToggle:$index")) {
                 Text(
-                    stringResource(
-                        when {
-                            reply.stillThinking && !showReasoning -> R.string.chat_thinking
-                            showReasoning -> R.string.chat_reasoning_hide
-                            else -> R.string.chat_reasoning_show
-                        },
-                    ),
+                    when {
+                        reply.stillThinking && !showReasoning -> stringResource(R.string.chat_thinking, sidekick)
+                        showReasoning -> stringResource(R.string.chat_reasoning_hide)
+                        else -> stringResource(R.string.chat_reasoning_show)
+                    },
                 )
             }
             if (showReasoning) {
@@ -187,7 +185,7 @@ private fun Composer(state: ChatState, actions: ChatActions) {
         OutlinedTextField(
             value = state.input,
             onValueChange = actions::setInput,
-            placeholder = { Text(stringResource(R.string.chat_input_hint)) },
+            placeholder = { Text(stringResource(R.string.chat_input_hint, state.sidekick)) },
             shape = RoundedCornerShape(24.dp),
             maxLines = 5,
             modifier = Modifier.weight(1f).testTag("composer"),

@@ -77,7 +77,7 @@ class BruceRuntimeTest {
     private val engine = ScriptedEngine()
 
     private fun runtime(maxToolCalls: Int = 5, maxDuration: kotlin.time.Duration = 10.seconds) =
-        BruceRuntime(engine, registry, states, policy, temperature = { 0.3f }, maxToolCalls = maxToolCalls, maxDuration = maxDuration)
+        BruceRuntime(engine, registry, states, policy, temperature = { 0.3f }, personality = { "You are Milo.\n" }, maxToolCalls = maxToolCalls, maxDuration = maxDuration)
 
     private val question = listOf(ToolChatMessage(ChatRole.USER, "What time is it?"))
 
@@ -106,6 +106,7 @@ class BruceRuntimeTest {
 
         val second = engine.formatted[1]
         assertEquals(ChatRole.SYSTEM, second.first().role)
+        assertTrue("the personality leads the system prompt", second.first().content.startsWith("You are Milo.\n\n" + BruceRuntime.GUIDANCE))
         assertEquals("the model sees its call and the result", listOf(ChatRole.USER, ChatRole.ASSISTANT, ChatRole.TOOL), second.drop(1).map { it.role })
         assertEquals(0.3f, engine.requests.first().temperature)
         assertEquals(engine.grammar, engine.requests.first().grammar)
@@ -197,6 +198,7 @@ class BruceRuntimeTest {
         val system = engine.chats.first().first()
         assertEquals(ChatRole.SYSTEM, system.role)
         assertTrue(system.content.contains("<tools>"))
+        assertTrue(system.content.startsWith("You are Milo."))
         val second = engine.chats[1]
         assertTrue(second[2].content.contains("<tool_call>{\"name\": \"calculate\""))
         assertEquals(ChatRole.USER, second[3].role)
