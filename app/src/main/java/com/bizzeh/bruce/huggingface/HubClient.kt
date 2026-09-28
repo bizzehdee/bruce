@@ -21,6 +21,17 @@ data class HubModel(
     val architecture: String?,
     val parameterCount: Long?,
     val contextLength: Long?,
+    /** The repository's GGUF file paths, from the search; sizes need [HubClient.ggufFiles]. */
+    val files: List<String> = emptyList(),
+)
+
+/** Filters Hugging Face applies to a search. */
+data class HubSearchFilter(
+    /** Only repositories tagged text-generation. */
+    val textGeneration: Boolean = true,
+    /** Inclusive parameter-count bounds; null for no bound. The Hub filters on one parsed file's count, so treat it as a hint. */
+    val minParameters: Long? = null,
+    val maxParameters: Long? = null,
 )
 
 data class HubFile(val path: String, val sizeBytes: Long, val sha256: String?)
@@ -62,10 +73,15 @@ class HubClient(
         require(baseUrl.startsWith("https://")) { "Hub base URL must use HTTPS" }
     }
 
-    suspend fun search(query: String, limit: Int = 20): HubResult<List<HubModel>> {
+    /** GGUF repositories, most downloaded first. A blank [query] lists without a name search. */
+    suspend fun search(query: String, limit: Int = 20, filter: HubSearchFilter = HubSearchFilter()): HubResult<List<HubModel>> {
         require(limit in 1..MAX_RESULTS) { "limit must be 1..$MAX_RESULTS, was $limit" }
-        val url = "$baseUrl/api/models?search=${encode(query.trim())}&filter=gguf&sort=downloads&direction=-1" +
-            "&limit=$limit" + SEARCH_EXPANSIONS.joinToString("") { "&expand[]=$it" }
+        val parameters = listOfNotNull(filter.minParameters?.let { "min:$it" }, filter.maxParameters?.let { "max:$it" })
+        val url = "$baseUrl/api/models?filter=gguf&sort=downloads&direction=-1&limit=$limit" +
+            query.trim().takeIf { it.isNotEmpty() }?.let { "&search=${encode(it)}" }.orEmpty() +
+            (if (filter.textGeneration) "&pipeline_tag=text-generation" else "") +
+            parameters.takeIf { it.isNotEmpty() }?.let { "&num_parameters=${encode(it.joinToString(","))}" }.orEmpty() +
+            SEARCH_EXPANSIONS.joinToString("") { "&expand[]=$it" }
         return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray(body)) }
     }
 
@@ -160,7 +176,19 @@ class HubClient(
             architecture = gguf?.optString("architecture")?.takeIf { it.isNotBlank() },
             parameterCount = gguf?.positiveLong("total"),
             contextLength = gguf?.positiveLong("context_length"),
+            files = ggufSiblings(item.optJSONArray("siblings")) ?: return null,
         )
+    }
+
+    /** Unsafe paths make the whole response malformed, as in [parseFiles]. */
+    private fun ggufSiblings(siblings: JSONArray?): List<String>? {
+        if (siblings == null) return emptyList()
+        return (0 until siblings.length()).mapNotNull { index ->
+            val path = siblings.optJSONObject(index)?.optString("rfilename") ?: return null
+            if (!path.endsWith(GGUF_EXTENSION, ignoreCase = true)) return@mapNotNull null
+            if (!isSafePath(path)) return null
+            path
+        }
     }
 
     private fun parseFiles(array: JSONArray): List<HubFile>? = (0 until array.length()).mapNotNull { index ->
@@ -189,7 +217,7 @@ class HubClient(
         private const val MAX_SEARCH_BYTES = 8 * 1024 * 1024
         private const val MAX_TREE_BYTES = 2 * 1024 * 1024
         private const val GGUF_EXTENSION = ".gguf"
-        private val SEARCH_EXPANSIONS = listOf("downloads", "gated", "cardData", "gguf")
+        private val SEARCH_EXPANSIONS = listOf("downloads", "gated", "cardData", "gguf", "siblings")
         private val REPOSITORY_ID = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}")
         private val REVISION = Regex("[A-Za-z0-9._-]{1,100}")
         private val SHA256 = Regex("[0-9a-f]{64}")

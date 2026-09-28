@@ -32,6 +32,7 @@ import com.bizzeh.bruce.navigation.BruceApp
 import com.bizzeh.bruce.huggingface.HubModel
 import com.bizzeh.bruce.models.Assessment
 import com.bizzeh.bruce.models.BrowseActions
+import com.bizzeh.bruce.models.BrowseFilters
 import com.bizzeh.bruce.models.DeviceProfile
 import com.bizzeh.bruce.models.ModelBrowserViewModel
 import kotlinx.coroutines.flow.first
@@ -186,6 +187,8 @@ class MainActivity : ComponentActivity() {
             object : BrowseActions {
                 override fun setQuery(query: String) = browser.setQuery(query)
                 override fun search() = browser.search()
+                override fun recommend() = browser.recommend()
+                override fun setFilters(filters: BrowseFilters) = browser.setFilters(filters)
                 override fun openRepository(model: HubModel) = browser.openRepository(model)
                 override fun download(model: HubModel, assessment: Assessment) = browser.download(model, assessment)
                 override fun cancel(repositoryId: String, path: String) = browser.cancel(repositoryId, path)

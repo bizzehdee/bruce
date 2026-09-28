@@ -1,0 +1,2 @@
+ratelimit: "api";r=488;t=75
+ratelimit-policy: "fixed window";"api";q=500;w=300

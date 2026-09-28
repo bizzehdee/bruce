@@ -162,8 +162,12 @@ internal object LlamaArchitectures {
         "(unknown)",
     )
 
-    /** "clip" is the vision projector format (mmproj files), not a model to chat with. */
-    private val notChatModels = setOf("clip")
+    /**
+     * "clip" is the vision projector format (mmproj files). "eagle3" and "dflash" are
+     * speculative-decoding draft heads that need a target model's features (llama-context.cpp);
+     * the Hub lists some large repositories by their draft file.
+     */
+    private val notChatModels = setOf("clip", "eagle3", "dflash")
 
     fun supportsChat(architecture: String): Boolean = architecture in all && architecture !in notChatModels
 }

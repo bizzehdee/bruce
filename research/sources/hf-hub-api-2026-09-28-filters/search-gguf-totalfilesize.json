@@ -1,0 +1,39 @@
+[
+ {
+  "_id": "69e614692e102063d50e84a4",
+  "id": "handy-computer/Qwen3-ASR-1.7B-gguf",
+  "trendingScore": 2,
+  "gguf": {
+   "total": 2038078608,
+   "architecture": "qwen3_asr",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 4083087904
+  },
+  "siblings": [
+   {
+    "rfilename": ".gitattributes"
+   },
+   {
+    "rfilename": "Qwen3-ASR-1.7B-BF16.gguf"
+   },
+   {
+    "rfilename": "Qwen3-ASR-1.7B-F16.gguf"
+   },
+   {
+    "rfilename": "Qwen3-ASR-1.7B-Q4_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen3-ASR-1.7B-Q5_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen3-ASR-1.7B-Q6_K.gguf"
+   },
+   {
+    "rfilename": "Qwen3-ASR-1.7B-Q8_0.gguf"
+   },
+   {
+    "rfilename": "README.md"
+   }
+  ]
+ }
+]

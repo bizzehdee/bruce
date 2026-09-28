@@ -27,7 +27,13 @@ data class RepositoryFiles(val loading: Boolean = true, val ranked: List<Assessm
 data class BrowseState(
     val query: String = "",
     val searching: Boolean = false,
+    /** What the Hub returned, before the phone-side filters. */
     val results: List<HubModel> = emptyList(),
+    /** [results] after the phone-side filters, with each repository's best file for this phone. */
+    val listings: List<Listing> = emptyList(),
+    val filters: BrowseFilters = BrowseFilters(),
+    /** Showing recommendations for this phone rather than a name search. */
+    val recommended: Boolean = true,
     val searched: Boolean = false,
     val error: HubError? = null,
     val files: Map<String, RepositoryFiles> = emptyMap(),
@@ -35,8 +41,9 @@ data class BrowseState(
 )
 
 /**
- * Hugging Face search and download for the Models screen. Files are ranked for this phone on
- * the phone (ModelFit); only the search text and file requests reach Hugging Face.
+ * Hugging Face recommendations, search and download for the Models screen. Files are ranked for
+ * this phone on the phone (ModelFit); only the search text, the task and parameter filters (and,
+ * for recommendations, a parameter ceiling derived from free memory) reach Hugging Face.
  */
 class ModelBrowserViewModel(
     private val hub: HubClient,
@@ -53,19 +60,49 @@ class ModelBrowserViewModel(
         mutableState.update { it.copy(query = query) }
     }
 
+    /** Models suited to this phone, with no name typed. Runs once unless asked again by [setFilters]. */
+    fun recommend() {
+        if (mutableState.value.searched || mutableState.value.searching) return
+        fetch(query = "")
+    }
+
+    /** A name search; a blank query goes back to recommendations. */
     fun search() {
-        val query = mutableState.value.query.trim()
-        if (query.isEmpty() || mutableState.value.searching) return
-        mutableState.update { it.copy(searching = true, error = null) }
+        if (mutableState.value.searching) return
+        fetch(mutableState.value.query.trim())
+    }
+
+    /** Task and parameter filters are applied by the Hub, so changing them asks again; the others filter what is here. */
+    fun setFilters(filters: BrowseFilters) {
+        val before = mutableState.value.filters
+        mutableState.update { it.copy(filters = filters) }
+        if (filters.textGeneration != before.textGeneration || filters.parameters != before.parameters) {
+            if (!mutableState.value.searching) fetch(if (mutableState.value.recommended) "" else mutableState.value.query.trim())
+        } else {
+            viewModelScope.launch { relist() }
+        }
+    }
+
+    private fun fetch(query: String) {
+        val recommended = query.isEmpty()
+        mutableState.update { it.copy(searching = true, error = null, recommended = recommended) }
         viewModelScope.launch {
-            val result = hub.search(query, limit = SEARCH_LIMIT)
+            val filter = Recommendations.hubFilter(mutableState.value.filters, device())
+            val result = hub.search(query, limit = if (recommended) RECOMMENDATION_LIMIT else SEARCH_LIMIT, filter = filter)
             mutableState.update {
                 when (result) {
                     is HubResult.Success -> it.copy(searching = false, searched = true, results = result.value, files = emptyMap())
-                    is HubResult.Failure -> it.copy(searching = false, searched = true, error = result.error)
+                    is HubResult.Failure -> it.copy(searching = false, searched = true, results = emptyList(), error = result.error)
                 }
             }
+            relist()
         }
+    }
+
+    private suspend fun relist() {
+        val state = mutableState.value
+        val listings = Recommendations.listings(state.results, state.filters, device(), contextLength(), state.recommended)
+        mutableState.update { it.copy(listings = listings) }
     }
 
     /** Lists and ranks a repository's GGUF files the first time it is opened. */
@@ -123,7 +160,10 @@ class ModelBrowserViewModel(
     )
 
     companion object {
-        const val SEARCH_LIMIT = 30
+        const val SEARCH_LIMIT = 50
+
+        /** One request; the phone-side filters then drop what does not fit. */
+        const val RECOMMENDATION_LIMIT = 100
 
         fun key(repositoryId: String, path: String) = "$repositoryId/$path"
     }

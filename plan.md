@@ -215,7 +215,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   stays available for advanced users. Filters: parameter count (buckets), download
   size (buckets), runs on this phone (fit), and task type. Task types are limited
   to those Bruce can run (text generation now; vision and embeddings once
-  supported). `planned`
+  supported). Sizes in the list are estimated from parameter count and
+  quantisation (exact once a repository is opened). `done`
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and
@@ -398,6 +399,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Model browser recommendations and filters done; list sizes are estimates, exact when a repository is opened. |
 | 2026-09-28 | Changed | Auto backend always uses the CPU; Vulkan and OpenCL only when chosen, marked experimental (Vulkan gave wrong output on the Pixel 11). |
 | 2026-09-28 | Changed | Setup wizard settled: welcome, network mode, notification permission and a first model; no skill toggles or appearance. |
 | 2026-09-28 | Added | Folder instructions: Bruce reads `AGENTS.md` and `.agents/` in a granted folder and asks before following them. |

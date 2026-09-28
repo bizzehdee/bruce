@@ -197,7 +197,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - "Download from Hugging Face" ends the wizard on the Models screen's Hugging Face tab. When the wizard ends with one model installed, it loads (the single-model rule from TASK-027).
   - Device-tested on the Pixel 11 (Android 17): the wizard ends in chat with the only model loaded, and does not return after recreation.
   - Depends on: TASK-027, TASK-028
-- [ ] TASK-031: Model browser recommendations and filters
+- [x] TASK-031: Model browser recommendations and filters
   - The Hugging Face tab opens on models recommended for this phone (text-generation GGUF repositories that fit, ranked by fit then popularity) without typing a name. Name search remains for advanced users.
   - Filters, combinable, applied to recommendations and search results:
     - Parameter count buckets: under 1B, 1–3B, 3–8B, 8–14B, 14B and over.
@@ -205,6 +205,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
     - Runs on this phone: Fits, Tight, or any.
     - Task type: only types Bruce can run; text generation now.
   - Research first: which filters the Hub API supports server-side (pipeline tag, parameter range) and how to get file sizes without one request per repository (avoid N+1). Record findings in research/ and .learnings/.
+  - Done: task and parameter filters run on the Hub (`pipeline_tag`, `num_parameters`); recommendations also cap parameters at what could fit this phone at 2 bits per weight. One request per list. "Runs on this phone" is Fits well / Fits, may be tight / Any; default "may be tight".
+  - Sizes: search gives file names but not sizes, so each repository's best file is sized from parameters × bits per weight (llama.cpp's quantize table) + 5%, within 6% on seven real files; decided by the owner (2026-09-28). The exact size and SHA-256 still come from the file list when a repository is opened.
+  - Vision projectors, split-model parts and speculative-decoding draft architectures (eagle3, dflash) are never recommended.
+  - Checked on the Pixel 11 against the real Hub (`HubClientOnlineTest`) and on screen.
   - Depends on: TASK-029
 - [ ] TASK-032: Saved conversations
   - Every chat is saved locally (Room) and listed in the drawer, newest first, replacing the placeholder. New chat, resume, rename, archive and delete.
