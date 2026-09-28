@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withTimeout
+import org.json.JSONException
 import org.json.JSONObject
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
@@ -107,8 +108,14 @@ class BruceRuntime(
         val tools = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
         val guidance = guidance(skills)
         var calls = 0
+        // Results of calls run this turn, by call. A model that repeats one is stuck (Llama 3.2 1B
+        // calls again after every result while skills are offered), so it gets the same result and
+        // no skills for the rest of the turn, which leaves answering as its only move.
+        val results = mutableMapOf<Pair<String, String>, String>()
+        var answerOnly = false
         while (true) {
-            val fitted = fit(history + added, tools, guidance) ?: return emit(RuntimeEvent.Failed(RuntimeError.NO_MODEL_LOADED, added.toList()))
+            val fitted = fit(history + added, if (answerOnly) emptyList() else tools, guidance) ?: return emit(RuntimeEvent.Failed(RuntimeError.NO_MODEL_LOADED, added.toList()))
+            if (fitted.formatFailed) return emit(RuntimeEvent.Failed(RuntimeError.GENERATION_FAILED, added.toList()))
             val prompt = fitted.prompt ?: return emit(RuntimeEvent.Failed(RuntimeError.CONVERSATION_TOO_LONG, added.toList()))
             val text = StringBuilder()
             var stats: GenerationStats? = null
@@ -137,8 +144,15 @@ class BruceRuntime(
 
             for ((index, call) in parsed.toolCalls.withIndex()) {
                 if (calls++ >= maxToolCalls) return emit(RuntimeEvent.Failed(RuntimeError.TOO_MANY_TOOL_CALLS, added.toList()))
+                val key = call.name to call.argumentsJson.trim()
+                val earlier = results[key]
+                if (earlier != null) {
+                    result(call, earlier, ran = true, added)
+                    answerOnly = true
+                    continue
+                }
                 when (val decision = policy.decide(call.name, call.argumentsJson)) {
-                    is PolicyDecision.Allowed -> result(call, policy.execute(decision).toString(), ran = true, added)
+                    is PolicyDecision.Allowed -> result(call, policy.execute(decision).toString().also { results[key] = it }, ran = true, added)
                     is PolicyDecision.Denied -> result(call, policy.refusal(decision).toString(), ran = false, added)
                     is PolicyDecision.NeedsConfirmation -> {
                         emit(RuntimeEvent.NeedsConfirmation(call, decision))
@@ -177,7 +191,7 @@ class BruceRuntime(
         val tools = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
         // Some templates refuse a conversation with no user message; a blank one adds only a few tokens.
         val measured = if (history.any { it.role == ChatRole.USER }) history else history + ToolChatMessage(ChatRole.USER, "")
-        val fitted = fit(measured, tools, guidance(skills)) ?: return null
+        val fitted = fit(measured, tools, guidance(skills))?.takeUnless { it.formatFailed } ?: return null
         return ContextUse(fitted.tokens, fitted.total, fitted.dropped, fitted.limit)
     }
 
@@ -229,8 +243,8 @@ class BruceRuntime(
         ChatRole.TOOL -> "Result of ${message.toolName}: ${message.content}"
     }
 
-    /** [prompt] is null when even the newest request alone does not fit. */
-    private data class Fitted(val prompt: Prompt?, val tokens: Int, val total: Int, val dropped: Int, val limit: Int)
+    /** [prompt] is null when even the newest request alone does not fit, or when [formatFailed]. */
+    private data class Fitted(val prompt: Prompt?, val tokens: Int, val total: Int, val dropped: Int, val limit: Int, val formatFailed: Boolean = false)
 
     /**
      * Drops the oldest messages until the prompt leaves room for a reply. The system prompt and
@@ -246,7 +260,8 @@ class BruceRuntime(
         var dropped = 0
         while (true) {
             val kept = summaries + messages.drop(dropped).filter { it.role != ChatRole.SYSTEM }
-            val prompt = prompt(kept, tools, guidance) ?: return null
+            // A model is loaded (the context length says so), so a null prompt means the template failed.
+            val prompt = prompt(kept, tools, guidance) ?: return Fitted(null, 0, total, dropped, limit, formatFailed = true)
             val tokens = engine.countTokens(prompt.text) ?: return null
             if (tokens <= limit) return Fitted(prompt, tokens, total, dropped, limit)
             val next = (dropped + 1..newest).firstOrNull { messages[it].role == ChatRole.USER } ?: return Fitted(null, tokens, total, dropped, limit)
@@ -276,7 +291,7 @@ class BruceRuntime(
         val summaries = messages.filter { it.role == ChatRole.SYSTEM }.map { SUMMARY_LEAD + it.content.trim() }
         val systemPrompt = (listOf(personality().trim(), guidance) + summaries).joinToString("\n\n")
         val system = ToolChatMessage(ChatRole.SYSTEM, systemPrompt)
-        val conversation = messages.filter { it.role != ChatRole.SYSTEM }
+        val conversation = messages.filter { it.role != ChatRole.SYSTEM }.map(::withReadableArguments)
         val native = engine.formatToolChat(listOf(system) + conversation, tools) ?: return null
         if (tools.isEmpty() || native.format.supportsTools) return Prompt(native.text, native.format)
 
@@ -284,6 +299,23 @@ class BruceRuntime(
         val fallbackSystem = ChatMessage(ChatRole.SYSTEM, systemPrompt + "\n\n" + BruceToolFormat.instructions(tools))
         val chat = engine.formatChat(listOf(fallbackSystem) + conversation.map(::bruceMessage)) ?: return null
         return Prompt(chat.text, ToolFormat(format = BRUCE_FORMAT, parser = "", generationPrompt = "", supportsTools = false, grammar = grammar, stops = emptyList()))
+    }
+
+    /**
+     * A call whose arguments are not a JSON object goes back to the model as `{}`: templates parse
+     * the arguments and fail on bad JSON, which would break every later turn of the chat (seen with
+     * Llama 3.2 1B). The call's result already tells the model its arguments were invalid.
+     */
+    private fun withReadableArguments(message: ToolChatMessage): ToolChatMessage {
+        if (message.toolCalls.all { isJsonObject(it.argumentsJson) }) return message
+        return message.copy(toolCalls = message.toolCalls.map { if (isJsonObject(it.argumentsJson)) it else it.copy(argumentsJson = "{}") })
+    }
+
+    private fun isJsonObject(text: String): Boolean = try {
+        JSONObject(text)
+        true
+    } catch (e: JSONException) {
+        false
     }
 
     private fun parse(format: ToolFormat, text: String, callsSoFar: Int): ParsedReply {

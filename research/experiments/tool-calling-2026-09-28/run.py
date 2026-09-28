@@ -19,6 +19,7 @@ import operator
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 
 HERE = __file__.rsplit("/", 1)[0]
@@ -191,6 +192,9 @@ def main():
                     outcome = score(case, parsed)
                 except (json.JSONDecodeError, KeyError, TypeError, AttributeError) as error:
                     parsed, text, timings, outcome = None, repr(error), {}, "malformed"
+                except urllib.error.HTTPError as error:
+                    # llama-server answers 500 when its own parser rejects the model's call (added 2026-09-29).
+                    parsed, text, timings, outcome = None, error.read().decode(errors="replace"), {}, "malformed"
                 record = {
                     "model": label, "variant": variant, "prompt": case["prompt"], "expected": case["tool"],
                     "outcome": outcome, "call": parsed, "text": text[:400], "wall_s": round(time.monotonic() - started, 2),

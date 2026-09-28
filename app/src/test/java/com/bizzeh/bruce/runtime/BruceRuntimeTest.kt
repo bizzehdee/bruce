@@ -337,8 +337,50 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun aCallWithBrokenArgumentsGoesBackToTheModelAsEmptyArguments() = runBlocking {
+        engine.steps += Step("", ParsedReply("Done.", "", emptyList()))
+        val history = listOf(
+            ToolChatMessage(ChatRole.USER, "What time is it?"),
+            ToolChatMessage(ChatRole.ASSISTANT, "", toolCalls = listOf(ToolCall("get_datetime", "{\"}}", "c1"), ToolCall("calculate", "{\"expression\":\"1+1\"}", "c2"))),
+            ToolChatMessage(ChatRole.TOOL, "{\"code\":\"INVALID_ARGUMENTS\"}", toolCallId = "c1", toolName = "get_datetime"),
+            ToolChatMessage(ChatRole.TOOL, "2", toolCallId = "c2", toolName = "calculate"),
+            ToolChatMessage(ChatRole.USER, "And now?"),
+        )
+
+        runtime().respond(history).toList()
+
+        val calls = engine.formatted.last().single { it.toolCalls.isNotEmpty() }.toolCalls
+        assertEquals(listOf("{}", "{\"expression\":\"1+1\"}"), calls.map { it.argumentsJson })
+    }
+
+    @Test
+    fun aTemplateFailureIsAGenerationFailureNotAMissingModel() = runBlocking {
+        engine.templateFails = true
+
+        val failed = runtime().respond(question).toList().last() as RuntimeEvent.Failed
+
+        assertEquals(RuntimeError.GENERATION_FAILED, failed.error)
+        assertNull(runtime().measure(question))
+    }
+
+    @Test
+    fun aRepeatedCallGetsTheEarlierResultAndTheNextStepHasNoSkills() = runBlocking {
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}", "a"))))
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", " {} ", "b"))))
+        engine.steps += Step("", ParsedReply("It is noon.", "", emptyList()))
+
+        val events = events()
+
+        assertEquals(listOf("get_datetime"), ran)
+        val results = events.filterIsInstance<RuntimeEvent.ToolResult>()
+        assertEquals(results[0].resultJson, results[1].resultJson)
+        assertEquals(listOf(true, true, false), engine.offered.map { it.isNotEmpty() })
+        assertTrue(events.last() is RuntimeEvent.Finished)
+    }
+
+    @Test
     fun tooManyToolCallsEndTheTurn() {
-        repeat(3) { engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}")))) }
+        repeat(3) { i -> engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("calculate", "{\"expression\":\"$i+1\"}")))) }
 
         val failed = events(runtime(maxToolCalls = 2)).last() as RuntimeEvent.Failed
 
@@ -418,6 +460,7 @@ class BruceRuntimeTest {
         val bruceGrammar = ToolGrammar("bruce")
         var nativeTools = true
         var noModel = false
+        var templateFails = false
         var hang = false
         var stops = 0
         var lastCount = 0
@@ -427,7 +470,7 @@ class BruceRuntimeTest {
         val thinking = mutableListOf<Boolean>()
 
         override suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean): ToolChatPrompt? {
-            if (noModel) return null
+            if (noModel || templateFails) return null
             thinking += enableThinking
             formatted += messages
             offered += tools
