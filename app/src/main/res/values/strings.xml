@@ -68,6 +68,8 @@
     <string name="skill_create_file_summary">Creates new plain-text files in folders you have granted.</string>
     <string name="skill_write_file">Change files</string>
     <string name="skill_write_file_summary">Replaces the whole text of a plain-text file you have granted.</string>
+    <string name="skill_delete_file">Delete files</string>
+    <string name="skill_delete_file_summary">Deletes single files inside folders you have granted. Deleted files cannot be recovered.</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>

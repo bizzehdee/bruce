@@ -77,4 +77,6 @@ class AndroidDocumentAccess(private val resolver: ContentResolver) : DocumentAcc
         val stream = resolver.openOutputStream(document, "wt") ?: throw IOException("the provider gave no stream")
         stream.use { it.write(bytes) }
     }
+
+    override fun delete(document: Uri): Boolean = DocumentsContract.deleteDocument(resolver, document)
 }

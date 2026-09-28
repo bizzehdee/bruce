@@ -17,6 +17,7 @@ object SkillText {
         "read_file" to (R.string.skill_read_file to R.string.skill_read_file_summary),
         "create_file" to (R.string.skill_create_file to R.string.skill_create_file_summary),
         "write_file" to (R.string.skill_write_file to R.string.skill_write_file_summary),
+        "delete_file" to (R.string.skill_delete_file to R.string.skill_delete_file_summary),
     )
 
     fun state(state: SkillState): Int = when (state) {

@@ -57,11 +57,35 @@ class FileSkillsTest {
 
     @Test
     fun readingIsOffAndChangingAsksByDefault() {
-        assertEquals(setOf("list_files", "read_file", "create_file", "write_file"), skills.keys)
+        assertEquals(setOf("list_files", "read_file", "create_file", "write_file", "delete_file"), skills.keys)
         assertEquals(SkillState.DECLINED, skills.getValue("list_files").defaultState)
         assertEquals(SkillState.DECLINED, skills.getValue("read_file").defaultState)
         assertEquals(SkillState.ASK, skills.getValue("create_file").defaultState)
         assertEquals(SkillState.ASK, skills.getValue("write_file").defaultState)
+        assertEquals(SkillState.ASK, skills.getValue("delete_file").defaultState)
+        assertEquals(listOf("delete_file"), skills.values.filter { it.highRisk }.map { it.id })
+    }
+
+    @Test
+    fun deletingRemovesOneFileInAGrantedFolder() {
+        assertEquals(SkillOutcome.Done("Deleted the file."), run("delete_file", "Documents/todo.txt"))
+        assertEquals(DenialCode.RESOURCE_NOT_FOUND, failure(run("read_file", "Documents/todo.txt")))
+    }
+
+    @Test
+    fun deletingNeverRemovesFoldersGrantedFilesOrMissingFiles() = runBlocking {
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("delete_file", "Documents/notes")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("delete_file", "Documents")))
+        assertEquals(DenialCode.RESOURCE_NOT_FOUND, failure(run("delete_file", "Documents/gone.txt")))
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(run("delete_file", "Documents/../todo.txt")))
+        val report = Uri.parse("content://docs/report")
+        documents.names[report] = "report.txt"
+        documents.contents[report] = "text/plain" to "x".toByteArray()
+        grants.add(report, GrantKind.FILE)
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(run("delete_file", "report.txt")))
+        documents.refuseDelete = true
+        assertEquals(DenialCode.TOOL_FAILED, failure(run("delete_file", "Documents/todo.txt")))
+        assertEquals(SkillOutcome.Done("milk\neggs"), run("read_file", "Documents/todo.txt"))
     }
 
     private fun write(id: String, path: String, content: String) =

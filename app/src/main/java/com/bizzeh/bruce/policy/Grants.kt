@@ -44,6 +44,9 @@ interface DocumentAccess {
 
     /** Replaces [document]'s contents with [bytes]. */
     fun write(document: Uri, bytes: ByteArray)
+
+    /** Deletes [document]; false if the provider refused. */
+    fun delete(document: Uri): Boolean
 }
 
 /** The user's grants. Only the Permissions screen adds or revokes them; nothing the model reaches holds this store. */

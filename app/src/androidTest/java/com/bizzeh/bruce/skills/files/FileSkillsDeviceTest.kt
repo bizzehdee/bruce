@@ -15,7 +15,7 @@ import org.junit.runner.RunWith
 
 /**
  * The file skills against a real document provider, through the app's own grant of a folder
- * named "Documents" (added by hand in Settings, Permissions). The skills are run directly, as
+ * named "Documents" (added by hand in Settings, Permissions). The file it makes is deleted at the end. The skills are run directly, as
  * the runtime does once policy has allowed them; policy itself is covered by unit tests.
  */
 @ManualOnly("needs a folder named Documents granted in the installed app")
@@ -28,7 +28,7 @@ class FileSkillsDeviceTest {
     }
 
     @Test
-    fun createReadReplaceAndListInAGrantedFolder() = runBlocking {
+    fun createReadReplaceListAndDeleteInAGrantedFolder() = runBlocking {
         assumeTrue("grant a folder named Documents first", "Documents" in container.grantNames())
         val name = "bruce-device-test-${System.currentTimeMillis()}.txt"
         val path = "Documents/$name"
@@ -38,5 +38,7 @@ class FileSkillsDeviceTest {
         assertEquals(SkillOutcome.Done("Replaced the file's contents (2 characters)."), run("write_file", "path" to path, "content" to "ok"))
         assertEquals(SkillOutcome.Done("ok"), run("read_file", "path" to path))
         assertTrue((run("list_files", "path" to "Documents") as SkillOutcome.Done).content.lines().contains(name))
+        assertEquals(SkillOutcome.Done("Deleted the file."), run("delete_file", "path" to path))
+        assertTrue(name !in (run("list_files", "path" to "Documents") as SkillOutcome.Done).content.lines())
     }
 }
