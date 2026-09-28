@@ -15,7 +15,6 @@
     <string name="nav_open_drawer">Open menu</string>
     <string name="nav_back">Back</string>
     <string name="nav_new_chat">New chat</string>
-    <string name="nav_conversations_placeholder">Your conversations will appear here.</string>
     <string name="nav_models">Models</string>
     <string name="nav_settings">Settings</string>
     <string name="nav_diagnostics">Diagnostics</string>
@@ -42,9 +41,9 @@
     <string name="settings_permissions_summary">What Bruce may access on this phone</string>
     <string name="settings_licences">Open-source licences</string>
     <string name="settings_clear_data">Clear all data</string>
-    <string name="settings_clear_data_summary">Delete models and settings from this phone</string>
+    <string name="settings_clear_data_summary">Delete models, chats and settings from this phone</string>
     <string name="settings_clear_data_confirm_title">Clear all data?</string>
-    <string name="settings_clear_data_confirm_text">This deletes every downloaded or imported model and resets all settings. It cannot be undone.</string>
+    <string name="settings_clear_data_confirm_text">This deletes every downloaded or imported model and every saved chat, and resets all settings. It cannot be undone.</string>
     <string name="settings_clear_data_confirm">Clear</string>
     <string name="settings_cancel">Cancel</string>
     <string name="settings_about">About</string>
@@ -131,4 +130,24 @@
     <string name="setup_not_now">Not now</string>
     <string name="setup_skip">Skip for now</string>
     <string name="setup_finish">Start chatting</string>
+    <string name="nav_archived">Archived</string>
+    <string name="conversations_empty">No chats yet. They are saved here as you go.</string>
+    <string name="conversations_archived_empty">No archived chats.</string>
+    <string name="conversations_rename">Rename</string>
+    <string name="conversations_save">Save</string>
+    <string name="conversations_archive">Archive</string>
+    <string name="conversations_restore">Restore</string>
+    <string name="conversations_delete">Delete</string>
+    <string name="conversations_delete_confirm_text">This cannot be undone.</string>
+    <plurals name="conversations_selected">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="conversations_delete_confirm">
+        <item quantity="one">Delete %d chat?</item>
+        <item quantity="other">Delete %d chats?</item>
+    </plurals>
+    <string name="settings_delete_conversations">Delete all chats</string>
+    <string name="settings_delete_conversations_summary">Removes every saved and archived chat from this phone.</string>
+    <string name="settings_delete_conversations_confirm_title">Delete all chats?</string>
 </resources>

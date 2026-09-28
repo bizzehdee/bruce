@@ -34,6 +34,7 @@ class SettingsScreenTest {
         override fun setThreads(threads: Int?) { calls += "threads $threads" }
         override fun setContextLength(contextLength: Int) { calls += "context $contextLength" }
         override fun clearAllData() { calls += "clear" }
+        override fun deleteAllConversations() { calls += "deleteChats" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
         override fun signIn() { calls += "signIn" }
         override fun signOut() { calls += "signOut" }
@@ -120,6 +121,19 @@ class SettingsScreenTest {
         compose.onNodeWithTag("settings:clear").performScrollTo().performClick()
         compose.onNodeWithTag("confirmClear").performClick()
         assertEquals(listOf("clear"), calls)
+    }
+
+    @Test
+    fun deletingAllChatsNeedsConfirmation() {
+        show()
+
+        compose.onNodeWithTag("settings:deleteChats").performScrollTo().performClick()
+        compose.onNodeWithText("Cancel").performClick()
+        assertTrue(calls.isEmpty())
+
+        compose.onNodeWithTag("settings:deleteChats").performScrollTo().performClick()
+        compose.onNodeWithTag("confirmDeleteChats").performClick()
+        assertEquals(listOf("deleteChats"), calls)
     }
 
     @Test

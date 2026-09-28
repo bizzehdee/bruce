@@ -8,16 +8,18 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/** Clears everything Bruce stores: the loaded model, model files, settings and cached files. */
+/** Clears everything Bruce stores: the loaded model, model files, saved chats, settings and cached files. */
 class DataReset(
     private val activeModel: ActiveModel,
     private val settings: DataStore<Preferences>,
     private val modelsDir: File,
     private val cacheDir: File,
     private val ioDispatcher: CoroutineDispatcher,
+    private val clearConversations: suspend () -> Unit,
 ) {
     suspend fun clearAll() {
         activeModel.unload()
+        clearConversations()
         withContext(ioDispatcher) {
             modelsDir.listFiles().orEmpty().forEach { it.deleteRecursively() }
             cacheDir.listFiles().orEmpty().forEach { it.deleteRecursively() }

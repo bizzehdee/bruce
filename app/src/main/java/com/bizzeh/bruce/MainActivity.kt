@@ -26,6 +26,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.bizzeh.bruce.chat.ChatActions
 import com.bizzeh.bruce.chat.ChatViewModel
+import com.bizzeh.bruce.conversations.ConversationActions
+import com.bizzeh.bruce.conversations.ConversationsViewModel
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.navigation.AppActions
 import com.bizzeh.bruce.navigation.BruceApp
@@ -65,7 +67,15 @@ class MainActivity : ComponentActivity() {
     private val container by lazy { appContainer }
     private val prototype: PrototypeViewModel by viewModels { factory { prototypeViewModel() } }
     private val chat: ChatViewModel by viewModels {
-        factory { ChatViewModel(container.engine, container.activeModel.state, container.modelSelection::activeTemperature) }
+        factory {
+            ChatViewModel(
+                container.engine, container.activeModel.state, container.conversations::save, container.conversations::load,
+                container.modelSelection::activeTemperature,
+            )
+        }
+    }
+    private val conversations: ConversationsViewModel by viewModels {
+        factory { ConversationsViewModel(container.conversations) { ids -> chat.forget(ids) } }
     }
     private val models: ModelsViewModel by viewModels {
         factory {
@@ -134,6 +144,8 @@ class MainActivity : ComponentActivity() {
         val activeModel by container.activeModel.state.collectAsState()
         LaunchedEffect(Unit) { container.modelSelection.restore() }
         val browse = exit == SetupExit.BROWSE_MODELS
+        val active by conversations.active.collectAsState()
+        val archived by conversations.archived.collectAsState()
         BruceApp(
             chat = chatState,
             chatActions = remember { chatActions() },
@@ -143,6 +155,9 @@ class MainActivity : ComponentActivity() {
             settingsScreen = { onBack, open -> Settings(onBack, open) },
             diagnosticsScreen = { onBack -> Diagnostics(onBack) },
             startDestination = if (browse) Destination.MODELS else Destination.CHAT,
+            conversations = active,
+            archived = archived,
+            conversationActions = remember { conversationActions() },
         )
     }
 
@@ -238,6 +253,14 @@ class MainActivity : ComponentActivity() {
         override fun stop() = chat.stop()
     }
 
+    private fun conversationActions() = object : ConversationActions {
+        override fun open(id: Long) = chat.open(id)
+        override fun rename(id: Long, title: String) = conversations.rename(id, title)
+        override fun archive(ids: Set<Long>) = conversations.archive(ids)
+        override fun restore(ids: Set<Long>) = conversations.restore(ids)
+        override fun delete(ids: Set<Long>) = conversations.delete(ids)
+    }
+
     private fun appActions() = object : AppActions {
         override fun newChat() = chat.newChat()
         override fun selectModel(file: File) {
@@ -251,7 +274,11 @@ class MainActivity : ComponentActivity() {
         override fun setBackend(backend: BackendPreference) = settings.setBackend(backend)
         override fun setThreads(threads: Int?) = settings.setThreads(threads)
         override fun setContextLength(contextLength: Int) = settings.setContextLength(contextLength)
-        override fun clearAllData() = settings.clearAllData()
+        override fun clearAllData() {
+            settings.clearAllData()
+            chat.newChat()
+        }
+        override fun deleteAllConversations() = conversations.deleteAll()
         override fun setNetworkMode(mode: NetworkMode) = settings.setNetworkMode(mode)
         override fun signIn() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settings.beginSignIn())))

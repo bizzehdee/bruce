@@ -5,7 +5,11 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.longClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.v2.createEmptyComposeRule
@@ -112,6 +116,57 @@ class MainActivityDeviceTest {
         // until the next frame, so waiting on either raced the send.
         compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasNonBlankText, TIMEOUT_MS)
         compose.waitUntilAtLeastOneExists(hasTestTag("send"), TIMEOUT_MS)
+    }
+
+    @Test
+    fun chatsAreSavedAndCanBeReopenedRenamedArchivedRestoredAndDeleted() {
+        launch()
+        compose.waitUntilAtLeastOneExists(hasTestTag("chatTitle") and hasText("stories260K"), TIMEOUT_MS)
+        compose.onNodeWithTag("composer").performTextInput("Tell me a story")
+        compose.onNodeWithTag("send").performClick()
+        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasNonBlankText, TIMEOUT_MS)
+        compose.waitUntilAtLeastOneExists(hasTestTag("send"), TIMEOUT_MS)
+        val chat = hasText("Tell me a story") and hasAnyAncestor(hasTestTag("conversations"))
+
+        // A new chat, then the saved one reopened from the drawer.
+        compose.onNodeWithTag("openDrawer").performClick()
+        compose.waitUntilAtLeastOneExists(hasTestTag("nav:models"), TIMEOUT_MS)
+        compose.onNodeWithText("New chat").performClick()
+        compose.waitUntilDoesNotExist(hasTestTag("answer:1"), TIMEOUT_MS)
+        compose.onNodeWithTag("openDrawer").performClick()
+        compose.waitUntilAtLeastOneExists(chat, TIMEOUT_MS)
+        compose.onNode(chat).performClick()
+        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasNonBlankText, TIMEOUT_MS)
+
+        // Rename, then archive with a long press.
+        compose.onNodeWithTag("openDrawer").performClick()
+        compose.waitUntilAtLeastOneExists(chat, TIMEOUT_MS)
+        compose.onNode(chat).performTouchInput { longClick() }
+        compose.onNodeWithTag("rename").performClick()
+        compose.onNodeWithTag("renameField").performTextClearance()
+        compose.onNodeWithTag("renameField").performTextInput("Story time")
+        compose.onNodeWithTag("confirmRename").performClick()
+        val renamed = hasText("Story time") and hasAnyAncestor(hasTestTag("conversations"))
+        compose.waitUntilAtLeastOneExists(renamed, TIMEOUT_MS)
+        compose.onNode(renamed).performTouchInput { longClick() }
+        compose.onNodeWithTag("archive").performClick()
+        compose.waitUntilDoesNotExist(renamed, TIMEOUT_MS)
+
+        // Archived: restore, then delete from the drawer after confirming.
+        compose.onNodeWithTag("nav:archived").performClick()
+        val archived = hasText("Story time") and hasAnyAncestor(hasTestTag("archived"))
+        compose.waitUntilAtLeastOneExists(archived, TIMEOUT_MS)
+        compose.onNode(archived).performClick()
+        compose.onNodeWithTag("restore").performClick()
+        compose.waitUntilDoesNotExist(archived, TIMEOUT_MS)
+        compose.onNodeWithTag("back").performClick()
+        compose.onNodeWithTag("openDrawer").performClick()
+        compose.waitUntilAtLeastOneExists(renamed, TIMEOUT_MS)
+        compose.onNode(renamed).performTouchInput { longClick() }
+        compose.onNodeWithTag("delete").performClick()
+        compose.onNodeWithTag("confirmDelete").performClick()
+        compose.waitUntilDoesNotExist(renamed, TIMEOUT_MS)
+        assertTrue(runBlocking { container.conversations.active.first().isEmpty() && container.conversations.archived.first().isEmpty() })
     }
 
     @Test

@@ -49,7 +49,14 @@ class ChatViewModelTest {
 
     private val activeModel = MutableStateFlow(ActiveModelState(active = File("Qwen3-0.6B-Q4_0.gguf")))
 
-    private fun TestScope.viewModel() = ChatViewModel(engine, activeModel).also { advanceUntilIdle() }
+    /** Saved conversations by id, standing in for the Room store (tested in ConversationStoreTest). */
+    private val saved = mutableMapOf<Long, List<ChatEntry>>()
+    private val save: suspend (Long?, List<ChatEntry>) -> Long = { id, entries ->
+        (id?.takeIf { it in saved } ?: (saved.size + 1L)).also { saved[it] = entries }
+    }
+    private val load: suspend (Long) -> List<ChatEntry>? = { saved[it] }
+
+    private fun TestScope.viewModel() = ChatViewModel(engine, activeModel, save, load).also { advanceUntilIdle() }
 
     @Test
     fun titleFollowsTheActiveModel() = runTest(dispatcher) {
@@ -186,8 +193,79 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun eachTurnIsSavedToOneConversation() = runTest(dispatcher) {
+        engine.events = listOf(GenerationEvent.Token("Hello!"), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
+        val vm = viewModel()
+
+        chat("Hi", vm)
+        assertEquals(1L, vm.state.value.conversationId)
+        chat("Again", vm)
+
+        assertEquals(1, saved.size)
+        assertEquals(listOf("Hi", "Hello!", "Again", "Hello!"), saved.getValue(1).map { it.text })
+        assertEquals(1L, vm.state.value.conversationId)
+    }
+
+    @Test
+    fun noModelLoadedSavesNothing() = runTest(dispatcher) {
+        engine.prompt = null
+        val vm = viewModel()
+
+        chat("Hi", vm)
+
+        assertTrue(saved.isEmpty())
+        assertNull(vm.state.value.conversationId)
+    }
+
+    @Test
+    fun openingASavedConversationShowsAndContinuesIt() = runTest(dispatcher) {
+        engine.events = listOf(GenerationEvent.Token("Sure."), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
+        saved[7] = listOf(ChatEntry(ChatRole.USER, "Earlier"), ChatEntry(ChatRole.ASSISTANT, "Reply"))
+        val vm = viewModel()
+        vm.setInput("draft")
+
+        vm.open(7)
+        advanceUntilIdle()
+        assertEquals(ChatState(modelName = "Qwen3-0.6B-Q4_0", conversationId = 7, entries = saved.getValue(7)), vm.state.value)
+        chat("More", vm)
+
+        assertEquals(listOf("Earlier", "Reply", "More", "Sure."), saved.getValue(7).map { it.text })
+        vm.open(99)
+        advanceUntilIdle()
+        assertEquals(7L, vm.state.value.conversationId, "a missing conversation changes nothing")
+    }
+
+    @Test
+    fun switchingChatsMidReplySavesTheReplyToItsOwnChat() = runTest(dispatcher) {
+        engine.events = listOf(GenerationEvent.Token("Late reply"), GenerationEvent.Completed(StopReason.END_OF_GENERATION, stats))
+        val vm = viewModel()
+        vm.setInput("Hi")
+
+        vm.send()
+        vm.newChat()
+        advanceUntilIdle()
+
+        assertEquals(listOf("Hi", "Late reply"), saved.getValue(1).map { it.text })
+        assertEquals(ChatState(modelName = "Qwen3-0.6B-Q4_0"), vm.state.value)
+    }
+
+    @Test
+    fun forgettingTheShownConversationStartsANewChat() = runTest(dispatcher) {
+        saved[3] = listOf(ChatEntry(ChatRole.USER, "x"))
+        val vm = viewModel()
+        vm.open(3)
+        advanceUntilIdle()
+
+        vm.forget(setOf(4))
+        assertEquals(3L, vm.state.value.conversationId)
+        vm.forget(setOf(3, 4))
+        assertNull(vm.state.value.conversationId)
+        assertTrue(vm.state.value.entries.isEmpty())
+    }
+
+    @Test
     fun repliesUseTheActiveModelsTemperature() = runTest(dispatcher) {
-        val vm = ChatViewModel(engine, activeModel) { 0.3f }.also { advanceUntilIdle() }
+        val vm = ChatViewModel(engine, activeModel, save, load) { 0.3f }.also { advanceUntilIdle() }
 
         chat("Hi", vm)
 
