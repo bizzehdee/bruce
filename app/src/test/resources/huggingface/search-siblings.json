@@ -1,0 +1,33 @@
+[
+ {
+  "_id": "681881ef3319aedbfd81dc51",
+  "id": "Qwen/Qwen3-0.6B-GGUF",
+  "downloads": 350462,
+  "gguf": {
+   "total": 596049920,
+   "architecture": "qwen3",
+   "context_length": 40960,
+   "bos_token": "<|endoftext|>",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 639446688
+  },
+  "pipeline_tag": "text-generation",
+  "siblings": [
+   {
+    "rfilename": ".gitattributes"
+   },
+   {
+    "rfilename": "LICENSE"
+   },
+   {
+    "rfilename": "Qwen3-0.6B-Q8_0.gguf"
+   },
+   {
+    "rfilename": "README.md"
+   },
+   {
+    "rfilename": "params"
+   }
+  ]
+ }
+]

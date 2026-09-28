@@ -86,7 +86,9 @@ class ModelBrowserTest {
         advanceUntilIdle()
 
         assertEquals(listOf("ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF"), vm.state.value.results.map { it.id })
-        assertTrue(hub.urls.last().contains("search=qwen3&"))
+        assertTrue(hub.urls.last().contains("&search=qwen3&"))
+        assertFalse(vm.state.value.recommended)
+        assertTrue("a 27B model does not fit 4 GB", vm.state.value.listings.isEmpty())
 
         allowed = false
         vm.search()
@@ -95,15 +97,93 @@ class ModelBrowserTest {
     }
 
     @Test
-    fun blankOrRepeatedSearchIsIgnored() = runTest(dispatcher) {
+    fun searchWhileSearchingIsIgnored() = runTest(dispatcher) {
         val vm = viewModel()
-        vm.search()
         vm.setQuery("x")
         vm.search()
         vm.search()
         advanceUntilIdle()
 
         assertEquals(1, hub.urls.size)
+    }
+
+    private val small = """{"id":"a/small","downloads":10,"gguf":{"architecture":"qwen3","total":596000000},
+        "siblings":[{"rfilename":"m-Q4_0.gguf"},{"rfilename":"m-Q8_0.gguf"},{"rfilename":"mmproj-F16.gguf"},{"rfilename":"README.md"}]}"""
+    private val big = """{"id":"b/big","downloads":99,"gguf":{"architecture":"qwen3","total":27000000000},"siblings":[{"rfilename":"b-Q4_K_M.gguf"}]}"""
+    private val unknown = """{"id":"c/unknown","downloads":50,"siblings":[{"rfilename":"c-Q4_K_M.gguf"}]}"""
+
+    @Test
+    fun recommendationsAskOnceAndListWhatFitsWithTheBestFile() = runTest(dispatcher) {
+        hub.searchBody = "[$big,$unknown,$small]"
+        val vm = viewModel()
+
+        vm.recommend()
+        advanceUntilIdle()
+        vm.recommend()
+        advanceUntilIdle()
+
+        assertEquals(1, hub.urls.size)
+        val url = hub.urls.single()
+        assertFalse(url.contains("search="))
+        assertTrue(url.contains("&pipeline_tag=text-generation&num_parameters=max%3A${(4L shl 30) * 4}&"))
+        val state = vm.state.value
+        assertTrue(state.recommended)
+        assertEquals(listOf("a/small"), state.listings.map { it.model.id })
+        val best = state.listings.single().best!!
+        assertEquals("m-Q8_0.gguf", best.candidate.path)
+        assertEquals((596_000_000 * 8.52 / 8 * 1.05).toLong(), best.candidate.sizeBytes)
+    }
+
+    @Test
+    fun phoneSideFiltersRelistWithoutAskingAgain() = runTest(dispatcher) {
+        hub.searchBody = "[$big,$unknown,$small]"
+        val vm = viewModel()
+        vm.recommend()
+        advanceUntilIdle()
+
+        vm.setFilters(BrowseFilters(runs = RunsFilter.ANY))
+        advanceUntilIdle()
+        assertEquals("fits first, then the Hub's order", listOf("a/small", "b/big", "c/unknown"), vm.state.value.listings.map { it.model.id })
+
+        vm.setFilters(BrowseFilters(runs = RunsFilter.ANY, size = SizeBucket.FROM_1GB_TO_2GB))
+        advanceUntilIdle()
+        assertTrue(vm.state.value.listings.isEmpty())
+        assertEquals(1, hub.urls.size)
+    }
+
+    @Test
+    fun hubSideFiltersAskAgainInTheCurrentMode() = runTest(dispatcher) {
+        val vm = viewModel()
+        vm.recommend()
+        advanceUntilIdle()
+
+        vm.setFilters(BrowseFilters(parameters = ParameterBucket.UNDER_1B, runs = RunsFilter.ANY))
+        advanceUntilIdle()
+        vm.setQuery("qwen")
+        vm.search()
+        advanceUntilIdle()
+        vm.setFilters(BrowseFilters(parameters = ParameterBucket.UNDER_1B, runs = RunsFilter.ANY, textGeneration = false))
+        advanceUntilIdle()
+
+        assertEquals(4, hub.urls.size)
+        assertTrue(hub.urls[1].contains("&pipeline_tag=text-generation&num_parameters=max%3A999999999&"))
+        assertFalse(hub.urls[1].contains("search="))
+        assertTrue(hub.urls[3].contains("&search=qwen&num_parameters=max%3A999999999&"))
+        assertFalse(vm.state.value.recommended)
+    }
+
+    @Test
+    fun blankSearchGoesBackToRecommendations() = runTest(dispatcher) {
+        val vm = viewModel()
+        vm.setQuery("qwen")
+        vm.search()
+        advanceUntilIdle()
+        vm.setQuery("  ")
+        vm.search()
+        advanceUntilIdle()
+
+        assertTrue(vm.state.value.recommended)
+        assertFalse(hub.urls.last().contains("search="))
     }
 
     @Test
@@ -181,19 +261,24 @@ class ModelBrowserTest {
         val actions = object : BrowseActions {
             override fun setQuery(query: String) { calls += "query $query" }
             override fun search() { calls += "search" }
+            override fun recommend() { calls += "recommend" }
+            override fun setFilters(filters: BrowseFilters) { calls += "filters $filters" }
             override fun openRepository(model: HubModel) { calls += "open ${model.id}" }
             override fun download(model: HubModel, assessment: Assessment) { calls += "download ${assessment.candidate.path}" }
             override fun cancel(repositoryId: String, path: String) { calls += "cancel $path" }
         }
         val assessment = storiesAssessment()
         val gated = qwen.copy(id = "meta/gated", gated = true, architecture = "clip")
-        var state by androidx.compose.runtime.mutableStateOf(BrowseState(query = "q", searched = true, results = listOf(qwen, gated)))
+        var state by androidx.compose.runtime.mutableStateOf(
+            BrowseState(query = "q", searched = true, recommended = false, results = listOf(qwen, gated), listings = listOf(Listing(qwen, assessment), Listing(gated, null))),
+        )
         compose.setContent { BruceTheme { BrowsePane(state, actions) } }
 
         compose.onNodeWithTag("browseQuery").performTextInput("w")
         compose.onNodeWithTag("browseQuery").performImeAction()
         compose.onNodeWithTag("browseSearch").performClick()
         compose.onNodeWithText("Gated").assertIsDisplayed()
+        compose.onNodeWithTag("best:${qwen.id}", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Not supported").assertIsDisplayed()
         compose.onNodeWithTag("repo:${qwen.id}").performClick()
         state = state.copy(files = mapOf(qwen.id to RepositoryFiles(loading = false, ranked = listOf(assessment))))
@@ -206,9 +291,9 @@ class ModelBrowserTest {
 
         // Typing into a static test state inserts at the cursor, which is at the start; clearing
         // focus then re-reports the unchanged value, so query calls are checked separately.
-        assertEquals("query wq", calls.first())
+        assertEquals("query wq", calls.first { it.startsWith("query") })
         assertEquals(
-            listOf("search", "search", "open ${qwen.id}", "download stories260K.gguf", "cancel stories260K.gguf", "download stories260K.gguf"),
+            listOf("recommend", "search", "search", "open ${qwen.id}", "download stories260K.gguf", "cancel stories260K.gguf", "download stories260K.gguf"),
             calls.filterNot { it.startsWith("query") },
         )
     }
@@ -218,6 +303,8 @@ class ModelBrowserTest {
         val actions = object : BrowseActions {
             override fun setQuery(query: String) = Unit
             override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
             override fun openRepository(model: HubModel) = Unit
             override fun download(model: HubModel, assessment: Assessment) = Unit
             override fun cancel(repositoryId: String, path: String) = Unit
@@ -233,7 +320,7 @@ class ModelBrowserTest {
         }
 
         compose.onNodeWithText("Allow Hugging Face in Settings → Network to search and download.").assertIsDisplayed()
-        compose.onNodeWithText("No GGUF models found.").assertIsDisplayed()
+        compose.onNodeWithText("No models match. Try other filters.").assertIsDisplayed()
         assertEquals(com.bizzeh.bruce.R.string.hub_error_unauthorised, BrowseText.hubError(HubError.UNAUTHORISED))
         assertEquals(com.bizzeh.bruce.R.string.hub_error_rate_limited, BrowseText.hubError(HubError.RATE_LIMITED))
         assertEquals(com.bizzeh.bruce.R.string.hub_error_offline, BrowseText.hubError(HubError.OFFLINE))
@@ -248,13 +335,15 @@ class ModelBrowserTest {
         val actions = object : BrowseActions {
             override fun setQuery(query: String) = Unit
             override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
             override fun openRepository(model: HubModel) = Unit
             override fun download(model: HubModel, assessment: Assessment) = error("must not be called")
             override fun cancel(repositoryId: String, path: String) = Unit
         }
         val tooBig = storiesAssessment().copy(fit = Fit.DOES_NOT_FIT)
         compose.setContent {
-            BruceTheme { BrowsePane(BrowseState(results = listOf(qwen), files = mapOf(qwen.id to RepositoryFiles(false, listOf(tooBig)))), actions) }
+            BruceTheme { BrowsePane(BrowseState(results = listOf(qwen), listings = listOf(Listing(qwen, null)), files = mapOf(qwen.id to RepositoryFiles(false, listOf(tooBig)))), actions) }
         }
 
         compose.onNodeWithTag("repo:${qwen.id}").performClick()
@@ -271,6 +360,7 @@ class ModelBrowserTest {
     private inner class FakeHub : HttpTransport {
         val urls = mutableListOf<String>()
         var treeStatus = 200
+        var searchBody: String? = null
 
         private fun resource(name: String) = javaClass.getResource("/huggingface/$name")!!.readBytes()
 
@@ -278,7 +368,7 @@ class ModelBrowserTest {
             urls += url
             return when {
                 "/tree/" in url -> HttpResponse(treeStatus, emptyMap(), if (treeStatus == 200) resource("tree-qwen3-0.6b.json") else ByteArray(0))
-                else -> HttpResponse(200, emptyMap(), resource("search-expand.json"))
+                else -> HttpResponse(200, emptyMap(), searchBody?.toByteArray() ?: resource("search-expand.json"))
             }
         }
 
@@ -297,6 +387,8 @@ class ModelBrowserTest {
         val actions = object : BrowseActions {
             override fun setQuery(query: String) = Unit
             override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
             override fun openRepository(model: HubModel) = Unit
             override fun download(model: HubModel, assessment: Assessment) = Unit
             override fun cancel(repositoryId: String, path: String) = Unit
@@ -310,5 +402,47 @@ class ModelBrowserTest {
         compose.setContent { BruceTheme { ModelsScreen(ModelsState(), models, {}, browse = BrowseState(), browseActions = actions, startOnHuggingFace = true) } }
 
         compose.onNodeWithTag("browseQuery").assertIsDisplayed()
+    }
+
+    @Test
+    fun paneShowsRecommendationsAndSetsFilters() {
+        val calls = mutableListOf<String>()
+        val actions = object : BrowseActions {
+            override fun setQuery(query: String) = Unit
+            override fun search() = Unit
+            override fun recommend() { calls += "recommend" }
+            override fun setFilters(filters: BrowseFilters) { calls += "$filters" }
+            override fun openRepository(model: HubModel) = Unit
+            override fun download(model: HubModel, assessment: Assessment) = Unit
+            override fun cancel(repositoryId: String, path: String) = Unit
+        }
+        compose.setContent { BruceTheme { BrowsePane(BrowseState(searched = true, listings = listOf(Listing(qwen, storiesAssessment()))), actions) } }
+
+        compose.onNodeWithTag("browseRecommended").assertIsDisplayed()
+        compose.onNodeWithTag("parameters:FROM_1B_TO_3B").performClick()
+        compose.onNodeWithTag("size:UNDER_1GB").performClick()
+        compose.onNodeWithTag("runs:FITS").performClick()
+        compose.onNodeWithTag("task:false").performClick()
+        compose.onNodeWithTag("parameters:any").performClick()
+
+        assertEquals(
+            listOf(
+                "recommend",
+                "${BrowseFilters(parameters = ParameterBucket.FROM_1B_TO_3B)}",
+                "${BrowseFilters(size = SizeBucket.UNDER_1GB)}",
+                "${BrowseFilters(runs = RunsFilter.FITS)}",
+                "${BrowseFilters(textGeneration = false)}",
+                "${BrowseFilters()}",
+            ),
+            calls,
+        )
+    }
+
+    @Test
+    fun filterLabels() {
+        assertEquals(listOf("< 1B", "1–3B", "3–8B", "8–14B", "14B+"), ParameterBucket.entries.map(BrowseText::parameterLabel))
+        assertEquals(listOf("< 1 GB", "1–2 GB", "2–4 GB", "4–8 GB", "8 GB+"), SizeBucket.entries.map(BrowseText::sizeLabel))
+        assertNull(BrowseText.parameterLabel(null))
+        assertNull(BrowseText.sizeLabel(null))
     }
 }

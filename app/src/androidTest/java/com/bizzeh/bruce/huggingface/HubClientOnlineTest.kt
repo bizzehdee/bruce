@@ -24,6 +24,16 @@ class HubClientOnlineTest {
     }
 
     @Test
+    fun recommendationQueryReturnsSmallTextModelsWithFileNames() = runBlocking {
+        val filter = HubSearchFilter(maxParameters = 3_000_000_000)
+        val models = (client.search("", limit = 20, filter = filter) as HubResult.Success).value
+
+        assertTrue(models.size >= 10)
+        assertTrue(models.all { (it.parameterCount ?: 0) <= 3_000_000_000 })
+        assertTrue(models.count { m -> m.files.any { it.endsWith(".gguf", ignoreCase = true) } } >= 10)
+    }
+
+    @Test
     fun listsRealGgufFilesWithHashes() = runBlocking {
         val files = (client.ggufFiles("ggml-org/Qwen3-0.6B-GGUF") as HubResult.Success).value
 

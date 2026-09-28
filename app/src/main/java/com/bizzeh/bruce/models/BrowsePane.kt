@@ -2,6 +2,10 @@ package com.bizzeh.bruce.models
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.FilterChip
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +41,8 @@ import com.bizzeh.bruce.ui.Format
 interface BrowseActions {
     fun setQuery(query: String)
     fun search()
+    fun recommend()
+    fun setFilters(filters: BrowseFilters)
     fun openRepository(model: HubModel)
     fun download(model: HubModel, assessment: Assessment)
     fun cancel(repositoryId: String, path: String)
@@ -52,6 +58,7 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
         focus.clearFocus()
         actions.search()
     }
+    LaunchedEffect(Unit) { actions.recommend() }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
@@ -60,17 +67,22 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
                 placeholder = { Text(stringResource(R.string.browse_hint)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { if (state.query.isNotBlank()) search() }),
+                keyboardActions = KeyboardActions(onSearch = { search() }),
                 modifier = Modifier.weight(1f).testTag("browseQuery"),
             )
-            Button(onClick = search, enabled = state.query.isNotBlank() && !state.searching, modifier = Modifier.testTag("browseSearch")) {
+            Button(onClick = search, enabled = !state.searching, modifier = Modifier.testTag("browseSearch")) {
                 Text(stringResource(R.string.browse_search))
             }
         }
+        Filters(state.filters, actions::setFilters)
         if (state.searching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         state.error?.let { ErrorText(BrowseText.hubError(it), it) }
-        if (state.searched && state.error == null && state.results.isEmpty()) Text(stringResource(R.string.browse_no_results))
-        state.results.forEach { model ->
+        if (state.recommended && state.searched && state.error == null) {
+            Text(stringResource(R.string.browse_recommended), style = MaterialTheme.typography.titleSmall, modifier = Modifier.testTag("browseRecommended"))
+        }
+        if (state.searched && !state.searching && state.error == null && state.listings.isEmpty()) Text(stringResource(R.string.browse_no_results))
+        state.listings.forEach { listing ->
+            val model = listing.model
             val expanded = open == model.id
             Card(modifier = Modifier.fillMaxWidth().testTag("repo:${model.id}")) {
                 Column(
@@ -85,6 +97,13 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
                         if (model.gated) Text(stringResource(R.string.browse_gated), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
                     }
                     Text(BrowseText.summary(model), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    listing.best?.let { best ->
+                        Text(
+                            stringResource(R.string.browse_best_file, Format.bytes(best.candidate.sizeBytes), best.quantisation.orEmpty(), stringResource(ModelsText.fitLabel(best))),
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.testTag("best:${model.id}"),
+                        )
+                    }
                     if (model.architecture != null && !LlamaArchitectures.supportsChat(model.architecture)) {
                         Text(stringResource(R.string.models_unsupported), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     }
@@ -138,11 +157,69 @@ private fun Files(model: HubModel, state: BrowseState, actions: BrowseActions) {
 }
 
 @Composable
+private fun Filters(filters: BrowseFilters, onChange: (BrowseFilters) -> Unit) {
+    FilterRow(R.string.browse_filter_parameters, listOf(null) + ParameterBucket.entries, filters.parameters, "parameters", { BrowseText.parameterLabel(it) }) {
+        onChange(filters.copy(parameters = it))
+    }
+    FilterRow(R.string.browse_filter_size, listOf(null) + SizeBucket.entries, filters.size, "size", { BrowseText.sizeLabel(it) }) {
+        onChange(filters.copy(size = it))
+    }
+    FilterRow(R.string.browse_filter_runs, RunsFilter.entries, filters.runs, "runs", { stringResource(BrowseText.runsLabel(it)) }) {
+        onChange(filters.copy(runs = it))
+    }
+    FilterRow(R.string.browse_filter_task, listOf(true, false), filters.textGeneration, "task", { stringResource(if (it) R.string.browse_task_text else R.string.browse_any) }) {
+        onChange(filters.copy(textGeneration = it))
+    }
+}
+
+@Composable
+private fun <T> FilterRow(@StringRes label: Int, options: List<T>, selected: T, tag: String, text: @Composable (T) -> String?, onSelect: (T) -> Unit) {
+    Column {
+        Text(stringResource(label), style = MaterialTheme.typography.labelMedium)
+        Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            options.forEach { option ->
+                FilterChip(
+                    selected = option == selected,
+                    onClick = { onSelect(option) },
+                    label = { Text(text(option) ?: stringResource(R.string.browse_any)) },
+                    modifier = Modifier.testTag("$tag:${option ?: "any"}"),
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ErrorText(@StringRes text: Int, error: HubError) {
     Text(stringResource(text, error.name), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("hubError"))
 }
 
 internal object BrowseText {
+    fun parameterLabel(bucket: ParameterBucket?): String? = when (bucket) {
+        null -> null
+        ParameterBucket.UNDER_1B -> "< 1B"
+        ParameterBucket.FROM_1B_TO_3B -> "1–3B"
+        ParameterBucket.FROM_3B_TO_8B -> "3–8B"
+        ParameterBucket.FROM_8B_TO_14B -> "8–14B"
+        ParameterBucket.FROM_14B -> "14B+"
+    }
+
+    fun sizeLabel(bucket: SizeBucket?): String? = when (bucket) {
+        null -> null
+        SizeBucket.UNDER_1GB -> "< 1 GB"
+        SizeBucket.FROM_1GB_TO_2GB -> "1–2 GB"
+        SizeBucket.FROM_2GB_TO_4GB -> "2–4 GB"
+        SizeBucket.FROM_4GB_TO_8GB -> "4–8 GB"
+        SizeBucket.FROM_8GB -> "8 GB+"
+    }
+
+    @StringRes
+    fun runsLabel(filter: RunsFilter): Int = when (filter) {
+        RunsFilter.FITS -> R.string.browse_runs_fits
+        RunsFilter.FITS_OR_TIGHT -> R.string.browse_runs_tight
+        RunsFilter.ANY -> R.string.browse_any
+    }
+
     fun summary(model: HubModel): String = listOfNotNull(
         model.architecture,
         model.parameterCount?.let { Format.count(it) + " parameters" },

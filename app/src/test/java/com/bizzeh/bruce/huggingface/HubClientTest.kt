@@ -44,17 +44,54 @@ class HubClientTest {
     }
 
     @Test
-    fun searchRequestsGgufSortedByDownloadsWithExpansions() = runTest(dispatcher) {
+    fun searchRequestsTextGenerationGgufSortedByDownloadsWithExpansions() = runTest(dispatcher) {
         transport.respond(200, "[]")
 
         client.search("  qwen3 coder & more ", limit = 5)
 
         assertEquals(
-            "https://huggingface.co/api/models?search=qwen3+coder+%26+more&filter=gguf&sort=downloads&direction=-1" +
-                "&limit=5&expand[]=downloads&expand[]=gated&expand[]=cardData&expand[]=gguf",
+            "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=5&search=qwen3+coder+%26+more" +
+                "&pipeline_tag=text-generation" + EXPANSIONS,
             transport.urls.single(),
         )
         assertEquals("Bruce/test", transport.headers.single()["User-Agent"])
+    }
+
+    @Test
+    fun blankSearchListsWithoutANameAndAppliesParameterBounds() = runTest(dispatcher) {
+        transport.respond(200, "[]")
+
+        client.search(" ", limit = 100, HubSearchFilter(minParameters = 1_000_000_000, maxParameters = 3_000_000_000))
+        client.search("", filter = HubSearchFilter(textGeneration = false, maxParameters = 500))
+        client.search("", filter = HubSearchFilter(textGeneration = false))
+
+        assertEquals(
+            listOf(
+                "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=100&pipeline_tag=text-generation" +
+                    "&num_parameters=min%3A1000000000%2Cmax%3A3000000000" + EXPANSIONS,
+                "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=20&num_parameters=max%3A500" + EXPANSIONS,
+                "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=20" + EXPANSIONS,
+            ),
+            transport.urls,
+        )
+    }
+
+    @Test
+    fun searchListsOnlyGgufFileNamesFromArchivedResponse() = runTest(dispatcher) {
+        transport.respond(200, fixture("search-siblings.json"))
+
+        val model = client.search("").value().single()
+
+        assertEquals("Qwen/Qwen3-0.6B-GGUF", model.id)
+        assertEquals(listOf("Qwen3-0.6B-Q8_0.gguf"), model.files)
+        assertEquals(596_049_920L, model.parameterCount)
+    }
+
+    @Test
+    fun unsafeFileNameInSearchIsMalformed() = runTest(dispatcher) {
+        transport.respond(200, """[{"id":"a/b","siblings":[{"rfilename":"../evil.gguf"}]}]""")
+
+        assertEquals(HubResult.Failure(HubError.MALFORMED_RESPONSE), client.search("x"))
     }
 
     @Test
@@ -250,5 +287,9 @@ class HubClientTest {
             if (tooLarge) return null
             return HttpResponse(status, emptyMap(), body.toByteArray())
         }
+    }
+
+    private companion object {
+        const val EXPANSIONS = "&expand[]=downloads&expand[]=gated&expand[]=cardData&expand[]=gguf&expand[]=siblings"
     }
 }

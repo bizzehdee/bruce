@@ -21,6 +21,8 @@ class LlamaArchitecturesTest {
         assertTrue(LlamaArchitectures.supportsChat("qwen3"))
         assertTrue(LlamaArchitectures.supportsChat("llama"))
         assertFalse(LlamaArchitectures.supportsChat("clip"))
+        assertFalse(LlamaArchitectures.supportsChat("eagle3"))
+        assertFalse(LlamaArchitectures.supportsChat("dflash"))
         assertFalse(LlamaArchitectures.supportsChat("not-a-real-architecture"))
     }
 }
