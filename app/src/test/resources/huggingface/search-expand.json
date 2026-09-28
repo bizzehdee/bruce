@@ -1,0 +1,35 @@
+[
+ {
+  "_id": "6a91d58bed327671e1699008",
+  "id": "ISTA-DASLab/Qwen3.8-27B-GSQ-RCO-GGUF",
+  "cardData": {
+   "base_model": "Qwen/Qwen3.8-27B",
+   "base_model_relation": "quantized",
+   "pipeline_tag": "image-text-to-text",
+   "library_name": "gguf",
+   "license": "apache-2.0",
+   "tags": [
+    "gguf",
+    "gsq",
+    "rco",
+    "quantization",
+    "mixed-precision",
+    "ist-daslab",
+    "multimodal",
+    "vision"
+   ]
+  },
+  "gated": false,
+  "trendingScore": 261,
+  "gguf": {
+   "total": 26895998464,
+   "architecture": "qwen35",
+   "context_length": 262144,
+   "quantize_imatrix_file": "imatrix-qwen3.8-27b.gguf",
+   "chat_template": "<omitted: long template>",
+   "bos_token": "<|endoftext|>",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 9259510912
+  }
+ }
+]

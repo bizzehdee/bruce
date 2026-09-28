@@ -74,7 +74,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Run 2 or more models on each test device across available backends.
   - Record results and conclusions in `.learnings/`.
   - Devices: Xperia XZ Premium and Xperia 1 II required; Pixel 11 when available, not blocking.
-  - Results: `.learnings/phase0-cpu-benchmarks.md`. Harness: `InferenceBenchmark`, annotated `@Benchmark` and excluded from normal device test runs.
+  - Results: `.learnings/phase0-cpu-benchmarks.md`. Harness: `InferenceBenchmark`, annotated `@ManualOnly` and excluded from normal device test runs.
   - Pixel 11 run still to do when the phone is available.
   - Depends on: TASK-011
   - Required by: TASK-018, TASK-019
@@ -117,11 +117,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Result: confirmed repacking on DOTPROD CPUs; the extra resident memory is reclaimable page cache, so the estimate already covers what Bruce needs. `ModelMemory` documented, formula unchanged. The benchmark now reports anonymous and file-backed memory via `/proc/self/statm`.
   - Depends on: TASK-012
   - Required by: TASK-022
-- [ ] TASK-020: Hugging Face Hub client
+- [x] TASK-020: Hugging Face Hub client
   - Anonymous search of GGUF repositories (`filter=gguf`, sorted by downloads) with `expand` for architecture, parameter count, context length, licence and gated status.
   - List a repository's GGUF files with size and SHA-256.
   - Validate every response at the boundary and bound its size; map failures (offline, rate limited, not found) to returned errors.
   - Adds the `INTERNET` permission. Requests only when networking is allowed.
+  - The network check is injected; TASK-028 connects it to the network mode setting. Verified against the real Hub from a phone with the manual-only `HubClientOnlineTest`.
   - Uses Android's `HttpURLConnection` and `org.json`; no new dependencies.
   - Required by: TASK-021, TASK-022, TASK-023, TASK-028, TASK-029
 - [ ] TASK-021: Read a remote GGUF header
