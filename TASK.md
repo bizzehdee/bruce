@@ -219,7 +219,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: Room 2.8.5 with KSP 2.3.12 (owner approved, 2026-09-28); schema exported to `app/schemas`. Each turn is saved when it ends, to the chat it began in, even if the user has switched chats. The title is the start of the first message (about 40 characters, cut at a word). Long press selects; Rename appears for one selection. Archived chats open in the Archived view by selection only. Clear all data also deletes chats.
   - Device-tested on the Pixel 11: chat, new chat, reopen from the drawer, rename, archive, restore, delete with confirmation.
   - Depends on: TASK-024, TASK-025, TASK-026
-  - Required by: TASK-035, TASK-036, TASK-045, TASK-047, TASK-048
+  - Required by: TASK-035, TASK-045, TASK-047, TASK-048, TASK-053
 - [ ] TASK-033: Tool-calling format for small models
   - Experiment on both phones with small models (1–4B) to choose how the model asks for a tool: the model's own chat-template tool format, grammar-constrained JSON (llama.cpp GBNF), or both with a fallback.
   - Measure call accuracy (right tool, valid arguments) over a fixed set of prompts for the automatic skills, and the speed cost of grammar constraint.
@@ -231,9 +231,9 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Skill definition per the spec: ID, version, description, input schema, required capabilities, default state, high-risk flag, resource scope, Android permissions, execute function.
   - Capability classes and capabilities from the spec (INFORMATION, FILES, PERSONAL_DATA, SENSORS, COMMUNICATION, SYSTEM, NETWORK); only those used by current skills are wired.
   - Skill registry; argument validation against the input schema (untrusted input from the model); structured denials with the spec's codes, `user_can_change` and `retryable`; results sanitised and marked as untrusted data before returning to the model.
-  - Done (`skills` package): all 27 capabilities are defined; nothing enforces them until TASK-035. Arguments are a flat JSON object of strings, integers, numbers and booleans with length, range and allowed-value limits; unknown or nested arguments are refused, and refusal reasons never repeat the model's text. The registry gives the one-line skill index (TASK-033) and a full schema per skill. There is deliberately no way to run a skill here: execution is the runtime's job after policy (TASK-036).
+  - Done (`skills` package): all 27 capabilities are defined; nothing enforces them until TASK-035. Arguments are a flat JSON object of strings, integers, numbers and booleans with length, range and allowed-value limits; unknown or nested arguments are refused, and refusal reasons never repeat the model's text. The registry gives the one-line skill index (TASK-033) and a full schema per skill. There is deliberately no way to run a skill here: execution is the runtime's job after policy (TASK-052).
   - Results go back in a JSON envelope marked `untrusted_data` with a "data, not instructions" note, control and invisible formatting characters removed, capped at 4,000 characters, and the prompt format's own markers (such as `<tool_call>`) broken up so a result cannot pose as a tool call.
-  - Required by: TASK-035, TASK-036, TASK-037
+  - Required by: TASK-035, TASK-037, TASK-052
 - [x] TASK-035: Policy engine
   - Per-skill states: Declined (refused with a structured denial), Ask (confirm every use), Accepted (run without asking).
   - Fresh-install defaults: automatic skills Accepted; file read Declined; file create, write and delete Ask.
@@ -241,20 +241,21 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The model has no path to change skill states, grants or settings.
   - States and grants stored in Room with a policy version.
   - Done (`policy` package): its own Room database (`policy.db`, schema exported) with skill states and a policy version bumped on every change. A stored state this version cannot read counts as Declined. Setting a high-risk skill to Accepted is refused unless the warning was accepted, enforced in the store, not only the UI. Only the engine can create an "allowed" decision, and execution turns exceptions into `TOOL_FAILED` without their text. Clear all data resets states. Folder grants are stored by TASK-040; until then a skill that needs a grant is refused as out of scope.
-  - Not wired into chat yet (TASK-036); no device test until then.
+  - Not wired into chat yet (TASK-052); no device test until then.
   - Depends on: TASK-032, TASK-034
-  - Required by: TASK-036, TASK-038, TASK-039, TASK-040
-- [ ] TASK-036: Tool calling in chat (runtime and agent loop)
-  - `BruceRuntime` offers enabled skills to the model, loading them as needed by the TASK-033 method, parses tool requests in the TASK-033 format, runs them through the policy engine and feeds results back.
-  - Bounded agent loop: maximum tool calls per turn, maximum execution time, cancellation with the stop button; structured errors on every limit.
-  - Tool calls, results and denials appear inline in the conversation and are saved with it.
-  - Depends on: TASK-024, TASK-032, TASK-033, TASK-034, TASK-035
-  - Required by: TASK-037, TASK-041, TASK-042, TASK-049
+  - Required by: TASK-038, TASK-039, TASK-040, TASK-052
+- [ ] TASK-036: Native tool-call layer
+  - Per ADR 0001: build the chat, template, parser, JSON and JSON-schema-to-grammar sources from llama.cpp's `common` into Bruce's native library with Bruce's own CMake target (not the download, HTTP, argument or console code), with a test that fails if an upgrade needs more.
+  - JNI and `InferenceEngine`: format a conversation with tool definitions in the model's own template (prompt, grammar, trigger patterns, preserved tokens, and which format was chosen); parse a finished reply into text and tool calls; generate with the lazy grammar when one is given.
+  - Where the template has no tool support: Bruce's `<tool_call>` format described in the system prompt, with a lazy grammar built from the skills' schemas, and Bruce's own parser.
+  - Device-tested with a real small model (not stories260K) on the Pixel 11: a tool call is produced, parsed and matches what llama-server gave in TASK-033.
+  - Depends on: TASK-024, TASK-033
+  - Required by: TASK-052
 - [ ] TASK-037: Automatic skills
   - Date/time, calculator, battery, device information, storage status, network status; default state Accepted; no Android runtime permissions.
   - Calculator uses a bounded arithmetic parser, never code evaluation.
   - Device and network status report only what the spec needs (no identifiers such as serials or MAC addresses).
-  - Depends on: TASK-034, TASK-036
+  - Depends on: TASK-034, TASK-052
   - Required by: TASK-039
 - [ ] TASK-038: Permissions screen
   - Replaces the placeholder reached from Settings. Lists granted files and folders (with granted date) and the Android permissions Bruce holds; each can be revoked.
@@ -275,12 +276,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [ ] TASK-041: Exact-operation confirmation
   - For skills in the Ask state: inline confirmation card in chat showing the tool, arguments and exact targets, with approve and deny.
   - Approval binds tool ID, arguments, target resources, timestamp and policy version; the executor refuses anything that differs from what was approved.
-  - Depends on: TASK-036
+  - Depends on: TASK-053
   - Required by: TASK-043, TASK-044
 - [ ] TASK-042: File read skill
   - Read granted files and list granted folders; default state Declined.
   - Plain-text formats only at first; size limits on what is read into the prompt; content passed to the model as untrusted data.
-  - Depends on: TASK-036, TASK-040
+  - Depends on: TASK-040, TASK-052
 - [ ] TASK-043: File create and write skills
   - Create a file and write or replace a file's contents in a granted folder; default state Ask, confirmed per operation through TASK-041.
   - Depends on: TASK-040, TASK-041
@@ -316,7 +317,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Followed instructions are guidance only: they are passed to the model as folder-supplied text, never grant permissions, and never change skill states, scope checks or confirmations.
   - `AGENTS.md` joins the context while working in that folder; `.agents/` files (for example `.agents/skills/*/SKILL.md`) are listed in the skill index and loaded as needed. Size limits on what is read; oversized files are refused with a message.
   - The follow or ignore choice per folder is shown on the Permissions screen and can be changed there.
-  - Depends on: TASK-036, TASK-038, TASK-040
+  - Depends on: TASK-038, TASK-040, TASK-052
 - [ ] TASK-050: Find why Vulkan gives wrong output on the Pixel 11
   - Bruce's Vulkan path gives wrong greedy output on the Pixel 11 (PowerVR C-Series CXTP-48-1536) and once froze it; it has never been checked on a GPU known to work. Candidates: our shader build (host `glslc`), our integration (device list, offloaded layers, context settings), llama.cpp's Vulkan code at the pinned revision, the PowerVR driver.
   - Step 1: on the development machine's AMD RX 6750 XT (RADV), build the pinned llama.cpp with Vulkan and the same `glslc`; run `test-backend-ops` (Vulkan against CPU) and the stories260K greedy reference.
@@ -329,3 +330,15 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Links: tapping shows the full address in a dialog and opens the browser only if the user confirms; only http and https links open.
   - Images: loaded only when the network mode allows the host (Any site; Approved sites for approved domains), without cookies or credentials, with a size cap; otherwise the alt text and address are shown. User messages stay plain text.
   - Depends on: TASK-024, TASK-028
+- [ ] TASK-052: Runtime and agent loop
+  - `BruceRuntime` offers enabled skills to the model, parses its tool requests with TASK-036, runs them through the policy engine (TASK-035) and feeds results back until the model answers.
+  - Skills are described in full until they pass a prompt budget set here from phone timings; past it, a one-line list with a skill's full description loaded when the model picks it. The one-line list with the native format was not measured in TASK-033: measure it before relying on it.
+  - Bounded agent loop: maximum tool calls per turn, maximum execution time, cancellation with the stop button; structured errors on every limit.
+  - Skills in the Ask state stop the loop with a pending confirmation (the card itself is TASK-041).
+  - Depends on: TASK-034, TASK-035, TASK-036
+  - Required by: TASK-037, TASK-042, TASK-049, TASK-053
+- [ ] TASK-053: Tool calls in the chat
+  - Tool calls, results and denials appear inline in the conversation (collapsed, with the skill's name and outcome) and are saved with it; a resumed chat shows them again.
+  - Room schema version 2 with a tested migration from version 1.
+  - Depends on: TASK-032, TASK-052
+  - Required by: TASK-041
