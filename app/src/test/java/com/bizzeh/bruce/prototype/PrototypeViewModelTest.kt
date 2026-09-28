@@ -13,6 +13,7 @@ import com.bizzeh.bruce.inference.LoadError
 import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.inference.ModelInfo
 import com.bizzeh.bruce.inference.StopReason
+import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ImportError
 import com.bizzeh.bruce.models.ImportResult
 import kotlinx.coroutines.Dispatchers
@@ -68,6 +69,7 @@ class PrototypeViewModelTest {
 
     private fun TestScope.viewModel() = PrototypeViewModel(
         engine = engine,
+        activeModel = ActiveModel(engine, modelsDir, dispatcher),
         modelsDir = modelsDir,
         importModel = { importResult },
         detectCpuFeatures = { cpu },

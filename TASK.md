@@ -152,9 +152,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Each turn re-evaluates the whole conversation; reusing the KV cache between turns is a later optimisation.
   - Material 3, light and dark themes.
   - Required by: TASK-025
-- [ ] TASK-025: Navigation shell
+- [x] TASK-025: Navigation shell
   - Side drawer with a conversation list placeholder, Models and Settings entries; chat is the start screen. Permissions are not in the drawer; they are reached from Settings.
   - Chat top bar shows the active model; tapping it opens a quick model switcher.
+  - State-based navigation with the system back button (no navigation library). A shared `ActiveModel` service tracks installed and loaded models for every screen.
+  - Until TASK-026 and TASK-027, Settings holds only Diagnostics and Models shows a placeholder.
   - The prototype test bench stays available to everyone as Settings > Diagnostics (TASK-026).
   - Depends on: TASK-024
   - Required by: TASK-026, TASK-027

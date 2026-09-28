@@ -6,6 +6,7 @@ import android.content.Context
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
+import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.settings.ThemeSettingsRepository
 import com.bizzeh.bruce.settings.settingsDataStore
@@ -31,6 +32,8 @@ class AppContainer(private val context: Context) {
     val modelsDir: File = File(context.filesDir, MODELS_DIR)
 
     val importer: ModelImporter by lazy { ModelImporter(context.contentResolver, modelsDir, Dispatchers.IO) }
+
+    val activeModel: ActiveModel by lazy { ActiveModel(engine, modelsDir, Dispatchers.IO) }
 
     val themeSettings: ThemeSettingsRepository by lazy { ThemeSettingsRepository(context.settingsDataStore) }
 

@@ -24,6 +24,9 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import com.bizzeh.bruce.models.ActiveModelState
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.io.File
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -44,13 +47,19 @@ class ChatViewModelTest {
         advanceUntilIdle()
     }
 
-    private fun viewModel() = ChatViewModel(engine).apply { refreshModel() }
+    private val activeModel = MutableStateFlow(ActiveModelState(active = File("Qwen3-0.6B-Q4_0.gguf")))
+
+    private fun TestScope.viewModel() = ChatViewModel(engine, activeModel).also { advanceUntilIdle() }
 
     @Test
-    fun refreshShowsTheLoadedModel() {
-        assertEquals("qwen3 0.6B Q4_0", viewModel().state.value.modelName)
-        engine.loadedModel = null
-        assertNull(viewModel().state.value.modelName)
+    fun titleFollowsTheActiveModel() = runTest(dispatcher) {
+        val vm = viewModel()
+        assertEquals("Qwen3-0.6B-Q4_0", vm.state.value.modelName)
+
+        activeModel.value = ActiveModelState()
+        advanceUntilIdle()
+
+        assertNull(vm.state.value.modelName)
     }
 
     @Test
@@ -162,7 +171,7 @@ class ChatViewModelTest {
 
         assertEquals(1, engine.stops)
         assertTrue(vm.state.value.entries.isEmpty())
-        assertEquals("qwen3 0.6B Q4_0", vm.state.value.modelName)
+        assertEquals("Qwen3-0.6B-Q4_0", vm.state.value.modelName)
     }
 
     @Test

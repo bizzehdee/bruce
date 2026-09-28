@@ -9,6 +9,7 @@ import com.bizzeh.bruce.inference.GenerationEvent
 import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.GenerationStats
 import com.bizzeh.bruce.inference.InferenceEngine
+import com.bizzeh.bruce.models.ActiveModelState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,13 +34,17 @@ enum class ChatError {
     GENERATION_FAILED,
 }
 
-class ChatViewModel(private val engine: InferenceEngine) : ViewModel() {
+class ChatViewModel(
+    private val engine: InferenceEngine,
+    activeModel: StateFlow<ActiveModelState>,
+) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
 
-    /** Call when the chat screen is shown, since a model may have been loaded elsewhere. */
-    fun refreshModel() {
-        mutableState.update { it.copy(modelName = engine.getModelInfo()?.description) }
+    init {
+        viewModelScope.launch {
+            activeModel.collect { model -> mutableState.update { it.copy(modelName = model.active?.nameWithoutExtension) } }
+        }
     }
 
     fun setInput(input: String) {
