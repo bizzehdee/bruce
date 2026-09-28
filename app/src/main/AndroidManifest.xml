@@ -5,6 +5,8 @@
     <!-- Hugging Face model search and downloads, only when the network mode allows them. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Network status skill: whether the phone is online and how; granted at install. -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".BruceApplication"

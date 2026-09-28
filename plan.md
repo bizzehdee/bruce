@@ -181,7 +181,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 ### Skills
 
 - **Automatic skills** — Date/time, calculator, battery, device information,
-  storage status, network status. `planned`
+  storage status, network status. `done` (in chat once tool calls are shown there)
 - **File read** — Read selected files and directories granted via the Storage
   Access Framework. `planned`
 - **File create/write** — Create and write single files in granted scopes;
@@ -422,6 +422,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Automatic skills done (date and time, calculator, battery, device, storage, network). |
 | 2026-09-28 | Added | Personalities (Bruce default, Milo) chosen in Settings; user-facing text calls Bruce a sidekick; light dog puns in small UI copy, replies, README and store text. |
 | 2026-09-28 | Changed | Skill states and policy engine done; states stored in their own database with a policy version; Clear all data resets them. |
 | 2026-09-28 | Added | Formatted replies: Markdown rendered natively; links confirmed before opening; images only where the network mode allows. |

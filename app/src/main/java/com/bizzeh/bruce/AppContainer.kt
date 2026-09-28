@@ -15,6 +15,9 @@ import com.bizzeh.bruce.conversations.ConversationDatabase
 import com.bizzeh.bruce.conversations.ConversationStore
 import com.bizzeh.bruce.policy.PolicyDatabase
 import com.bizzeh.bruce.policy.SkillStateStore
+import com.bizzeh.bruce.skills.SkillRegistry
+import com.bizzeh.bruce.skills.automatic.AndroidPhoneReaders
+import com.bizzeh.bruce.skills.automatic.AutomaticSkills
 import androidx.room.Room
 import com.bizzeh.bruce.setup.SetupSettingsRepository
 import com.bizzeh.bruce.huggingface.HttpTransport
@@ -96,6 +99,8 @@ class AppContainer(private val context: Context) {
     }
 
     val skillStates: SkillStateStore by lazy { SkillStateStore(policyDatabase.policy()) }
+
+    val skills: SkillRegistry by lazy { SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context))) }
 
     val dataReset: DataReset by lazy {
         DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO) {

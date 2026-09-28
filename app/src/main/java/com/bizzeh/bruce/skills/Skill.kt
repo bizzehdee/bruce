@@ -80,7 +80,6 @@ class Skill(
         require(ID.matches(id)) { "skill id must be lower-case words joined by underscores: $id" }
         require(version > 0) { "version must be positive" }
         require(description.isNotBlank()) { "description is required" }
-        require(capabilities.isNotEmpty()) { "a skill needs at least one capability" }
     }
 
     private companion object {
