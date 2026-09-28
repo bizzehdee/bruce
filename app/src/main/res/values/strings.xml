@@ -70,8 +70,8 @@
     <string name="settings_network">Network</string>
     <string name="network_offline">Offline</string>
     <string name="network_huggingface">Hugging Face</string>
-    <string name="network_approved">Approved</string>
-    <string name="network_general">Any</string>
+    <string name="network_approved">Approved sites</string>
+    <string name="network_general">Any site</string>
     <string name="network_offline_summary">Nothing leaves this phone. Model search and downloads are off.</string>
     <string name="network_huggingface_summary">Bruce may reach Hugging Face to search, sign in and download models. Nothing else.</string>
     <string name="network_approved_summary">Hugging Face, plus sites you approve once Bruce has skills that use the web.</string>
