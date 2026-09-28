@@ -300,16 +300,19 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/files/FileSkills.kt`): `list_files` and `read_file`, both Declined by default. Reading accepts a text MIME type (or none, or `application/octet-stream`) and then only valid UTF-8 without NUL bytes; at most 16 KB is read and a cut is reported; the result goes through `ToolOutput` (4,000 characters, untrusted-data envelope). Listings are sorted, folders end in `/`, at most 200 entries. When a file skill is offered, the system prompt names the user's grants (or says there are none); grant names are capped at 80 characters.
   - Device-tested on the Pixel 11 with Documents granted: `read_file` returned the pushed file's lines and `list_files` listed the folder through Android's real document provider. Qwen3.5-0.8B only called the skills when named; a larger model is needed for reliable use.
   - Depends on: TASK-040, TASK-052
+  - Required by: TASK-059
 - [x] TASK-043: File create and write skills
   - Create a file and write or replace a file's contents in a granted folder; default state Ask, confirmed per operation through TASK-041.
   - Done: `create_file` (never replaces; the parent must be a folder inside a grant) and `write_file` (replaces the whole text of an existing plain-text file only, so photos and documents cannot be overwritten), both Ask. Content is at most 15,000 characters, inside the 16 KB arguments limit. Writes truncate first.
   - Device-tested on the Pixel 11 by `FileSkillsDeviceTest` (manual; needs Documents granted): create, read, replace with shorter text, read and list through Android's real provider. Qwen3.5-0.8B would not call `create_file` from the chat (it claimed to have written the file without calling it, and nothing was written), so the chat path relies on TASK-041's device test of the approval card.
   - Depends on: TASK-040, TASK-041
+  - Required by: TASK-059
 - [x] TASK-044: File delete skill
   - Delete a single file in a granted folder; flagged high risk; default state Ask.
   - Done: `delete_file` removes one file inside a granted folder; never a folder, never a granted file itself (it was granted to be used). High risk and Ask, so Accepted needs the warning (TASK-039) and every use otherwise goes through the approval card.
   - Device-tested on the Pixel 11: `FileSkillsDeviceTest` now deletes the file it made through the real provider and nothing is left; choosing Accepted for Delete files shows the warning and Cancel keeps Ask.
   - Depends on: TASK-040, TASK-041
+  - Required by: TASK-059
 - [x] TASK-045: Context indicator and drop-oldest overflow
   - The chat shows context in use and free (tokens and a bar) for the active model's context length.
   - Explains, when opened or when near full, that a full context does not end the chat: new messages push the oldest out.
@@ -318,7 +321,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The chat shows a bar with tokens used and free, a line above the first message the model still sees, a "Nearly full" note from 85% of the prompt limit or once anything is dropped, and an explanation on tap.
   - Device-tested on the Pixel 11 with Qwen3.5-0.8B at a 2K context: an empty chat used 1,382 tokens of 4,096 (system prompt and nine skills); at 2K, three story requests dropped the oldest exchanges, the marker appeared and replies continued. First try showed no bar: measuring an empty chat failed in the template, found in the log and fixed.
   - Depends on: TASK-024, TASK-032
-  - Required by: TASK-046
+  - Required by: TASK-046, TASK-060
 - [x] TASK-046: Auto-summarise option
   - Setting, off by default: auto-summarise older messages. When on, a threshold of 85, 90, 95 or 100% context use triggers a summary of the oldest messages, which replaces them in what is sent to the model.
   - When off, TASK-045's drop-oldest behaviour applies.
@@ -332,6 +335,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Memory screen, reached from Settings: review and delete facts, delete all. Switching mode does not delete stored facts.
   - Stored in Room; included in clear all data.
   - Open before starting: how facts are extracted (for example a short extra model pass after a reply) and how many are included per prompt, measured against prompt time on the phones.
+  - Decided (2026-09-28): an extra model pass after each reply (thinking off) lists new facts; each prompt includes at most 10 saved facts ranked by word overlap with the new message, within a token budget. Prompt-time cost measured on the phones as part of the task.
   - Depends on: TASK-032
 - [ ] TASK-048: Response-complete notifications
   - When a reply finishes while Bruce is not on screen, post a notification; tapping it opens that chat. No notification while the chat is visible.
@@ -378,6 +382,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Measure on both Sony phones and the Pixel 11 the TASK-033 cases with each model's own tool format when skills are given as one-line descriptions, against full descriptions: accuracy, prompt tokens and prompt time.
   - Set a prompt budget for skill descriptions from those timings; past it, give the model the one-line list and add a skill's full description when the model picks it (a second step in the agent loop).
   - Needed before the skills outgrow the budget: at the latest with the file skills (TASK-042 to TASK-044).
+  - Prioritised (2026-09-28): done after TASK-059 and TASK-060 and before TASK-047; the nine skills take about 1,100 of the 1,382 fixed tokens with Qwen3.5-0.8B.
   - Depends on: TASK-052
 - [ ] TASK-056: Reuse the evaluated prompt between turns
   - Every turn re-evaluates the whole conversation (TASK-024), and with tools the fixed part alone is 300–600 tokens: about a minute on the XZ Premium (TASK-033). Keep the KV cache between generations and evaluate only the tokens after the longest shared prefix with the previous prompt; clear it when the model, context or template changes.
@@ -400,3 +405,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Light dog puns in small UI copy only: loading and empty states (for example "Fetching…" while a model loads, "Sniffing out models for this phone" while recommendations load, an empty chat list). Errors, warnings, permission requests, confirmations and settings explanations stay plain.
   - Play listing text (TASK-017) follows the same rule.
   - Depends on: TASK-057
+- [ ] TASK-059: Offer file skills only when something is granted
+  - With no file or folder granted, the file skills are not offered to the model and the system prompt says nothing about grants; the fixed prompt shrinks accordingly. Measure the saving on the Pixel 11.
+  - Asking about files with nothing granted: the model is told once, in the guidance, to point the user to Settings, Permissions (a short line, not the skill definitions).
+  - Depends on: TASK-042, TASK-043, TASK-044
+- [ ] TASK-060: Warn when a context length leaves little room
+  - Settings (Context length) and a model's own settings: when the fixed part of the prompt (system prompt and skills, as measured for the loaded model) leaves less than a set share of the chosen context for the conversation, say so beside the choice.
+  - Depends on: TASK-045
+

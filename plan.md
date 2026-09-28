@@ -427,6 +427,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Added | File skills offered only once a file or folder is granted; a warning when a context length leaves little room for the chat. |
+| 2026-09-28 | Changed | Memory decided: facts found by an extra model pass after replies; up to 10 relevant facts per prompt. Short skill list moved ahead of memory. |
 | 2026-09-28 | Changed | Auto-summarise done: off by default, threshold 85-100% (default 90%), summary shown as a marked note. |
 | 2026-09-28 | Changed | Context indicator and drop-oldest overflow done. |
 | 2026-09-28 | Changed | File delete skill done: one file inside a granted folder, high risk, asked every time by default. |
