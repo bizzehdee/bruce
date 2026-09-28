@@ -111,9 +111,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Default `LoadConfig.threads` to the number of performance cores instead of all cores; TASK-012 measured 4 threads 25–35% faster than 8 on both test phones.
   - Detect performance cores from each core's maximum frequency in sysfs; cores in the lowest-frequency cluster are efficiency cores.
   - Depends on: TASK-012
-- [ ] TASK-019: Memory estimate on repacking CPUs
+- [x] TASK-019: Memory estimate on repacking CPUs
   - Establish why memory use on the DOTPROD phone is 39–56% above the estimate (hypothesis: repacked weights plus resident mapped file pages), using `/proc/self/smaps` or llama.cpp's buffer-size log lines.
   - Update `ModelMemory` from the measured cause, and re-run the TASK-012 benchmark to check the estimate on both phones.
+  - Result: confirmed repacking on DOTPROD CPUs; the extra resident memory is reclaimable page cache, so the estimate already covers what Bruce needs. `ModelMemory` documented, formula unchanged. The benchmark now reports anonymous and file-backed memory via `/proc/self/statm`.
   - Depends on: TASK-012
   - Required by: TASK-022
 - [ ] TASK-020: Hugging Face Hub client

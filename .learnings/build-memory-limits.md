@@ -17,7 +17,8 @@ Caps now in place:
 `/tmp` on this machine is tmpfs, so files there are held in RAM. During the crash, about
 4.7 GB of scratch files sat there (1.6 GB of benchmark models, a 1.3 GB cold-cache Gradle
 home, a Python virtual environment, a Rust tool build). Put large downloads and Gradle
-homes on disk, not under `/tmp`.
+homes on disk, not under `/tmp`. The owner's rule (2026-09-28): never use tmpfs for anything;
+scratch files go in the git-ignored `build/scratch/`.
 
 Profiled after the caps (warm Gradle cache, full native rebuild): at most 8 compiler
 processes ran at once, and available memory fell from about 14 GB to 4.6 GB at the lowest.
