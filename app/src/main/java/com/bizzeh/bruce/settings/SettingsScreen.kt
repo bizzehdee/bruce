@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -16,6 +17,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -30,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.huggingface.HubAccount
@@ -129,18 +132,16 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             )
 
             Heading(R.string.settings_network)
-            Choice(
-                options = NetworkMode.entries,
-                selected = state.network,
-                label = { stringResource(SettingsText.networkLabel(it)) },
-                onSelect = actions::setNetworkMode,
-            )
-            Text(
-                stringResource(SettingsText.networkSummary(state.network)),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp).testTag("networkSummary"),
-            )
+            NetworkMode.entries.forEach { mode ->
+                ListItem(
+                    headlineContent = { Text(stringResource(SettingsText.networkLabel(mode))) },
+                    supportingContent = { Text(stringResource(SettingsText.networkSummary(mode))) },
+                    leadingContent = { RadioButton(selected = mode == state.network, onClick = null) },
+                    modifier = Modifier
+                        .selectable(selected = mode == state.network, role = Role.RadioButton) { actions.setNetworkMode(mode) }
+                        .testTag("network:$mode"),
+                )
+            }
             val account = state.account
             if (account != null) {
                 ListItem(
