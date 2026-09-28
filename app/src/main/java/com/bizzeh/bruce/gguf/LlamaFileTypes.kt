@@ -12,4 +12,6 @@ internal object LlamaFileTypes {
     )
 
     fun name(fileType: Int): String? = NAMES[fileType]
+
+    val names: Collection<String> get() = NAMES.values
 }
