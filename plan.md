@@ -353,6 +353,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Statuses from TASK-024 to TASK-028: chat interface and Settings screen in progress, navigation done, Hugging Face sign-in in progress. |
 | 2026-09-28 | Changed | Hugging Face discovery, resumable downloads, model recommendation, model management and network modes marked done; sign-in awaits a real sign-in. |
 | 2026-09-27 | Added | First-launch setup wizard covering network mode, permission toggles and a first model. |
 | 2026-09-27 | Changed | Hub API uses built-in HTTP and JSON; test bench kept for everyone as Settings > Diagnostics; fresh installs start offline only; Hugging Face sign-in by OAuth now. |
