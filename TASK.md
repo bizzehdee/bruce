@@ -313,3 +313,9 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - `AGENTS.md` joins the context while working in that folder; `.agents/` files (for example `.agents/skills/*/SKILL.md`) are listed in the skill index and loaded as needed. Size limits on what is read; oversized files are refused with a message.
   - The follow or ignore choice per folder is shown on the Permissions screen and can be changed there.
   - Depends on: TASK-036, TASK-038, TASK-040
+- [ ] TASK-050: Find why Vulkan gives wrong output on the Pixel 11
+  - Bruce's Vulkan path gives wrong greedy output on the Pixel 11 (PowerVR C-Series CXTP-48-1536) and once froze it; it has never been checked on a GPU known to work. Candidates: our shader build (host `glslc`), our integration (device list, offloaded layers, context settings), llama.cpp's Vulkan code at the pinned revision, the PowerVR driver.
+  - Step 1: on the development machine's AMD RX 6750 XT (RADV), build the pinned llama.cpp with Vulkan and the same `glslc`; run `test-backend-ops` (Vulkan against CPU) and the stories260K greedy reference.
+  - Step 2: build `test-backend-ops` and `llama-server` for Android with Bruce's Vulkan build settings and run them on the Pixel; compare `llama-server` output with Bruce's, and record which operations fail.
+  - Output: the established cause in `.learnings/gpu-backends-on-test-phones.md`, research provenance for any driver or upstream issue, and a follow-up task if Bruce's build or integration is at fault.
+  - Step 2 can freeze the Pixel; the owner reboots it.
