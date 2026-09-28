@@ -4,13 +4,17 @@
 #include <sys/auxv.h>
 
 #include <algorithm>
+#include <exception>
 #include <mutex>
 #include <string>
 #include <vector>
 
+#include <nlohmann/json.hpp>
+
 #include "cpu_features.h"
 #include "vulkan_devices.h"
 #include "ggml-backend.h"
+#include "common.h"
 #include "llama.h"
 
 namespace {
@@ -33,6 +37,8 @@ struct Generation {
     const llama_vocab *vocab;
     llama_sampler *sampler;
     std::vector<char> piece;
+    // Special tokens a tool-call format needs to see as text, e.g. "<tool_call>" (ADR 0001).
+    std::vector<llama_token> preserved;
 };
 
 Generation *asGeneration(jlong handle) { return reinterpret_cast<Generation *>(handle); }
@@ -41,8 +47,11 @@ int32_t usedPositions(llama_context *context) {
     return llama_memory_seq_pos_max(llama_get_memory(context), 0) + 1;
 }
 
-llama_sampler *newSampler(float temperature, uint32_t seed) {
+llama_sampler *newSampler(float temperature, uint32_t seed, llama_sampler *grammar = nullptr) {
     llama_sampler *chain = llama_sampler_chain_init(llama_sampler_chain_default_params());
+    if (grammar != nullptr) {
+        llama_sampler_chain_add(chain, grammar);
+    }
     if (temperature <= 0.0f) {
         llama_sampler_chain_add(chain, llama_sampler_init_greedy());
     } else {
@@ -55,17 +64,74 @@ llama_sampler *newSampler(float temperature, uint32_t seed) {
 // Token pieces are raw bytes; a multi-byte UTF-8 character can span two pieces, so text
 // decoding happens on the Kotlin side rather than through JNI's modified UTF-8.
 void storePiece(Generation *generation, llama_token token) {
+    const bool special = std::find(generation->preserved.begin(), generation->preserved.end(), token) != generation->preserved.end();
     generation->piece.resize(64);
     int32_t length = llama_token_to_piece(
             generation->vocab, token, generation->piece.data(),
-            static_cast<int32_t>(generation->piece.size()), 0, false);
+            static_cast<int32_t>(generation->piece.size()), 0, special);
     if (length < 0) {
         generation->piece.resize(static_cast<size_t>(-length));
         length = llama_token_to_piece(
                 generation->vocab, token, generation->piece.data(),
-                static_cast<int32_t>(generation->piece.size()), 0, false);
+                static_cast<int32_t>(generation->piece.size()), 0, special);
     }
     generation->piece.resize(static_cast<size_t>(length));
+}
+
+// A single token for [text], or LLAMA_TOKEN_NULL if it tokenises to more than one.
+llama_token singleToken(const llama_vocab *vocab, const std::string &text) {
+    std::vector<llama_token> tokens(8);
+    const int32_t count = llama_tokenize(vocab, text.data(), static_cast<int32_t>(text.size()), tokens.data(),
+                                         static_cast<int32_t>(tokens.size()), false, true);
+    return count == 1 ? tokens[0] : LLAMA_TOKEN_NULL;
+}
+
+// The lazy grammar sampler for a tool-call format, built as llama-server builds it
+// (tools/server/server-schema.cpp, common/sampling.cpp at the pinned revision): a trigger word that
+// is one special token becomes a token trigger and must be preserved. Returns null if unusable.
+llama_sampler *toolGrammar(const llama_vocab *vocab, const nlohmann::json &spec, std::vector<llama_token> &preserved) {
+    for (const auto &text : spec.value("preserved_tokens", nlohmann::json::array())) {
+        const llama_token token = singleToken(vocab, text.get<std::string>());
+        if (token != LLAMA_TOKEN_NULL) preserved.push_back(token);
+    }
+    std::vector<std::string> patterns;
+    std::vector<llama_token> tokens;
+    for (const auto &trigger : spec.value("grammar_triggers", nlohmann::json::array())) {
+        const auto type = static_cast<common_grammar_trigger_type>(trigger.at("type").get<int>());
+        const std::string value = trigger.at("value").get<std::string>();
+        switch (type) {
+            case COMMON_GRAMMAR_TRIGGER_TYPE_TOKEN:
+            case COMMON_GRAMMAR_TRIGGER_TYPE_WORD: {
+                const llama_token token = singleToken(vocab, value);
+                if (token != LLAMA_TOKEN_NULL) {
+                    if (std::find(preserved.begin(), preserved.end(), token) == preserved.end()) return nullptr;
+                    tokens.push_back(token);
+                } else if (type == COMMON_GRAMMAR_TRIGGER_TYPE_WORD) {
+                    patterns.push_back(regex_escape(value));
+                } else {
+                    return nullptr;
+                }
+                break;
+            }
+            case COMMON_GRAMMAR_TRIGGER_TYPE_PATTERN:
+                patterns.push_back(value);
+                break;
+            case COMMON_GRAMMAR_TRIGGER_TYPE_PATTERN_FULL:
+                patterns.push_back(value.empty() ? "^$" : (value.front() != '^' ? "^" : "") + value + (value.back() != '$' ? "$" : ""));
+                break;
+            default:
+                return nullptr;
+        }
+    }
+    const std::string grammar = spec.at("grammar").get<std::string>();
+    if (!spec.value("grammar_lazy", false)) {
+        return llama_sampler_init_grammar(vocab, grammar.c_str(), "root");
+    }
+    if (patterns.empty() && tokens.empty()) return nullptr;
+    std::vector<const char *> patternPointers;
+    for (const auto &pattern : patterns) patternPointers.push_back(pattern.c_str());
+    return llama_sampler_init_grammar_lazy_patterns(vocab, grammar.c_str(), "root", patternPointers.data(), patternPointers.size(),
+                                                    tokens.data(), tokens.size());
 }
 
 void forwardLog(ggml_log_level level, const char *text, void *) {
@@ -292,7 +358,34 @@ Java_com_bizzeh_bruce_inference_LlamaNative_beginGeneration(
             llama_model_get_vocab(llama_get_model(ctx)),
             newSampler(temperature, static_cast<uint32_t>(seed)),
             {},
+            {},
     };
+    return reinterpret_cast<jlong>(generation);
+}
+
+// As beginGeneration, constrained by a tool-call grammar. [grammarUtf8] is JSON:
+// {"grammar", "grammar_lazy", "grammar_triggers": [{"type", "value"}], "preserved_tokens"}, as applyChat
+// returns it. Returns 0 if the grammar or its triggers cannot be used.
+JNIEXPORT jlong JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_beginGenerationWithGrammar(
+        JNIEnv *env, jobject, jlong context, jfloat temperature, jint seed, jbyteArray grammarUtf8) {
+    llama_context *ctx = asContext(context);
+    const llama_vocab *vocab = llama_model_get_vocab(llama_get_model(ctx));
+    std::vector<llama_token> preserved;
+    llama_sampler *grammar = nullptr;
+    try {
+        const jsize length = env->GetArrayLength(grammarUtf8);
+        std::string text(static_cast<size_t>(length), '\0');
+        env->GetByteArrayRegion(grammarUtf8, 0, length, reinterpret_cast<jbyte *>(text.data()));
+        grammar = toolGrammar(vocab, nlohmann::json::parse(text), preserved);
+    } catch (const std::exception &error) {
+        __android_log_print(ANDROID_LOG_WARN, kLogTag, "tool grammar failed: %s", error.what());
+    }
+    if (grammar == nullptr) {
+        return 0;
+    }
+    llama_memory_clear(llama_get_memory(ctx), true);
+    auto *generation = new Generation{ctx, vocab, newSampler(temperature, static_cast<uint32_t>(seed), grammar), {}, preserved};
     return reinterpret_cast<jlong>(generation);
 }
 

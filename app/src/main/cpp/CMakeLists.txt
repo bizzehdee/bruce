@@ -56,6 +56,56 @@ set(OpenCL_LIBRARY OpenCL CACHE STRING "" FORCE)
 
 add_subdirectory(llama.cpp)
 
-add_library(bruce SHARED llama_jni.cpp cpu_features.cpp vulkan_devices.cpp)
+# Tool-call formats (docs/adr/0001-tool-calling-format.md): llama.cpp's chat, template, parser and
+# grammar code from common, built here rather than as llama-common, so its download, HTTP,
+# argument, console and subprocess code never enters the app. cpp-httplib is not even defined
+# (LLAMA_BUILD_COMMON is off), so if an upgrade makes this code need it, the build fails.
+set(LLAMA_COMMON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/llama.cpp/common)
+include(${LLAMA_COMMON_DIR}/parsers/sources.cmake)
+set(LLAMA_BUILD_NUMBER 0)
+set(LLAMA_BUILD_COMMIT "pinned submodule")
+set(BUILD_COMPILER "NDK clang")
+set(BUILD_TARGET ${ANDROID_ABI})
+configure_file(${LLAMA_COMMON_DIR}/build-info.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/build-info.cpp)
+add_library(bruce_chat STATIC
+    ${LLAMA_CHAT_PARSERS_SOURCES}
+    ${CMAKE_CURRENT_BINARY_DIR}/build-info.cpp
+    ${LLAMA_COMMON_DIR}/chat-auto-parser-generator.cpp
+    ${LLAMA_COMMON_DIR}/chat-auto-parser-helpers.cpp
+    ${LLAMA_COMMON_DIR}/chat-diff-analyzer.cpp
+    ${LLAMA_COMMON_DIR}/chat-peg-parser.cpp
+    ${LLAMA_COMMON_DIR}/chat.cpp
+    ${LLAMA_COMMON_DIR}/common.cpp
+    ${LLAMA_COMMON_DIR}/debug.cpp
+    ${LLAMA_COMMON_DIR}/fit.cpp
+    ${LLAMA_COMMON_DIR}/json-schema-to-grammar.cpp
+    ${LLAMA_COMMON_DIR}/json-schema.cpp
+    ${LLAMA_COMMON_DIR}/json.cpp
+    ${LLAMA_COMMON_DIR}/log.cpp
+    ${LLAMA_COMMON_DIR}/ngram-cache.cpp
+    ${LLAMA_COMMON_DIR}/ngram-map.cpp
+    ${LLAMA_COMMON_DIR}/ngram-mod.cpp
+    ${LLAMA_COMMON_DIR}/peg-parser.cpp
+    ${LLAMA_COMMON_DIR}/reasoning-budget.cpp
+    ${LLAMA_COMMON_DIR}/sampling.cpp
+    ${LLAMA_COMMON_DIR}/speculative.cpp
+    ${LLAMA_COMMON_DIR}/trie.cpp
+    ${LLAMA_COMMON_DIR}/unicode.cpp
+    ${LLAMA_COMMON_DIR}/jinja/caps.cpp
+    ${LLAMA_COMMON_DIR}/jinja/lexer.cpp
+    ${LLAMA_COMMON_DIR}/jinja/parser.cpp
+    ${LLAMA_COMMON_DIR}/jinja/runtime.cpp
+    ${LLAMA_COMMON_DIR}/jinja/string.cpp
+    ${LLAMA_COMMON_DIR}/jinja/value.cpp
+)
+set_target_properties(bruce_chat PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(bruce_chat PUBLIC ${LLAMA_COMMON_DIR})
+target_compile_features(bruce_chat PUBLIC cxx_std_17)
+target_link_libraries(bruce_chat PUBLIC llama vendor::nlohmann vendor::sheredom)
+
+add_library(bruce SHARED llama_jni.cpp chat_tools.cpp cpu_features.cpp vulkan_devices.cpp)
 target_include_directories(bruce PRIVATE ${EXTERNAL_DIR}/Vulkan-Headers/include)
-target_link_libraries(bruce PRIVATE llama ggml log vulkan)
+target_link_libraries(bruce PRIVATE llama ggml log vulkan bruce_chat)
+add_custom_command(TARGET bruce POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DLIBRARY=$<TARGET_FILE:bruce> -P ${CMAKE_CURRENT_SOURCE_DIR}/check_no_network.cmake
+    VERBATIM)

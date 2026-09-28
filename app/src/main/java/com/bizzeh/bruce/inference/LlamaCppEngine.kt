@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.TimeSource
@@ -23,7 +25,10 @@ internal class LlamaCppEngine(
     private val dispatcher: CoroutineDispatcher,
     private val timeSource: TimeSource = TimeSource.Monotonic,
 ) : InferenceEngine {
-    private class Session(val model: Long, val context: Long, val info: ModelInfo)
+    private class Session(val model: Long, val context: Long, val info: ModelInfo) {
+        /** The model's chat templates for tool formats, made the first time they are needed; 0 if unusable. */
+        var templates: Long? = null
+    }
 
     private val mutex = Mutex()
 
@@ -77,7 +82,15 @@ internal class LlamaCppEngine(
                 return@withLock
             }
             stopRequested.set(false)
-            val generation = llama.beginGeneration(current.context, request.temperature, request.seed)
+            val generation = if (request.grammar == null) {
+                llama.beginGeneration(current.context, request.temperature, request.seed)
+            } else {
+                llama.beginGenerationWithGrammar(current.context, request.temperature, request.seed, request.grammar.json.toByteArray(Charsets.UTF_8))
+            }
+            if (generation == 0L) {
+                emit(GenerationEvent.Failed(GenerationError.GRAMMAR_REJECTED))
+                return@withLock
+            }
             try {
                 streamCompletion(generation, request)
             } finally {
@@ -106,6 +119,79 @@ internal class LlamaCppEngine(
         }
     }
 
+    override suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean): ToolChatPrompt? =
+        mutex.withLock {
+            withContext(dispatcher) {
+                val current = session ?: return@withContext null
+                val templates = current.templates ?: llama.chatTemplatesInit(current.model).also { current.templates = it }
+                if (templates == 0L) return@withContext null
+                val request = JSONObject()
+                    .put("messages", JSONArray(messages.map(::messageJson)))
+                    .put("tools", JSONArray(tools.map { JSONObject().put("name", it.name).put("description", it.description).put("parameters", JSONObject(it.parametersJson)) }))
+                    .put("enable_thinking", enableThinking)
+                val reply = llama.applyChat(templates, request.toString().toByteArray(Charsets.UTF_8)) ?: return@withContext null
+                toolChatPrompt(JSONObject(String(reply, Charsets.UTF_8)))
+            }
+        }
+
+    override fun parseReply(format: ToolFormat, text: String, partial: Boolean): ParsedReply? {
+        val request = JSONObject()
+            .put("text", text)
+            .put("partial", partial)
+            .put("format", format.format)
+            .put("parser", format.parser)
+            .put("generation_prompt", format.generationPrompt)
+        val reply = llama.parseChat(request.toString().toByteArray(Charsets.UTF_8)) ?: return null
+        val json = JSONObject(String(reply, Charsets.UTF_8))
+        val calls = json.getJSONArray("tool_calls")
+        return ParsedReply(
+            content = json.getString("content"),
+            reasoning = json.getString("reasoning_content"),
+            toolCalls = (0 until calls.length()).map { calls.getJSONObject(it) }.map { ToolCall(it.getString("name"), it.getString("arguments"), it.getString("id")) },
+        )
+    }
+
+    override fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar? {
+        val request = JSONArray(tools.map { JSONObject().put("name", it.name).put("parameters", JSONObject(it.parametersJson)) })
+        val gbnf = llama.toolCallGrammar(request.toString().toByteArray(Charsets.UTF_8)) ?: return null
+        return ToolGrammar.bruceFormat(String(gbnf, Charsets.UTF_8))
+    }
+
+    private fun messageJson(message: ToolChatMessage): JSONObject = JSONObject()
+        .put("role", message.role.wireName)
+        .put("content", message.content)
+        .put("tool_call_id", message.toolCallId)
+        .put("tool_name", message.toolName)
+        .apply {
+            if (message.toolCalls.isNotEmpty()) {
+                put("tool_calls", JSONArray(message.toolCalls.map { JSONObject().put("name", it.name).put("arguments", it.argumentsJson).put("id", it.id) }))
+            }
+        }
+
+    private fun toolChatPrompt(json: JSONObject): ToolChatPrompt {
+        val grammarText = json.getString("grammar")
+        val grammar = if (grammarText.isEmpty()) null else ToolGrammar(
+            JSONObject()
+                .put("grammar", grammarText)
+                .put("grammar_lazy", json.getBoolean("grammar_lazy"))
+                .put("grammar_triggers", json.getJSONArray("grammar_triggers"))
+                .put("preserved_tokens", json.getJSONArray("preserved_tokens"))
+                .toString(),
+        )
+        val stops = json.getJSONArray("additional_stops")
+        return ToolChatPrompt(
+            text = json.getString("prompt"),
+            format = ToolFormat(
+                format = json.getInt("format"),
+                parser = json.getString("parser"),
+                generationPrompt = json.getString("generation_prompt"),
+                supportsTools = json.getBoolean("supports_tools"),
+                grammar = grammar,
+                stops = (0 until stops.length()).map(stops::getString),
+            ),
+        )
+    }
+
     private suspend fun FlowCollector<GenerationEvent>.streamCompletion(generation: Long, request: GenerationRequest) {
         val promptStart = timeSource.markNow()
         val promptTokens = llama.evaluatePrompt(generation, request.prompt.toByteArray(Charsets.UTF_8))
@@ -119,6 +205,9 @@ internal class LlamaCppEngine(
         val decoder = Utf8PieceDecoder()
         var generatedTokens = 0
         var reason = StopReason.MAX_TOKENS
+        // Enough recent text to see a stop string that arrives across several tokens.
+        val longestStop = request.stops.maxOfOrNull { it.length } ?: 0
+        val recent = StringBuilder()
         while (generatedTokens < request.maxTokens) {
             if (stopRequested.get()) {
                 reason = StopReason.STOPPED
@@ -127,7 +216,16 @@ internal class LlamaCppEngine(
             when (llama.nextToken(generation)) {
                 LlamaApi.TOKEN -> {
                     generatedTokens++
-                    emitText(decoder.decode(llama.takePiece(generation)))
+                    val text = decoder.decode(llama.takePiece(generation))
+                    emitText(text)
+                    if (longestStop > 0) {
+                        recent.append(text)
+                        if (request.stops.any { recent.contains(it) }) {
+                            reason = StopReason.END_OF_GENERATION
+                            break
+                        }
+                        if (recent.length > 2 * longestStop) recent.delete(0, recent.length - longestStop)
+                    }
                 }
                 LlamaApi.END_OF_GENERATION -> {
                     reason = StopReason.END_OF_GENERATION
@@ -199,6 +297,7 @@ internal class LlamaCppEngine(
     private fun release() {
         val current = session ?: return
         session = null
+        current.templates?.takeIf { it != 0L }?.let(llama::chatTemplatesFree)
         llama.freeContext(current.context)
         llama.freeModel(current.model)
     }

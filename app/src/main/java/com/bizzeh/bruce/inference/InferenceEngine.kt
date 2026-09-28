@@ -29,6 +29,19 @@ interface InferenceEngine {
      * reply. Null when no model is loaded.
      */
     suspend fun formatChat(messages: List<ChatMessage>): ChatPrompt?
+
+    /**
+     * Formats [messages] with [tools] in the loaded model's own tool format (ADR 0001). Null when no
+     * model is loaded or its template cannot be applied. When the result's format does not
+     * [support tools][ToolFormat.supportsTools], use [BruceToolFormat] instead.
+     */
+    suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean = false): ToolChatPrompt?
+
+    /** Splits a reply generated with [format] into text and tool calls; null if it cannot be parsed. */
+    fun parseReply(format: ToolFormat, text: String, partial: Boolean = false): ParsedReply?
+
+    /** The grammar for [BruceToolFormat] over [tools], or null if their schemas cannot be expressed. */
+    fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar?
 }
 
 enum class ChatRole(val wireName: String) {
@@ -48,6 +61,10 @@ data class GenerationRequest(
     /** 0 selects greedy decoding. */
     val temperature: Float = DEFAULT_TEMPERATURE,
     val seed: Int = 0,
+    /** Constrains tool calls; see [ToolFormat.grammar]. */
+    val grammar: ToolGrammar? = null,
+    /** Generation ends once the reply ends with one of these (some templates end turns with text). */
+    val stops: List<String> = emptyList(),
 ) {
     init {
         require(maxTokens > 0) { "maxTokens must be positive, was $maxTokens" }
@@ -78,6 +95,8 @@ enum class GenerationError {
     NO_MODEL_LOADED,
     PROMPT_TOO_LONG,
     DECODE_FAILED,
+    /** The request's grammar or its triggers could not be used with this model. */
+    GRAMMAR_REJECTED,
 }
 
 data class GenerationStats(

@@ -19,3 +19,4 @@
 - [adb-shell-background-process-hangs.md](adb-shell-background-process-hangs.md) — How to start and stop phone-side servers (`-T` with `setsid`; never `pkill -f`), and how a stale server corrupted results. Read before scripting anything that runs in the background on a phone.
 - [datastore-io-in-coroutine-tests.md](datastore-io-in-coroutine-tests.md) — Why view-model tests over DataStore wait on state instead of `advanceUntilIdle()`. Read before testing anything that writes settings.
 - [tool-calling-format.md](tool-calling-format.md) — Why Bruce uses each model's own tool-call format, what fails with one shared format, and the grammar and prompt-size costs. Read before TASK-036 or any prompt-format work.
+- [llama-chat-code-in-bruce.md](llama-chat-code-in-bruce.md) — Which llama.cpp common sources Bruce builds for tool calls, and the special-token and grammar-trigger rules that break tool calls if missed. Read before changing native chat or generation code.

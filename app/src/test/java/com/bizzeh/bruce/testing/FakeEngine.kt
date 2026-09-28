@@ -10,6 +10,12 @@ import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LoadConfig
 import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.inference.ModelInfo
+import com.bizzeh.bruce.inference.ParsedReply
+import com.bizzeh.bruce.inference.ToolChatMessage
+import com.bizzeh.bruce.inference.ToolChatPrompt
+import com.bizzeh.bruce.inference.ToolDefinition
+import com.bizzeh.bruce.inference.ToolFormat
+import com.bizzeh.bruce.inference.ToolGrammar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import java.io.File
@@ -52,4 +58,10 @@ class FakeEngine : InferenceEngine {
         formatted += messages
         return prompt
     }
+
+    override suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean): ToolChatPrompt? = null
+
+    override fun parseReply(format: ToolFormat, text: String, partial: Boolean): ParsedReply? = null
+
+    override fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar? = null
 }

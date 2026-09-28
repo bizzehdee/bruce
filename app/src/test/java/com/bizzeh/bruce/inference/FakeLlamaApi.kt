@@ -112,4 +112,50 @@ internal class FakeLlamaApi : LlamaApi {
     override fun endGeneration(generation: Long) {
         endedGenerations += generation
     }
+
+    var grammarGenerationResult = 31L
+    var lastGrammar: String? = null
+
+    override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long {
+        generationRequest = Triple(context, temperature, seed)
+        lastGrammar = grammarJson.toString(Charsets.UTF_8)
+        return grammarGenerationResult
+    }
+
+    var templatesHandle = 40L
+    var templateInits = 0
+    val freedTemplates = mutableListOf<Long>()
+
+    override fun chatTemplatesInit(model: Long): Long {
+        templateInits++
+        return templatesHandle
+    }
+
+    override fun chatTemplatesFree(templates: Long) {
+        freedTemplates += templates
+    }
+
+    var applyChatReply: String? = null
+    var lastApplyChat: String? = null
+
+    override fun applyChat(templates: Long, request: ByteArray): ByteArray? {
+        lastApplyChat = request.toString(Charsets.UTF_8)
+        return applyChatReply?.toByteArray(Charsets.UTF_8)
+    }
+
+    var parseChatReply: String? = null
+    var lastParseChat: String? = null
+
+    override fun parseChat(request: ByteArray): ByteArray? {
+        lastParseChat = request.toString(Charsets.UTF_8)
+        return parseChatReply?.toByteArray(Charsets.UTF_8)
+    }
+
+    var toolCallGrammarReply: String? = "root ::= \"x\""
+    var lastToolCallGrammar: String? = null
+
+    override fun toolCallGrammar(request: ByteArray): ByteArray? {
+        lastToolCallGrammar = request.toString(Charsets.UTF_8)
+        return toolCallGrammarReply?.toByteArray(Charsets.UTF_8)
+    }
 }

@@ -245,11 +245,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Not wired into chat yet (TASK-052); no device test until then.
   - Depends on: TASK-032, TASK-034
   - Required by: TASK-038, TASK-039, TASK-040, TASK-052
-- [ ] TASK-036: Native tool-call layer
+- [x] TASK-036: Native tool-call layer
   - Per ADR 0001: build the chat, template, parser, JSON and JSON-schema-to-grammar sources from llama.cpp's `common` into Bruce's native library with Bruce's own CMake target (not the download, HTTP, argument or console code), with a test that fails if an upgrade needs more.
   - JNI and `InferenceEngine`: format a conversation with tool definitions in the model's own template (prompt, grammar, trigger patterns, preserved tokens, and which format was chosen); parse a finished reply into text and tool calls; generate with the lazy grammar when one is given.
   - Where the template has no tool support: Bruce's `<tool_call>` format described in the system prompt, with a lazy grammar built from the skills' schemas, and Bruce's own parser.
   - Device-tested with a real small model (not stories260K) on the Pixel 11: a tool call is produced, parsed and matches what llama-server gave in TASK-033.
+  - Done: `bruce_chat` CMake target (27 of common's sources plus the chat parsers); `chat_tools.cpp` JNI for templates, apply, parse and Bruce's grammar; `beginGenerationWithGrammar` builds the lazy grammar sampler as llama-server does and renders preserved tokens as text. `InferenceEngine.formatToolChat`, `parseReply`, `bruceToolGrammar`; `GenerationRequest.grammar` and `stops`.
+  - A post-build step fails if `libbruce` imports `socket`, `connect`, `getaddrinfo` and similar; checked against llama.cpp's full `common`, which it rejects.
+  - `ToolCallDeviceTest` (manual: needs the model copied onto the phone, `docs/building.md`) passed on the Pixel 11 with Qwen3.5-0.8B Q8_0: own format calls `get_datetime` and `calculate` with both numbers, answers "Austen" without a tool; Bruce's format with its grammar calls `get_datetime`. Full device suite 35/35.
   - Depends on: TASK-024, TASK-033
   - Required by: TASK-052
 - [ ] TASK-037: Automatic skills
