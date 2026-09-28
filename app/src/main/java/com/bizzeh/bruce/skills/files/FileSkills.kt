@@ -26,7 +26,7 @@ import java.nio.charset.CodingErrorAction
  * checked the path against the grants; each skill resolves it again to act on the same document.
  */
 class FileSkills(private val scope: GrantScope, private val access: DocumentAccess, private val io: CoroutineDispatcher) {
-    fun create(): List<Skill> = listOf(listFiles(), readFile(), createFile(), writeFile())
+    fun create(): List<Skill> = listOf(listFiles(), readFile(), createFile(), writeFile(), deleteFile())
 
     private fun pathParameter(description: String) =
         Parameter(GrantScope.PATH_ARGUMENT, ParameterType.STRING, description, maxLength = PathRules.MAX_LENGTH)
@@ -72,6 +72,30 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         defaultState = SkillState.ASK,
         scope = ResourceScope.GRANTED_FILES,
     ) { arguments -> withContext(io) { replace(arguments) } }
+
+    private fun deleteFile() = Skill(
+        id = "delete_file",
+        version = 1,
+        description = "Delete one file in a granted folder. It cannot be undone. Folders cannot be deleted.",
+        input = InputSchema(listOf(pathParameter("The file, starting with a granted name, for example Documents/notes/old.txt"))),
+        capabilities = setOf(Capability.FILE_DELETE),
+        defaultState = SkillState.ASK,
+        highRisk = true,
+        scope = ResourceScope.GRANTED_FILES,
+    ) { arguments -> withContext(io) { remove(arguments) } }
+
+    private suspend fun remove(arguments: SkillArguments): SkillOutcome {
+        val found = when (val resolution = resolve(arguments)) {
+            is PathResolution.Found -> resolution
+            is PathResolution.Refused -> return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, resolution.reason)
+        }
+        val file = found.document ?: return notFound()
+        if (file.isDirectory) return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "That is a folder. Only single files can be deleted.")
+        // A granted file has no granted folder around it; the user granted it to be used, not removed.
+        if (found.parent == null) return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, "Only files inside a granted folder can be deleted.")
+        if (!access.delete(file.uri)) return SkillOutcome.Failed(DenialCode.TOOL_FAILED, "The folder did not allow the file to be deleted.")
+        return SkillOutcome.Done("Deleted the file.")
+    }
 
     private suspend fun createNew(arguments: SkillArguments): SkillOutcome {
         val found = when (val resolution = resolve(arguments)) {

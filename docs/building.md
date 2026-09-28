@@ -56,8 +56,8 @@ adb shell "cat /data/local/tmp/Qwen3.5-0.8B-Q8_0.gguf | run-as com.bizzeh.bruce 
 ```
 
 `FileSkillsDeviceTest` needs a folder named Documents granted in the installed app: open
-Settings, Permissions, Add folder, and pick Documents. It creates a file named
-`bruce-device-test-<time>.txt` there.
+Settings, Permissions, Add folder, and pick Documents. It creates, changes and deletes a
+file named `bruce-device-test-<time>.txt` there.
 
 ## Regenerating the icons
 

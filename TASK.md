@@ -305,8 +305,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `create_file` (never replaces; the parent must be a folder inside a grant) and `write_file` (replaces the whole text of an existing plain-text file only, so photos and documents cannot be overwritten), both Ask. Content is at most 15,000 characters, inside the 16 KB arguments limit. Writes truncate first.
   - Device-tested on the Pixel 11 by `FileSkillsDeviceTest` (manual; needs Documents granted): create, read, replace with shorter text, read and list through Android's real provider. Qwen3.5-0.8B would not call `create_file` from the chat (it claimed to have written the file without calling it, and nothing was written), so the chat path relies on TASK-041's device test of the approval card.
   - Depends on: TASK-040, TASK-041
-- [ ] TASK-044: File delete skill
+- [x] TASK-044: File delete skill
   - Delete a single file in a granted folder; flagged high risk; default state Ask.
+  - Done: `delete_file` removes one file inside a granted folder; never a folder, never a granted file itself (it was granted to be used). High risk and Ask, so Accepted needs the warning (TASK-039) and every use otherwise goes through the approval card.
+  - Device-tested on the Pixel 11: `FileSkillsDeviceTest` now deletes the file it made through the real provider and nothing is left; choosing Accepted for Delete files shows the warning and Cancel keeps Ask.
   - Depends on: TASK-040, TASK-041
 - [ ] TASK-045: Context indicator and drop-oldest overflow
   - The chat shows context in use and free (tokens and a bar) for the active model's context length.

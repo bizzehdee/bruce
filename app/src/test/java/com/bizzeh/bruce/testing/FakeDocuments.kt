@@ -44,4 +44,13 @@ class FakeDocuments : DocumentAccess {
     override fun write(document: Uri, bytes: ByteArray) {
         contents[document] = contents[document]?.first to bytes
     }
+
+    var refuseDelete = false
+
+    override fun delete(document: Uri): Boolean {
+        if (refuseDelete) return false
+        tree.replaceAll { _, children -> children.filterNot { it.second.uri == document } }
+        contents.remove(document)
+        return true
+    }
 }

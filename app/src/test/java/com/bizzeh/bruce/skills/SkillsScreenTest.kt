@@ -43,7 +43,7 @@ class SkillsScreenTest {
         Skill(id, 1, "Model-facing description of $id.", InputSchema(), emptySet(), default, highRisk, scope) { SkillOutcome.Done("") }
 
     private val clock = skill("get_datetime", SkillState.ACCEPTED)
-    private val delete = skill("delete_file", SkillState.ASK, highRisk = true, scope = ResourceScope.GRANTED_FILES)
+    private val delete = skill("shred_file", SkillState.ASK, highRisk = true, scope = ResourceScope.GRANTED_FILES)
     private val registry = SkillRegistry(listOf(clock, delete))
 
     @Before
@@ -100,32 +100,32 @@ class SkillsScreenTest {
 
         compose.onNodeWithText("Date and time").assertExists()
         compose.onNodeWithText("Reads the phone's date, time and time zone.").assertExists()
-        compose.onNodeWithText("Model-facing description of delete_file.").assertExists()
+        compose.onNodeWithText("Model-facing description of shred_file.").assertExists()
         compose.onNodeWithTag("state:get_datetime:ACCEPTED").assertIsSelected()
-        compose.onNodeWithTag("highRisk:delete_file").assertExists()
+        compose.onNodeWithTag("highRisk:shred_file").assertExists()
         compose.onNodeWithTag("highRisk:get_datetime").assertDoesNotExist()
         compose.onNodeWithTag("permissions:get_datetime").assertDoesNotExist()
 
         compose.onNodeWithTag("state:get_datetime:ACCEPTED").performClick()
         compose.onNodeWithTag("state:get_datetime:DECLINED").performClick()
-        compose.onNodeWithTag("state:delete_file:DECLINED").performScrollTo().performClick()
-        compose.onNodeWithTag("permissions:delete_file").performScrollTo().performClick()
+        compose.onNodeWithTag("state:shred_file:DECLINED").performScrollTo().performClick()
+        compose.onNodeWithTag("permissions:shred_file").performScrollTo().performClick()
 
-        assertEquals(listOf("get_datetime DECLINED false", "delete_file DECLINED false", "permissions"), calls)
+        assertEquals(listOf("get_datetime DECLINED false", "shred_file DECLINED false", "permissions"), calls)
     }
 
     @Test
     fun acceptingAHighRiskSkillNeedsTheWarningAccepted() {
         show()
 
-        compose.onNodeWithTag("state:delete_file:ACCEPTED").performScrollTo().performClick()
+        compose.onNodeWithTag("state:shred_file:ACCEPTED").performScrollTo().performClick()
         compose.onNodeWithTag("cancelRisk").performClick()
         compose.onNodeWithTag("cancelRisk").assertDoesNotExist()
         assertEquals(emptyList<String>(), calls)
 
-        compose.onNodeWithTag("state:delete_file:ACCEPTED").performClick()
-        compose.onNodeWithText("Always allow delete_file?").assertExists()
+        compose.onNodeWithTag("state:shred_file:ACCEPTED").performClick()
+        compose.onNodeWithText("Always allow shred_file?").assertExists()
         compose.onNodeWithTag("acceptRisk").performClick()
-        assertEquals(listOf("delete_file ACCEPTED true"), calls)
+        assertEquals(listOf("shred_file ACCEPTED true"), calls)
     }
 }
