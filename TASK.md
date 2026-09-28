@@ -160,9 +160,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The prototype test bench stays available to everyone as Settings > Diagnostics (TASK-026).
   - Depends on: TASK-024
   - Required by: TASK-026, TASK-027
-- [ ] TASK-026: Settings screen
+- [x] TASK-026: Settings screen
   - Appearance (moved from the prototype screen), Diagnostics (the prototype test bench), inference defaults (backend, threads, context length), data and privacy (clear all data, open-source licences), and a link to the permissions management screen (placeholder until that screen exists).
   - Export and delete conversations and delete memories appear once those features exist.
+  - Model defaults: backend, threads (automatic = performance cores, or fixed) and context length (default 4096, capped at each model's trained length when loaded).
+  - Clear all data asks for confirmation, then unloads the model and deletes models, cached files and settings.
+  - Open-source licences list every shipped component with its licence text.
   - Depends on: TASK-013, TASK-025
   - Required by: TASK-028
 - [ ] TASK-027: Model management screen: installed models

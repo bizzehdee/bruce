@@ -13,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalDrawerSheet
@@ -43,6 +42,8 @@ import com.bizzeh.bruce.chat.ChatActions
 import com.bizzeh.bruce.chat.ChatScreen
 import com.bizzeh.bruce.chat.ChatState
 import com.bizzeh.bruce.models.ActiveModelState
+import com.bizzeh.bruce.settings.LicencesScreen
+import com.bizzeh.bruce.settings.PermissionsScreen
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -51,12 +52,14 @@ enum class Destination {
     MODELS,
     SETTINGS,
     DIAGNOSTICS,
+    LICENCES,
+    PERMISSIONS,
 }
 
 /** Where the system back button goes from each destination. */
 internal fun backTarget(destination: Destination): Destination? = when (destination) {
     Destination.CHAT -> null
-    Destination.DIAGNOSTICS -> Destination.SETTINGS
+    Destination.DIAGNOSTICS, Destination.LICENCES, Destination.PERMISSIONS -> Destination.SETTINGS
     Destination.MODELS, Destination.SETTINGS -> Destination.CHAT
 }
 
@@ -77,7 +80,7 @@ fun BruceApp(
     activeModel: ActiveModelState,
     actions: AppActions,
     modelsScreen: @Composable (onBack: () -> Unit) -> Unit,
-    settingsScreen: @Composable (onBack: () -> Unit, openDiagnostics: () -> Unit) -> Unit,
+    settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
 ) {
     var destination by rememberSaveable { mutableStateOf(Destination.CHAT) }
@@ -136,8 +139,10 @@ fun BruceApp(
                 titleAction = { switcherOpen = true },
             )
             Destination.MODELS -> modelsScreen { goBack() }
-            Destination.SETTINGS -> settingsScreen({ goBack() }, { destination = Destination.DIAGNOSTICS })
+            Destination.SETTINGS -> settingsScreen({ goBack() }, { destination = it })
             Destination.DIAGNOSTICS -> diagnosticsScreen { goBack() }
+            Destination.LICENCES -> LicencesScreen { goBack() }
+            Destination.PERMISSIONS -> PermissionsScreen { goBack() }
         }
     }
 
@@ -193,18 +198,6 @@ fun SubScreen(title: String, onBack: () -> Unit, content: @Composable () -> Unit
         },
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) { content() }
-    }
-}
-
-/** Until TASK-026: Settings holds only the Diagnostics entry. */
-@Composable
-fun InterimSettings(onBack: () -> Unit, openDiagnostics: () -> Unit) {
-    SubScreen(stringResource(R.string.nav_settings), onBack) {
-        ListItem(
-            headlineContent = { Text(stringResource(R.string.nav_diagnostics)) },
-            supportingContent = { Text(stringResource(R.string.nav_diagnostics_summary)) },
-            modifier = Modifier.clickable(onClick = openDiagnostics).testTag("settings:diagnostics"),
-        )
     }
 }
 

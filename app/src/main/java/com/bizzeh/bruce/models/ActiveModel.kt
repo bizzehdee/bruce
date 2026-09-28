@@ -1,5 +1,7 @@
 package com.bizzeh.bruce.models
 
+import com.bizzeh.bruce.gguf.GgufReadResult
+import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.inference.Backend
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LoadConfig
@@ -47,9 +49,12 @@ class ActiveModel(
         mutableState.update { it.copy(active = null, info = null, backend = null, error = null) }
     }
 
+    /** Loads [file]; the context is capped at the length the model was trained for. */
     suspend fun load(file: File, config: LoadConfig = LoadConfig()): LoadResult {
         mutableState.update { it.copy(loading = true, error = null) }
-        val result = engine.loadModel(file, config)
+        val trained = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata?.contextLength }
+        val capped = if (trained != null && trained in 1 until config.contextLength) config.copy(contextLength = trained.toInt()) else config
+        val result = engine.loadModel(file, capped)
         mutableState.update {
             when (result) {
                 is LoadResult.Loaded -> it.copy(active = file, info = result.info, backend = result.backend, loading = false)

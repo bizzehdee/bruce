@@ -54,6 +54,17 @@ class ActiveModelTest {
     }
 
     @Test
+    fun contextIsCappedAtTheModelsTrainedLength() = runTest(dispatcher) {
+        val model = File(dir, "stories.gguf").apply { writeBytes(File("src/androidTest/assets/stories260K.gguf").readBytes()) }
+
+        activeModel.load(model, LoadConfig(contextLength = 8192))
+        activeModel.load(model, LoadConfig(contextLength = 1024))
+
+        // stories260K was trained with a 2048-token context.
+        assertEquals(listOf(2048, 1024), engine.loads.map { it.second.contextLength })
+    }
+
+    @Test
     fun unloadReleasesTheModel() = runTest(dispatcher) {
         engine.loadResult = LoadResult.Loaded(info, Backend.CPU)
         activeModel.load(File(dir, "a.gguf"))

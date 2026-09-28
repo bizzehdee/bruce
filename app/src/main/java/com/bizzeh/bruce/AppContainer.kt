@@ -8,6 +8,8 @@ import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
 import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ModelImporter
+import com.bizzeh.bruce.settings.DataReset
+import com.bizzeh.bruce.settings.InferenceSettingsRepository
 import com.bizzeh.bruce.settings.ThemeSettingsRepository
 import com.bizzeh.bruce.settings.settingsDataStore
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +38,12 @@ class AppContainer(private val context: Context) {
     val activeModel: ActiveModel by lazy { ActiveModel(engine, modelsDir, Dispatchers.IO) }
 
     val themeSettings: ThemeSettingsRepository by lazy { ThemeSettingsRepository(context.settingsDataStore) }
+
+    val inferenceSettings: InferenceSettingsRepository by lazy { InferenceSettingsRepository(context.settingsDataStore) }
+
+    val dataReset: DataReset by lazy {
+        DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO)
+    }
 
     val cpuFeatures: () -> CpuFeatures = CpuFeatures::detect
 

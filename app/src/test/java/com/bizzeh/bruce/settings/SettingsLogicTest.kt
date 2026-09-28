@@ -1,0 +1,104 @@
+package com.bizzeh.bruce.settings
+
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import com.bizzeh.bruce.inference.Backend
+import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.LoadResult
+import com.bizzeh.bruce.inference.ModelInfo
+import com.bizzeh.bruce.models.ActiveModel
+import com.bizzeh.bruce.testing.FakeEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class SettingsLogicTest {
+    @TempDir
+    lateinit var dir: File
+
+    private val dispatcher = StandardTestDispatcher()
+    private val engine = FakeEngine()
+
+    @BeforeEach
+    fun setUp() = Dispatchers.setMain(dispatcher)
+
+    @AfterEach
+    fun tearDown() = Dispatchers.resetMain()
+
+    private inner class Fixture(scope: TestScope) {
+        val dataStore = PreferenceDataStoreFactory.create(scope = scope.backgroundScope) { File(dir, "s.preferences_pb") }
+        val modelsDir = File(dir, "models").apply { mkdirs() }
+        val cacheDir = File(dir, "cache").apply { mkdirs() }
+        val activeModel = ActiveModel(engine, modelsDir, dispatcher)
+        val theme = ThemeSettingsRepository(dataStore)
+        val inference = InferenceSettingsRepository(dataStore)
+        val reset = DataReset(activeModel, dataStore, modelsDir, cacheDir, dispatcher)
+        val viewModel = SettingsViewModel(theme, inference, reset, dynamicColourSupported = true, performanceCores = 4, cores = 8)
+    }
+
+    @Test
+    fun viewModelReflectsAndChangesSettings() = runTest(dispatcher) {
+        val f = Fixture(this)
+
+        f.viewModel.setThemeMode(ThemeMode.DARK)
+        f.viewModel.setDynamicColour(true)
+        f.viewModel.setBackend(BackendPreference.CPU)
+        f.viewModel.setThreads(2)
+        f.viewModel.setContextLength(16384)
+
+        // DataStore writes on real I/O threads, so wait for the state rather than for the scheduler.
+        val state = f.viewModel.state.first { it.inference.contextLength == 16384 && it.theme.dynamicColour }
+        assertEquals(ThemeSettings(ThemeMode.DARK, dynamicColour = true), state.theme)
+        assertEquals(InferenceDefaults(BackendPreference.CPU, 2, 16384), state.inference)
+        assertTrue(state.dynamicColourSupported)
+        assertEquals(4, state.performanceCores)
+        assertEquals(8, state.cores)
+    }
+
+    @Test
+    fun clearAllDataRemovesModelsCacheAndSettingsAndUnloads() = runTest(dispatcher) {
+        val f = Fixture(this)
+        File(f.modelsDir, "m.gguf").writeText("x")
+        File(f.modelsDir, ".download-abc.part").writeText("x")
+        File(f.cacheDir, "tmp").mkdirs()
+        engine.loadResult = LoadResult.Loaded(ModelInfo("m", 1, 1, 1), Backend.CPU)
+        f.activeModel.load(File(f.modelsDir, "m.gguf"))
+        f.theme.setMode(ThemeMode.DARK)
+
+        f.viewModel.clearAllData()
+        f.theme.settings.first { it == ThemeSettings() }
+        advanceUntilIdle()
+
+        assertTrue(f.modelsDir.listFiles()!!.isEmpty())
+        assertTrue(f.cacheDir.listFiles()!!.isEmpty())
+        assertEquals(1, engine.unloads)
+        assertNull(f.activeModel.state.value.active)
+        assertEquals(ThemeSettings(), f.theme.settings.first())
+    }
+
+    @Test
+    fun threadChoicesAndLabels() {
+        assertEquals(listOf(1, 2, 4, 8), SettingsText.threadChoices(8))
+        assertEquals(listOf(1, 2, 4, 6), SettingsText.threadChoices(6))
+        assertEquals(listOf(1), SettingsText.threadChoices(1))
+        assertEquals(listOf(1, 2, 4, 8, 16), SettingsText.threadChoices(64))
+        assertEquals("4K", SettingsText.contextLabel(4096))
+        assertEquals("Vulkan", SettingsText.backendName("VULKAN"))
+        assertEquals("OpenCL", SettingsText.backendName("OPENCL"))
+        assertEquals("CPU", SettingsText.backendName("CPU"))
+    }
+}

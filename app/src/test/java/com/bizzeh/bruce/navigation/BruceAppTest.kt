@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.platform.testTag
 import com.bizzeh.bruce.chat.ChatActions
 import com.bizzeh.bruce.chat.ChatState
 import com.bizzeh.bruce.models.ActiveModelState
@@ -45,7 +46,15 @@ class BruceAppTest {
                 activeModel = models,
                 actions = appActions,
                 modelsScreen = { onBack -> SubScreen("Models screen", onBack) { Text("models body") } },
-                settingsScreen = { onBack, openDiagnostics -> InterimSettings(onBack, openDiagnostics) },
+                settingsScreen = { onBack, open ->
+                    SubScreen("Settings screen", onBack) {
+                        androidx.compose.foundation.layout.Column {
+                            androidx.compose.material3.TextButton(onClick = { open(Destination.DIAGNOSTICS) }, modifier = androidx.compose.ui.Modifier.testTag("settings:diagnostics")) { Text("Diagnostics") }
+                            androidx.compose.material3.TextButton(onClick = { open(Destination.LICENCES) }, modifier = androidx.compose.ui.Modifier.testTag("settings:licences")) { Text("Licences") }
+                            androidx.compose.material3.TextButton(onClick = { open(Destination.PERMISSIONS) }, modifier = androidx.compose.ui.Modifier.testTag("settings:permissions")) { Text("Permissions") }
+                        }
+                    }
+                },
                 diagnosticsScreen = { onBack -> SubScreen("Diagnostics screen", onBack) { Text("diagnostics body") } },
             )
         }
@@ -118,10 +127,29 @@ class BruceAppTest {
     }
 
     @Test
+    fun settingsLeadsToLicencesAndPermissions() {
+        show()
+        openDrawer()
+        compose.onNodeWithTag("nav:settings").performClick()
+
+        compose.onNodeWithTag("settings:licences").performClick()
+        compose.onNodeWithTag("licence:0").performClick()
+        compose.onNodeWithTag("licenceText").assertIsDisplayed()
+        compose.activity.onBackPressedDispatcher.onBackPressed()
+        compose.onNodeWithTag("licence:0").assertIsDisplayed()
+        compose.activity.onBackPressedDispatcher.onBackPressed()
+
+        compose.onNodeWithTag("settings:permissions").performClick()
+        compose.onNodeWithTag("permissionsPlaceholder").assertIsDisplayed()
+    }
+
+    @Test
     fun backTargets() {
         assertNull(backTarget(Destination.CHAT))
         assertEquals(Destination.CHAT, backTarget(Destination.MODELS))
         assertEquals(Destination.CHAT, backTarget(Destination.SETTINGS))
         assertEquals(Destination.SETTINGS, backTarget(Destination.DIAGNOSTICS))
+        assertEquals(Destination.SETTINGS, backTarget(Destination.LICENCES))
+        assertEquals(Destination.SETTINGS, backTarget(Destination.PERMISSIONS))
     }
 }
