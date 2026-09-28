@@ -57,10 +57,11 @@ fun ModelsScreen(
     cores: Int = 8,
     browse: BrowseState = BrowseState(),
     browseActions: BrowseActions? = null,
+    startOnHuggingFace: Boolean = false,
 ) {
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<String?>(null) }
-    var tab by rememberSaveable { mutableStateOf(0) }
+    var tab by rememberSaveable { mutableStateOf(if (startOnHuggingFace && browseActions != null) 1 else 0) }
     SubScreen(stringResource(R.string.nav_models), onBack) {
         Column(modifier = Modifier.fillMaxSize()) {
             if (browseActions != null) {

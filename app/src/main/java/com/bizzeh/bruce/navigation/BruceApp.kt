@@ -82,8 +82,9 @@ fun BruceApp(
     modelsScreen: @Composable (onBack: () -> Unit) -> Unit,
     settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
+    startDestination: Destination = Destination.CHAT,
 ) {
-    var destination by rememberSaveable { mutableStateOf(Destination.CHAT) }
+    var destination by rememberSaveable { mutableStateOf(startDestination) }
     var switcherOpen by rememberSaveable { mutableStateOf(false) }
     val drawer = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()

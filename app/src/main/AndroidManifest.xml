@@ -4,6 +4,7 @@
 
     <!-- Hugging Face model search and downloads, only when the network mode allows them. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".BruceApplication"

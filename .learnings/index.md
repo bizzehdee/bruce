@@ -16,3 +16,4 @@
 - [hf-hub-api-for-model-discovery.md](hf-hub-api-for-model-discovery.md) — Verified Hub API calls for GGUF search, metadata, hashes and partial downloads. Read before any Hugging Face work.
 - [build-memory-limits.md](build-memory-limits.md) — Why Gradle, Kotlin and native compiles are memory-capped, and the rule against a second Gradle daemon. Read before changing build parallelism or running builds with another Gradle home.
 - [hf-oauth-for-native-apps.md](hf-oauth-for-native-apps.md) — Hugging Face OAuth for Bruce: public app, PKCE, exact redirect, scopes, 8-hour tokens, no token on CDN redirects. Read before any sign-in work.
+- [datastore-io-in-coroutine-tests.md](datastore-io-in-coroutine-tests.md) — Why view-model tests over DataStore wait on state instead of `advanceUntilIdle()`. Read before testing anything that writes settings.

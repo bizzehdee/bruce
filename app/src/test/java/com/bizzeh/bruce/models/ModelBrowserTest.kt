@@ -291,4 +291,24 @@ class ModelBrowserTest {
 
         override fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse = error("not used")
     }
+
+    @Test
+    fun modelsScreenCanOpenOnTheHuggingFaceTab() {
+        val actions = object : BrowseActions {
+            override fun setQuery(query: String) = Unit
+            override fun search() = Unit
+            override fun openRepository(model: HubModel) = Unit
+            override fun download(model: HubModel, assessment: Assessment) = Unit
+            override fun cancel(repositoryId: String, path: String) = Unit
+        }
+        val models = object : ModelsActions {
+            override fun choose(file: java.io.File) = Unit
+            override fun importModel() = Unit
+            override fun delete(file: java.io.File) = Unit
+            override fun setOverrides(file: java.io.File, overrides: ModelOverrides) = Unit
+        }
+        compose.setContent { BruceTheme { ModelsScreen(ModelsState(), models, {}, browse = BrowseState(), browseActions = actions, startOnHuggingFace = true) } }
+
+        compose.onNodeWithTag("browseQuery").assertIsDisplayed()
+    }
 }
