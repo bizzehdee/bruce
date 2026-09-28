@@ -271,10 +271,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Pixel 11: turning notifications on and off in Android settings shows Allowed / Not allowed on return. Android 17 also grants `ACCESS_LOCAL_NETWORK` by itself (targetSdk 36); the screen names it and says Bruce does not need it.
   - Depends on: TASK-035
   - Required by: TASK-040, TASK-049
-- [ ] TASK-039: Skills screen
+- [x] TASK-039: Skills screen
   - Settings gains a Skills section that opens a dedicated Skills screen.
   - Lists each skill: what it does, a high-risk flag where it applies, and its state (Declined, Ask, Accepted), which the user changes there. Notes when a skill also needs a folder grant, linking to Permissions.
   - Setting a high-risk skill to Accepted shows a warning the user must accept; cancelling leaves the state unchanged.
+  - Done (`skills/SkillsScreen.kt`, `SkillsViewModel.kt`, `SkillText.kt`): skills are listed in registration order with their own user-facing name and summary (a skill's description is written for the model); a skill without one shows its id and description. The store still refuses Accepted for a high-risk skill without the warning.
+  - Device-tested on the Pixel 11: Date and time set to Declined stayed Declined after restarting Bruce, and "What time is it?" was answered without the skill; set back to Accepted.
   - Depends on: TASK-035, TASK-037, TASK-038
 - [ ] TASK-040: Scoped grants with the Storage Access Framework
   - The user grants a file or folder through the system picker; the grant binds the capability to that scope. Persisted URI permissions survive restarts; revoking releases them.

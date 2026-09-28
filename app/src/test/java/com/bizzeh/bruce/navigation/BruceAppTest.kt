@@ -52,10 +52,16 @@ class BruceAppTest {
                             androidx.compose.material3.TextButton(onClick = { open(Destination.DIAGNOSTICS) }, modifier = androidx.compose.ui.Modifier.testTag("settings:diagnostics")) { Text("Diagnostics") }
                             androidx.compose.material3.TextButton(onClick = { open(Destination.LICENCES) }, modifier = androidx.compose.ui.Modifier.testTag("settings:licences")) { Text("Licences") }
                             androidx.compose.material3.TextButton(onClick = { open(Destination.PERMISSIONS) }, modifier = androidx.compose.ui.Modifier.testTag("settings:permissions")) { Text("Permissions") }
+                            androidx.compose.material3.TextButton(onClick = { open(Destination.SKILLS) }, modifier = androidx.compose.ui.Modifier.testTag("settings:skills")) { Text("Skills") }
                         }
                     }
                 },
                 diagnosticsScreen = { onBack -> SubScreen("Diagnostics screen", onBack) { Text("diagnostics body") } },
+                skillsScreen = { onBack, openPermissions ->
+                    SubScreen("Skills screen", onBack) {
+                        androidx.compose.material3.TextButton(onClick = openPermissions, modifier = androidx.compose.ui.Modifier.testTag("skills:permissions")) { Text("To permissions") }
+                    }
+                },
                 startDestination = start,
             )
         }
@@ -154,6 +160,17 @@ class BruceAppTest {
     }
 
     @Test
+    fun skillsLeadToPermissionsAndBackGoesToSettings() {
+        show(Destination.SETTINGS)
+
+        compose.onNodeWithTag("settings:skills").performClick()
+        compose.onNodeWithTag("skills:permissions").performClick()
+        compose.onNodeWithTag("grantsEmpty").assertIsDisplayed()
+        compose.activity.onBackPressedDispatcher.onBackPressed()
+        compose.onNodeWithText("Settings screen").assertIsDisplayed()
+    }
+
+    @Test
     fun backTargets() {
         assertNull(backTarget(Destination.CHAT))
         assertEquals(Destination.CHAT, backTarget(Destination.MODELS))
@@ -161,5 +178,6 @@ class BruceAppTest {
         assertEquals(Destination.SETTINGS, backTarget(Destination.DIAGNOSTICS))
         assertEquals(Destination.SETTINGS, backTarget(Destination.LICENCES))
         assertEquals(Destination.SETTINGS, backTarget(Destination.PERMISSIONS))
+        assertEquals(Destination.SETTINGS, backTarget(Destination.SKILLS))
     }
 }

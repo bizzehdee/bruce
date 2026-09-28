@@ -59,13 +59,14 @@ enum class Destination {
     DIAGNOSTICS,
     LICENCES,
     PERMISSIONS,
+    SKILLS,
     ARCHIVED,
 }
 
 /** Where the system back button goes from each destination. */
 internal fun backTarget(destination: Destination): Destination? = when (destination) {
     Destination.CHAT -> null
-    Destination.DIAGNOSTICS, Destination.LICENCES, Destination.PERMISSIONS -> Destination.SETTINGS
+    Destination.DIAGNOSTICS, Destination.LICENCES, Destination.PERMISSIONS, Destination.SKILLS -> Destination.SETTINGS
     Destination.MODELS, Destination.SETTINGS, Destination.ARCHIVED -> Destination.CHAT
 }
 
@@ -89,6 +90,7 @@ fun BruceApp(
     modelsScreen: @Composable (onBack: () -> Unit) -> Unit,
     settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
+    skillsScreen: @Composable (onBack: () -> Unit, openPermissions: () -> Unit) -> Unit = { _, _ -> },
     startDestination: Destination = Destination.CHAT,
     conversations: List<Conversation> = emptyList(),
     archived: List<Conversation> = emptyList(),
@@ -169,6 +171,7 @@ fun BruceApp(
             Destination.SETTINGS -> settingsScreen({ goBack() }, { destination = it })
             Destination.DIAGNOSTICS -> diagnosticsScreen { goBack() }
             Destination.LICENCES -> LicencesScreen { goBack() }
+            Destination.SKILLS -> skillsScreen({ goBack() }, { destination = Destination.PERMISSIONS })
             Destination.PERMISSIONS -> PermissionsScreen(onOpenNetworkSettings = { destination = Destination.SETTINGS }, onBack = { goBack() })
             Destination.ARCHIVED -> SubScreen(stringResource(R.string.nav_archived), { goBack() }) {
                 if (conversationActions != null) {
