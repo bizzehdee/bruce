@@ -17,7 +17,7 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["notAnnotation"] = "com.bizzeh.bruce.benchmark.Benchmark"
+        testInstrumentationRunnerArguments["notAnnotation"] = "com.bizzeh.bruce.testing.ManualOnly"
 
         ndk {
             abiFilters += "arm64-v8a"

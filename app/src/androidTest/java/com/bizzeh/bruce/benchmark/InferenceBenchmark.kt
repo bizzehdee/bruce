@@ -13,6 +13,7 @@ import com.bizzeh.bruce.inference.LoadConfig
 import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.inference.deviceEngine
 import com.bizzeh.bruce.models.ModelMemory
+import com.bizzeh.bruce.testing.ManualOnly
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
@@ -30,7 +31,7 @@ import kotlin.time.measureTime
  * `adb shell am instrument -w -e class com.bizzeh.bruce.benchmark.InferenceBenchmark
  * com.bizzeh.bruce.test/androidx.test.runner.AndroidJUnitRunner`.
  */
-@Benchmark
+@ManualOnly("benchmark: slow, needs models pushed to the phone")
 @RunWith(AndroidJUnit4::class)
 class InferenceBenchmark {
     private val modelsDir = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir, MainActivity.MODELS_DIR)
