@@ -7,6 +7,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(EXTERNAL_DIR ${CMAKE_CURRENT_LIST_DIR}/external)
 
+# Ninja otherwise runs one compile per core; several llama.cpp translation units (the Vulkan
+# backend above all) need gigabytes each, which exhausted a 32-core workstation's memory.
+set_property(GLOBAL PROPERTY JOB_POOLS compile_pool=8 link_pool=4)
+set(CMAKE_JOB_POOL_COMPILE compile_pool)
+set(CMAKE_JOB_POOL_LINK link_pool)
+
 # ggml backends are separate libraries loaded at runtime, so one APK carries a CPU
 # variant per ARM feature level plus GPU backends, and the phone picks what it can run.
 set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)

@@ -14,3 +14,4 @@
 - [vtracer-python-binding-crashes.md](vtracer-python-binding-crashes.md) — How the logo was traced, and why with the vtracer CLI. Read before re-tracing artwork.
 - [phase0-cpu-benchmarks.md](phase0-cpu-benchmarks.md) — Measured speed and memory on both test phones, with thread-count and memory-estimate conclusions. Read before tuning threads, recommending models or changing the memory estimate.
 - [hf-hub-api-for-model-discovery.md](hf-hub-api-for-model-discovery.md) — Verified Hub API calls for GGUF search, metadata, hashes and partial downloads. Read before any Hugging Face work.
+- [build-memory-limits.md](build-memory-limits.md) — Why Gradle, Kotlin and native compiles are memory-capped, and the rule against a second Gradle daemon. Read before changing build parallelism or running builds with another Gradle home.
