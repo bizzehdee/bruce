@@ -87,6 +87,8 @@ class MainActivity : ComponentActivity() {
                 container.engine, container.activeModel.state, container.conversations::save, container.conversations::load, container.runtime::respond, container.runtime::answer,
                 container.personalitySettings.personality.map { it.displayName },
                 container.runtime::measure,
+                container.summarySettings.settings,
+                container.runtime::summarise,
             )
         }
     }
@@ -124,6 +126,7 @@ class MainActivity : ComponentActivity() {
                 inference = container.inferenceSettings,
                 network = container.networkSettings,
                 personality = container.personalitySettings,
+                summary = container.summarySettings,
                 hubAuth = container.hubAuth,
                 dataReset = container.dataReset,
                 dynamicColourSupported = dynamicColourSupported(),
@@ -340,6 +343,8 @@ class MainActivity : ComponentActivity() {
         override fun deleteAllConversations() = conversations.deleteAll()
         override fun setNetworkMode(mode: NetworkMode) = settings.setNetworkMode(mode)
         override fun setPersonality(personality: Personality) = settings.setPersonality(personality)
+        override fun setSummaryEnabled(enabled: Boolean) = settings.setSummaryEnabled(enabled)
+        override fun setSummaryThreshold(threshold: Int) = settings.setSummaryThreshold(threshold)
         override fun signIn() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settings.beginSignIn())))
         }

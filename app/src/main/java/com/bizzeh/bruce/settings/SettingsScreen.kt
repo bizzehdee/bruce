@@ -48,6 +48,7 @@ data class SettingsState(
     val cores: Int = 8,
     val network: NetworkMode = NetworkMode.OFFLINE,
     val personality: Personality = Personality.BRUCE,
+    val summary: SummarySettings = SummarySettings(),
     /** Backend choices this phone can use (BackendSelection.choices). */
     val backends: List<BackendPreference> = BackendPreference.entries,
     val account: HubAccount? = null,
@@ -64,6 +65,8 @@ interface SettingsActions {
     fun deleteAllConversations()
     fun setNetworkMode(mode: NetworkMode)
     fun setPersonality(personality: Personality)
+    fun setSummaryEnabled(enabled: Boolean)
+    fun setSummaryThreshold(threshold: Int)
     fun signIn()
     fun signOut()
     fun openSkills()
@@ -107,6 +110,22 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                     trailingContent = {
                         Switch(state.theme.dynamicColour, actions::setDynamicColour, modifier = Modifier.testTag("dynamicColour"))
                     },
+                )
+            }
+
+            Heading(R.string.settings_long_chats)
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_summarise)) },
+                supportingContent = { Text(stringResource(R.string.settings_summarise_summary)) },
+                trailingContent = { Switch(state.summary.enabled, actions::setSummaryEnabled, modifier = Modifier.testTag("summarise")) },
+            )
+            if (state.summary.enabled) {
+                Label(R.string.settings_summarise_threshold)
+                Choice(
+                    options = SummarySettings.THRESHOLDS,
+                    selected = state.summary.threshold,
+                    label = { stringResource(R.string.settings_percent, it) },
+                    onSelect = actions::setSummaryThreshold,
                 )
             }
 

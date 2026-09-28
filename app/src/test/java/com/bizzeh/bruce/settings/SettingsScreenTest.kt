@@ -20,7 +20,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /** A tall screen, so every setting is laid out without scrolling nested scroll containers. */
-@Config(qualifiers = "w400dp-h1600dp")
+@Config(qualifiers = "w400dp-h2400dp")
 @RunWith(RobolectricTestRunner::class)
 class SettingsScreenTest {
     @get:Rule
@@ -37,6 +37,8 @@ class SettingsScreenTest {
         override fun deleteAllConversations() { calls += "deleteChats" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
         override fun setPersonality(personality: Personality) { calls += "personality $personality" }
+        override fun setSummaryEnabled(enabled: Boolean) { calls += "summarise $enabled" }
+        override fun setSummaryThreshold(threshold: Int) { calls += "threshold $threshold" }
         override fun signIn() { calls += "signIn" }
         override fun signOut() { calls += "signOut" }
         override fun openSkills() { calls += "skills" }
@@ -47,6 +49,23 @@ class SettingsScreenTest {
 
     private fun show(state: SettingsState = SettingsState()) =
         compose.setContent { BruceTheme { SettingsScreen(state, actions) {} } }
+
+    @Test
+    fun summariseIsOffWithNoThresholdShown() {
+        show()
+        compose.onNodeWithText("90%").assertDoesNotExist()
+        compose.onNodeWithTag("summarise").performScrollTo().performClick()
+
+        assertEquals(listOf("summarise true"), calls)
+    }
+
+    @Test
+    fun summariseThresholdIsChosenWhenOn() {
+        show(SettingsState(summary = SummarySettings(enabled = true, threshold = 90)))
+        compose.onNodeWithText("95%").performScrollTo().performClick()
+
+        assertEquals(listOf("threshold 95"), calls)
+    }
 
     @Test
     fun appearanceAndDefaults() {

@@ -38,6 +38,7 @@ import com.bizzeh.bruce.huggingface.UrlConnectionTransport
 import com.bizzeh.bruce.settings.InferenceSettingsRepository
 import com.bizzeh.bruce.settings.NetworkSettingsRepository
 import com.bizzeh.bruce.settings.PersonalitySettingsRepository
+import com.bizzeh.bruce.settings.SummarySettingsRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.settings.ThemeSettingsRepository
@@ -74,6 +75,8 @@ class AppContainer(private val context: Context) {
     val networkSettings: NetworkSettingsRepository by lazy { NetworkSettingsRepository(context.settingsDataStore) }
 
     val personalitySettings: PersonalitySettingsRepository by lazy { PersonalitySettingsRepository(context.settingsDataStore) }
+
+    val summarySettings: SummarySettingsRepository by lazy { SummarySettingsRepository(context.settingsDataStore) }
 
     private suspend fun personalityRules(): String {
         val personality = personalitySettings.personality.first()
