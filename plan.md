@@ -153,10 +153,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   (the spec's always-confirm operations: delete files now; SMS, calls, payments
   and side-effecting web requests later) are flagged as high risk; setting one to
   Accepted shows a warning the user must accept first. The owner chose to allow
-  Accepted for high-risk skills with this warning (2026-09-28). `planned`
+  Accepted for high-risk skills with this warning (2026-09-28). `done` (set in the
+  Skills screen once it exists)
 - **Policy engine** — Applies the skill states. Enforcement order: validate tool, validate arguments, capabilities, Android
   permissions, user grants, resource scope, confirmation, execute, sanitise
-  result. `planned`
+  result. `done` (used by the runtime once tool calling exists)
 - **Scoped grants** — File skills act only inside files and folders the user
   granted through the Storage Access Framework, whatever the skill's state.
   Grants last until the user revokes them; the spec's grant durations (once, this
@@ -408,6 +409,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Skill states and policy engine done; states stored in their own database with a policy version; Clear all data resets them. |
 | 2026-09-28 | Added | Formatted replies: Markdown rendered natively; links confirmed before opening; images only where the network mode allows. |
 | 2026-09-28 | Changed | Skill framework and capability model done: skill definitions, argument validation, structured denials, untrusted-result envelope. |
 | 2026-09-28 | Changed | Backend choices list only backends this phone can use (Auto, CPU, and usable GPUs). |

@@ -52,8 +52,8 @@ class SettingsLogicTest {
         val activeModel = ActiveModel(engine, modelsDir, dispatcher)
         val theme = ThemeSettingsRepository(dataStore)
         val inference = InferenceSettingsRepository(dataStore)
-        var conversationsCleared = 0
-        val reset = DataReset(activeModel, dataStore, modelsDir, cacheDir, dispatcher) { conversationsCleared++ }
+        var databasesCleared = 0
+        val reset = DataReset(activeModel, dataStore, modelsDir, cacheDir, dispatcher) { databasesCleared++ }
         val network = NetworkSettingsRepository(dataStore)
         val hubAuth = HubAuth(NoNetwork, dataStore, PlainCipher, { true }, dispatcher, "client")
         val viewModel = SettingsViewModel(theme, inference, network, hubAuth, reset, dynamicColourSupported = true, performanceCores = 4, cores = 8)
@@ -98,7 +98,7 @@ class SettingsLogicTest {
         assertTrue(f.modelsDir.listFiles()!!.isEmpty())
         assertTrue(f.cacheDir.listFiles()!!.isEmpty())
         assertEquals(1, engine.unloads)
-        assertEquals(1, f.conversationsCleared)
+        assertEquals(1, f.databasesCleared)
         assertNull(f.activeModel.state.value.active)
         assertEquals(ThemeSettings(), f.theme.settings.first())
     }

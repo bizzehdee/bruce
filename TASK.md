@@ -234,12 +234,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills` package): all 27 capabilities are defined; nothing enforces them until TASK-035. Arguments are a flat JSON object of strings, integers, numbers and booleans with length, range and allowed-value limits; unknown or nested arguments are refused, and refusal reasons never repeat the model's text. The registry gives the one-line skill index (TASK-033) and a full schema per skill. There is deliberately no way to run a skill here: execution is the runtime's job after policy (TASK-036).
   - Results go back in a JSON envelope marked `untrusted_data` with a "data, not instructions" note, control and invisible formatting characters removed, capped at 4,000 characters, and the prompt format's own markers (such as `<tool_call>`) broken up so a result cannot pose as a tool call.
   - Required by: TASK-035, TASK-036, TASK-037
-- [ ] TASK-035: Policy engine
+- [x] TASK-035: Policy engine
   - Per-skill states: Declined (refused with a structured denial), Ask (confirm every use), Accepted (run without asking).
   - Fresh-install defaults: automatic skills Accepted; file read Declined; file create, write and delete Ask.
   - Enforcement order: validate tool, validate arguments, skill state, Android permissions, granted scope, confirmation (Ask), execute, sanitise result. Scope checks apply in every state, including Accepted.
   - The model has no path to change skill states, grants or settings.
   - States and grants stored in Room with a policy version.
+  - Done (`policy` package): its own Room database (`policy.db`, schema exported) with skill states and a policy version bumped on every change. A stored state this version cannot read counts as Declined. Setting a high-risk skill to Accepted is refused unless the warning was accepted, enforced in the store, not only the UI. Only the engine can create an "allowed" decision, and execution turns exceptions into `TOOL_FAILED` without their text. Clear all data resets states. Folder grants are stored by TASK-040; until then a skill that needs a grant is refused as out of scope.
+  - Not wired into chat yet (TASK-036); no device test until then.
   - Depends on: TASK-032, TASK-034
   - Required by: TASK-036, TASK-038, TASK-039, TASK-040
 - [ ] TASK-036: Tool calling in chat (runtime and agent loop)
