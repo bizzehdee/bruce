@@ -227,10 +227,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Output: a decision recorded as an ADR and in `.learnings/`, closing the plan.md open question on tool-calling format.
   - Depends on: TASK-024
   - Required by: TASK-036
-- [ ] TASK-034: Skill framework and capability model
+- [x] TASK-034: Skill framework and capability model
   - Skill definition per the spec: ID, version, description, input schema, required capabilities, default state, high-risk flag, resource scope, Android permissions, execute function.
   - Capability classes and capabilities from the spec (INFORMATION, FILES, PERSONAL_DATA, SENSORS, COMMUNICATION, SYSTEM, NETWORK); only those used by current skills are wired.
   - Skill registry; argument validation against the input schema (untrusted input from the model); structured denials with the spec's codes, `user_can_change` and `retryable`; results sanitised and marked as untrusted data before returning to the model.
+  - Done (`skills` package): all 27 capabilities are defined; nothing enforces them until TASK-035. Arguments are a flat JSON object of strings, integers, numbers and booleans with length, range and allowed-value limits; unknown or nested arguments are refused, and refusal reasons never repeat the model's text. The registry gives the one-line skill index (TASK-033) and a full schema per skill. There is deliberately no way to run a skill here: execution is the runtime's job after policy (TASK-036).
+  - Results go back in a JSON envelope marked `untrusted_data` with a "data, not instructions" note, control and invisible formatting characters removed, capped at 4,000 characters, and the prompt format's own markers (such as `<tool_call>`) broken up so a result cannot pose as a tool call.
   - Required by: TASK-035, TASK-036, TASK-037
 - [ ] TASK-035: Policy engine
   - Per-skill states: Declined (refused with a structured denial), Ask (confirm every use), Accepted (run without asking).
