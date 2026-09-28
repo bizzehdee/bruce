@@ -200,13 +200,3 @@ fun SubScreen(title: String, onBack: () -> Unit, content: @Composable () -> Unit
         Box(modifier = Modifier.fillMaxSize().padding(padding)) { content() }
     }
 }
-
-/** Until TASK-027. */
-@Composable
-fun InterimModels(onBack: () -> Unit) {
-    SubScreen(stringResource(R.string.nav_models), onBack) {
-        Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(stringResource(R.string.models_placeholder))
-        }
-    }
-}

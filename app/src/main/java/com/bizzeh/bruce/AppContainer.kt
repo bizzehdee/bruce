@@ -8,6 +8,8 @@ import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
 import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ModelImporter
+import com.bizzeh.bruce.models.ModelSelection
+import com.bizzeh.bruce.models.ModelSettingsRepository
 import com.bizzeh.bruce.settings.DataReset
 import com.bizzeh.bruce.settings.InferenceSettingsRepository
 import com.bizzeh.bruce.settings.ThemeSettingsRepository
@@ -40,6 +42,12 @@ class AppContainer(private val context: Context) {
     val themeSettings: ThemeSettingsRepository by lazy { ThemeSettingsRepository(context.settingsDataStore) }
 
     val inferenceSettings: InferenceSettingsRepository by lazy { InferenceSettingsRepository(context.settingsDataStore) }
+
+    val modelSettings: ModelSettingsRepository by lazy { ModelSettingsRepository(context.settingsDataStore) }
+
+    val modelSelection: ModelSelection by lazy {
+        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO)
+    }
 
     val dataReset: DataReset by lazy {
         DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO)

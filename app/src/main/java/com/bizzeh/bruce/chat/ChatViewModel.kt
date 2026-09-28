@@ -37,6 +37,7 @@ enum class ChatError {
 class ChatViewModel(
     private val engine: InferenceEngine,
     activeModel: StateFlow<ActiveModelState>,
+    private val temperature: suspend () -> Float = { GenerationRequest.DEFAULT_TEMPERATURE },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -65,7 +66,7 @@ class ChatViewModel(
                 finish(ChatError.NO_MODEL_LOADED)
                 return@launch
             }
-            engine.generate(GenerationRequest(prompt.text, maxTokens = MAX_REPLY_TOKENS)).collect { event ->
+            engine.generate(GenerationRequest(prompt.text, maxTokens = MAX_REPLY_TOKENS, temperature = temperature())).collect { event ->
                 when (event) {
                     is GenerationEvent.Token -> updateReply { it.copy(text = it.text + event.text) }
                     is GenerationEvent.Completed -> updateReply { it.copy(stats = event.stats) }

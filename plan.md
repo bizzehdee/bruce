@@ -178,7 +178,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   backend); delete. Import from a file with the system picker. Browse, search and
   download from Hugging Face with fit-ranked results and download progress.
   Per-model settings (context length, backend, threads, temperature) override the
-  inference defaults. `planned`
+  inference defaults. `in progress`
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and

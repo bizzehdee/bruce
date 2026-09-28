@@ -168,9 +168,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Open-source licences list every shipped component with its licence text.
   - Depends on: TASK-013, TASK-025
   - Required by: TASK-028
-- [ ] TASK-027: Model management screen: installed models
+- [x] TASK-027: Model management screen: installed models
   - Installed models with size, quantisation and fit label; choose the active model; details (metadata, memory estimate, backend); delete; import from a file.
   - Per-model settings (context length, backend, threads, temperature) that override the inference defaults.
+  - Also: the chosen model is remembered and loaded again at the next launch (not in the original task; added so the app does not start on "No model loaded" every time).
+  - The switcher and Models screen share one `ModelSelection` path, so per-model settings apply wherever a model is chosen. The memory estimate shown uses the same trained-length cap as loading.
   - Depends on: TASK-010, TASK-025
   - Required by: TASK-029, TASK-030
 - [ ] TASK-028: Network settings

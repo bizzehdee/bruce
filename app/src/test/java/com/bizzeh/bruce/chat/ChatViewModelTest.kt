@@ -186,6 +186,15 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun repliesUseTheActiveModelsTemperature() = runTest(dispatcher) {
+        val vm = ChatViewModel(engine, activeModel) { 0.3f }.also { advanceUntilIdle() }
+
+        chat("Hi", vm)
+
+        assertEquals(0.3f, engine.requests.single().temperature)
+    }
+
+    @Test
     fun errorText() {
         assertNull(ChatText.error(null))
         assertEquals(R.string.chat_error_no_model, ChatText.error(ChatError.NO_MODEL_LOADED))
