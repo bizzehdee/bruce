@@ -7,7 +7,7 @@
 - [llama-decode-aborts-on-oversized-batch.md](llama-decode-aborts-on-oversized-batch.md) — Why prompts are decoded in chunks. Read before changing native decode code.
 - [jni-text-as-utf8-bytes.md](jni-text-as-utf8-bytes.md) — Why text crosses JNI as bytes. Read before adding JNI functions that take or return text.
 - [ggml-cpu-has-is-compile-time.md](ggml-cpu-has-is-compile-time.md) — Why Bruce detects CPU features itself, and how CPU variants are chosen. Read before any CPU performance work.
-- [gpu-backends-on-test-phones.md](gpu-backends-on-test-phones.md) — Why Auto never uses a GPU: Vulkan and OpenCL fail on every test phone, including wrong output on the Pixel 11's PowerVR GPU. Read before GPU backend work.
+- [gpu-backends-on-test-phones.md](gpu-backends-on-test-phones.md) — Why Auto never uses a GPU: Vulkan and OpenCL fail on every test phone, including wrong output on the Pixel 11 (cause not yet established). Read before GPU backend work.
 - [llama-uses-every-gpu-unless-told.md](llama-uses-every-gpu-unless-told.md) — Why model loads pass an explicit device list. Read before TASK-009 or changing loadModel.
 - [ggml-backend-loading-is-silent.md](ggml-backend-loading-is-silent.md) — How to diagnose a backend that does not appear. Read when a backend is missing.
 - [ndk-glslc-too-old.md](ndk-glslc-too-old.md) — Why the build needs a host glslc. Read when the Vulkan shader build fails or when upgrading the NDK.
