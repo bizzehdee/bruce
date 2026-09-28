@@ -32,6 +32,16 @@ sealed interface GgufReadResult {
     data class Failed(val error: GgufError) : GgufReadResult
 }
 
+/** Result of parsing the first bytes of a GGUF file whose total size is known. */
+sealed interface GgufPrefixResult {
+    data class Read(val metadata: GgufMetadata) : GgufPrefixResult
+
+    /** The header continues past the bytes supplied; retry with a longer prefix. */
+    data object NeedMoreBytes : GgufPrefixResult
+
+    data class Failed(val error: GgufError) : GgufPrefixResult
+}
+
 enum class GgufError {
     FILE_NOT_FOUND,
     NOT_GGUF,
@@ -67,20 +77,44 @@ object GgufReader {
     private const val KEY_FILE_TYPE = "general.file_type"
     private const val CONTEXT_LENGTH_SUFFIX = ".context_length"
 
-    /** Raised only inside the parser, and converted to [GgufError.MALFORMED] by [read]. */
+    /** Raised only inside the parser, and converted to [GgufError.MALFORMED]. */
     private class MalformedGguf : Exception()
+
+    /** Raised only inside the parser when the supplied bytes end before the header does. */
+    private class PrefixExhausted : Exception()
 
     fun read(file: File): GgufReadResult {
         if (!file.isFile) return GgufReadResult.Failed(GgufError.FILE_NOT_FOUND)
-        val fileSize = file.length()
         return BufferedInputStream(file.inputStream()).use { stream ->
-            if (!Gguf.hasMagic(Gguf.readHeader(stream))) return GgufReadResult.Failed(GgufError.NOT_GGUF)
-            val input = LittleEndianInput(stream, fileSize, Gguf.magicLength.toLong())
-            try {
-                parse(input, fileSize)
-            } catch (e: MalformedGguf) {
-                GgufReadResult.Failed(GgufError.MALFORMED)
+            when (val result = readPrefix(stream, file.length())) {
+                is GgufPrefixResult.Read -> GgufReadResult.Read(result.metadata)
+                is GgufPrefixResult.Failed -> GgufReadResult.Failed(result.error)
+                // A whole file cannot end early unless it shrank while being read.
+                GgufPrefixResult.NeedMoreBytes -> GgufReadResult.Failed(GgufError.MALFORMED)
             }
+        }
+    }
+
+    /**
+     * Parses GGUF metadata from [prefix], the first bytes of a file of [totalSize] bytes, such
+     * as a partial download. Counts and lengths are still checked against [totalSize].
+     */
+    fun readPrefix(prefix: InputStream, totalSize: Long): GgufPrefixResult {
+        val header = Gguf.readHeader(prefix)
+        if (header.size < Gguf.magicLength) {
+            return if (totalSize >= Gguf.magicLength) GgufPrefixResult.NeedMoreBytes else GgufPrefixResult.Failed(GgufError.NOT_GGUF)
+        }
+        if (!Gguf.hasMagic(header)) return GgufPrefixResult.Failed(GgufError.NOT_GGUF)
+        val input = LittleEndianInput(prefix, totalSize, Gguf.magicLength.toLong())
+        return try {
+            when (val result = parse(input, totalSize)) {
+                is GgufReadResult.Read -> GgufPrefixResult.Read(result.metadata)
+                is GgufReadResult.Failed -> GgufPrefixResult.Failed(result.error)
+            }
+        } catch (e: MalformedGguf) {
+            GgufPrefixResult.Failed(GgufError.MALFORMED)
+        } catch (e: PrefixExhausted) {
+            GgufPrefixResult.NeedMoreBytes
         }
     }
 
@@ -230,7 +264,7 @@ object GgufReader {
             while (left > 0) {
                 val skipped = stream.skip(left)
                 if (skipped <= 0) {
-                    if (stream.read() < 0) throw MalformedGguf()
+                    if (stream.read() < 0) throw PrefixExhausted()
                     left--
                 } else {
                     left -= skipped
@@ -245,7 +279,7 @@ object GgufReader {
             var filled = 0
             while (filled < count) {
                 val read = stream.read(buffer, filled, count - filled)
-                if (read < 0) throw MalformedGguf()
+                if (read < 0) throw PrefixExhausted()
                 filled += read
             }
             position += count

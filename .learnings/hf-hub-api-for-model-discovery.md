@@ -20,6 +20,9 @@ Established: 2026-09-27, anonymous requests (no account or token). Archived resp
   file's GGUF header to get its layer shape for the memory estimate, and can resume a
   download and verify it.
 - The redirect's `Location` contains a signed, time-limited query string. Never log it.
+- Android's `HttpURLConnection` keeps the `Range` header when it follows that redirect
+  (checked on the Xperia 1 II, 2026-09-28, `HubClientOnlineTest`). Caution for signed-in
+  requests: do not let an `Authorization` header follow the redirect to the CDN.
 
 Not yet checked: anonymous rate limits, and how gated repositories respond without a
 token.
