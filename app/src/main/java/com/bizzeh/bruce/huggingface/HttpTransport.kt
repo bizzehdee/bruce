@@ -36,6 +36,18 @@ interface HttpTransport {
 }
 
 private const val MAX_REDIRECTS = 5
+
+/**
+ * Where a redirect goes, and with which headers. Refuses to leave HTTPS. A bearer token belongs
+ * to the host it was issued for, so it is dropped when the host changes (Hugging Face downloads
+ * redirect to a CDN).
+ */
+internal fun redirect(from: URL, location: String, headers: Map<String, String>): Pair<URL, Map<String, String>> {
+    val next = URL(from, location)
+    if (from.protocol == "https" && next.protocol != "https") throw IOException("refused a redirect from HTTPS to ${next.protocol}")
+    val kept = if (next.authority == from.authority) headers else headers.filterKeys { !it.equals("Authorization", ignoreCase = true) }
+    return next to kept
+}
 private val REDIRECTS = setOf(301, 302, 303, 307, 308)
 
 class UrlConnectionTransport(
@@ -56,14 +68,9 @@ class UrlConnectionTransport(
             val location = response.headers["location"]
             if (response.status !in REDIRECTS || location == null) return response
             response.close()
-            val next = URL(current, location)
-            if (current.protocol == "https" && next.protocol != "https") throw IOException("refused a redirect from HTTPS to ${next.protocol}")
-            // A bearer token belongs to the host it was issued for, never to a redirect target
-            // elsewhere (Hugging Face downloads redirect to a CDN).
-            if (next.authority != current.authority) {
-                currentHeaders = currentHeaders.filterKeys { !it.equals("Authorization", ignoreCase = true) }
-            }
+            val (next, nextHeaders) = redirect(current, location, currentHeaders)
             current = next
+            currentHeaders = nextHeaders
         }
         throw IOException("too many redirects")
     }

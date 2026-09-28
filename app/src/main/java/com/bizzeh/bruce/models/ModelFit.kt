@@ -33,6 +33,8 @@ data class Candidate(
     val architecture: String?,
     val parameterCount: Long?,
     val header: GgufMetadata? = null,
+    /** Published SHA-256, for verifying a download. */
+    val sha256: String? = null,
 )
 
 data class Assessment(
@@ -61,6 +63,8 @@ object ModelFit {
      */
     private const val DOTPROD_TOKENS_GB_PER_SECOND = 24.0
     private const val BASELINE_TOKENS_GB_PER_SECOND = 5.8
+
+    private val UNQUANTISED = setOf("F32", "F16", "BF16")
 
     private const val FAST_TOKENS_PER_SECOND = 15.0
     private const val USABLE_TOKENS_PER_SECOND = 5.0
@@ -97,7 +101,8 @@ object ModelFit {
     /**
      * Best first: supported; able to fit (a gated model only needs sign-in, one that does not
      * fit cannot run); not gated; fits before tight; faster speed band; more parameters (more
-     * capable); larger file (higher precision).
+     * capable); quantised before 16- and 32-bit floats (twice the memory, half the speed, for
+     * little quality on a phone); then larger file (higher precision).
      */
     fun rank(candidates: List<Candidate>, device: DeviceProfile, contextLength: Int): List<Assessment> =
         candidates.map { assess(it, device, contextLength) }.sortedWith(
@@ -109,6 +114,7 @@ object ModelFit {
                 { it.speed.ordinal },
             )
                 .thenByDescending { it.candidate.header?.parameterCount ?: it.candidate.parameterCount ?: 0 }
+                .thenBy { it.quantisation in UNQUANTISED }
                 .thenByDescending { it.candidate.sizeBytes },
         )
 

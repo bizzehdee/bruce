@@ -22,7 +22,12 @@ import com.bizzeh.bruce.chat.ChatViewModel
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.navigation.AppActions
 import com.bizzeh.bruce.navigation.BruceApp
+import com.bizzeh.bruce.huggingface.HubModel
+import com.bizzeh.bruce.models.Assessment
+import com.bizzeh.bruce.models.BrowseActions
 import com.bizzeh.bruce.models.DeviceProfile
+import com.bizzeh.bruce.models.ModelBrowserViewModel
+import kotlinx.coroutines.flow.first
 import com.bizzeh.bruce.models.ModelOverrides
 import com.bizzeh.bruce.models.ModelsActions
 import com.bizzeh.bruce.models.ModelsScreen
@@ -58,11 +63,19 @@ class MainActivity : ComponentActivity() {
                 modelSettings = container.modelSettings,
                 inferenceDefaults = container.inferenceSettings.defaults,
                 importModel = container.importer::import,
-                device = {
-                    val memory = container.memoryInfo()
-                    DeviceProfile((memory.availMem - memory.threshold).coerceAtLeast(0), container.cpuFeatures())
-                },
+                device = ::deviceProfile,
                 ioDispatcher = Dispatchers.IO,
+            )
+        }
+    }
+    private val browser: ModelBrowserViewModel by viewModels {
+        factory {
+            ModelBrowserViewModel(
+                hub = container.hubClient,
+                downloader = container.downloader,
+                device = ::deviceProfile,
+                contextLength = { container.inferenceSettings.defaults.first().contextLength },
+                onDownloaded = { models.refresh() },
             )
         }
     }
@@ -116,8 +129,18 @@ class MainActivity : ComponentActivity() {
                 override fun setOverrides(file: File, overrides: ModelOverrides) = models.setOverrides(file, overrides)
             }
         }
+        val browse by browser.state.collectAsState()
+        val browseActions = remember {
+            object : BrowseActions {
+                override fun setQuery(query: String) = browser.setQuery(query)
+                override fun search() = browser.search()
+                override fun openRepository(model: HubModel) = browser.openRepository(model)
+                override fun download(model: HubModel, assessment: Assessment) = browser.download(model, assessment)
+                override fun cancel(repositoryId: String, path: String) = browser.cancel(repositoryId, path)
+            }
+        }
         LaunchedEffect(Unit) { models.refresh() }
-        ModelsScreen(state, actions, onBack, cores = Runtime.getRuntime().availableProcessors())
+        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions)
     }
 
     @androidx.compose.runtime.Composable
@@ -147,6 +170,11 @@ class MainActivity : ComponentActivity() {
         val uri = intent?.data ?: return
         if (intent.action != Intent.ACTION_VIEW || uri.scheme != "com.bizzeh.bruce" || uri.path != "/oauth/huggingface") return
         settings.completeSignIn(uri.queryParameterNames.associateWith(uri::getQueryParameter))
+    }
+
+    private fun deviceProfile(): DeviceProfile {
+        val memory = container.memoryInfo()
+        return DeviceProfile((memory.availMem - memory.threshold).coerceAtLeast(0), container.cpuFeatures())
     }
 
     private fun chatActions() = object : ChatActions {

@@ -83,4 +83,21 @@
     <string name="account_signed_in_until">Until %1$s</string>
     <string name="account_sign_out">Sign out</string>
     <string name="account_error">Sign-in did not complete: %1$s</string>
+    <string name="models_tab_installed">Installed</string>
+    <string name="models_tab_huggingface">Hugging Face</string>
+    <string name="browse_hint">Search models, e.g. qwen3 gguf</string>
+    <string name="browse_search">Search</string>
+    <string name="browse_no_results">No GGUF models found.</string>
+    <string name="browse_gated">Gated</string>
+    <string name="browse_download">Download</string>
+    <string name="browse_cancel">Cancel</string>
+    <string name="browse_retry">Retry</string>
+    <string name="browse_weights_only">Memory estimate covers the weights only until the model is downloaded.</string>
+    <string name="hub_error_network_disabled">Allow Hugging Face in Settings → Network to search and download.</string>
+    <string name="hub_error_offline">Could not reach Hugging Face. Check the connection.</string>
+    <string name="hub_error_rate_limited">Hugging Face is limiting requests. Try again shortly.</string>
+    <string name="hub_error_unauthorised">This model is gated or private: sign in, and accept its terms on huggingface.co.</string>
+    <string name="hub_error_not_found">Not found on Hugging Face.</string>
+    <string name="hub_error_other">Hugging Face returned something unexpected (%1$s).</string>
+    <string name="download_error">Download stopped: %1$s</string>
 </resources>

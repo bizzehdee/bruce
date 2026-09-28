@@ -19,6 +19,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -48,35 +50,35 @@ interface ModelsActions {
 }
 
 @Composable
-fun ModelsScreen(state: ModelsState, actions: ModelsActions, onBack: () -> Unit, cores: Int = 8) {
+fun ModelsScreen(
+    state: ModelsState,
+    actions: ModelsActions,
+    onBack: () -> Unit,
+    cores: Int = 8,
+    browse: BrowseState = BrowseState(),
+    browseActions: BrowseActions? = null,
+) {
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<String?>(null) }
+    var tab by rememberSaveable { mutableStateOf(0) }
     SubScreen(stringResource(R.string.nav_models), onBack) {
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.weight(1f)) {
-                    state.importError?.let { Text("Import failed: $it", color = MaterialTheme.colorScheme.error) }
-                }
-                OutlinedButton(onClick = actions::importModel, enabled = !state.importing, modifier = Modifier.testTag("import")) {
-                    Text(stringResource(if (state.importing) R.string.models_loading else R.string.models_import))
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (browseActions != null) {
+                TabRow(selectedTabIndex = tab) {
+                    Tab(tab == 0, { tab = 0 }, text = { Text(stringResource(R.string.models_tab_installed)) }, modifier = Modifier.testTag("tab:installed"))
+                    Tab(tab == 1, { tab = 1 }, text = { Text(stringResource(R.string.models_tab_huggingface)) }, modifier = Modifier.testTag("tab:huggingface"))
                 }
             }
-            if (state.models.isEmpty()) {
-                Text(stringResource(R.string.models_empty), modifier = Modifier.padding(vertical = 32.dp).testTag("modelsEmpty"))
+            Column(
+                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                if (tab == 1 && browseActions != null) {
+                    BrowsePane(browse, browseActions)
+                } else {
+                    Installed(state, actions, cores, expanded, { expanded = it }, { confirmDelete = it })
+                }
             }
-            state.models.forEach { model ->
-                ModelCard(
-                    model = model,
-                    active = model.file == state.active,
-                    loading = model.file == state.loading,
-                    expanded = expanded == model.file.name,
-                    cores = cores,
-                    onToggle = { expanded = if (expanded == model.file.name) null else model.file.name },
-                    actions = actions,
-                    onDelete = { confirmDelete = model.file.name },
-                )
-            }
-            state.loadError?.let { Text("Could not load the model: $it", color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("loadError")) }
         }
     }
     val deleting = state.models.firstOrNull { it.file.name == confirmDelete }
@@ -93,6 +95,41 @@ fun ModelsScreen(state: ModelsState, actions: ModelsActions, onBack: () -> Unit,
             dismissButton = { TextButton(onClick = { confirmDelete = null }) { Text(stringResource(R.string.settings_cancel)) } },
         )
     }
+}
+
+@Composable
+private fun Installed(
+    state: ModelsState,
+    actions: ModelsActions,
+    cores: Int,
+    expanded: String?,
+    onExpand: (String?) -> Unit,
+    onDelete: (String) -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(modifier = Modifier.weight(1f)) {
+            state.importError?.let { Text("Import failed: $it", color = MaterialTheme.colorScheme.error) }
+        }
+        OutlinedButton(onClick = actions::importModel, enabled = !state.importing, modifier = Modifier.testTag("import")) {
+            Text(stringResource(if (state.importing) R.string.models_loading else R.string.models_import))
+        }
+    }
+    if (state.models.isEmpty()) {
+        Text(stringResource(R.string.models_empty), modifier = Modifier.padding(vertical = 32.dp).testTag("modelsEmpty"))
+    }
+    state.models.forEach { model ->
+        ModelCard(
+            model = model,
+            active = model.file == state.active,
+            loading = model.file == state.loading,
+            expanded = expanded == model.file.name,
+            cores = cores,
+            onToggle = { onExpand(if (expanded == model.file.name) null else model.file.name) },
+            actions = actions,
+            onDelete = { onDelete(model.file.name) },
+        )
+    }
+    state.loadError?.let { Text("Could not load the model: $it", color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("loadError")) }
 }
 
 @Composable

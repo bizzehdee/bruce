@@ -77,9 +77,10 @@ class MainActivityDeviceTest {
         compose.onNodeWithTag("composer").performTextInput("Tell me a story")
         compose.onNodeWithTag("send").performClick()
 
-        compose.waitUntilAtLeastOneExists(hasText("Tell me a story"), TIMEOUT_MS)
+        // Wait for the reply itself: the typed text and the Send button are both still on screen
+        // until the next frame, so waiting on either raced the send.
+        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasNonBlankText, TIMEOUT_MS)
         compose.waitUntilAtLeastOneExists(hasTestTag("send"), TIMEOUT_MS)
-        compose.onNodeWithTag("answer:1").assert(hasNonBlankText)
     }
 
     @Test
