@@ -2,6 +2,7 @@ package com.bizzeh.bruce.settings
 
 import android.Manifest
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -23,10 +24,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.navigation.SubScreen
+import com.bizzeh.bruce.policy.Grant
+import com.bizzeh.bruce.policy.GrantKind
+import java.text.DateFormat
+import java.util.Date
+
+interface GrantActions {
+    fun addFolder()
+    fun addFile()
+    fun revoke(grant: Grant)
+}
 
 /** Reads the permissions again whenever the screen resumes, so a change made in Android's settings shows on return. */
 @Composable
-fun PermissionsScreen(onOpenNetworkSettings: () -> Unit, onBack: () -> Unit) {
+fun PermissionsScreen(grants: List<Grant>, addFailed: Boolean, grantActions: GrantActions, onOpenNetworkSettings: () -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     var permissions by remember { mutableStateOf(AndroidPermissions.read(context)) }
     LifecycleResumeEffect(Unit) {
@@ -34,6 +45,9 @@ fun PermissionsScreen(onOpenNetworkSettings: () -> Unit, onBack: () -> Unit) {
         onPauseOrDispose { }
     }
     PermissionsContent(
+        grants = grants,
+        addFailed = addFailed,
+        grantActions = grantActions,
         permissions = permissions,
         onChange = { context.startActivity(AndroidPermissions.settingsIntent(context, it)) },
         onOpenNetworkSettings = onOpenNetworkSettings,
@@ -43,6 +57,9 @@ fun PermissionsScreen(onOpenNetworkSettings: () -> Unit, onBack: () -> Unit) {
 
 @Composable
 fun PermissionsContent(
+    grants: List<Grant>,
+    addFailed: Boolean,
+    grantActions: GrantActions,
     permissions: List<HeldPermission>,
     onChange: (HeldPermission) -> Unit,
     onOpenNetworkSettings: () -> Unit,
@@ -51,15 +68,50 @@ fun PermissionsContent(
     SubScreen(stringResource(R.string.settings_permissions), onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Heading(R.string.permissions_files)
-            Text(
-                stringResource(R.string.permissions_files_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 16.dp).testTag("grantsEmpty"),
-            )
+            if (grants.isEmpty()) {
+                Text(
+                    stringResource(R.string.permissions_files_empty),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp).testTag("grantsEmpty"),
+                )
+            }
+            grants.forEach { GrantRow(it, grantActions) }
+            if (addFailed) {
+                Text(
+                    stringResource(R.string.permissions_add_failed),
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(horizontal = 16.dp).testTag("addFailed"),
+                )
+            }
+            Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+                TextButton(onClick = grantActions::addFolder, modifier = Modifier.testTag("addFolder")) { Text(stringResource(R.string.permissions_add_folder)) }
+                TextButton(onClick = grantActions::addFile, modifier = Modifier.testTag("addFile")) { Text(stringResource(R.string.permissions_add_file)) }
+            }
             Heading(R.string.permissions_android)
             permissions.forEach { PermissionRow(it, onChange, onOpenNetworkSettings) }
         }
     }
+}
+
+@Composable
+private fun GrantRow(grant: Grant, actions: GrantActions) {
+    val kind = stringResource(if (grant.kind == GrantKind.FOLDER) R.string.permissions_kind_folder else R.string.permissions_kind_file)
+    val date = remember(grant.grantedAt) { DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(grant.grantedAt)) }
+    ListItem(
+        headlineContent = { Text(grant.name) },
+        supportingContent = {
+            Column {
+                Text(stringResource(R.string.permissions_granted_on, kind, date))
+                if (!grant.available) {
+                    Text(stringResource(R.string.permissions_grant_lost), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("lost:${grant.id}"))
+                }
+            }
+        },
+        trailingContent = {
+            TextButton(onClick = { actions.revoke(grant) }, modifier = Modifier.testTag("revoke:${grant.id}")) { Text(stringResource(R.string.permissions_revoke)) }
+        },
+        modifier = Modifier.testTag("grant:${grant.id}"),
+    )
 }
 
 @Composable

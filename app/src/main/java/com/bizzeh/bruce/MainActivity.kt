@@ -55,7 +55,12 @@ import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.settings.Personality
 import com.bizzeh.bruce.settings.SettingsActions
 import com.bizzeh.bruce.settings.SettingsScreen
+import com.bizzeh.bruce.settings.GrantActions
+import com.bizzeh.bruce.settings.GrantsViewModel
+import com.bizzeh.bruce.settings.PermissionsScreen
 import com.bizzeh.bruce.settings.SettingsViewModel
+import com.bizzeh.bruce.policy.Grant
+import com.bizzeh.bruce.policy.GrantKind
 import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.SkillsActions
@@ -127,6 +132,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates) } }
+    private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO) } }
     private val setup: SetupViewModel by viewModels {
         factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
     }
@@ -168,6 +174,7 @@ class MainActivity : ComponentActivity() {
             settingsScreen = { onBack, open -> Settings(onBack, open) },
             diagnosticsScreen = { onBack -> Diagnostics(onBack) },
             skillsScreen = { onBack, openPermissions -> Skills(onBack, openPermissions) },
+            permissionsScreen = { onBack, openNetwork -> Permissions(onBack, openNetwork) },
             startDestination = if (browse) Destination.MODELS else Destination.CHAT,
             conversations = active,
             archived = archived,
@@ -246,6 +253,22 @@ class MainActivity : ComponentActivity() {
             }
         }
         SkillsScreen(rows, actions, onBack)
+    }
+
+    @androidx.compose.runtime.Composable
+    private fun Permissions(onBack: () -> Unit, openNetwork: () -> Unit) {
+        val granted by grants.grants.collectAsState()
+        val addFailed by grants.addFailed.collectAsState()
+        val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> uri?.let { grants.add(it, GrantKind.FOLDER) } }
+        val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let { grants.add(it, GrantKind.FILE) } }
+        val actions = remember {
+            object : GrantActions {
+                override fun addFolder() = folderPicker.launch(null)
+                override fun addFile() = filePicker.launch(arrayOf("*/*"))
+                override fun revoke(grant: Grant) = grants.revoke(grant)
+            }
+        }
+        PermissionsScreen(granted, addFailed, actions, openNetwork, onBack)
     }
 
     @androidx.compose.runtime.Composable

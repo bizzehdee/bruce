@@ -126,15 +126,6 @@ class PolicyEngineTest {
     }
 
     @Test
-    fun withoutAGrantProviderFileSkillsHaveNoScope() = runBlocking {
-        states.set(reader, SkillState.ACCEPTED)
-        val noGrants = PolicyEngine(registry, states, ToolOutput(), permissionGranted = { true })
-
-        val denied = noGrants.decide("read_file", "{}") as PolicyDecision.Denied
-        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, denied.denial.code)
-    }
-
-    @Test
     fun askNeedsConfirmationBoundToThePolicyVersion() = runBlocking {
         val before = decide("write_file") as PolicyDecision.NeedsConfirmation
         states.set(clock, SkillState.ACCEPTED)

@@ -51,7 +51,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import com.bizzeh.bruce.models.ActiveModelState
 import com.bizzeh.bruce.settings.LicencesScreen
-import com.bizzeh.bruce.settings.PermissionsScreen
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -93,7 +92,8 @@ fun BruceApp(
     modelsScreen: @Composable (onBack: () -> Unit) -> Unit,
     settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
-    skillsScreen: @Composable (onBack: () -> Unit, openPermissions: () -> Unit) -> Unit = { _, _ -> },
+    skillsScreen: @Composable (onBack: () -> Unit, openPermissions: () -> Unit) -> Unit,
+    permissionsScreen: @Composable (onBack: () -> Unit, openNetworkSettings: () -> Unit) -> Unit,
     startDestination: Destination = Destination.CHAT,
     conversations: List<Conversation> = emptyList(),
     archived: List<Conversation> = emptyList(),
@@ -180,7 +180,7 @@ fun BruceApp(
             Destination.DIAGNOSTICS -> diagnosticsScreen { goBack() }
             Destination.LICENCES -> LicencesScreen { goBack() }
             Destination.SKILLS -> skillsScreen({ goBack() }, { destination = Destination.PERMISSIONS })
-            Destination.PERMISSIONS -> PermissionsScreen(onOpenNetworkSettings = { destination = Destination.SETTINGS }, onBack = { goBack() })
+            Destination.PERMISSIONS -> permissionsScreen({ goBack() }, { destination = Destination.SETTINGS })
             Destination.ARCHIVED -> SubScreen(stringResource(R.string.nav_archived), { goBack() }) {
                 if (conversationActions != null) {
                     ConversationList(

@@ -13,6 +13,10 @@ import com.bizzeh.bruce.models.ModelSettingsRepository
 import com.bizzeh.bruce.settings.DataReset
 import com.bizzeh.bruce.conversations.ConversationDatabase
 import com.bizzeh.bruce.conversations.ConversationStore
+import com.bizzeh.bruce.policy.AndroidDocumentAccess
+import com.bizzeh.bruce.policy.DocumentAccess
+import com.bizzeh.bruce.policy.GrantScope
+import com.bizzeh.bruce.policy.GrantStore
 import com.bizzeh.bruce.policy.PolicyDatabase
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.skills.SkillRegistry
@@ -111,17 +115,25 @@ class AppContainer(private val context: Context) {
     val conversations: ConversationStore by lazy { ConversationStore(conversationDatabase.conversations()) }
 
     private val policyDatabase: PolicyDatabase by lazy {
-        Room.databaseBuilder(context, PolicyDatabase::class.java, PolicyDatabase.NAME).build()
+        Room.databaseBuilder(context, PolicyDatabase::class.java, PolicyDatabase.NAME)
+            .addMigrations(PolicyDatabase.MIGRATION_1_2)
+            .build()
     }
 
     val skillStates: SkillStateStore by lazy { SkillStateStore(policyDatabase.policy()) }
+
+    private val documentAccess: DocumentAccess by lazy { AndroidDocumentAccess(context.contentResolver) }
+
+    val grants: GrantStore by lazy { GrantStore(policyDatabase.policy(), documentAccess) }
+
+    private val grantScope: GrantScope by lazy { GrantScope(grants, documentAccess) }
 
     val skills: SkillRegistry by lazy { SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context))) }
 
     val runtime: BruceRuntime by lazy {
         val policy = PolicyEngine(skills, skillStates, ToolOutput(reservedMarkers = RESERVED_MARKERS), permissionGranted = { permission ->
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-        })
+        }, scope = grantScope::check)
         BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules)
     }
 
@@ -129,6 +141,7 @@ class AppContainer(private val context: Context) {
         DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO) {
             conversations.deleteAll()
             skillStates.reset()
+            grants.clear()
         }
     }
 

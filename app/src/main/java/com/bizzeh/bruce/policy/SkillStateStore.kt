@@ -3,11 +3,14 @@ package com.bizzeh.bruce.policy
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
+import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.Transaction
 import androidx.room.Upsert
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillState
 import kotlinx.coroutines.flow.Flow
@@ -40,25 +43,77 @@ interface PolicyDao {
     @Transaction
     suspend fun change(state: SkillStateEntity) {
         upsert(state)
-        setVersion(PolicyVersionEntity(version = (version() ?: 0) + 1))
+        bumpVersion()
     }
 
     @Query("DELETE FROM skill_states")
     suspend fun clearStates()
 
+    @Query("SELECT * FROM grants ORDER BY grantedAt, id")
+    fun grants(): Flow<List<GrantEntity>>
+
+    @Query("SELECT * FROM grants ORDER BY grantedAt, id")
+    suspend fun allGrants(): List<GrantEntity>
+
+    @Insert
+    suspend fun insertGrant(grant: GrantEntity): Long
+
+    @Query("DELETE FROM grants WHERE id = :id")
+    suspend fun deleteGrant(id: Long)
+
+    @Query("DELETE FROM grants")
+    suspend fun clearGrants()
+
+    @Transaction
+    suspend fun addGrant(grant: GrantEntity): Long = insertGrant(grant).also { bumpVersion() }
+
+    @Transaction
+    suspend fun removeGrant(id: Long) {
+        deleteGrant(id)
+        bumpVersion()
+    }
+
+    @Transaction
+    suspend fun resetGrants() {
+        clearGrants()
+        bumpVersion()
+    }
+
+    suspend fun bumpVersion() = setVersion(PolicyVersionEntity(version = (version() ?: 0) + 1))
+
     @Transaction
     suspend fun reset() {
         clearStates()
-        setVersion(PolicyVersionEntity(version = (version() ?: 0) + 1))
+        bumpVersion()
     }
 }
 
-@Database(entities = [SkillStateEntity::class, PolicyVersionEntity::class], version = 1)
+/** A file or folder the user granted through the Storage Access Framework (TASK-040). */
+@Entity(tableName = "grants")
+data class GrantEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    /** A tree URI for a folder, a document URI for a file. */
+    val uri: String,
+    /** Unique among grants: the first segment of every path the model gives. */
+    val name: String,
+    /** A [GrantKind] name. */
+    val kind: String,
+    val grantedAt: Long,
+)
+
+@Database(entities = [SkillStateEntity::class, PolicyVersionEntity::class, GrantEntity::class], version = 2)
 abstract class PolicyDatabase : RoomDatabase() {
     abstract fun policy(): PolicyDao
 
     companion object {
         const val NAME = "policy.db"
+
+        /** Version 2 (TASK-040): file and folder grants. */
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `grants` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `grantedAt` INTEGER NOT NULL)")
+            }
+        }
     }
 }
 

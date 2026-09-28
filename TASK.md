@@ -278,10 +278,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/SkillsScreen.kt`, `SkillsViewModel.kt`, `SkillText.kt`): skills are listed in registration order with their own user-facing name and summary (a skill's description is written for the model); a skill without one shows its id and description. The store still refuses Accepted for a high-risk skill without the warning.
   - Device-tested on the Pixel 11: Date and time set to Declined stayed Declined after restarting Bruce, and "What time is it?" was answered without the skill; set back to Accepted.
   - Depends on: TASK-035, TASK-037, TASK-038
-- [ ] TASK-040: Scoped grants with the Storage Access Framework
+- [x] TASK-040: Scoped grants with the Storage Access Framework
   - The user grants a file or folder through the system picker; the grant binds the capability to that scope. Persisted URI permissions survive restarts; revoking releases them.
   - Grants last until revoked (no durations; the skill states replace them).
   - Resource-scope check refuses any target outside a grant (`RESOURCE_OUTSIDE_SCOPE`), including path tricks that escape the granted tree.
+  - Decided (2026-09-28): the model names a target with one `path` argument, `<grant name>/<folder>/<file>`; grant names are the picked item's name, made unique ("Documents (2)"). Grants are added from the Permissions screen (Add folder, Add file).
+  - Done (`policy/Grants.kt`, `AndroidDocumentAccess.kt`): grants in `policy.db` version 2 (migration adds the table; every grant change bumps the policy version). Paths are resolved by walking the folder's real children through the provider, so `..`, `.`, empty segments, backslashes, control characters, leading `/`, over-long paths and ambiguous duplicate names are refused, never interpreted. A grant Android no longer holds is shown as lost and refused. Clear all data releases every grant.
+  - Device-tested on the Pixel 11: Add folder → Documents → Allow shows the grant with read and write access persisted by Android; it survives a restart; Revoke removes it and Android's access. `PolicyMigrationTest` passes on the Pixel. Walking a real provider's children is exercised first by TASK-042's device test.
   - Depends on: TASK-035, TASK-038
   - Required by: TASK-042, TASK-043, TASK-044, TASK-049
 - [ ] TASK-041: Exact-operation confirmation

@@ -41,8 +41,8 @@ class PolicyEngine(
     private val states: SkillStateStore,
     private val output: ToolOutput,
     private val permissionGranted: (String) -> Boolean,
-    /** Folder grants arrive in TASK-040; until then a skill that needs them has none. */
-    private val scope: suspend (SkillRequest) -> ScopeCheck = { ScopeCheck.OutOfScope("No files or folders have been granted.") },
+    /** Checks a file skill's target against the user's grants (GrantScope.check). */
+    private val scope: suspend (SkillRequest) -> ScopeCheck,
 ) {
     suspend fun decide(tool: String, rawArguments: String): PolicyDecision {
         val request = when (val resolution = registry.resolve(tool, rawArguments)) {

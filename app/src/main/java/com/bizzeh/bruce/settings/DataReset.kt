@@ -8,14 +8,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
 
-/** Clears everything Bruce stores: the loaded model, model files, saved chats, skill states, settings and cached files. */
+/** Clears everything Bruce stores: the loaded model, model files, saved chats, skill states, grants, settings and cached files. */
 class DataReset(
     private val activeModel: ActiveModel,
     private val settings: DataStore<Preferences>,
     private val modelsDir: File,
     private val cacheDir: File,
     private val ioDispatcher: CoroutineDispatcher,
-    /** Clears the Room databases: saved chats and skill states. */
+    /** Clears the Room databases (saved chats, skill states) and releases file and folder grants. */
     private val clearDatabases: suspend () -> Unit,
 ) {
     suspend fun clearAll() {
