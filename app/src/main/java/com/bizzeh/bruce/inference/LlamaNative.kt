@@ -66,6 +66,9 @@ internal interface LlamaApi {
     /** A GBNF grammar for Bruce's own tool-call format over the tools in the JSON request, or null. */
     fun toolCallGrammar(request: ByteArray): ByteArray?
 
+    /** How many tokens [textUtf8] is for [model], as a prompt: special tokens parsed, BOS added. */
+    fun countTokens(model: Long, textUtf8: ByteArray): Int
+
     /** Returns the prompt token count, or [PROMPT_TOO_LONG] or [DECODE_FAILED]. */
     fun evaluatePrompt(generation: Long, promptUtf8: ByteArray): Int
 
@@ -105,6 +108,8 @@ internal object LlamaNative : LlamaApi {
     external override fun freeModel(model: Long)
 
     external override fun newContext(model: Long, contextLength: Int, threads: Int, batchSize: Int): Long
+
+    external override fun countTokens(model: Long, textUtf8: ByteArray): Int
 
     external override fun freeContext(context: Long)
 

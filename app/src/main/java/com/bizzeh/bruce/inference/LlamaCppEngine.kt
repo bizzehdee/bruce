@@ -25,7 +25,7 @@ internal class LlamaCppEngine(
     private val dispatcher: CoroutineDispatcher,
     private val timeSource: TimeSource = TimeSource.Monotonic,
 ) : InferenceEngine {
-    private class Session(val model: Long, val context: Long, val info: ModelInfo) {
+    private class Session(val model: Long, val context: Long, val info: ModelInfo, val contextLength: Int) {
         /** The model's chat templates for tool formats, made the first time they are needed; 0 if unusable. */
         var templates: Long? = null
     }
@@ -118,6 +118,14 @@ internal class LlamaCppEngine(
             )
         }
     }
+
+    override suspend fun countTokens(prompt: String): Int? = mutex.withLock {
+        withContext(dispatcher) {
+            session?.let { llama.countTokens(it.model, prompt.toByteArray(Charsets.UTF_8)) }
+        }
+    }
+
+    override fun contextLength(): Int? = session?.contextLength
 
     override suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean): ToolChatPrompt? =
         mutex.withLock {
@@ -291,7 +299,7 @@ internal class LlamaCppEngine(
             sizeBytes = llama.modelSizeBytes(model),
             trainedContextLength = llama.modelTrainedContextLength(model),
         )
-        return AttemptResult.Opened(Session(model, context, info))
+        return AttemptResult.Opened(Session(model, context, info, config.contextLength))
     }
 
     private fun release() {

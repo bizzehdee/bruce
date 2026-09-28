@@ -31,6 +31,9 @@ internal class FakeLlamaApi : LlamaApi {
         freedModels += model
     }
 
+    /** One token per word, so tests can reason about counts. */
+    override fun countTokens(model: Long, textUtf8: ByteArray): Int = String(textUtf8).split(' ').size
+
     override fun newContext(model: Long, contextLength: Int, threads: Int, batchSize: Int): Long {
         lastContextRequest = Triple(contextLength, threads, batchSize)
         return contextHandles.removeFirstOrNull() ?: nextContextHandle

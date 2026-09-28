@@ -9,6 +9,7 @@ import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.models.ActiveModelState
 import com.bizzeh.bruce.policy.PolicyDecision
+import com.bizzeh.bruce.runtime.ContextUse
 import com.bizzeh.bruce.runtime.RuntimeError
 import com.bizzeh.bruce.runtime.RuntimeEvent
 import com.bizzeh.bruce.skills.Denial
@@ -55,6 +56,8 @@ data class ChatState(
     /** Calls awaiting approval in this session, by call id. A saved chat reopened later has none: it must be asked again. */
     val confirmations: Map<String, Confirmation> = emptyMap(),
     val input: String = "",
+    /** How much of the context this chat takes, as the next prompt would; null until measured. */
+    val context: ContextUse? = null,
     val generating: Boolean = false,
     val error: ChatError? = null,
 )
@@ -82,6 +85,8 @@ class ChatViewModel(
     /** The user's answer to a call awaiting approval (BruceRuntime.answer). */
     private val answer: suspend (ToolCall, PolicyDecision.NeedsConfirmation, Boolean) -> RuntimeEvent.ToolResult,
     sidekick: Flow<String> = emptyFlow(),
+    /** Context use of a conversation (BruceRuntime.measure). */
+    private val measure: suspend (List<ToolChatMessage>) -> ContextUse? = { null },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -93,7 +98,10 @@ class ChatViewModel(
 
     init {
         viewModelScope.launch {
-            activeModel.collect { model -> mutableState.update { it.copy(modelName = model.active?.nameWithoutExtension) } }
+            activeModel.collect { model ->
+                mutableState.update { it.copy(modelName = model.active?.nameWithoutExtension) }
+                remeasure()
+            }
         }
         viewModelScope.launch {
             sidekick.collect { name -> mutableState.update { it.copy(sidekick = name) } }
@@ -175,6 +183,7 @@ class ChatViewModel(
                     val saved = save(current.conversationId, entries)
                     if (onScreen()) mutableState.update { it.copy(entries = entries, generating = false, error = error, conversationId = saved) }
                 }
+                if (onScreen()) remeasure()
             }
         }
     }
@@ -187,6 +196,7 @@ class ChatViewModel(
             session++
             pending.clear()
             mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries) }
+            remeasure()
         }
     }
 
@@ -202,6 +212,17 @@ class ChatViewModel(
         session++
         pending.clear()
         mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick) }
+        remeasure()
+    }
+
+    /** Measures the chat on screen when no turn is running; the engine is busy during one. */
+    private fun remeasure() {
+        val measuredSession = session
+        viewModelScope.launch {
+            if (mutableState.value.generating) return@launch
+            val use = measure(mutableState.value.entries.map(::toMessage))
+            if (session == measuredSession && !mutableState.value.generating) mutableState.update { it.copy(context = use) }
+        }
     }
 
     /** Stops generation and the turn, so no skill runs after the user has moved on. */

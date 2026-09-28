@@ -50,6 +50,19 @@ sealed interface RuntimeEvent {
     data class Failed(val error: RuntimeError, val messages: List<ToolChatMessage>) : RuntimeEvent
 }
 
+/**
+ * How much of the model's context a conversation takes. Prompts are kept to [limit], leaving the
+ * rest for the reply; [dropped] oldest messages were left out to stay within it.
+ */
+data class ContextUse(val used: Int, val total: Int, val dropped: Int, val limit: Int = total) {
+    /** Near the point where the next message pushes the oldest out. */
+    val nearlyFull: Boolean get() = dropped > 0 || used >= limit * NEARLY_FULL
+
+    private companion object {
+        const val NEARLY_FULL = 0.85
+    }
+}
+
 enum class RuntimeError {
     NO_MODEL_LOADED,
     CONVERSATION_TOO_LONG,
@@ -93,7 +106,8 @@ class BruceRuntime(
         val guidance = guidance(skills)
         var calls = 0
         while (true) {
-            val prompt = prompt(history + added, tools, guidance) ?: return emit(RuntimeEvent.Failed(RuntimeError.NO_MODEL_LOADED, added.toList()))
+            val fitted = fit(history + added, tools, guidance) ?: return emit(RuntimeEvent.Failed(RuntimeError.NO_MODEL_LOADED, added.toList()))
+            val prompt = fitted.prompt ?: return emit(RuntimeEvent.Failed(RuntimeError.CONVERSATION_TOO_LONG, added.toList()))
             val text = StringBuilder()
             var stats: GenerationStats? = null
             val request = GenerationRequest(prompt.text, maxTokens = maxReplyTokens, temperature = temperature(), grammar = prompt.format.grammar, stops = prompt.format.stops)
@@ -155,6 +169,39 @@ class BruceRuntime(
         emit(RuntimeEvent.ToolResult(call, json, ran))
     }
 
+    /** What [history] takes of the context as the next prompt would send it; null with no model loaded. */
+    suspend fun measure(history: List<ToolChatMessage>): ContextUse? {
+        val skills = offeredSkills()
+        val tools = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
+        // Some templates refuse a conversation with no user message; a blank one adds only a few tokens.
+        val measured = if (history.any { it.role == ChatRole.USER }) history else history + ToolChatMessage(ChatRole.USER, "")
+        val fitted = fit(measured, tools, guidance(skills)) ?: return null
+        return ContextUse(fitted.tokens, fitted.total, fitted.dropped, fitted.limit)
+    }
+
+    /** [prompt] is null when even the newest request alone does not fit. */
+    private data class Fitted(val prompt: Prompt?, val tokens: Int, val total: Int, val dropped: Int, val limit: Int)
+
+    /**
+     * Drops the oldest messages until the prompt leaves room for a reply. The system prompt and
+     * skills are kept, and so is everything from the newest user message on. Each cut ends where a
+     * user message starts, so no tool result is left without the call that asked for it.
+     */
+    private suspend fun fit(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, guidance: String): Fitted? {
+        val total = engine.contextLength() ?: return null
+        val limit = total - minOf(REPLY_RESERVE, total / 4)
+        val newest = messages.indexOfLast { it.role == ChatRole.USER }.coerceAtLeast(0)
+        var dropped = 0
+        while (true) {
+            val kept = messages.drop(dropped)
+            val prompt = prompt(kept, tools, guidance) ?: return null
+            val tokens = engine.countTokens(prompt.text) ?: return null
+            if (tokens <= limit) return Fitted(prompt, tokens, total, dropped, limit)
+            val next = (dropped + 1..newest).firstOrNull { messages[it].role == ChatRole.USER } ?: return Fitted(null, tokens, total, dropped, limit)
+            dropped = next
+        }
+    }
+
     /** Skills the user has not declined; the policy engine still checks every call. */
     private suspend fun offeredSkills(): List<Skill> = registry.skills.filter { states.state(it) != SkillState.DECLINED }
 
@@ -207,6 +254,9 @@ class BruceRuntime(
         const val MAX_TOOL_CALLS = 5
         val MAX_DURATION: Duration = 3.minutes
         const val MAX_REPLY_TOKENS = 4096
+
+        /** Context kept free for the reply when old messages are dropped; a quarter of small contexts. */
+        const val REPLY_RESERVE = 1024
 
         /** Marks a prompt formatted in Bruce's own format rather than one of llama.cpp's. */
         private const val BRUCE_FORMAT = -1

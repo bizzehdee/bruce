@@ -32,6 +32,28 @@ class ChatScreenTest {
     private fun show(state: ChatState) = compose.setContent { BruceTheme { ChatScreen(state, actions) } }
 
     @Test
+    fun contextBarShowsUseMarksDroppedMessagesAndExplains() {
+        val entries = listOf(ChatEntry(ChatRole.USER, "old"), ChatEntry(ChatRole.ASSISTANT, "reply"), ChatEntry(ChatRole.USER, "new"))
+        show(ChatState(modelName = "m", entries = entries, context = com.bizzeh.bruce.runtime.ContextUse(used = 900, total = 1000, dropped = 2, limit = 1000)))
+
+        compose.onNodeWithText("900 of 1,000 tokens used · 100 free").assertIsDisplayed()
+        compose.onNodeWithTag("contextNearlyFull", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("contextDropped").assertIsDisplayed()
+        compose.onNodeWithTag("contextBar").performClick()
+        compose.onNodeWithText("Context").assertIsDisplayed()
+        compose.onNodeWithText("OK").performClick()
+        compose.onNodeWithText("Context").assertDoesNotExist()
+    }
+
+    @Test
+    fun contextBarIsQuietWhenThereIsRoom() {
+        show(ChatState(modelName = "m", context = com.bizzeh.bruce.runtime.ContextUse(used = 100, total = 1000, dropped = 0)))
+
+        compose.onNodeWithTag("contextNearlyFull", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("contextDropped").assertDoesNotExist()
+    }
+
+    @Test
     fun approvalCardShowsWhatWouldRunAndTakesTheAnswer() {
         val awaiting = ToolUse("c1", "get_datetime", "{}", ToolStatus.AWAITING_APPROVAL)
         val old = ToolUse("c0", "get_datetime", "{}", ToolStatus.AWAITING_APPROVAL)

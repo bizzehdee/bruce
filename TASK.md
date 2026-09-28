@@ -310,10 +310,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `delete_file` removes one file inside a granted folder; never a folder, never a granted file itself (it was granted to be used). High risk and Ask, so Accepted needs the warning (TASK-039) and every use otherwise goes through the approval card.
   - Device-tested on the Pixel 11: `FileSkillsDeviceTest` now deletes the file it made through the real provider and nothing is left; choosing Accepted for Delete files shows the warning and Cancel keeps Ask.
   - Depends on: TASK-040, TASK-041
-- [ ] TASK-045: Context indicator and drop-oldest overflow
+- [x] TASK-045: Context indicator and drop-oldest overflow
   - The chat shows context in use and free (tokens and a bar) for the active model's context length.
   - Explains, when opened or when near full, that a full context does not end the chat: new messages push the oldest out.
   - When the conversation no longer fits, the oldest messages are dropped from what is sent to the model (the system prompt and skills are kept); dropped messages stay visible in the chat and saved. Replaces today's "prompt too long" failure.
+  - Done: `InferenceEngine.countTokens` (native `llama_tokenize` count) and `contextLength`. Before each generation `BruceRuntime` drops the oldest messages until the prompt fits the context less a reply reserve (1,024 tokens, or a quarter of a small context); cuts fall only where a user message starts, so tool results never lose their call, and the newest request is always kept (alone too long, it still fails as before). `measure` gives the chat's use; an empty chat is measured with a blank request, since Qwen's template refuses a conversation without one.
+  - The chat shows a bar with tokens used and free, a line above the first message the model still sees, a "Nearly full" note from 85% of the prompt limit or once anything is dropped, and an explanation on tap.
+  - Device-tested on the Pixel 11 with Qwen3.5-0.8B at a 2K context: an empty chat used 1,382 tokens of 4,096 (system prompt and nine skills); at 2K, three story requests dropped the oldest exchanges, the marker appeared and replies continued. First try showed no bar: measuring an empty chat failed in the template, found in the log and fixed.
   - Depends on: TASK-024, TASK-032
   - Required by: TASK-046
 - [ ] TASK-046: Auto-summarise option

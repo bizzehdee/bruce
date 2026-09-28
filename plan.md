@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-28 | Changed | Context indicator and drop-oldest overflow done. |
 | 2026-09-28 | Changed | File delete skill done: one file inside a granted folder, high risk, asked every time by default. |
 | 2026-09-28 | Changed | File create and write skills done: create_file and write_file, plain text only, asked every time by default. |
 | 2026-09-28 | Changed | File read skills done: list_files and read_file in granted folders, plain text only, off by default. |

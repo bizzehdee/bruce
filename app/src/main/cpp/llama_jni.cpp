@@ -390,6 +390,16 @@ Java_com_bizzeh_bruce_inference_LlamaNative_beginGenerationWithGrammar(
 }
 
 JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_countTokens(JNIEnv *env, jobject, jlong model, jbyteArray textUtf8) {
+    const jsize length = env->GetArrayLength(textUtf8);
+    std::vector<char> text(static_cast<size_t>(length));
+    env->GetByteArrayRegion(textUtf8, 0, length, reinterpret_cast<jbyte *>(text.data()));
+    // With no room for tokens, llama_tokenize returns minus the number it needs.
+    const int32_t needed = llama_tokenize(llama_model_get_vocab(asModel(model)), text.data(), length, nullptr, 0, true, true);
+    return needed < 0 ? -needed : needed;
+}
+
+JNIEXPORT jint JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
         JNIEnv *env, jobject, jlong handle, jbyteArray promptUtf8) {
     Generation *generation = asGeneration(handle);

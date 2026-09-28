@@ -64,4 +64,8 @@ class FakeEngine : InferenceEngine {
     override fun parseReply(format: ToolFormat, text: String, partial: Boolean): ParsedReply? = null
 
     override fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar? = null
+
+    override suspend fun countTokens(prompt: String): Int? = loadedModel?.let { prompt.length }
+
+    override fun contextLength(): Int? = loadedModel?.let { 4096 }
 }

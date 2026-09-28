@@ -86,6 +86,7 @@ class MainActivity : ComponentActivity() {
             ChatViewModel(
                 container.engine, container.activeModel.state, container.conversations::save, container.conversations::load, container.runtime::respond, container.runtime::answer,
                 container.personalitySettings.personality.map { it.displayName },
+                container.runtime::measure,
             )
         }
     }
