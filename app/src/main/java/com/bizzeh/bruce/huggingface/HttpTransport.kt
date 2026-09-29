@@ -37,6 +37,12 @@ interface HttpTransport {
      */
     fun openSingle(url: String, headers: Map<String, String>): StreamingResponse = open(url, headers)
 
+    /**
+     * POSTs [body] and streams the response, redirects not followed (a remote model server's chat,
+     * TASK-076). [readTimeoutMs] allows for a long wait before the first token.
+     */
+    fun postStream(url: String, headers: Map<String, String>, body: ByteArray, readTimeoutMs: Int): StreamingResponse = error("streaming POST is not supported here")
+
     /** POSTs a form body; returns null when the response exceeds [maxBytes]. Throws [IOException] on network failure. */
     fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse?
 }
@@ -82,6 +88,26 @@ class UrlConnectionTransport(
     }
 
     override fun openSingle(url: String, headers: Map<String, String>): StreamingResponse = connect(URL(url), headers)
+
+    override fun postStream(url: String, headers: Map<String, String>, body: ByteArray, readTimeoutMs: Int): StreamingResponse {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        try {
+            connection.connectTimeout = connectTimeoutMs
+            connection.readTimeout = readTimeoutMs
+            connection.instanceFollowRedirects = false
+            connection.requestMethod = "POST"
+            connection.doOutput = true
+            headers.forEach(connection::setRequestProperty)
+            connection.setFixedLengthStreamingMode(body.size)
+            connection.outputStream.use { it.write(body) }
+            val status = connection.responseCode
+            val stream = (if (status >= 400) connection.errorStream else connection.inputStream) ?: java.io.ByteArrayInputStream(ByteArray(0))
+            return StreamingResponse(status, headerMap(connection), stream, connection::disconnect)
+        } catch (e: IOException) {
+            connection.disconnect()
+            throw e
+        }
+    }
 
     override fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse? {
         val connection = URL(url).openConnection() as HttpURLConnection

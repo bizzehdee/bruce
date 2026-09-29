@@ -498,6 +498,43 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun aRemoteBackendTakesThePhonesPlaceAndSkillsStillRunHere() = runBlocking {
+        val asked = mutableListOf<BackendChat>()
+        val remote = object : ChatBackend {
+            var step = 0
+            override suspend fun contextLength() = 8192
+            override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 100, null).also { asked += chat }
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) = flowOf(
+                if (step++ == 0) StepEvent.Done(ParsedReply("", "", listOf(ToolCall("get_datetime", "{}", "r1"))), null)
+                else StepEvent.Done(ParsedReply("It is noon.", "", emptyList()), null),
+            )
+            override fun stop() = Unit
+        }
+        val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" }, remote = { remote })
+
+        val events = runtime.respond(question).toList()
+
+        assertEquals(listOf("get_datetime"), ran)
+        assertEquals("r1", events.filterIsInstance<RuntimeEvent.ToolResult>().single().call.id)
+        assertTrue((events.last() as RuntimeEvent.Finished).messages.last().content == "It is noon.")
+        assertTrue("the phone's engine was not used", engine.formatted.isEmpty())
+        assertTrue(asked.first().system.startsWith("P\n\n" + BruceRuntime.GUIDANCE))
+        assertEquals(ContextUse(100, 8192, 0, ContextBudget.promptLimit(8192)), runtime.measure(question))
+    }
+
+    @Test
+    fun aRemoteFailureEndsTheTurn() = runBlocking {
+        val remote = object : ChatBackend {
+            override suspend fun contextLength() = 8192
+            override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) = flowOf(StepEvent.Text("x"), StepEvent.Failed(RuntimeError.SERVER_UNREACHABLE))
+            override fun stop() = Unit
+        }
+        val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" }, remote = { remote })
+        assertEquals(RuntimeError.SERVER_UNREACHABLE, (runtime.respond(question).toList().last() as RuntimeEvent.Failed).error)
+    }
+
+    @Test
     fun tooManyToolCallsEndTheTurn() {
         repeat(3) { i -> engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("calculate", "{\"expression\":\"$i+1\"}")))) }
 

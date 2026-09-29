@@ -83,6 +83,9 @@ enum class ChatError {
     TOO_MANY_TOOL_CALLS,
     /** The turn ran past its time limit. */
     TIMED_OUT,
+
+    /** The model's server could not be reached (TASK-076). */
+    SERVER_UNREACHABLE,
 }
 
 class ChatViewModel(
@@ -345,6 +348,7 @@ class ChatViewModel(
         RuntimeError.GENERATION_FAILED -> ChatError.GENERATION_FAILED
         RuntimeError.TOO_MANY_TOOL_CALLS -> ChatError.TOO_MANY_TOOL_CALLS
         RuntimeError.TIMED_OUT -> ChatError.TIMED_OUT
+        RuntimeError.SERVER_UNREACHABLE -> ChatError.SERVER_UNREACHABLE
     }
 
     private companion object {
