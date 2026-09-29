@@ -34,6 +34,9 @@ data class ModelOverrides(
     }
 }
 
+/** A tool-capable chat template fetched from another Hub copy of the same model (TASK-063); [source] is that repository. */
+data class FetchedTemplate(val text: String, val source: String)
+
 /**
  * Per-model settings and which model was last chosen, keyed by model file name. Stored values
  * are validated on read; anything unknown or out of range means "use the default".
@@ -51,6 +54,20 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
     }
 
     suspend fun overridesNow(fileName: String): ModelOverrides = overrides(fileName).first()
+
+    /** Kept apart from [ModelOverrides], which the settings chips rewrite whole. */
+    fun template(fileName: String): Flow<FetchedTemplate?> = dataStore.data.map { preferences ->
+        val text = preferences[templateKey(fileName)]
+        val source = preferences[templateSourceKey(fileName)]
+        if (text != null && source != null) FetchedTemplate(text, source) else null
+    }
+
+    suspend fun setTemplate(fileName: String, template: FetchedTemplate?) {
+        dataStore.edit {
+            it.setOrRemove(templateKey(fileName), template?.text)
+            it.setOrRemove(templateSourceKey(fileName), template?.source)
+        }
+    }
 
     suspend fun setActiveModel(fileName: String?) {
         dataStore.edit { if (fileName == null) it.remove(ACTIVE) else it[ACTIVE] = fileName }
@@ -75,6 +92,8 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             it.remove(threadsKey(fileName))
             it.remove(contextKey(fileName))
             it.remove(temperatureKey(fileName))
+            it.remove(templateKey(fileName))
+            it.remove(templateSourceKey(fileName))
             if (it[ACTIVE] == fileName) it.remove(ACTIVE)
         }
     }
@@ -89,5 +108,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
         fun threadsKey(name: String) = intPreferencesKey("model.$name.threads")
         fun contextKey(name: String) = intPreferencesKey("model.$name.context")
         fun temperatureKey(name: String) = floatPreferencesKey("model.$name.temperature")
+        fun templateKey(name: String) = stringPreferencesKey("model.$name.chat_template")
+        fun templateSourceKey(name: String) = stringPreferencesKey("model.$name.chat_template_source")
     }
 }

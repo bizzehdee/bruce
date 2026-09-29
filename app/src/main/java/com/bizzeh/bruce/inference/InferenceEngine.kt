@@ -137,6 +137,8 @@ data class LoadConfig(
     /** Tokens decoded per native call while evaluating a prompt. 2048 is llama.cpp's default. */
     val batchSize: Int = 2048,
     val backend: BackendPreference = BackendPreference.AUTO,
+    /** A chat template to use instead of the file's own, e.g. one fetched for tool support (TASK-063). */
+    val chatTemplate: String? = null,
 ) {
     init {
         require(contextLength > 0) { "contextLength must be positive, was $contextLength" }

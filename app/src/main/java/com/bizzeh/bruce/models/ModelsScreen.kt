@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.models
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +52,11 @@ interface ModelsActions {
 
     /** Searches Hugging Face for [query] on the browser tab, where copies without skill support are marked. */
     fun findCopies(query: String)
+
+    /** Fetches a tool template for [file] from another Hub copy of its model (TASK-063). */
+    fun getTemplate(file: File)
+
+    fun removeTemplate(file: File)
 }
 
 @Composable
@@ -85,7 +91,7 @@ fun ModelsScreen(
                 if (tab == 1 && browseActions != null) {
                     BrowsePane(browse, browseActions)
                 } else {
-                    val findCopies = browseActions?.let { { model: InstalledModel -> tab = 1; actions.findCopies(ModelsText.copySearch(model)) } }
+                    val findCopies = browseActions?.let { { model: InstalledModel -> tab = 1; actions.findCopies(TemplateFinder.searchFor(model)) } }
                     Installed(state, actions, cores, backendChoices, fixedPromptTokens, findCopies, expanded, { expanded = it }, { confirmDelete = it })
                 }
             }
@@ -140,6 +146,7 @@ private fun Installed(
             backendChoices = backendChoices,
             fixedPromptTokens = if (model.file == state.active) fixedPromptTokens else null,
             onFindCopies = findCopies?.let { { it(model) } },
+            templateStatus = state.templates[model.file.name],
             onToggle = { onExpand(if (expanded == model.file.name) null else model.file.name) },
             actions = actions,
             onDelete = { onDelete(model.file.name) },
@@ -158,6 +165,7 @@ private fun ModelCard(
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
     fixedPromptTokens: Int?,
     onFindCopies: (() -> Unit)?,
+    templateStatus: TemplateStatus?,
     onToggle: () -> Unit,
     actions: ModelsActions,
     onDelete: () -> Unit,
@@ -186,8 +194,32 @@ private fun ModelCard(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.testTag("limitedSkills:${model.file.name}"),
                 )
-                onFindCopies?.let {
-                    TextButton(onClick = it, modifier = Modifier.testTag("findCopies:${model.file.name}")) { Text(stringResource(R.string.models_find_copies)) }
+                Row {
+                    onFindCopies?.let {
+                        TextButton(onClick = it, modifier = Modifier.testTag("findCopies:${model.file.name}")) { Text(stringResource(R.string.models_find_copies)) }
+                    }
+                    if (onFindCopies != null) {
+                        TextButton(
+                            onClick = { actions.getTemplate(model.file) },
+                            enabled = templateStatus != TemplateStatus.Searching,
+                            modifier = Modifier.testTag("getTemplate:${model.file.name}"),
+                        ) { Text(stringResource(R.string.models_get_template)) }
+                    }
+                }
+                ModelsText.templateStatus(templateStatus)?.let {
+                    Text(stringResource(it), style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("templateStatus:${model.file.name}"))
+                }
+            }
+            model.template?.let { fetched ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        stringResource(R.string.models_template_from, fetched.source),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1f).testTag("templateFrom:${model.file.name}"),
+                    )
+                    TextButton(onClick = { actions.removeTemplate(model.file) }, modifier = Modifier.testTag("removeTemplate:${model.file.name}")) {
+                        Text(stringResource(R.string.models_remove_template))
+                    }
                 }
             }
             if (expanded) {
@@ -255,9 +287,14 @@ private fun <T> OverrideChips(label: String, options: List<T?>, selected: T?, te
 }
 
 internal object ModelsText {
-    /** A Hub search for other copies of [model]: its declared name, spaced as repository names are. */
-    fun copySearch(model: InstalledModel): String =
-        (model.metadata?.name?.takeIf { it.isNotBlank() } ?: model.file.nameWithoutExtension).trim().replace(Regex("\\s+"), "-")
+    @StringRes
+    fun templateStatus(status: TemplateStatus?): Int? = when (status) {
+        null -> null
+        TemplateStatus.Searching -> R.string.models_template_searching
+        TemplateStatus.NotFound -> R.string.models_template_not_found
+        is TemplateStatus.Failed -> BrowseText.hubError(status.error)
+    }
+
 
     fun summary(model: InstalledModel): String = listOfNotNull(
         Format.bytes(model.sizeBytes),

@@ -52,8 +52,8 @@ internal interface LlamaApi {
     /** As [beginGeneration], constrained by [grammarJson] ([ToolGrammar.json]); 0 if the grammar is unusable. */
     fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long
 
-    /** The model's chat templates for tool formats; 0 on failure. Free with [chatTemplatesFree]. */
-    fun chatTemplatesInit(model: Long): Long
+    /** The model's chat templates for tool formats, or [overrideUtf8]'s when not empty; 0 on failure. Free with [chatTemplatesFree]. */
+    fun chatTemplatesInit(model: Long, overrideUtf8: ByteArray): Long
 
     fun chatTemplatesFree(templates: Long)
 
@@ -146,7 +146,7 @@ internal object LlamaNative : LlamaApi {
 
     external override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long
 
-    external override fun chatTemplatesInit(model: Long): Long
+    external override fun chatTemplatesInit(model: Long, overrideUtf8: ByteArray): Long
 
     external override fun chatTemplatesFree(templates: Long)
 

@@ -188,4 +188,20 @@ class ModelSettingsTest {
         assertEquals(0, engine.unloads)
         assertEquals("a.gguf", f.settings.activeModelName.first())
     }
+
+    @Test
+    fun aFetchedTemplateIsStoredApartAndForgottenWithTheModel() = runTest(dispatcher) {
+        val f = Fixture(this)
+        f.settings.setOverrides("a.gguf", ModelOverrides(threads = 2))
+        f.settings.setTemplate("a.gguf", FetchedTemplate("{{ tools }}", "b/full"))
+        f.settings.setOverrides("a.gguf", ModelOverrides(threads = 4))
+
+        assertEquals(FetchedTemplate("{{ tools }}", "b/full"), f.settings.template("a.gguf").first())
+        assertEquals(null, f.settings.template("other.gguf").first())
+        f.selection.choose(f.model("a.gguf"))
+        assertEquals("{{ tools }}", engine.loads.last().second.chatTemplate, "the model loads with it")
+
+        f.settings.forget("a.gguf")
+        assertEquals(null, f.settings.template("a.gguf").first())
+    }
 }

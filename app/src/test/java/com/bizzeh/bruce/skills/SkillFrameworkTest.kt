@@ -86,9 +86,11 @@ class SkillFrameworkTest {
     }
 
     @Test
-    fun noArgumentsMeansAnEmptyObject() {
+    fun aSkillWithoutParametersIgnoresWhateverObjectItIsSent() {
         assertEquals(SkillArguments(emptyMap()), (InputSchema().check("  ") as ArgumentCheck.Valid).arguments)
-        assertEquals("unknown argument 'x'", (InputSchema().check("""{"x":1}""") as ArgumentCheck.Invalid).reason)
+        assertEquals(SkillArguments(emptyMap()), (InputSchema().check("""{"type":"object","properties":{}}""") as ArgumentCheck.Valid).arguments)
+        assertEquals("arguments must be a JSON object", (InputSchema().check("[1]") as ArgumentCheck.Invalid).reason)
+        assertEquals("arguments are not valid JSON", (InputSchema().check("""{"}}""") as ArgumentCheck.Invalid).reason)
     }
 
     @Test

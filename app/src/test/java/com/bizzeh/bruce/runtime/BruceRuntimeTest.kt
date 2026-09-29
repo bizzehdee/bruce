@@ -383,6 +383,18 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun aRepeatedRefusedCallIsGuardedToo() = runBlocking {
+        repeat(3) { engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("calculate", "{\"wrong\":1}")))) }
+        engine.steps += Step("", ParsedReply("I could not work it out.", "", emptyList()))
+
+        val events = events()
+
+        assertEquals(listOf(true, true, true, false), engine.offered.map { it.isNotEmpty() })
+        assertEquals(BruceRuntime.REPEAT_NOTE, JSONObject(events.filterIsInstance<RuntimeEvent.ToolResult>()[1].resultJson).getString("note"))
+        assertTrue(events.last() is RuntimeEvent.Finished)
+    }
+
+    @Test
     fun aSecondRepeatTakesTheSkillsAwaySoTheModelMustAnswer() = runBlocking {
         repeat(3) { engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}")))) }
         engine.steps += Step("", ParsedReply("It is noon.", "", emptyList()))

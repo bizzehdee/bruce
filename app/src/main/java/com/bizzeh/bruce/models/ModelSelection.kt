@@ -17,7 +17,8 @@ class ModelSelection(
 ) {
     /** Loads [file] with its settings over the defaults, and remembers it for next launch. */
     suspend fun choose(file: File): LoadResult {
-        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first())
+        val template = modelSettings.template(file.name).first()
+        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first()).copy(chatTemplate = template?.text)
         val result = activeModel.load(file, config)
         if (result is LoadResult.Loaded) modelSettings.setActiveModel(file.name)
         return result
