@@ -1,7 +1,7 @@
 package com.bizzeh.bruce.settings
 
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -315,8 +315,9 @@ private fun Label(text: Int) {
 
 @Composable
 private fun Chips(content: @Composable () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+    // Wraps onto more lines rather than scrolling sideways, which users do not expect of a row of choices.
+    FlowRow(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) { content() }
 }
