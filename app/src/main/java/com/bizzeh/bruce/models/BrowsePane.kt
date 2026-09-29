@@ -1,9 +1,8 @@
 package com.bizzeh.bruce.models
 
+import androidx.compose.foundation.layout.FlowRow
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.text.KeyboardActions
@@ -185,7 +184,7 @@ private fun Filters(filters: BrowseFilters, onChange: (BrowseFilters) -> Unit) {
 private fun <T> FilterRow(@StringRes label: Int, options: List<T>, selected: T, tag: String, text: @Composable (T) -> String?, onSelect: (T) -> Unit) {
     Column {
         Text(stringResource(label), style = MaterialTheme.typography.labelMedium)
-        Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             options.forEach { option ->
                 FilterChip(
                     selected = option == selected,

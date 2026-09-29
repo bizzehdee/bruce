@@ -1,8 +1,8 @@
 package com.bizzeh.bruce.models
 
+import androidx.compose.foundation.layout.FlowRow
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -275,7 +275,7 @@ private fun ModelCard(
 @Composable
 private fun <T> OverrideChips(label: String, options: List<T?>, selected: T?, text: (T?) -> String?, tag: String, onSelect: (T?) -> Unit) {
     Text(label, style = MaterialTheme.typography.bodySmall)
-    Row(modifier = Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         options.forEach { option ->
             FilterChip(
                 selected = option == selected,
