@@ -66,6 +66,7 @@ class BruceAppTest {
                     }
                 },
                 diagnosticsScreen = { onBack -> SubScreen("Diagnostics screen", onBack) { Text("diagnostics body") } },
+                memoryScreen = { onBack -> SubScreen("Memory screen", onBack) { Text("memory body") } },
                 permissionsScreen = { onBack, openNetwork ->
                     com.bizzeh.bruce.settings.PermissionsScreen(emptyList(), false, noGrantActions, openNetwork, onBack)
                 },
@@ -202,5 +203,6 @@ class BruceAppTest {
         assertEquals(Destination.SETTINGS, backTarget(Destination.LICENCES))
         assertEquals(Destination.SETTINGS, backTarget(Destination.PERMISSIONS))
         assertEquals(Destination.SETTINGS, backTarget(Destination.SKILLS))
+        assertEquals(Destination.SETTINGS, backTarget(Destination.MEMORY))
     }
 }

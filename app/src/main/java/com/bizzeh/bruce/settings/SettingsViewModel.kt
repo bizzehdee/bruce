@@ -6,6 +6,8 @@ import com.bizzeh.bruce.huggingface.HubAuth
 import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.huggingface.SignInResult
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.memory.MemoryMode
+import com.bizzeh.bruce.memory.MemorySettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +21,7 @@ class SettingsViewModel(
     private val network: NetworkSettingsRepository,
     private val personality: PersonalitySettingsRepository,
     private val summary: SummarySettingsRepository,
+    private val memory: MemorySettingsRepository,
     private val hubAuth: HubAuth,
     private val dataReset: DataReset,
     dynamicColourSupported: Boolean,
@@ -31,12 +34,17 @@ class SettingsViewModel(
 
     val state: StateFlow<SettingsState> = combine(
         combine(theme.settings, inference.defaults, network.mode, ::Triple),
-        hubAuth.account, signInError, personality.personality, summary.settings,
-    ) { (themeSettings, defaults, mode), account, error, chosen, summarising ->
-        initial.copy(theme = themeSettings, inference = defaults, network = mode, account = account, signInError = error, personality = chosen, summary = summarising)
+        combine(hubAuth.account, signInError, ::Pair), personality.personality, summary.settings, memory.mode,
+    ) { (themeSettings, defaults, mode), (account, error), chosen, summarising, remembering ->
+        initial.copy(
+            theme = themeSettings, inference = defaults, network = mode, account = account, signInError = error,
+            personality = chosen, summary = summarising, memory = remembering,
+        )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, initial)
 
     fun setPersonality(chosen: Personality) = launch { personality.set(chosen) }
+
+    fun setMemoryMode(mode: MemoryMode) = launch { memory.setMode(mode) }
 
     fun setSummaryEnabled(enabled: Boolean) = launch { summary.setEnabled(enabled) }
 

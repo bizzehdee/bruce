@@ -21,9 +21,10 @@ struct ReusePlan {
 // always decoded, since the next token is sampled from its logits.
 ReusePlan planReuse(const std::vector<int32_t> &cached, const std::vector<int32_t> &prompt, bool canCut, int32_t checkpoint);
 
-// Where to save a checkpoint while decoding positions [start, count), or -1 for none: [offset]
-// tokens before the end, so the next prompt, which usually differs only after this one's end,
-// can restore it.
-int32_t checkpointPosition(int32_t start, int32_t count, bool canCut, int32_t offset);
+// Where to save a checkpoint while decoding positions [start, count), or -1 for none. [preferred]
+// (or -1) is where the caller knows the next prompt will branch off, e.g. the end of the chat
+// before an extra model pass (TASK-047); otherwise [offset] tokens before the end, since the next
+// prompt usually differs only after this one's end.
+int32_t checkpointPosition(int32_t start, int32_t count, bool canCut, int32_t offset, int32_t preferred = -1);
 
 }  // namespace bruce

@@ -23,9 +23,12 @@ ReusePlan planReuse(const std::vector<int32_t> &cached, const std::vector<int32_
     return {0, false};
 }
 
-int32_t checkpointPosition(int32_t start, int32_t count, bool canCut, int32_t offset) {
+int32_t checkpointPosition(int32_t start, int32_t count, bool canCut, int32_t offset, int32_t preferred) {
     if (canCut) {
         return -1;
+    }
+    if (preferred > start && preferred < count) {
+        return preferred;
     }
     const int32_t position = count - offset;
     return position > start ? position : -1;

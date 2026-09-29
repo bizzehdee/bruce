@@ -53,3 +53,10 @@ TEST(PromptCache, CheckpointsAreForUncuttableMemoryOnly) {
     EXPECT_EQ(-1, checkpointPosition(95, 100, false, 8));
     EXPECT_EQ(-1, checkpointPosition(0, 5, false, 8));
 }
+
+TEST(PromptCache, APreferredCheckpointInsideTheDecodedRangeWins) {
+    EXPECT_EQ(40, checkpointPosition(0, 100, false, 8, 40));
+    EXPECT_EQ(92, checkpointPosition(50, 100, false, 8, 40));
+    EXPECT_EQ(92, checkpointPosition(0, 100, false, 8, 100));
+    EXPECT_EQ(-1, checkpointPosition(0, 100, true, 8, 40));
+}

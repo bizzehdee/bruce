@@ -38,6 +38,7 @@ import com.bizzeh.bruce.R
 import com.bizzeh.bruce.huggingface.HubAccount
 import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.memory.MemoryMode
 import com.bizzeh.bruce.navigation.SubScreen
 import com.bizzeh.bruce.runtime.ContextBudget
 
@@ -50,6 +51,7 @@ data class SettingsState(
     val network: NetworkMode = NetworkMode.OFFLINE,
     val personality: Personality = Personality.BRUCE,
     val summary: SummarySettings = SummarySettings(),
+    val memory: MemoryMode = MemoryMode.OFF,
     /** Backend choices this phone can use (BackendSelection.choices). */
     val backends: List<BackendPreference> = BackendPreference.entries,
     val account: HubAccount? = null,
@@ -69,6 +71,8 @@ interface SettingsActions {
     fun deleteAllConversations()
     fun setNetworkMode(mode: NetworkMode)
     fun setPersonality(personality: Personality)
+    fun setMemoryMode(mode: MemoryMode)
+    fun openMemory()
     fun setSummaryEnabled(enabled: Boolean)
     fun setSummaryThreshold(threshold: Int)
     fun signIn()
@@ -124,6 +128,21 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                     Switch(state.theme.contextTrafficLights, actions::setContextTrafficLights, modifier = Modifier.testTag("contextTrafficLights"))
                 },
             )
+
+            Heading(R.string.settings_memory)
+            Choice(
+                options = MemoryMode.entries,
+                selected = state.memory,
+                label = { stringResource(SettingsText.memoryLabel(it)) },
+                onSelect = actions::setMemoryMode,
+            )
+            Text(
+                stringResource(R.string.settings_memory_summary),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+            Link(R.string.settings_memory_review, null, "settings:memory", actions::openMemory)
 
             Heading(R.string.settings_long_chats)
             ListItem(
@@ -331,6 +350,12 @@ private fun themeLabel(mode: ThemeMode) = when (mode) {
 }
 
 internal object SettingsText {
+    fun memoryLabel(mode: MemoryMode): Int = when (mode) {
+        MemoryMode.OFF -> R.string.memory_off
+        MemoryMode.PER_MODEL -> R.string.memory_per_model
+        MemoryMode.GLOBAL -> R.string.memory_global
+    }
+
     fun backendName(name: String) = when (name) {
         "VULKAN" -> "Vulkan"
         "OPENCL" -> "OpenCL"

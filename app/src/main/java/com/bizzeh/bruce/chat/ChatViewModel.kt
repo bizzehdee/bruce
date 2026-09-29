@@ -90,15 +90,16 @@ class ChatViewModel(
     /** A saved conversation's messages, or null if it no longer exists. */
     private val load: suspend (id: Long) -> List<ChatEntry>?,
     /** One turn of the runtime (BruceRuntime.respond): replies, skill calls and results. */
-    private val respond: (List<ToolChatMessage>) -> Flow<RuntimeEvent>,
+    private val respond: (List<ToolChatMessage>, List<String>) -> Flow<RuntimeEvent>,
     /** The user's answer to a call awaiting approval (BruceRuntime.answer). */
     private val answer: suspend (ToolCall, PolicyDecision.NeedsConfirmation, Boolean) -> RuntimeEvent.ToolResult,
     sidekick: Flow<String> = emptyFlow(),
     /** Context use of a conversation (BruceRuntime.measure). */
-    private val measure: suspend (List<ToolChatMessage>) -> ContextUse? = { null },
+    private val measure: suspend (List<ToolChatMessage>, List<String>) -> ContextUse? = { _, _ -> null },
     private val summarySettings: Flow<SummarySettings> = flowOf(SummarySettings()),
     /** A summary of messages written by the model, raw (BruceRuntime.summarise). */
     private val summarise: suspend (List<ToolChatMessage>) -> String? = { null },
+    private val memory: ChatMemory = ChatMemory.Off,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -107,6 +108,9 @@ class ChatViewModel(
     private var session = 0
     private var turn: Job? = null
     private val pending = mutableMapOf<String, Pair<ToolCall, PolicyDecision.NeedsConfirmation>>()
+
+    /** What this chat recalled at its first message; fixed for the chat so its prompt stays reusable. */
+    private var recalled: List<String>? = null
 
     init {
         viewModelScope.launch {
@@ -153,7 +157,7 @@ class ChatViewModel(
     private suspend fun summariseIfDue(history: List<ChatEntry>): List<ChatEntry> {
         val settings = summarySettings.first()
         if (!settings.enabled) return history
-        val use = measure(sent(history)) ?: return history
+        val use = measure(sent(history), recalled.orEmpty()) ?: return history
         if (use.dropped == 0 && use.used * 100L < settings.threshold.toLong() * use.limit) return history
         val from = firstSent(history)
         val requests = history.indices.filter { history[it].role == ChatRole.USER && it > from }
@@ -210,8 +214,10 @@ class ChatViewModel(
             fun show() {
                 if (onScreen()) mutableState.update { it.copy(entries = history + added + streaming) }
             }
+            val remembered = recalled ?: memory.recall(history.firstOrNull { it.role == ChatRole.USER }?.text.orEmpty()).also { recalled = it }
+            var finished = false
             try {
-                respond(sent(history)).collect { event ->
+                respond(sent(history), remembered).collect { event ->
                     when (event) {
                         is RuntimeEvent.Text -> streaming = streaming.copy(text = streaming.text + event.text)
                         is RuntimeEvent.Step -> {
@@ -226,7 +232,7 @@ class ChatViewModel(
                                 mutableState.update { it.copy(confirmations = it.confirmations + (event.call.id to confirmation(event.call, event.decision))) }
                             }
                         }
-                        is RuntimeEvent.Finished -> Unit
+                        is RuntimeEvent.Finished -> finished = true
                         is RuntimeEvent.Failed -> error = chatError(event.error)
                     }
                     show()
@@ -238,6 +244,7 @@ class ChatViewModel(
                     val entries = history + added.filterNot { it.role == ChatRole.ASSISTANT && it.text.isEmpty() && it.toolCalls.isEmpty() }
                     val saved = save(current.conversationId, entries)
                     if (onScreen()) mutableState.update { it.copy(entries = entries, generating = false, error = error, conversationId = saved) }
+                    if (finished) viewModelScope.launch { memory.learn(sent(entries), remembered) }
                 }
                 if (onScreen()) remeasure()
             }
@@ -251,6 +258,7 @@ class ChatViewModel(
             endTurn()
             session++
             pending.clear()
+            recalled = null
             mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries) }
             remeasure()
         }
@@ -267,6 +275,7 @@ class ChatViewModel(
         endTurn()
         session++
         pending.clear()
+        recalled = null
         mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick) }
         remeasure()
     }
@@ -277,7 +286,7 @@ class ChatViewModel(
         viewModelScope.launch {
             if (mutableState.value.generating) return@launch
             val entries = mutableState.value.entries
-            val use = measure(sent(entries))
+            val use = measure(sent(entries), recalled.orEmpty())
             if (session == measuredSession && !mutableState.value.generating) {
                 mutableState.update { it.copy(context = use, firstSeen = firstSent(entries) + (use?.dropped ?: 0)) }
             }
