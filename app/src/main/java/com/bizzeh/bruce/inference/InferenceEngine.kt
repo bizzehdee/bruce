@@ -43,6 +43,12 @@ interface InferenceEngine {
     /** The grammar for [BruceToolFormat] over [tools], or null if their schemas cannot be expressed. */
     fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar?
 
+    /**
+     * Whether a chat template (as a Hub search reports it) can express tool calls, judged as for a
+     * loaded model; null if it cannot be read. Needs no model loaded.
+     */
+    fun templateSupportsTools(template: String, bosToken: String?, eosToken: String?): Boolean?
+
     /** How many tokens [prompt] takes in the loaded model's context; null with no model loaded. */
     suspend fun countTokens(prompt: String): Int?
 

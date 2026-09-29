@@ -23,6 +23,10 @@ data class HubModel(
     val contextLength: Long?,
     /** The repository's GGUF file paths, from the search; sizes need [HubClient.ggufFiles]. */
     val files: List<String> = emptyList(),
+    /** The chat template and its BOS/EOS tokens as the Hub reports them from one of the files; untrusted text. */
+    val chatTemplate: String? = null,
+    val bosToken: String? = null,
+    val eosToken: String? = null,
 )
 
 /** Filters Hugging Face applies to a search. */
@@ -177,6 +181,9 @@ class HubClient(
             parameterCount = gguf?.positiveLong("total"),
             contextLength = gguf?.positiveLong("context_length"),
             files = ggufSiblings(item.optJSONArray("siblings")) ?: return null,
+            chatTemplate = gguf?.optString("chat_template")?.takeIf { it.isNotBlank() && it.length <= MAX_TEMPLATE_CHARS },
+            bosToken = gguf?.optString("bos_token")?.takeIf { it.isNotBlank() },
+            eosToken = gguf?.optString("eos_token")?.takeIf { it.isNotBlank() },
         )
     }
 
@@ -215,6 +222,9 @@ class HubClient(
     companion object {
         const val MAX_RESULTS = 100
         private const val MAX_SEARCH_BYTES = 8 * 1024 * 1024
+
+        /** Longer templates are not judged; the longest seen in practice are about 20 KB. */
+        private const val MAX_TEMPLATE_CHARS = 64 * 1024
         private const val MAX_TREE_BYTES = 2 * 1024 * 1024
         private const val GGUF_EXTENSION = ".gguf"
         private val SEARCH_EXPANSIONS = listOf("downloads", "gated", "cardData", "gguf", "siblings")

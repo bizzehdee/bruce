@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | The model browser marks copies whose chat template has no tool support ("Limited skill use") and lists them after the others. |
 | 2026-09-29 | Added | Context traffic lights: the context bar is green, amber or red by how full the chat is; Appearance setting, on by default. |
 | 2026-09-29 | Removed | Short skill list: measured, saves about 10% of skill tokens and loses accuracy; full skill definitions stay. |
 | 2026-09-29 | Changed | Settings and Models warn when a context length leaves the chat less than a quarter of it. |

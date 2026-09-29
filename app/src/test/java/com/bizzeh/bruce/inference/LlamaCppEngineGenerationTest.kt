@@ -59,6 +59,15 @@ class LlamaCppEngineGenerationTest {
     }
 
     @Test
+    fun templateChecksNeedNoModelAndMapTheNativeAnswer() = test {
+        assertEquals(true, engine.templateSupportsTools("{{ tools }}", "<s>", null))
+        llama.templateAnswer = 0
+        assertEquals(false, engine.templateSupportsTools("{{ messages }}", null, null))
+        llama.templateAnswer = -1
+        assertEquals(null, engine.templateSupportsTools("{% broken", null, null))
+    }
+
+    @Test
     fun stopsAtMaxTokens() = test {
         loadModel()
         llama.script("a", "b", "c", "d")

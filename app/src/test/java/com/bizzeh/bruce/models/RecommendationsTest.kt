@@ -97,4 +97,17 @@ class RecommendationsTest {
         assertEquals(listOf("c/huge"), ids(SizeBucket.FROM_8GB))
         assertEquals(emptyList<String>(), ids(SizeBucket.FROM_2GB_TO_4GB))
     }
+
+    @Test
+    fun filesWithoutSkillSupportRankBelowOtherwiseEqualOnes() {
+        val phone = DeviceProfile(64 * gb, cpu)
+        val results = listOf(model("a/limited", gb, "m-Q4_0.gguf"), model("b/full", gb, "m-Q4_0.gguf"), model("c/unknown", gb, "m-Q4_0.gguf"))
+        val skills = mapOf("a/limited" to false, "b/full" to true)
+        fun listed(recommended: Boolean) =
+            Recommendations.listings(results, BrowseFilters(runs = RunsFilter.ANY), phone, 4096, recommended) { skills[it.id] }
+
+        assertEquals(listOf("b/full", "c/unknown", "a/limited"), listed(recommended = true).map { it.model.id })
+        assertEquals(listOf("b/full", "c/unknown", "a/limited"), listed(recommended = false).map { it.model.id })
+        assertEquals(listOf(true, null, false), listed(recommended = true).map { it.skills })
+    }
 }

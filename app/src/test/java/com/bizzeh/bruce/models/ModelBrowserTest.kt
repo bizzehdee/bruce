@@ -69,15 +69,37 @@ class ModelBrowserTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
+    private val templatesJudged = mutableListOf<String>()
+
     private fun viewModel(modelsDir: File = temp.newFolder()) = ModelBrowserViewModel(
         hub = HubClient(hub, { allowed }, dispatcher, "Bruce/test"),
         downloader = ModelDownloader(hub, modelsDir, { allowed }, Dispatchers.IO, "Bruce/test"),
         device = { DeviceProfile(4L shl 30, cpu) },
         contextLength = { 4096 },
         onDownloaded = { downloaded++ },
+        templateSupportsTools = { template, _, _ -> templatesJudged += template; "tools" in template },
+        checkDispatcher = dispatcher,
     )
 
     private val qwen = HubModel("ggml-org/Qwen3-0.6B-GGUF", 1000, false, "apache-2.0", "qwen3", 596_000_000, 40_960)
+
+    @Test
+    fun templatesAreJudgedOncePerTemplateAndMarkTheListings() = runTest(dispatcher) {
+        hub.searchBody = """[
+          {"id":"a/full","siblings":[{"rfilename":"m-Q4_0.gguf"}],"gguf":{"total":500000000,"architecture":"qwen3","chat_template":"{{ tools }}"}},
+          {"id":"b/stripped","siblings":[{"rfilename":"m-Q4_0.gguf"}],"gguf":{"total":500000000,"architecture":"qwen3","chat_template":"{{ messages }}"}},
+          {"id":"c/same","siblings":[{"rfilename":"m-Q4_0.gguf"}],"gguf":{"total":500000000,"architecture":"qwen3","chat_template":"{{ tools }}"}},
+          {"id":"d/none","siblings":[{"rfilename":"m-Q4_0.gguf"}],"gguf":{"total":500000000,"architecture":"qwen3"}}
+        ]"""
+        val vm = viewModel()
+        vm.setQuery("q")
+        vm.search()
+        advanceUntilIdle()
+
+        assertEquals(listOf("a/full", "c/same", "d/none", "b/stripped"), vm.state.value.listings.map { it.model.id })
+        assertEquals(listOf(true, true, null, false), vm.state.value.listings.map { it.skills })
+        assertEquals(listOf("{{ tools }}", "{{ messages }}"), templatesJudged)
+    }
 
     @Test
     fun searchShowsResultsOrErrors() = runTest(dispatcher) {
@@ -297,6 +319,28 @@ class ModelBrowserTest {
             listOf("recommend", "search", "search", "open ${qwen.id}", "download stories260K.gguf", "cancel stories260K.gguf", "download stories260K.gguf"),
             calls.filterNot { it.startsWith("query") },
         )
+    }
+
+    @Test
+    fun paneMarksListingsWithLimitedSkillUse() {
+        val actions = object : BrowseActions {
+            override fun setQuery(query: String) = Unit
+            override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
+            override fun openRepository(model: HubModel) = Unit
+            override fun download(model: HubModel, assessment: Assessment) = Unit
+            override fun cancel(repositoryId: String, path: String) = Unit
+        }
+        val stripped = qwen.copy(id = "x/stripped")
+        compose.setContent {
+            BruceTheme {
+                BrowsePane(BrowseState(searched = true, results = listOf(qwen, stripped), listings = listOf(Listing(qwen, null, true), Listing(stripped, null, false))), actions)
+            }
+        }
+
+        compose.onNodeWithTag("limitedSkills:x/stripped", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("limitedSkills:${qwen.id}", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

@@ -145,6 +145,26 @@ Java_com_bizzeh_bruce_inference_LlamaNative_parseChat(JNIEnv *env, jobject, jbyt
     }
 }
 
+// Whether a chat template, given as text with its BOS and EOS tokens, can express tool calls, as
+// llama.cpp decides for a loaded model (TASK-061): 1 yes, 0 no, -1 if the template cannot be read.
+// Lets the model browser judge a Hub file from its reported template without downloading it.
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_templateSupportsTools(JNIEnv *env, jobject, jbyteArray templateUtf8, jbyteArray bosUtf8, jbyteArray eosUtf8) {
+    try {
+        const std::string source = bytesToString(env, templateUtf8);
+        if (source.empty()) {
+            return -1;
+        }
+        const auto templates = common_chat_templates_init(nullptr, source, bytesToString(env, bosUtf8), bytesToString(env, eosUtf8));
+        const auto caps = common_chat_templates_get_caps(templates.get());
+        const auto tools = caps.find("supports_tool_calls");
+        return tools != caps.end() && tools->second ? 1 : 0;
+    } catch (const std::exception &error) {
+        logFailure("template check", error);
+        return -1;
+    }
+}
+
 // Bruce's own format, for models whose template has no tool support: a GBNF grammar for
 // <tool_call>{"name": ..., "arguments": {...}}</tool_call>, with each tool's arguments held to its
 // schema. Request: [{"name", "parameters": <JSON schema>}]. Returns the grammar, or null.

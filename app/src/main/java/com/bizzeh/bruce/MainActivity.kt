@@ -116,6 +116,7 @@ class MainActivity : ComponentActivity() {
                 device = ::deviceProfile,
                 contextLength = { container.inferenceSettings.defaults.first().contextLength },
                 onDownloaded = { models.refresh() },
+                templateSupportsTools = container.engine::templateSupportsTools,
             )
         }
     }

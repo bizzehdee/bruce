@@ -183,6 +183,7 @@
     <string name="browse_no_results">Couldn\'t sniff out a match. Try other filters.</string>
     <string name="browse_sniffing">Sniffing out models for this phone…</string>
     <string name="browse_gated">Gated</string>
+    <string name="browse_limited_skills">Limited skill use: this copy\'s chat template has no tool support, so the model seldom uses skills</string>
     <string name="browse_download">Download</string>
     <string name="browse_cancel">Cancel</string>
     <string name="browse_retry">Retry</string>
