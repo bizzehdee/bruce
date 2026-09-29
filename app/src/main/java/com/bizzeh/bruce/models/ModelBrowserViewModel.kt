@@ -1,5 +1,7 @@
 package com.bizzeh.bruce.models
 
+import com.bizzeh.bruce.settings.InferenceDefaults
+import com.bizzeh.bruce.gguf.GgufReadResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bizzeh.bruce.huggingface.DownloadError
@@ -21,7 +23,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** A download in progress or finished badly; keyed by "repository/path". */
-data class DownloadState(val downloadedBytes: Long, val totalBytes: Long, val error: DownloadError? = null) {
+/** [neededBytes] and [freeBytes] say why a download was refused as [DownloadError.TOO_LARGE]. */
+data class DownloadState(
+    val downloadedBytes: Long,
+    val totalBytes: Long,
+    val error: DownloadError? = null,
+    val neededBytes: Long? = null,
+    val freeBytes: Long? = null,
+) {
     val fraction: Float get() = if (totalBytes > 0) downloadedBytes.toFloat() / totalBytes else 0f
 }
 
@@ -52,7 +61,8 @@ class ModelBrowserViewModel(
     private val hub: HubClient,
     private val downloader: ModelDownloader,
     private val device: () -> DeviceProfile,
-    private val contextLength: suspend () -> Int,
+    /** The context size setting; null is Auto. Rough judgements use InferenceDefaults.FALLBACK_CONTEXT for Auto. */
+    private val contextLength: suspend () -> Int?,
     private val onDownloaded: suspend () -> Unit,
     /** Whether a chat template can express tool calls (InferenceEngine.templateSupportsTools); null if unknown. */
     private val templateSupportsTools: (template: String, bosToken: String?, eosToken: String?) -> Boolean? = { _, _, _ -> null },
@@ -114,7 +124,7 @@ class ModelBrowserViewModel(
         val judged = withContext(checkDispatcher) {
             state.results.associate { model -> model.id to model.chatTemplate?.let { skills(it, model.bosToken, model.eosToken) } }
         }
-        val listings = Recommendations.listings(state.results, state.filters, device(), contextLength(), state.recommended) { judged[it.id] }
+        val listings = Recommendations.listings(state.results, state.filters, device(), roughContext(), state.recommended) { judged[it.id] }
         mutableState.update { it.copy(listings = listings) }
     }
 
@@ -130,7 +140,7 @@ class ModelBrowserViewModel(
                 is HubResult.Failure -> RepositoryFiles(loading = false, error = result.error)
                 is HubResult.Success -> RepositoryFiles(
                     loading = false,
-                    ranked = ModelFit.rank(result.value.map { candidate(model, it) }, device(), contextLength()),
+                    ranked = ModelFit.rank(result.value.map { candidate(model, it) }, device(), roughContext()),
                 )
             }
             mutableState.update { it.copy(files = it.files + (model.id to files)) }
@@ -143,6 +153,16 @@ class ModelBrowserViewModel(
         val size = assessment.candidate.sizeBytes
         mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(0, size))) }
         downloadJobs[key] = viewModelScope.launch {
+            // The list judged the file by its size alone; its header shows what it really needs (owner, 2026-09-29).
+            val exact = exactAssessment(model, assessment)
+            if (exact != null) {
+                replaceAssessment(model.id, exact)
+                if (exact.fit == Fit.DOES_NOT_FIT) {
+                    val refused = DownloadState(0, size, DownloadError.TOO_LARGE, exact.estimate.totalBytes, device().usableMemoryBytes)
+                    mutableState.update { it.copy(downloads = it.downloads + (key to refused)) }
+                    return@launch
+                }
+            }
             val result = downloader.download(model.id, assessment.candidate.path, size, assessment.candidate.sha256) { done, total ->
                 mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(done, total))) }
             }
@@ -156,6 +176,25 @@ class ModelBrowserViewModel(
                 }
             }
         }
+    }
+
+    private suspend fun roughContext(): Int = contextLength() ?: InferenceDefaults.FALLBACK_CONTEXT
+
+    /**
+     * The file judged from its GGUF header, at the context size it would load with; null when the
+     * header could not be read, and the download goes ahead as before.
+     */
+    private suspend fun exactAssessment(model: HubModel, assessment: Assessment): Assessment? {
+        val header = (hub.ggufHeader(model.id, assessment.candidate.path) as? HubResult.Success)?.value as? GgufReadResult.Read ?: return null
+        val profile = device()
+        val context = contextLength() ?: AutoContext.pick(header.metadata, profile.usableMemoryBytes)
+        return ModelFit.assess(assessment.candidate.copy(header = header.metadata), profile, context)
+    }
+
+    private fun replaceAssessment(repositoryId: String, exact: Assessment) = mutableState.update { state ->
+        val files = state.files[repositoryId] ?: return@update state
+        val ranked = files.ranked.map { if (it.candidate.path == exact.candidate.path) exact else it }
+        state.copy(files = state.files + (repositoryId to files.copy(ranked = ranked)))
     }
 
     /** Stops a download; the partial file is kept, so downloading again resumes it. */

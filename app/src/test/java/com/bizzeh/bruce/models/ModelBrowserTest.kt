@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -71,10 +73,12 @@ class ModelBrowserTest {
 
     private val templatesJudged = mutableListOf<String>()
 
+    private var usableMemory = 4L shl 30
+
     private fun viewModel(modelsDir: File = temp.newFolder()) = ModelBrowserViewModel(
         hub = HubClient(hub, { allowed }, dispatcher, "Bruce/test"),
         downloader = ModelDownloader(hub, modelsDir, { allowed }, Dispatchers.IO, "Bruce/test"),
-        device = { DeviceProfile(4L shl 30, cpu) },
+        device = { DeviceProfile(usableMemory, cpu) },
         contextLength = { 4096 },
         onDownloaded = { downloaded++ },
         templateSupportsTools = { template, _, _ -> templatesJudged += template; "tools" in template },
@@ -395,14 +399,74 @@ class ModelBrowserTest {
     }
 
     @Test
-    fun oversizedFilesCannotBeDownloaded() {
+    fun theHeaderDecidesAndATooLargeModelIsNotDownloaded() = runTest(dispatcher) {
+        usableMemory = 1000
+        val vm = viewModel()
+
+        vm.download(qwen, storiesAssessment())
+        val refused = vm.state.first { it.downloads.values.any { d -> d.error != null } }.downloads.values.single()
+
+        assertEquals(DownloadError.TOO_LARGE, refused.error)
+        assertEquals(1000L, refused.freeBytes)
+        assertTrue(refused.neededBytes!! > 1000)
+        assertEquals(0, hub.opens)
+        assertTrue(hub.urls.any { "/resolve/" in it })
+    }
+
+    @Test
+    fun aFileThatFitsIsJudgedAgainFromItsHeaderAndDownloaded() = runTest(dispatcher) {
+        val vm = viewModel()
+        hub.treeStatus = 200
+        vm.openRepository(qwen)
+        advanceUntilIdle()
+        val listed = vm.state.value.files.getValue(qwen.id).ranked.first()
+
+        vm.download(qwen, listed)
+        // The fake Hub serves stories260K for every file, so this download then fails verification; the judgement is what counts here.
+        vm.state.first { state -> state.downloads.values.any { it.error != null } }
+
+        val judged = vm.state.value.files.getValue(qwen.id).ranked.single { it.candidate.path == listed.candidate.path }
+        assertTrue("judged from the header", judged.estimate.complete)
+    }
+
+    @Test
+    fun aTooLargeRefusalSaysWhatIsNeeded() {
         val actions = object : BrowseActions {
             override fun setQuery(query: String) = Unit
             override fun search() = Unit
             override fun recommend() = Unit
             override fun setFilters(filters: BrowseFilters) = Unit
             override fun openRepository(model: HubModel) = Unit
-            override fun download(model: HubModel, assessment: Assessment) = error("must not be called")
+            override fun download(model: HubModel, assessment: Assessment) = Unit
+            override fun cancel(repositoryId: String, path: String) = Unit
+        }
+        val refused = DownloadState(0, 100, DownloadError.TOO_LARGE, neededBytes = 3L shl 30, freeBytes = 2L shl 30)
+        compose.setContent {
+            BruceTheme {
+                BrowsePane(
+                    BrowseState(
+                        results = listOf(qwen), listings = listOf(Listing(qwen, null)),
+                        files = mapOf(qwen.id to RepositoryFiles(false, listOf(storiesAssessment()))),
+                        downloads = mapOf(ModelBrowserViewModel.key(qwen.id, "stories260K.gguf") to refused),
+                    ),
+                    actions,
+                )
+            }
+        }
+
+        compose.onNodeWithTag("repo:${qwen.id}").performClick()
+        compose.onNodeWithTag("tooLarge:stories260K.gguf", useUnmergedTree = true).assertTextEquals("Not downloaded: this model needs about 3.00 GB of memory, and about 2.00 GB is free on this phone.")
+    }
+
+    @Test
+    fun filesTooLargeBySizeAloneCanStillBeDownloaded() {
+        val actions = object : BrowseActions {
+            override fun setQuery(query: String) = Unit
+            override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
+            override fun openRepository(model: HubModel) = Unit
+            override fun download(model: HubModel, assessment: Assessment) = Unit
             override fun cancel(repositoryId: String, path: String) = Unit
         }
         val tooBig = storiesAssessment().copy(fit = Fit.DOES_NOT_FIT)
@@ -411,7 +475,7 @@ class ModelBrowserTest {
         }
 
         compose.onNodeWithTag("repo:${qwen.id}").performClick()
-        compose.onNodeWithTag("download:stories260K.gguf").assertIsNotEnabled()
+        compose.onNodeWithTag("download:stories260K.gguf").assertIsEnabled()
     }
 
     private fun storiesAssessment() = ModelFit.assess(
@@ -432,6 +496,8 @@ class ModelBrowserTest {
             urls += url
             return when {
                 "/tree/" in url -> HttpResponse(treeStatus, emptyMap(), if (treeStatus == 200) resource("tree-qwen3-0.6b.json") else ByteArray(0))
+                // A GGUF header read: the start of the stories260K file.
+                "/resolve/" in url -> HttpResponse(206, mapOf("content-range" to "bytes 0-${minOf(maxBytes, stories.size) - 1}/${stories.size}"), stories.copyOf(minOf(maxBytes, stories.size)))
                 else -> HttpResponse(200, emptyMap(), searchBody?.toByteArray() ?: resource("search-expand.json"))
             }
         }

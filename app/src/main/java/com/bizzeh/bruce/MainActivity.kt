@@ -8,7 +8,6 @@ import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.models.AutoContext
-import com.bizzeh.bruce.settings.InferenceDefaults
 import android.util.Log
 import android.content.ActivityNotFoundException
 import com.bizzeh.bruce.chat.Markdown
@@ -138,7 +137,7 @@ class MainActivity : ComponentActivity() {
                 hub = container.hubClient,
                 downloader = container.downloader,
                 device = ::deviceProfile,
-                contextLength = { container.inferenceSettings.defaults.first().contextLength ?: InferenceDefaults.FALLBACK_CONTEXT },
+                contextLength = { container.inferenceSettings.defaults.first().contextLength },
                 onDownloaded = { models.refresh() },
                 templateSupportsTools = container.engine::templateSupportsTools,
             )

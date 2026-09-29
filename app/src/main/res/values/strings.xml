@@ -240,7 +240,7 @@
     <string name="browse_download">Download</string>
     <string name="browse_cancel">Cancel</string>
     <string name="browse_retry">Retry</string>
-    <string name="browse_weights_only">Memory estimate covers the weights only until the model is downloaded.</string>
+    <string name="browse_weights_only">These fits are judged from file size alone. Download checks the file itself first and stops if it cannot fit.</string>
     <string name="hub_error_network_disabled">Allow Hugging Face in Settings → Network to search and download.</string>
     <string name="hub_error_offline">Could not reach Hugging Face. Check the connection.</string>
     <string name="hub_error_rate_limited">Hugging Face is limiting requests. Try again shortly.</string>
@@ -248,6 +248,7 @@
     <string name="hub_error_not_found">Not found on Hugging Face.</string>
     <string name="hub_error_other">Hugging Face returned something unexpected (%1$s).</string>
     <string name="download_error">Download stopped: %1$s</string>
+    <string name="download_too_large">Not downloaded: this model needs about %1$s of memory, and about %2$s is free on this phone.</string>
     <string name="setup_welcome_title">Welcome to Bruce</string>
     <string name="setup_welcome_text">Bruce is a sidekick that runs entirely on this phone. A few choices first. You can change all of them later in Settings.</string>
     <string name="setup_network_title">Network</string>
