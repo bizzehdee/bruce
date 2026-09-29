@@ -474,10 +474,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Pixel 11 with Read settings accepted: Llama 3.2 1B called `get_setting` with `screen_timeout` for "What is my screen timeout set to?" and got "30 seconds" (the phone's value, 30000 ms). Its final answer repeated the raw tool result instead of a sentence, a limit of that model.
   - Depends on: TASK-035, TASK-052
   - Required by: TASK-067
-- [ ] TASK-067: Android settings: change the few Android allows, open the page for the rest
+- [x] TASK-067: Android settings: change the few Android allows, open the page for the rest
   - `set_setting` changes only catalog entries marked changeable, and only those Android lets an app write after the user grants "Modify system settings" (`WRITE_SETTINGS`): screen brightness and auto-brightness, screen timeout, auto-rotate, and sound levels through `AudioManager`. Values are checked against each setting's range. Default state Ask: every change shows a confirmation card with the setting, its current value and the new one. Capability `SETTINGS_WRITE`.
   - Without the grant, the skill's result says so, and Permissions shows "Modify system settings" with a button to Android's page for it.
   - `open_settings_page` opens the Android settings page for any catalog entry (for example Wi-Fi, Bluetooth, mobile data), for the user to change; it changes nothing itself. Default state Accepted.
+  - Done: changeable entries are brightness (1–100%), adaptive brightness, screen timeout (15 s to 30 min, Android's usual steps), auto-rotate and vibrate on touch (all `Settings.System`, need the grant) and the four volumes (AudioManager, no grant). A new resource scope, `PHONE_SETTINGS`, checks the id, the value and the grant before asking, and binds the approval to the exact write; the card names the current and new value. `open_settings_page` starts the catalog entry's Android settings action as a new task. Permissions lists "Modify system settings" with Android's page for it.
+  - Device-tested on the Pixel 11 with the grant given by `appops`: "Set my screen timeout to 60 seconds" showed "Screen timeout: 30 seconds → 1 minute"; Allow once set the phone's value to 60000 ms (restored afterwards). `open_settings_page` is covered by Robolectric tests only: asked to open Wi-Fi settings, Llama 3.2 1B called the wrong skill.
   - Depends on: TASK-038, TASK-041, TASK-066
 - [ ] TASK-068: Approved sites
   - A store of always-allowed sites (host names), in `policy.db`, listed in Settings under Network with Remove. Clear all data removes them.

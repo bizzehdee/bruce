@@ -27,6 +27,10 @@ object AndroidPermissions {
         val info = packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
         val names = info.requestedPermissions.orEmpty()
         return names.mapIndexedNotNull { index, name ->
+            if (name == Manifest.permission.WRITE_SETTINGS) {
+                // A special permission: its grant flag never shows it; Android keeps it apart.
+                return@mapIndexedNotNull HeldPermission(name, name, Settings.System.canWrite(context), PermissionKind.USER_CONTROLLED)
+            }
             if (name == Manifest.permission.POST_NOTIFICATIONS) {
                 // Before Android 13 this is not a permission at all, but notifications can still be switched off.
                 return@mapIndexedNotNull HeldPermission(name, name, NotificationManagerCompat.from(context).areNotificationsEnabled(), PermissionKind.USER_CONTROLLED)
@@ -43,13 +47,12 @@ object AndroidPermissions {
         }
     }
 
-    /** Where the user changes [permission]: the notification page for notifications, Bruce's app page otherwise. */
-    fun settingsIntent(context: Context, permission: HeldPermission): Intent =
-        if (permission.name == Manifest.permission.POST_NOTIFICATIONS) {
-            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-        } else {
-            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
-        }
+    /** Where the user changes [permission]: its own page for notifications and system settings, Bruce's app page otherwise. */
+    fun settingsIntent(context: Context, permission: HeldPermission): Intent = when (permission.name) {
+        Manifest.permission.POST_NOTIFICATIONS -> Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+        Manifest.permission.WRITE_SETTINGS -> Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS, Uri.fromParts("package", context.packageName, null))
+        else -> Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
+    }
 
     private fun granted(info: PackageInfo, index: Int): Boolean =
         (info.requestedPermissionsFlags?.getOrNull(index) ?: 0) and PackageInfo.REQUESTED_PERMISSION_GRANTED != 0

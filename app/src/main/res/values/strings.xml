@@ -82,6 +82,10 @@
     <string name="skill_find_settings_summary">Looks up which phone settings Bruce knows about, such as brightness or Wi-Fi. Reads nothing from the phone.</string>
     <string name="skill_get_setting">Read settings</string>
     <string name="skill_get_setting_summary">Reads the current value of a phone setting, such as screen timeout or whether Bluetooth is on.</string>
+    <string name="skill_set_setting">Change settings</string>
+    <string name="skill_set_setting_summary">Changes brightness, adaptive brightness, screen timeout, auto-rotate, vibrate on touch and volumes. Needs Modify system settings in Permissions for all but volumes.</string>
+    <string name="skill_open_settings_page">Open settings pages</string>
+    <string name="skill_open_settings_page_summary">Opens the phone\'s settings page for a setting Bruce cannot change, such as Wi-Fi, so you can change it.</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
@@ -156,6 +160,8 @@
     <string name="permissions_network_mode">Network mode</string>
     <string name="permission_notifications">Notifications</string>
     <string name="permission_notifications_summary">Lets Bruce tell you when a long reply finishes while you are using another app.</string>
+    <string name="permission_write_settings">Modify system settings</string>
+    <string name="permission_write_settings_summary">Lets the Change settings skill change brightness, screen timeout, auto-rotate and vibrate on touch. Nothing else uses it.</string>
     <string name="permission_internet">Internet</string>
     <string name="permission_internet_summary">Used only as far as the Network mode setting allows. In Offline mode Bruce reaches nothing.</string>
     <string name="permission_local_network">Local network devices</string>
