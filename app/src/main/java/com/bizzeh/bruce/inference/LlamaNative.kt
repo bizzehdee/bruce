@@ -37,6 +37,9 @@ internal interface LlamaApi {
     /** The Vulkan API version of the physical device named [deviceName], or 0 if unknown. */
     fun vulkanDeviceApiVersion(deviceName: String): Int
 
+    /** The PCI vendor ID of the Vulkan physical device named [deviceName], or 0 if unknown. */
+    fun vulkanDeviceVendorId(deviceName: String): Int
+
     /** Features the loaded CPU backend variant was compiled with, as "NAME=value". */
     fun cpuBackendFeatures(): Array<String>
 
@@ -138,6 +141,8 @@ internal object LlamaNative : LlamaApi {
     external override fun deviceMemoryBytes(index: Int): Long
 
     external override fun vulkanDeviceApiVersion(deviceName: String): Int
+
+    external override fun vulkanDeviceVendorId(deviceName: String): Int
 
     external override fun cpuBackendFeatures(): Array<String>
 

@@ -364,6 +364,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Step 2: build `test-backend-ops` and `llama-server` for Android with Bruce's Vulkan build settings and run them on the Pixel; compare `llama-server` output with Bruce's, and record which operations fail.
   - Output: the established cause in `.learnings/gpu-backends-on-test-phones.md`, research provenance for any driver or upstream issue, and a follow-up task if Bruce's build or integration is at fault.
   - Step 2 can freeze the Pixel; the owner reboots it.
+  - Required by: TASK-065
   - Done 2026-09-29: the cause is the Imagination PowerVR driver, as reported upstream for the same GPU (llama.cpp #28214, #28343). Step 1: every `test-backend-ops` case passes on the RX 6750 XT and stories260K matches the reference, so the host `glslc` build and llama.cpp's Vulkan code are sound on a working driver. Step 2: standalone llama.cpp with Bruce's settings reproduces Bruce's wrong output exactly on the Pixel, which rules out Bruce's integration. FLASH_ATTN_EXT fails 2,288 of 3,015 op tests there, and whole-model output varies run to run. Flash attention off plus serialised submissions fixed short outputs, but a longer Qwen3.5 answer still differed from the CPU's. No follow-up for Bruce's build or integration (neither is at fault). Details: `.learnings/gpu-backends-on-test-phones.md`, `research/experiments/vulkan-powervr-2026-09-29`. The phone did not freeze during these runs.
 - [x] TASK-051: Render Markdown in replies
   - Parse replies with commonmark-java (new dependency, BSD-2; approved 2026-09-28, versions and licence checked when added) and draw them in Compose with the app theme: headings, emphasis, inline code, code blocks (monospace, horizontally scrollable), ordered and bulleted lists, quotes, tables, rules. Replies stream, so rendering copes with partial Markdown (an unclosed code block shows as code so far). No web view, no HTML: raw HTML in replies is shown as text.
@@ -458,3 +459,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `ContextLight.of` picks the light from use of the prompt limit; `BruceTheme` provides the colours (separate light and dark shades) through `LocalTrafficLights`, or none when the Appearance switch is off, so the bar keeps its usual colour.
   - Seen on the Pixel 11: green at 968 of 8,192 tokens. Amber and red covered by unit tests only.
   - Depends on: TASK-045
+- [x] TASK-065: Stop offering Vulkan on PowerVR GPUs
+  - Owner decision (2026-09-29), after TASK-050 found the PowerVR driver gives wrong output and can crash the GPU firmware: a Vulkan device whose vendor is Imagination Technologies (PCI vendor ID `0x1010`, all PowerVR GPUs) is not usable, so Settings and Models do not offer Vulkan on such a phone. For now: revisit when llama.cpp or the driver fixes it.
+  - A phone whose saved choice is already Vulkan keeps the choice listed so it can be changed; loading with it fails as "backend unavailable", as for any GPU without a usable device.
+  - Owner, same day: when the CPU is the only backend, Auto is not offered either; a saved Auto shows as CPU, which is what it picks.
+  - Done: `LlamaCppEngine.getCapabilities` asks the device's vendor ID (`vulkanDeviceVendorId`, read with the API version from `vkGetPhysicalDeviceProperties`) along with the 1.2 rule. `BackendSelection.choices` lists Auto only beside a GPU choice; `BackendSelection.shown` maps a saved Auto to CPU in Settings and in a model's settings.
+  - Seen on the Pixel 11: Settings, Backend shows only CPU, selected.
+  - Depends on: TASK-050

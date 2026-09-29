@@ -63,6 +63,10 @@ internal class FakeLlamaApi : LlamaApi {
 
     override fun vulkanDeviceApiVersion(deviceName: String) = vulkanApiVersions[deviceName] ?: 0
 
+    var vulkanVendorIds = mapOf<String, Int>()
+
+    override fun vulkanDeviceVendorId(deviceName: String) = vulkanVendorIds[deviceName] ?: 0
+
     override fun cpuBackendFeatures() = cpuFeatures
 
     var promptResult = 3

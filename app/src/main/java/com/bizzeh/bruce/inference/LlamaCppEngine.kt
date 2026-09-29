@@ -66,11 +66,19 @@ internal class LlamaCppEngine(
                 description = description,
                 type = toDeviceType(llama.deviceType(index)),
                 memoryBytes = llama.deviceMemoryBytes(index),
-                usable = backend != Backend.VULKAN || llama.vulkanDeviceApiVersion(description) >= VULKAN_1_2,
+                usable = backend != Backend.VULKAN || vulkanUsable(description),
             )
         }
         return EngineCapabilities(devices, llama.cpuBackendFeatures().toList())
     }
+
+    /**
+     * ggml needs Vulkan 1.2 on the device, not just the loader. PowerVR GPUs are refused: on the
+     * Pixel 11 their driver gives wrong output and can crash the GPU firmware, with no setting that
+     * makes it reliable (TASK-050, .learnings/gpu-backends-on-test-phones.md).
+     */
+    private fun vulkanUsable(deviceName: String): Boolean =
+        llama.vulkanDeviceApiVersion(deviceName) >= VULKAN_1_2 && llama.vulkanDeviceVendorId(deviceName) != IMAGINATION_VENDOR_ID
 
     override fun getModelInfo(): ModelInfo? = session?.info
 
@@ -345,6 +353,9 @@ internal class LlamaCppEngine(
 
         // VK_MAKE_API_VERSION(0, 1, 2, 0)
         private const val VULKAN_1_2 = (1 shl 22) or (2 shl 12)
+
+        /** Imagination Technologies' PCI vendor ID, which PowerVR GPUs report. */
+        private const val IMAGINATION_VENDOR_ID = 0x1010
 
         private const val GGML_DEVICE_CPU = 0
         private const val GGML_DEVICE_GPU = 1
