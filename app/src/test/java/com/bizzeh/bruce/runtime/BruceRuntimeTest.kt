@@ -239,6 +239,7 @@ class BruceRuntimeTest {
     @Test
     fun anEmptyChatIsMeasuredWithABlankRequestSinceSomeTemplatesNeedOne() = runBlocking {
         val use = runtime().measure(emptyList())!!
+        assertEquals(use.used, runtime().fixedPromptTokens())
 
         assertEquals(listOf(ChatRole.SYSTEM, ChatRole.USER), engine.formatted.last().map { it.role })
         assertEquals(2, use.used)

@@ -39,6 +39,7 @@ import com.bizzeh.bruce.huggingface.HubAccount
 import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.navigation.SubScreen
+import com.bizzeh.bruce.runtime.ContextBudget
 
 data class SettingsState(
     val theme: ThemeSettings = ThemeSettings(),
@@ -53,6 +54,8 @@ data class SettingsState(
     val backends: List<BackendPreference> = BackendPreference.entries,
     val account: HubAccount? = null,
     val signInError: SignInError? = null,
+    /** Tokens every prompt starts with for the loaded model; null with none loaded. */
+    val fixedPromptTokens: Int? = null,
 )
 
 interface SettingsActions {
@@ -173,6 +176,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                     )
                 }
             }
+            TightContextNote(state.inference.contextLength, state.fixedPromptTokens)
             Text(
                 stringResource(R.string.settings_defaults_note),
                 style = MaterialTheme.typography.bodySmall,
@@ -352,4 +356,16 @@ internal object SettingsText {
 
     fun date(millis: Long, locale: java.util.Locale = java.util.Locale.getDefault()): String =
         java.text.DateFormat.getDateTimeInstance(java.text.DateFormat.MEDIUM, java.text.DateFormat.SHORT, locale).format(java.util.Date(millis))
+}
+
+/** Said beside a context length that leaves the chat little room once the fixed prompt is taken (TASK-060). */
+@Composable
+fun TightContextNote(contextLength: Int, fixedPromptTokens: Int?) {
+    if (fixedPromptTokens == null || !ContextBudget.isTight(contextLength, fixedPromptTokens)) return
+    Text(
+        stringResource(R.string.settings_context_tight, fixedPromptTokens, ContextBudget.roomForChat(contextLength, fixedPromptTokens)),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.error,
+        modifier = Modifier.padding(horizontal = 16.dp).testTag("contextTight"),
+    )
 }

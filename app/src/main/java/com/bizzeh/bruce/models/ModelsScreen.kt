@@ -38,6 +38,7 @@ import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.navigation.SubScreen
 import com.bizzeh.bruce.settings.InferenceDefaults
 import com.bizzeh.bruce.settings.SettingsText
+import com.bizzeh.bruce.settings.TightContextNote
 import com.bizzeh.bruce.ui.Format
 import java.io.File
 import java.util.Locale
@@ -60,6 +61,8 @@ fun ModelsScreen(
     startOnHuggingFace: Boolean = false,
     /** Backend choices this phone can use, plus a model's saved one if it is no longer usable. */
     backendChoices: (BackendPreference?) -> List<BackendPreference> = { BackendPreference.entries },
+    /** Tokens every prompt starts with for the loaded model, which a context override must leave room beside. */
+    fixedPromptTokens: Int? = null,
 ) {
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<String?>(null) }
@@ -79,7 +82,7 @@ fun ModelsScreen(
                 if (tab == 1 && browseActions != null) {
                     BrowsePane(browse, browseActions)
                 } else {
-                    Installed(state, actions, cores, backendChoices, expanded, { expanded = it }, { confirmDelete = it })
+                    Installed(state, actions, cores, backendChoices, fixedPromptTokens, expanded, { expanded = it }, { confirmDelete = it })
                 }
             }
         }
@@ -106,6 +109,7 @@ private fun Installed(
     actions: ModelsActions,
     cores: Int,
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
+    fixedPromptTokens: Int?,
     expanded: String?,
     onExpand: (String?) -> Unit,
     onDelete: (String) -> Unit,
@@ -129,6 +133,7 @@ private fun Installed(
             expanded = expanded == model.file.name,
             cores = cores,
             backendChoices = backendChoices,
+            fixedPromptTokens = if (model.file == state.active) fixedPromptTokens else null,
             onToggle = { onExpand(if (expanded == model.file.name) null else model.file.name) },
             actions = actions,
             onDelete = { onDelete(model.file.name) },
@@ -145,6 +150,7 @@ private fun ModelCard(
     expanded: Boolean,
     cores: Int,
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
+    fixedPromptTokens: Int?,
     onToggle: () -> Unit,
     actions: ModelsActions,
     onDelete: () -> Unit,
@@ -194,6 +200,7 @@ private fun ModelCard(
                     text = { it?.let(SettingsText::contextLabel) },
                     tag = "context",
                 ) { actions.setOverrides(model.file, model.overrides.copy(contextLength = it)) }
+                model.overrides.contextLength?.let { TightContextNote(it, fixedPromptTokens) }
                 OverrideChips(
                     label = stringResource(R.string.models_temperature),
                     options = listOf(null) + ModelOverrides.TEMPERATURE_CHOICES,
