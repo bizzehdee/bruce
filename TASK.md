@@ -210,6 +210,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Vision projectors, split-model parts and speculative-decoding draft architectures (eagle3, dflash) are never recommended.
   - Checked on the Pixel 11 against the real Hub (`HubClientOnlineTest`) and on screen.
   - Depends on: TASK-029
+  - Required by: TASK-061
 - [x] TASK-032: Saved conversations
   - Every chat is saved locally (Room) and listed in the drawer, newest first, replacing the placeholder. New chat, resume, rename, archive and delete.
   - Bulk selection: archive or delete several chats at once. Archived chats leave the main list and are reachable from an Archived view, where they can be restored or deleted. Delete asks for confirmation.
@@ -254,7 +255,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - A post-build step fails if `libbruce` imports `socket`, `connect`, `getaddrinfo` and similar; checked against llama.cpp's full `common`, which it rejects.
   - `ToolCallDeviceTest` (manual: needs the model copied onto the phone, `docs/building.md`) passed on the Pixel 11 with Qwen3.5-0.8B Q8_0: own format calls `get_datetime` and `calculate` with both numbers, answers "Austen" without a tool; Bruce's format with its grammar calls `get_datetime`. Full device suite 35/35.
   - Depends on: TASK-024, TASK-033
-  - Required by: TASK-052
+  - Required by: TASK-052, TASK-063
 - [x] TASK-037: Automatic skills
   - Date/time, calculator, battery, device information, storage status, network status; default state Accepted; no Android runtime permissions.
   - Calculator uses a bounded arithmetic parser, never code evaluation.
@@ -415,4 +416,16 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [ ] TASK-060: Warn when a context length leaves little room
   - Settings (Context length) and a model's own settings: when the fixed part of the prompt (system prompt and skills, as measured for the loaded model) leaves less than a set share of the chosen context for the conversation, say so beside the choice.
   - Depends on: TASK-045
+- [ ] TASK-061: Mark files without skill support in the model browser
+  - Some GGUFs carry a stripped chat template with no tool support (seen 2026-09-29: hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF, the top search result, has a 348-character template; bartowski's copy keeps Meta's). With it Bruce falls back to its own format, which small models rarely use.
+  - Read each listed file's chat template from what Hugging Face reports (research first: which API field, and whether it needs one request per repository); mark files whose template cannot express tool calls "Limited skill use", and rank them below otherwise equal files that can.
+  - Depends on: TASK-031
+- [ ] TASK-062: Note limited skill use on installed models
+  - In Models, a model whose chat template cannot express tool calls shows that skills work poorly with it, and where the browser knows a copy of the same model with a full template, suggests it.
+  - Depends on: TASK-061
+- [ ] TASK-063: Official tool templates for known model families
+  - When a file's own template has no tool support but the model belongs to a known family (Llama 3.1 and 3.2 first), use that family's official tool template instead.
+  - Open before starting: the licence of each template Bruce would ship (Meta's may count as Llama Materials under the Llama 3.2 licence) and how a family is recognised reliably (architecture, tokenizer's special tokens).
+  - Measure with the TASK-033 cases: Llama 3.2 1B scored 15/36 in Bruce's format and 18/36 in its own on the host.
+  - Depends on: TASK-036
 
