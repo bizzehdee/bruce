@@ -1,5 +1,7 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.remote.ServerClient
+import com.bizzeh.bruce.remote.RemoteServerStore
 import com.bizzeh.bruce.skills.web.SearchKeyRepository
 import com.bizzeh.bruce.skills.web.BraveSearch
 import com.bizzeh.bruce.policy.SiteRule
@@ -244,6 +246,12 @@ class AppContainer(private val context: Context) {
         SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
     }
 
+    val remoteServers: RemoteServerStore by lazy { RemoteServerStore(context.settingsDataStore, KeystoreTokenCipher(SERVER_KEY_ALIAS)) }
+
+    val serverClient: ServerClient by lazy {
+        ServerClient(transport, Dispatchers.IO, userAgent) { networkSettings.mode.first() != NetworkMode.OFFLINE }
+    }
+
     val searchKey: SearchKeyRepository by lazy { SearchKeyRepository(context.settingsDataStore, KeystoreTokenCipher(SEARCH_KEY_ALIAS)) }
 
     /** The requirements not met now, as the Skills screen shows them. */
@@ -295,6 +303,7 @@ class AppContainer(private val context: Context) {
 
         /** Its own Keystore key, apart from the Hugging Face token's. */
         private const val SEARCH_KEY_ALIAS = "bruce.brave_search_key"
+        private const val SERVER_KEY_ALIAS = "bruce.server_keys"
 
         /** Tool-call markup a skill result must not be able to imitate (ADR 0001 formats). */
         private val RESERVED_MARKERS = listOf("<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>", "<|tool_call_start|>", "<|tool_call_end|>")

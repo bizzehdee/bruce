@@ -1,5 +1,8 @@
 package com.bizzeh.bruce.models
 
+import com.bizzeh.bruce.remote.ServersActions
+import com.bizzeh.bruce.remote.ServersState
+import com.bizzeh.bruce.remote.ServersPane
 import androidx.compose.material3.LinearProgressIndicator
 import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.FlowRow
@@ -75,6 +78,8 @@ fun ModelsScreen(
     backendChoices: (BackendPreference?) -> List<BackendPreference> = { BackendPreference.entries },
     /** Tokens every prompt starts with for the loaded model, which a context override must leave room beside. */
     fixedPromptTokens: Int? = null,
+    servers: ServersState = ServersState(),
+    serversActions: ServersActions? = null,
 ) {
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<String?>(null) }
@@ -85,13 +90,18 @@ fun ModelsScreen(
                 TabRow(selectedTabIndex = tab) {
                     Tab(tab == 0, { tab = 0 }, text = { Text(stringResource(R.string.models_tab_installed)) }, modifier = Modifier.testTag("tab:installed"))
                     Tab(tab == 1, { tab = 1 }, text = { Text(stringResource(R.string.models_tab_huggingface)) }, modifier = Modifier.testTag("tab:huggingface"))
+                    if (serversActions != null) {
+                        Tab(tab == 2, { tab = 2 }, text = { Text(stringResource(R.string.models_tab_servers)) }, modifier = Modifier.testTag("tab:servers"))
+                    }
                 }
             }
             Column(
                 modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                if (tab == 1 && browseActions != null) {
+                if (tab == 2 && serversActions != null) {
+                    ServersPane(servers, serversActions)
+                } else if (tab == 1 && browseActions != null) {
                     BrowsePane(browse, browseActions)
                 } else {
                     val findCopies = browseActions?.let { { model: InstalledModel -> tab = 1; actions.findCopies(TemplateFinder.searchFor(model)) } }

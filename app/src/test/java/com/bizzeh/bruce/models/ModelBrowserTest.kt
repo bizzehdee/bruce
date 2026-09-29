@@ -513,6 +513,57 @@ class ModelBrowserTest {
     }
 
     @Test
+    fun theServersTabListsServersAndAddsOne() {
+        val calls = mutableListOf<String>()
+        val servers = object : com.bizzeh.bruce.remote.ServersActions {
+            override fun add(name: String, address: String, key: String) { calls += "add $name $address $key" }
+            override fun check(server: com.bizzeh.bruce.remote.RemoteServer) { calls += "check ${server.id}" }
+            override fun remove(server: com.bizzeh.bruce.remote.RemoteServer) { calls += "remove ${server.id}" }
+        }
+        val browse = object : BrowseActions {
+            override fun setQuery(query: String) = Unit
+            override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
+            override fun openRepository(model: HubModel) = Unit
+            override fun download(model: HubModel, assessment: Assessment) = Unit
+            override fun cancel(repositoryId: String, path: String) = Unit
+        }
+        val models = object : ModelsActions {
+            override fun choose(file: java.io.File) = Unit
+            override fun importModel() = Unit
+            override fun delete(file: java.io.File) = Unit
+            override fun setOverrides(file: java.io.File, overrides: ModelOverrides) = Unit
+            override fun findCopies(query: String) = Unit
+            override fun getTemplate(file: java.io.File) = Unit
+            override fun removeTemplate(file: java.io.File) = Unit
+        }
+        val home = com.bizzeh.bruce.remote.RemoteServer("a", "Home", "http://192.168.1.20:8080", true, false)
+        val cloud = com.bizzeh.bruce.remote.RemoteServer("b", "Cloud", "https://llm.example.com", false, true)
+        val state = com.bizzeh.bruce.remote.ServersState(
+            listOf(home, cloud),
+            mapOf("a" to com.bizzeh.bruce.remote.ServerStatus.Ready(listOf("qwen3-8b")), "b" to com.bizzeh.bruce.remote.ServerStatus.Failed("The server refused the API key.")),
+            addError = "Unencrypted http:// is only allowed on your local network. Use https:// for this server.",
+        )
+        compose.setContent { BruceTheme { ModelsScreen(ModelsState(), models, {}, browseActions = browse, servers = state, serversActions = servers) } }
+
+        compose.onNodeWithTag("tab:servers").performClick()
+        compose.onNodeWithText("Models: qwen3-8b").assertExists()
+        compose.onNodeWithTag("plain:a", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("plain:b", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithText("The server refused the API key.").assertExists()
+        compose.onNodeWithText("only allowed on your local network", substring = true).assertExists()
+        compose.onNodeWithTag("check:b").performClick()
+        compose.onNodeWithTag("remove:a").performClick()
+        compose.onNodeWithTag("serverName").performTextInput("Box")
+        compose.onNodeWithTag("serverAddress").performTextInput("10.0.0.2:8080")
+        compose.onNodeWithTag("serverKey").performTextInput("k1")
+        compose.onNodeWithTag("addServer").performClick()
+
+        assertEquals(listOf("check b", "remove a", "add Box 10.0.0.2:8080 k1"), calls)
+    }
+
+    @Test
     fun modelsScreenCanOpenOnTheHuggingFaceTab() {
         val actions = object : BrowseActions {
             override fun setQuery(query: String) = Unit

@@ -1,5 +1,8 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.remote.RemoteServer
+import com.bizzeh.bruce.remote.ServersActions
+import com.bizzeh.bruce.remote.ServersViewModel
 import com.bizzeh.bruce.chat.VoiceText
 import com.bizzeh.bruce.chat.VoiceState
 import com.bizzeh.bruce.chat.VoiceRecogniser
@@ -162,6 +165,7 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
+    private val servers: ServersViewModel by viewModels { factory { ServersViewModel(container.remoteServers, container.serverClient) } }
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates, container.unmetRequirements) } }
     private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
@@ -277,7 +281,15 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(Unit) { models.refresh() }
         val known by capabilities.collectAsState()
         val fixed = fixedPromptTokens()
-        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace, { backendChoices(known, it) }, fixed)
+        val serverState by servers.state.collectAsState()
+        val serverActions = remember {
+            object : ServersActions {
+                override fun add(name: String, address: String, key: String) = servers.add(name, address, key)
+                override fun check(server: RemoteServer) = servers.check(server)
+                override fun remove(server: RemoteServer) = servers.remove(server)
+            }
+        }
+        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace, { backendChoices(known, it) }, fixed, serverState, serverActions)
     }
 
     @androidx.compose.runtime.Composable

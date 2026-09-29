@@ -457,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Remote model servers can be added and checked (TASK-075); chatting through one follows. |
 | 2026-09-29 | Changed | Web search done with Brave's LLM Context endpoint; results saved with the chat (owner's choice, against a storage clause in Brave's terms) (TASK-070). |
 | 2026-09-29 | Changed | Web pages skill done (TASK-069). |
 | 2026-09-29 | Changed | Approved sites done (TASK-068). |

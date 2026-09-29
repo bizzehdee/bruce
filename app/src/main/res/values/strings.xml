@@ -180,7 +180,7 @@
     <string name="permission_internet">Internet</string>
     <string name="permission_internet_summary">Used only as far as the Network mode setting allows. In Offline mode Bruce reaches nothing.</string>
     <string name="permission_local_network">Local network devices</string>
-    <string name="permission_local_network_summary">Android grants this by itself to apps that use the internet and were built for Android 16 or earlier. Bruce does not need it; you can turn it off.</string>
+    <string name="permission_local_network_summary">Android grants this by itself to apps that use the internet and were built for Android 16 or earlier. Bruce needs it only to reach a model server on your local network; otherwise you can turn it off.</string>
     <string name="permission_network_state">Network status</string>
     <string name="permission_network_state_summary">Lets the network status skill say whether the phone is online and how. It reads no addresses.</string>
     <string name="models_import">Import</string>
@@ -313,4 +313,18 @@
     <string name="markdown_image_loading">Loading…</string>
     <string name="markdown_image_not_allowed">Images from the web load only in the Any site network mode.</string>
     <string name="markdown_image_failed">The image could not be loaded.</string>
+    <string name="models_tab_servers">Servers</string>
+    <string name="servers_explained">Run models on your own llama.cpp server, or any server with an OpenAI-compatible API, instead of on this phone. Your chats are sent to the server you add; skills still run on the phone.</string>
+    <string name="servers_plain_warning">Not encrypted: others on this network could read your chats.</string>
+    <string name="servers_unchecked">Not checked yet.</string>
+    <string name="servers_checking">Checking…</string>
+    <string name="servers_models">Models: %1$s</string>
+    <string name="servers_no_models">Connected, but the server lists no models.</string>
+    <string name="servers_check">Check</string>
+    <string name="servers_remove">Remove</string>
+    <string name="servers_add">Add a server</string>
+    <string name="servers_name">Name (optional)</string>
+    <string name="servers_address">Address</string>
+    <string name="servers_key">API key (optional)</string>
+    <string name="servers_add_button">Add and check</string>
 </resources>
