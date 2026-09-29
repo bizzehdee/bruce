@@ -450,6 +450,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Downloads are no longer blocked by the size-only fit (owner): Download reads the file's header first and stops only if the model really cannot fit. Gemma 4's memory is estimated as llama.cpp uses it. |
 | 2026-09-29 | Changed | Voice input done, on-device only (TASK-074). |
 | 2026-09-29 | Changed | The default context size is Auto: the biggest that leaves the phone room for other apps, within what the model was trained for (TASK-073 done). |
 | 2026-09-29 | Changed | Models show their expected RAM against the phone's (TASK-072 done). |

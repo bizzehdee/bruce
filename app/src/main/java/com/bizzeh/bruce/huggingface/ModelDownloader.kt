@@ -19,6 +19,8 @@ sealed interface DownloadResult {
 
 enum class DownloadError {
     NETWORK_DISABLED,
+    /** The file's header shows the model cannot fit in this phone's memory; nothing was downloaded. */
+    TOO_LARGE,
     /** The connection failed; the partial file is kept, so trying again resumes. */
     INTERRUPTED,
     UNAUTHORISED,

@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.models
 
+import com.bizzeh.bruce.huggingface.DownloadError
 import androidx.compose.foundation.layout.FlowRow
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -145,9 +146,16 @@ private fun Files(model: HubModel, state: BrowseState, actions: BrowseActions) {
             when {
                 download == null -> OutlinedButton(
                     onClick = { actions.download(model, assessment) },
-                    enabled = assessment.supported && assessment.fit != Fit.DOES_NOT_FIT,
+                    // Not blocked by the size-only judgement: the download reads the header first and stops if it cannot fit.
+                    enabled = assessment.supported,
                     modifier = Modifier.testTag("download:$path"),
                 ) { Text(stringResource(R.string.browse_download)) }
+                download.error == DownloadError.TOO_LARGE -> Text(
+                    stringResource(R.string.download_too_large, Format.bytes(download.neededBytes ?: 0), Format.bytes(download.freeBytes ?: 0)),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.testTag("tooLarge:$path"),
+                )
                 download.error != null -> Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(stringResource(R.string.download_error, download.error.name), color = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
                     OutlinedButton(onClick = { actions.download(model, assessment) }, modifier = Modifier.testTag("retry:$path")) { Text(stringResource(R.string.browse_retry)) }
