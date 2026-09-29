@@ -86,7 +86,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Memory estimation** — Estimate a model's RAM requirement and compare it with
   usable device RAM before loading. `done`
 - **Advanced hardware tuning** — User control over backend, threads, context and
-  similar settings; optional backend benchmarking. `planned`
+  similar settings; optional backend benchmarking. `done` (Settings and each
+  model's settings; benchmarks in Diagnostics)
 
 ### Models
 
@@ -96,7 +97,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   RAM it is expected to use at its context size, as a share of the phone's RAM.
   Context sizes run from 2K to 64K; by default Bruce picks the biggest that
   leaves the phone room for other apps, within what the model was trained for.
-  `planned`
+  `done`
 - **Remote model servers** — Connect to the user's own (or any) llama.cpp server,
   or another OpenAI-compatible one, so the model runs there instead of on the
   phone. HTTPS anywhere, plain HTTP only on the local network with a warning; an
@@ -131,8 +132,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   chat template's tool format (llama.cpp's chat code), with Bruce's own format and
   a grammar for models without tool support (ADR 0001). Skills are described in
   full while there are few, then as a one-line list with a skill's full
-  description loaded when it is used, once a prompt budget is passed. `in progress`
-  (tool calling works in chat; memory and the prompt budget are still to come)
+  description loaded when it is used, once a prompt budget is passed. `done`
+  (the one-line list was measured and dropped: full definitions stay, TASK-054)
 - **Agent loop** — Multi-step tool use, bounded by maximum tool calls, maximum
   execution time and resource limits; supports cancellation and structured
   errors. `done` (5 tool calls and 3 minutes per turn)
@@ -145,15 +146,15 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   chat: new messages push the oldest out. When the context overflows, the oldest
   messages are dropped (the system prompt and skills are kept). Optional
   auto-summarise, off by default: when on, older messages are summarised once use
-  reaches a user-chosen threshold (85, 90, 95 or 100%). `planned`
+  reaches a user-chosen threshold (85, 90, 95 or 100%). `done`
 - **Memory** — Facts Bruce remembers across chats. Setting: Off (default), On
   per model (each model has its own memory) or On globally (one memory shared by
   all models). Bruce saves facts automatically; the user reviews and deletes them
-  in a Memory screen. Local knowledge follows with Local RAG. `planned`
+  in a Memory screen. Local knowledge follows with Local RAG. `done`
 - **Local RAG** — Text extraction, chunking, local embeddings, local index,
   retrieval. Basic in Free, advanced in `planned`
 - **Untrusted content handling** — Content from files, web pages and tool results
-  is passed to the model as data and never grants authority. `planned`
+  is passed to the model as data and never grants authority. `done`
 
 ### Policy
 
@@ -184,10 +185,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   granted folder's real children. `done`
 - **Exact-operation confirmation** — For skills in the Ask state, confirmation binds tool ID, arguments,
   target resources, timestamp and policy version; execution is refused if the
-  operation differs. `planned`
+  operation differs. `done`
 - **Structured denials** — Tool failures return a code (`UNKNOWN_TOOL`,
   `CAPABILITY_DISABLED`, `RESOURCE_OUTSIDE_SCOPE`, and the others in the spec),
-  message, `user_can_change`, `retryable`. `planned`
+  message, `user_can_change`, `retryable`. `done`
 - **Network modes** — Offline only, Hugging Face only, approved domains, general
   internet. A fresh install starts in offline only. `done`
 
@@ -211,7 +212,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   values. Change the few Android lets an app change (such as brightness, screen
   timeout, auto-rotate and sound levels) once the user grants "Modify system
   settings", asking before each change; for any other setting, open the right
-  Android settings page so the user changes it. `planned`
+  Android settings page so the user changes it. `done`
 - **Approved sites** — In the Approved sites network mode, the first request to a
   new site shows a card in the chat: Allow once, Always allow this site, or Don't
   allow. Always-allowed sites are listed in Settings, where they can be removed.
@@ -290,15 +291,16 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   install-time ones (internet, network status) are shown as always granted, with
   the internet row pointing to Network mode.
 - **Main screens** — Chat, Conversations, Models, Model browser, Downloads,
-  Skills, Permissions (reached from Settings), Memory, Settings. `planned`
+  Skills, Permissions (reached from Settings), Memory, Settings. `done`
+  (downloads show in the model browser rather than a screen of their own)
 - **Confirmation UI** — Shows the exact operation and its targets before
-  approval. `planned`
+  approval. `done`
 - **Response notifications** — When a reply finishes while Bruce is not on
   screen, a notification says so; tapping it opens the chat. Generation continues
   while the app is in the background. Needs the notification permission,
-  requested when first needed. `planned`
+  requested when first needed. `done`
 - **Voice** — Speech-to-text, text-to-speech, voice conversations; local where
-  practical. `planned`
+  practical. `in progress` (speech-to-text done, TASK-074)
 - **Vision** — Local multimodal models for images, documents, screenshots.
   `planned`
 - **Advanced automation and background workflows** — Multi-step and multi-file tasks,
@@ -307,7 +309,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   tier. Dropped: every feature is free. `dropped`
 - **Data ownership controls** — Export and delete conversations, delete memories
   and models, remove permissions, clear local data, disable networking.
-  `planned`
+  `in progress` (all but conversation export)
 - **Theme** — Material 3 theme with a Bruce brand palette (tan and white).
   User setting: System (default), Light, Dark. On Android 12 and later the user
   may turn on wallpaper-based dynamic colour; it is off by default.
@@ -457,6 +459,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Statuses brought up to date (model manager, context, memory, confirmations, denials, untrusted content, Android settings, notifications, screens, hardware tuning marked done); tasks created for the features not yet started (TASK-078 to TASK-101). |
 | 2026-09-29 | Changed | Remote model servers done: chat through a server's model, chosen from the Servers tab or the switcher (TASK-076, TASK-077). |
 | 2026-09-29 | Changed | Remote model servers can be added and checked (TASK-075); chatting through one follows. |
 | 2026-09-29 | Changed | Web search done with Brave's LLM Context endpoint; results saved with the chat (owner's choice, against a storage clause in Brave's terms) (TASK-070). |

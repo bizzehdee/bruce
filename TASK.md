@@ -143,7 +143,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Files without a published SHA-256 are refused. The partial file is named after the SHA-256, so resuming only continues the same content. Verified on a phone with a real Hub download (`ModelDownloaderOnlineTest`).
   - Not yet: surviving the app going to the background (WorkManager); interrupted downloads resume on the next attempt instead.
   - Depends on: TASK-020
-  - Required by: TASK-029
+  - Required by: TASK-029, TASK-083
 - [x] TASK-024: Basic chat screen
   - Chat layout in the style of Claude, ChatGPT and Gemini: scrolling message list, composer at the bottom, replies streamed from the loaded model, stop button.
   - Uses the model's chat template; no tools, agent loop or saved conversations yet.
@@ -181,14 +181,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - OAuth client ID `f702d81d-7b00-4ae1-9a39-8304fff2b9c5` (public). The OAuth app must be public (no client secret) and allow the `gated-repos` scope.
   - Owner set token lifetime to 1 week and added `gated-repos` (2026-09-28).
   - Real sign-in verified on the Xperia 1 II (2026-09-28): encrypted token, expiry and username stored after the token exchange and Hub username lookup.
-  - Required by: TASK-030
+  - Required by: TASK-030, TASK-079
   - Depends on: TASK-020, TASK-026
 - [x] TASK-029: Model management screen: Hugging Face browse and download
   - Search, fit-ranked results and download progress with resume, inside the Model management screen.
   - Files rank quantised before 16/32-bit (BF16 was being recommended first). The memory estimate covers weights only until download. Downloads run while the app is open; background downloads (WorkManager) are not done.
   - Checked live on the XZ Premium: search, repository files ranked with fit and speed.
   - Depends on: TASK-020, TASK-022, TASK-023, TASK-027
-  - Required by: TASK-031
+  - Required by: TASK-031, TASK-083
 - [x] TASK-030: First-launch setup wizard
   - Shown once on first launch: welcome, network mode, notification permission, and getting a first model (import, or download when the network mode allows it).
   - Every choice is also in Settings (notifications: Android's app settings until the Permissions screen, TASK-038); the wizard writes the same settings.
@@ -220,7 +220,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: Room 2.8.5 with KSP 2.3.12 (owner approved, 2026-09-28); schema exported to `app/schemas`. Each turn is saved when it ends, to the chat it began in, even if the user has switched chats. The title is the start of the first message (about 40 characters, cut at a word). Long press selects; Rename appears for one selection. Archived chats open in the Archived view by selection only. Clear all data also deletes chats.
   - Device-tested on the Pixel 11: chat, new chat, reopen from the drawer, rename, archive, restore, delete with confirmation.
   - Depends on: TASK-024, TASK-025, TASK-026
-  - Required by: TASK-035, TASK-045, TASK-047, TASK-048, TASK-053
+  - Required by: TASK-035, TASK-045, TASK-047, TASK-048, TASK-053, TASK-078, TASK-100
 - [x] TASK-033: Tool-calling format for small models
   - Experiment on both phones with small models (1–4B) to choose how the model asks for a tool: the model's own chat-template tool format, grammar-constrained JSON (llama.cpp GBNF), or both with a fallback.
   - Measure call accuracy (right tool, valid arguments) over a fixed set of prompts for the automatic skills, and the speed cost of grammar constraint.
@@ -279,6 +279,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/SkillsScreen.kt`, `SkillsViewModel.kt`, `SkillText.kt`): skills are listed in registration order with their own user-facing name and summary (a skill's description is written for the model); a skill without one shows its id and description. The store still refuses Accepted for a high-risk skill without the warning.
   - Device-tested on the Pixel 11: Date and time set to Declined stayed Declined after restarting Bruce, and "What time is it?" was answered without the skill; set back to Accepted.
   - Depends on: TASK-035, TASK-037, TASK-038
+  - Required by: TASK-091, TASK-092
 - [x] TASK-040: Scoped grants with the Storage Access Framework
   - The user grants a file or folder through the system picker; the grant binds the capability to that scope. Persisted URI permissions survive restarts; revoking releases them.
   - Grants last until revoked (no durations; the skill states replace them).
@@ -287,27 +288,27 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`policy/Grants.kt`, `AndroidDocumentAccess.kt`): grants in `policy.db` version 2 (migration adds the table; every grant change bumps the policy version). Paths are resolved by walking the folder's real children through the provider, so `..`, `.`, empty segments, backslashes, control characters, leading `/`, over-long paths and ambiguous duplicate names are refused, never interpreted. A grant Android no longer holds is shown as lost and refused. Clear all data releases every grant.
   - Device-tested on the Pixel 11: Add folder → Documents → Allow shows the grant with read and write access persisted by Android; it survives a restart; Revoke removes it and Android's access. `PolicyMigrationTest` passes on the Pixel. Walking a real provider's children is exercised first by TASK-042's device test.
   - Depends on: TASK-035, TASK-038
-  - Required by: TASK-042, TASK-043, TASK-044, TASK-049
+  - Required by: TASK-042, TASK-043, TASK-044, TASK-049, TASK-085, TASK-096
 - [x] TASK-041: Exact-operation confirmation
   - For skills in the Ask state: inline confirmation card in chat showing the tool, arguments and exact targets, with approve and deny.
   - Approval binds tool ID, arguments, target resources, timestamp and policy version; the executor refuses anything that differs from what was approved.
   - Done: `PolicyEngine.confirm` decides the approved request again and allows it only if it is still in the Ask state with the same policy version (no skill state or grant changed) and the same resolved targets, within 15 minutes of asking (a default added for safety: a stale card cannot run). `declined` returns `USER_DENIED`. Other calls in the same model step get a "waiting for approval" result so the conversation stays well formed. The chat card shows the skill, its targets and arguments, with Allow once and Don't allow; the model then carries on with the result. Approvals live only in memory: a saved chat reopened later shows the card as no longer waiting.
   - Device-tested on the Pixel 11 with Date and time set to Ask: the card appeared, Allow once ran the skill and the model answered with the correct time.
   - Depends on: TASK-053
-  - Required by: TASK-043, TASK-044
+  - Required by: TASK-043, TASK-044, TASK-085, TASK-086, TASK-088, TASK-089, TASK-090, TASK-094
 - [x] TASK-042: File read skill
   - Read granted files and list granted folders; default state Declined.
   - Plain-text formats only at first; size limits on what is read into the prompt; content passed to the model as untrusted data.
   - Done (`skills/files/FileSkills.kt`): `list_files` and `read_file`, both Declined by default. Reading accepts a text MIME type (or none, or `application/octet-stream`) and then only valid UTF-8 without NUL bytes; at most 16 KB is read and a cut is reported; the result goes through `ToolOutput` (4,000 characters, untrusted-data envelope). Listings are sorted, folders end in `/`, at most 200 entries. When a file skill is offered, the system prompt names the user's grants (or says there are none); grant names are capped at 80 characters.
   - Device-tested on the Pixel 11 with Documents granted: `read_file` returned the pushed file's lines and `list_files` listed the folder through Android's real document provider. Qwen3.5-0.8B only called the skills when named; a larger model is needed for reliable use.
   - Depends on: TASK-040, TASK-052
-  - Required by: TASK-059
+  - Required by: TASK-059, TASK-084
 - [x] TASK-043: File create and write skills
   - Create a file and write or replace a file's contents in a granted folder; default state Ask, confirmed per operation through TASK-041.
   - Done: `create_file` (never replaces; the parent must be a folder inside a grant) and `write_file` (replaces the whole text of an existing plain-text file only, so photos and documents cannot be overwritten), both Ask. Content is at most 15,000 characters, inside the 16 KB arguments limit. Writes truncate first.
   - Device-tested on the Pixel 11 by `FileSkillsDeviceTest` (manual; needs Documents granted): create, read, replace with shorter text, read and list through Android's real provider. Qwen3.5-0.8B would not call `create_file` from the chat (it claimed to have written the file without calling it, and nothing was written), so the chat path relies on TASK-041's device test of the approval card.
   - Depends on: TASK-040, TASK-041
-  - Required by: TASK-059
+  - Required by: TASK-059, TASK-085
 - [x] TASK-044: File delete skill
   - Delete a single file in a granted folder; flagged high risk; default state Ask.
   - Done: `delete_file` removes one file inside a granted folder; never a folder, never a granted file itself (it was granted to be used). High risk and Ask, so Accepted needs the warning (TASK-039) and every use otherwise goes through the approval card.
@@ -349,6 +350,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`notifications` package, `chat/TurnObserver.kt`): each turn starts `ReplyService`, a `shortService` foreground service on Android 14 and later (a plain one before; research/sources/android-fgs-types-2026-09-29), with a silent "Bruce is writing a reply" notification, and stops it when the turn ends; at Android's time limit the turn is stopped and what was written kept. A reply finished while no Bruce screen is showing is announced on the Replies channel; tapping it opens that chat. The permission is asked once, on the first message sent, if Android 13+ needs it and it has not been asked for a reply before; refused, replies still complete.
   - Device-tested on the XZ Premium (Android 13): the permission prompt came with the first message; with Home pressed mid-reply the service ran in the foreground, the reply finished, "Your reply is ready" was posted and the service stopped; tapping it opened the chat with the reply; a reply with the chat on screen posted nothing. The `shortService` type itself (Android 14+) was not device-tested: the Pixel 11 was not connected.
   - Depends on: TASK-032
+  - Required by: TASK-094, TASK-095
 - [x] TASK-049: Folder instructions (AGENTS.md and .agents/)
   - When Bruce works in a granted folder, check the folder root for `AGENTS.md` and the `.agents/` directory. Only those locations; nested `AGENTS.md` files and other tools' files (`CLAUDE.md`, `GEMINI.md`) are not read.
   - The first time Bruce finds instructions in a folder, show them and ask whether to follow them for that folder. The answer is stored against the files' content hash; any change asks again. Declined instructions are ignored.
@@ -374,6 +376,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`chat/Markdown.kt`, `MarkdownText.kt`, `RemoteImages.kt`): commonmark-java 0.30.0 with the GFM tables extension (BSD-2-Clause, no further dependencies, no advisories; `research/sources/commonmark-java-2026-09-29`), listed under open-source licences. Replies are parsed into Bruce's own block model and drawn with the theme; tables and code blocks scroll sideways. Links other than http and https show as text. An image always shows its description and address first and loads only when the user taps Load image (secure default, 2026-09-29: an address the model writes, for example after reading an untrusted file, could otherwise send chat text to any server unasked). Only https images load, up to 4 MB, scaled to at most 2048 px, with no cookies or credentials. Only Any site allows them: Approved sites has no list of sites yet.
   - Device-tested on the Xperia 1 II with Qwen3.5-0.8B: bold headings, bullet lists, a table and a Python code block rendered from live replies. The link dialog and image loading are covered by Robolectric tests, not tried on a phone. `MainActivityDeviceTest` (6 tests) passes on the Xperia after declining skills in its setup (see `.learnings/device-tests-that-wipe-app-data.md`).
   - Depends on: TASK-024, TASK-028
+  - Required by: TASK-080
 - [x] TASK-052: Runtime and agent loop
   - `BruceRuntime` offers enabled skills to the model, parses its tool requests with TASK-036, runs them through the policy engine (TASK-035) and feeds results back until the model answers.
   - Skills are described in full. The switch to a one-line list past a prompt budget moved to TASK-054 (owner, 2026-09-28): six skills stay well under any budget, and the list form was not measured with the models' own formats.
@@ -383,7 +386,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Tested with the real registry, policy engine and skill states (in-memory Room) and a scripted model; on the Pixel 11 with Qwen3.5-0.8B the runtime called a clock skill and answered with its time (`ToolCallDeviceTest`, manual).
   - Not wired into the chat screen yet (TASK-053).
   - Depends on: TASK-034, TASK-035, TASK-036
-  - Required by: TASK-037, TASK-042, TASK-049, TASK-053, TASK-054, TASK-057, TASK-056
+  - Required by: TASK-037, TASK-042, TASK-049, TASK-053, TASK-054, TASK-057, TASK-056, TASK-095
 - [x] TASK-053: Tool calls in the chat
   - Tool calls, results and denials appear inline in the conversation (collapsed, with the skill's name and outcome) and are saved with it; a resumed chat shows them again.
   - Room schema version 2 with a tested migration from version 1.
@@ -428,6 +431,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `BruceRuntime.offer()` leaves out skills scoped to granted files while nothing is granted and adds one line pointing the user to Settings, Permissions; with grants, the skills and the granted names are offered as before.
   - Measured on the Xperia 1 II instead of the Pixel 11 (the Pixel has Documents granted from earlier tests): an empty chat with Qwen3.5-0.8B and default skill states went from 1,198 to 834 tokens (create, write and delete are offered by default; list and read are off).
   - Depends on: TASK-042, TASK-043, TASK-044
+  - Required by: TASK-097
 - [x] TASK-060: Warn when a context length leaves little room
   - Settings (Context length) and a model's own settings: when the fixed part of the prompt (system prompt and skills, as measured for the loaded model) leaves less than a set share of the chosen context for the conversation, say so beside the choice.
   - Done: `ContextBudget` holds the reply reserve and the room a context leaves for the chat, shared with the runtime's fitting. The fixed part is the loaded model's empty-chat prompt (`BruceRuntime.fixedPromptTokens`), measured again when the loaded model changes. "Tight" means less than a quarter of the context left for the conversation; Settings shows the note under Context length, and Models under the active model's own context setting, with both numbers.
@@ -488,7 +492,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`policy/Sites.kt`): `policy.db` version 4 adds `approved_sites`. A web skill (`ResourceScope.WEB`) names the host a call reaches (`Skill.site`, from `WebAddress.host`: http or https, no user name or password in the address). The policy engine refuses web calls in Offline and Hugging Face modes (`NETWORK_DISABLED`), allows them in Any site mode, and in Approved sites mode asks about a site not yet approved even when the skill is Accepted. "Always allow" is a flag the chat sets on the pending approval; the engine records the site only after the approval checks out against the exact request. Settings, Network lists approved sites with Remove (shown in Approved sites mode, or when any are approved); Clear all data empties the list.
   - `PolicyMigrationTest` (three upgrades, 1→4) passes on the Pixel 11. The card's Always allow button is covered by Robolectric tests; it is tried on a phone with TASK-069's first web skill.
   - Depends on: TASK-028, TASK-035, TASK-041
-  - Required by: TASK-069, TASK-070
+  - Required by: TASK-069, TASK-070, TASK-087
 - [x] TASK-069: Web page skill (GET only)
   - `fetch_page`: an http or https address; GET only, no cookies, no stored credentials, no request body; redirects followed only where the network mode allows each host (TASK-068), never from https to http. Capped download size and time.
   - HTML becomes plain text (headings, paragraphs, lists, link texts with their addresses), without scripts, styles or hidden content; other text types as they are; anything else refused. The result goes through `ToolOutput` as untrusted data, capped in length, with the final address.
@@ -526,6 +530,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Where the phone has no on-device recogniser, the button is not shown. The microphone permission is asked on first use and listed in Permissions.
   - Done (`chat/VoiceInput.kt`): the microphone sits at the end of the message box; while listening the box says "Listening…" and the button stops it. Recognised text joins what is already typed. Listening stops when Bruce leaves the screen. Only error codes are logged, never what was said.
   - Device-tested on the Pixel 11 (Android 17): the first tap asked for the microphone ("Only this time" chosen), the box showed "Listening…", and speech in the room came out as text in the message box, not sent. Not checked on the Xperias, which likely have no on-device recogniser.
+  - Required by: TASK-080, TASK-081, TASK-101
 - [x] TASK-075: Remote model servers: adding and checking a server
   - Owner (2026-09-29): the user can connect Bruce to their own (or any) llama.cpp server, so the model need not run on the phone.
   - Settings, Models: add a server with a name, its address and an optional API key (llama-server `--api-key`), stored encrypted with the Android Keystore like the Hugging Face token. Bruce checks it with the OpenAI-compatible `GET /v1/models` and lists the models it offers.
@@ -544,10 +549,103 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`runtime/ChatBackend.kt`, `remote/RemoteBackend.kt`): streamed `POST /v1/chat/completions` with the conversation as OpenAI messages and the skills as tools, `enable_thinking: false` through `chat_template_kwargs`, reasoning shown as the chat shows thinking, tool calls gathered from their streamed pieces. Context size from llama-server's `/props` (`default_generation_settings.n_ctx`), otherwise 8K is assumed; token counts are estimated from text length and corrected by the server's usage reports. Stop closes the connection. `RuntimeError.SERVER_UNREACHABLE` becomes its own chat error.
   - Tested against a recorded llama-server stream (Qwen3.5-0.8B calling a tool); tried on a phone with TASK-077, which lets the user pick a server's model.
   - Depends on: TASK-075
+  - Required by: TASK-082
 - [x] TASK-077: Remote model servers: choosing one
   - Owner (2026-09-29): the Models screen gains a Servers section; each server's models appear alongside installed models and in the chat title's model switcher. One model, on the phone or on a server, is active at a time; the choice survives restarts.
   - A server model shows where it runs and no RAM figure.
   - Done: the active-model state carries a `RemoteChoice` (server and model); choosing one unloads the phone's model and is remembered, and launch restores it while the server still exists (otherwise the phone's model as before). The Servers tab lists each server's models with Use / In use; servers are checked when Bruce starts, so the chat title's switcher lists their models under the phone's (named "model (server)"). The runtime takes the container's remote backend while a server model is active; Stop closes the server connection. Memory is kept per server model when memory is per model.
   - Device-tested on the Pixel 11 against llama-server on this machine (Qwen3.5-0.8B, `--api-key`, through `adb reverse`): Use switched the chat to the server (context 8,192 from `/props`); `RemoteChatDeviceTest` (manual) ran "What time is it?" twice: the server called `get_datetime`, the skill ran on the phone, and the server answered "It's 22:30." One earlier run failed on the second request with "server unreachable" before failure types were logged; not reproduced since. A password manager offered to save the API key field, as it would any password field.
   - Depends on: TASK-075, TASK-076
-
+  - Required by: TASK-098
+- [ ] TASK-078: Export conversations
+  - Settings, Data: export one chat or all chats to a file the user picks (Storage Access Framework create-document); nothing leaves the phone otherwise.
+  - Includes messages, tool calls and results, summaries and the model used; never tokens, keys or memory unless chosen.
+  - Open question (plan): export format. Candidates: Markdown (readable), JSON (re-importable), or both.
+  - Depends on: TASK-032
+- [ ] TASK-079: Hugging Face sign-in with a pasted token
+  - Settings, Network: paste an access token as an alternative to OAuth; it is checked with the Hub's whoami call, then sealed with the Android Keystore like the OAuth token. The field is never logged or shown again.
+  - Depends on: TASK-028
+- [ ] TASK-080: Read replies aloud (text-to-speech)
+  - A speaker button on each reply reads it with Android's `TextToSpeech`, Markdown stripped, code blocks skipped. Stop ends it.
+  - Open question: on-device voices only (as with voice input, TASK-074), or any engine the phone has set up.
+  - Depends on: TASK-051, TASK-074
+  - Required by: TASK-081
+- [ ] TASK-081: Voice conversation mode
+  - A hands-free mode: listen (TASK-074), send when speech ends, read the reply aloud (TASK-080), listen again; ends on Stop, on leaving the screen or after silence.
+  - Confirmation cards still need a tap; they are never approved by voice.
+  - Open question: the silence timeout, and whether it starts from the microphone button (long press) or a separate button.
+  - Depends on: TASK-074, TASK-080
+- [ ] TASK-082: Image input for vision models
+  - Attach a photo or a screenshot (Android photo picker, no storage permission) to a message; passed to models that can see, through llama.cpp's multimodal library (`mtmd`) on the phone and as OpenAI image content to a remote server.
+  - The attach button shows only when the active model can take images. Images are stored with the chat on the phone.
+  - Research first: `mtmd` on Android (build, memory, speed on the test phones), recorded in research/experiments.
+  - Depends on: TASK-076, TASK-083
+- [ ] TASK-083: Vision projector files
+  - Vision models need a projector file (`mmproj-*.gguf`) next to the model. The model browser offers the matching projector with a vision model and downloads both; the Models screen shows a model as vision-capable when its projector is installed; the memory estimate includes the projector.
+  - Depends on: TASK-023, TASK-029
+  - Required by: TASK-082
+- [ ] TASK-084: Documents as input (PDF and text)
+  - Attach a PDF or text file to a message; its text is extracted on the phone and passed as untrusted data, within the context budget.
+  - Open question: PDF text extraction library (Android's `PdfRenderer` gives images only), or render pages to images for vision models (TASK-082).
+  - Depends on: TASK-042
+- [ ] TASK-085: File move and rename skill
+  - `move_file` and `rename_file` inside granted folders only (source and destination both in a grant); Ask by default; confirmed per operation.
+  - Depends on: TASK-040, TASK-041, TASK-043
+- [ ] TASK-086: Calendar skill
+  - List events, and create, change and delete events through the Calendar Provider; reading and changing are separate skills, both off by default; changes Ask. The calendar permissions are asked when first enabled.
+  - Open question: whether create can use the system's insert screen (no write permission; the user saves it) instead of writing directly.
+  - Depends on: TASK-041
+- [ ] TASK-087: Share, open a link, open an app
+  - `share_text` (the system share sheet, the user picks the target), `open_url` (the browser; only http and https) and `open_app` (by name, from the launcher list). All need the user to see the result; `open_url` follows the network mode's site rules.
+  - Depends on: TASK-068
+- [ ] TASK-088: Clipboard write skill
+  - `copy_to_clipboard` puts text on the clipboard, Ask by default, marked sensitive where Android 13+ allows so it is not previewed.
+  - Clipboard reading is not included: Android limits it to the app in focus, and it would expose other apps' data.
+  - Depends on: TASK-041
+- [ ] TASK-089: Messages and calls
+  - Open question before building: Google Play restricts the SMS and call-log permissions to default handlers. Option A: open the messaging or phone app with the text or number filled in (no permission, the user sends). Option B: send directly (needs a Play declaration and is likely refused).
+  - Depends on: TASK-041
+- [ ] TASK-090: Notifications skill
+  - Open question before building: which one the plan means. A: Bruce posts a notification the user asked for (a note to self). B: Bruce reads the phone's notifications (a notification-listener service the user enables in system settings; high risk, other apps' private data).
+  - Depends on: TASK-041
+- [ ] TASK-091: Location skill
+  - `get_location`: approximate by default, precise only if the user grants it; off by default and listed with the privacy-sensitive skills; asked when first enabled. One reading per call, no tracking.
+  - Depends on: TASK-039
+- [ ] TASK-092: Contacts skill
+  - `find_contact` by name, returning only the fields asked for (number, email); off by default; the contacts permission is asked when first enabled; results passed as untrusted data.
+  - Depends on: TASK-039
+- [ ] TASK-093: Camera and microphone skills
+  - `take_photo` opens the camera for the user to take the picture (an explicit action each time, as the plan requires); `record_audio` records only while the user holds a button. The result is attached to the chat.
+  - Depends on: TASK-082
+- [ ] TASK-094: Reminders
+  - `set_reminder` schedules a notification at a time the user gave (exact alarms where allowed, otherwise inexact with a note); listed and cancelled in a Reminders list; survive a restart.
+  - Open question: exact alarm permission (`SCHEDULE_EXACT_ALARM` needs the user to allow it on Android 14+), or accept inexact timing.
+  - Depends on: TASK-041, TASK-048
+  - Required by: TASK-095
+- [ ] TASK-095: Scheduled tasks
+  - The user schedules a prompt to run later or repeatedly (WorkManager); the reply arrives as a notification and a chat. Skills in the Ask state wait for the user rather than run unattended.
+  - Open question: whether scheduled runs may load a model in the background (memory and battery cost) or only run while charging.
+  - Depends on: TASK-048, TASK-052, TASK-094
+- [ ] TASK-096: Local RAG: index granted files
+  - Extract text from granted files (TASK-084's formats), split into chunks, embed with a local embedding model and store the vectors on the phone; the index updates when grants change.
+  - Open question (plan): which embedding model. Research candidates first (size, languages, speed on the test phones) and record them.
+  - Depends on: TASK-040, TASK-084
+  - Required by: TASK-097
+- [ ] TASK-097: Local RAG: search skill
+  - `search_my_files` returns the best-matching chunks with their file path; results are untrusted data; offered only when something is indexed.
+  - Depends on: TASK-059, TASK-096
+- [ ] TASK-098: Model profiles and routing
+  - Named profiles (Main, Fast, Coding, Vision), each a model with its settings; the user picks one per chat. Automatic routing (choosing a profile per request) follows only after the profiles are used.
+  - Open question: switching models on the phone costs a reload (seconds and RAM); whether routing is limited to remote servers and a single phone model.
+  - Depends on: TASK-077
+- [ ] TASK-099: Default assistant
+  - Before building: confirm the Android requirements (voice-interaction service, assistant role) against current documentation, as the plan requires, and record them.
+  - Bruce can be chosen as the digital assistant app and opens a new chat from the assistant gesture; no wake word.
+  - Open question (plan): milestone.
+- [ ] TASK-100: Share to Bruce
+  - Bruce appears in the share sheet for text, links and (with TASK-082) images; shared content starts a new chat as untrusted data with the user's request still to type.
+  - Depends on: TASK-032
+- [ ] TASK-101: Quick Settings tile, widget and shortcuts
+  - A Quick Settings tile and launcher shortcuts for New chat and Voice; a home-screen widget that opens a new chat.
+  - Open question: whether the widget shows anything (last reply) or is only a button.
+  - Depends on: TASK-074
