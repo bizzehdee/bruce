@@ -502,9 +502,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Owner (2026-09-29): context choices 2K, 4K, 8K, 16K, 24K, 32K, 48K and 64K, in Settings and in each model's settings.
   - Done: `InferenceDefaults.CONTEXT_CHOICES`; both chip rows scroll sideways, and ActiveModel still caps a choice at the model's trained context.
   - Required by: TASK-072, TASK-073
-- [ ] TASK-072: RAM use in model settings
+- [x] TASK-072: RAM use in model settings
   - Owner (2026-09-29): on the Models screen, each model shows how much RAM it is expected to use (weights plus the KV cache for its context size), updated as the user picks another context size, with a bar showing that as a share of the phone's total RAM.
   - The number is the existing memory estimate (`ModelMemory`); where the file does not declare its attention shape, the bar shows the weights only and says the context's share is unknown.
+  - Done: every model card shows "Expected RAM: X (N% of phone RAM)", a bar of that share (red when the estimate is not in the comfortable band) and "Model X + <context> context Y". Picking a context size recomputes it (capped at the model's trained context, as loading is).
+  - Seen on the Pixel 11: Llama 3.2 1B at 32K, 1.75 GB (15% of 11.37 GB), 770.3 MB + 1.00 GB; switched to 8K, 1.00 GB (9%), 256 MB of context; set back to 32K.
   - Depends on: TASK-071
 - [ ] TASK-073: Default context size from the phone and the model
   - Owner (2026-09-29): instead of always 2K, the default is the biggest size that fits without making the phone unusable for other apps: the largest choice whose memory estimate is in the comfortable band (at most 80% of the RAM free when the model loads, `ModelFit.TIGHT_SHARE`), and no larger than the model's trained context. At least 2K.

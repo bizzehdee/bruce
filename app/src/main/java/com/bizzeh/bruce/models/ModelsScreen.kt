@@ -1,5 +1,7 @@
 package com.bizzeh.bruce.models
 
+import androidx.compose.material3.LinearProgressIndicator
+import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.FlowRow
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -148,6 +150,7 @@ private fun Installed(
             fixedPromptTokens = if (model.file == state.active) fixedPromptTokens else null,
             onFindCopies = findCopies?.let { { it(model) } },
             templateStatus = state.templates[model.file.name],
+            totalMemoryBytes = state.totalMemoryBytes,
             onToggle = { onExpand(if (expanded == model.file.name) null else model.file.name) },
             actions = actions,
             onDelete = { onDelete(model.file.name) },
@@ -167,6 +170,7 @@ private fun ModelCard(
     fixedPromptTokens: Int?,
     onFindCopies: (() -> Unit)?,
     templateStatus: TemplateStatus?,
+    totalMemoryBytes: Long,
     onToggle: () -> Unit,
     actions: ModelsActions,
     onDelete: () -> Unit,
@@ -188,6 +192,7 @@ private fun ModelCard(
                     AssistChip(onClick = onToggle, label = { Text(stringResource(ModelsText.speedLabel(assessment.speed)) + " · " + ModelsText.speed(assessment)) })
                 }
             }
+            RamUse(model, totalMemoryBytes)
             if (model.skills == false) {
                 Text(
                     stringResource(R.string.limited_skills),
@@ -287,6 +292,24 @@ private fun <T> OverrideChips(label: String, options: List<T?>, selected: T?, te
     }
 }
 
+/** Expected RAM at the model's context size, as a bar of the phone's RAM; it changes as the context size does. */
+@Composable
+private fun RamUse(model: InstalledModel, totalMemoryBytes: Long) {
+    val ram = ModelsText.ram(model.assessment.estimate, totalMemoryBytes)
+    val warn = model.assessment.fit != Fit.FITS
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.testTag("ram:${model.file.name}")) {
+        Text(ram.headline, style = MaterialTheme.typography.bodyMedium)
+        ram.share?.let { share ->
+            LinearProgressIndicator(
+                progress = { share.coerceIn(0f, 1f) },
+                color = if (warn) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth().testTag("ramBar:${model.file.name}"),
+            )
+        }
+        Text(ram.breakdown, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
 internal object ModelsText {
     @StringRes
     fun templateStatus(status: TemplateStatus?): Int? = when (status) {
@@ -319,6 +342,22 @@ internal object ModelsText {
     /** Above 100 tokens per second the estimate is far outside what was measured, so it is not shown exactly. */
     fun speed(assessment: Assessment): String =
         if (assessment.expectedTokensPerSecond >= 100) "100+ tok/s" else String.format(Locale.ROOT, "~%.0f tok/s", assessment.expectedTokensPerSecond)
+
+    /**
+     * The model's expected RAM at its context size and its share of the phone's RAM (0 to 1, or
+     * null when the phone's RAM is unknown). [breakdown] splits weights from the context's cache,
+     * or says the cache is unknown when the file does not declare its shape.
+     */
+    data class RamUse(val headline: String, val breakdown: String, val share: Float?)
+
+    fun ram(estimate: MemoryEstimate, totalMemoryBytes: Long): RamUse {
+        val share = if (totalMemoryBytes > 0) (estimate.totalBytes.toDouble() / totalMemoryBytes).toFloat() else null
+        val percent = share?.let { " (${(it * 100).roundToInt()}% of ${Format.bytes(totalMemoryBytes)})" }.orEmpty()
+        val context = SettingsText.contextLabel(estimate.contextLength)
+        val breakdown = estimate.kvCacheBytes?.let { "Model ${Format.bytes(estimate.weightsBytes)} + $context context ${Format.bytes(it)}" }
+            ?: "Model ${Format.bytes(estimate.weightsBytes)}; the file does not say how much the context adds"
+        return RamUse("Expected RAM: ${Format.bytes(estimate.totalBytes)}$percent", breakdown, share)
+    }
 
     fun details(model: InstalledModel): List<String> {
         val metadata = model.metadata ?: return listOf("Not a readable GGUF file.")

@@ -21,7 +21,8 @@ enum class SpeedBand {
 }
 
 /** The phone a model would run on. */
-data class DeviceProfile(val usableMemoryBytes: Long, val cpu: CpuFeatures)
+/** [totalMemoryBytes] is the phone's RAM, for showing a model's share of it; 0 when unknown. */
+data class DeviceProfile(val usableMemoryBytes: Long, val cpu: CpuFeatures, val totalMemoryBytes: Long = 0)
 
 /** A model file offered for download, with its GGUF header when it has been read. */
 data class Candidate(

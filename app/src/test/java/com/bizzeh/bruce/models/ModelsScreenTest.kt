@@ -144,6 +144,22 @@ class ModelsScreenTest {
     }
 
     @Test
+    fun eachModelShowsItsExpectedRamAgainstThePhones() {
+        show(ModelsState(models = listOf(stories), totalMemoryBytes = 8L shl 30))
+
+        compose.onNodeWithText("Expected RAM:", substring = true).assertIsDisplayed()
+        compose.onNodeWithTag("ramBar:stories260K.gguf", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun withoutThePhonesRamThereIsNoBar() {
+        show(ModelsState(models = listOf(stories)))
+
+        compose.onNodeWithText("Expected RAM:", substring = true).assertIsDisplayed()
+        compose.onNodeWithTag("ramBar:stories260K.gguf", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
     fun activeModelCannotBeChosenAgain() {
         show(ModelsState(models = listOf(stories), active = stories.file))
 

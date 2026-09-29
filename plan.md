@@ -450,6 +450,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Models show their expected RAM against the phone's (TASK-072 done). |
 | 2026-09-29 | Added | Voice input through Android's on-device recogniser only; RAM use per model with a bar against the phone's RAM; context sizes up to 64K; a default context picked from the phone and the model. |
 | 2026-09-29 | Changed | Skill defaults (owner): settings, battery, device and storage skills start off; file skills are locked off until something is granted, and network status while the network mode is Offline. Locked skills show why on the Skills screen and are never offered. |
 | 2026-09-29 | Changed | Tool definitions reach the model on one line instead of indented, and three skill descriptions are shorter (owner): the Pixel's empty-chat prompt with Llama 3.2 1B drops by about a fifth, measured with no loss of tool-call accuracy. |
