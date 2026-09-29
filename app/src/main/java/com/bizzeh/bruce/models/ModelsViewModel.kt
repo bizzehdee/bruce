@@ -27,6 +27,8 @@ data class InstalledModel(
     val metadata: GgufMetadata?,
     val assessment: Assessment,
     val overrides: ModelOverrides,
+    /** False when the file's chat template cannot express tool calls, null when unknown (TASK-062). */
+    val skills: Boolean? = null,
 )
 
 data class ModelsState(
@@ -46,6 +48,8 @@ class ModelsViewModel(
     private val importModel: suspend (Uri) -> ImportResult,
     private val device: () -> DeviceProfile,
     private val ioDispatcher: CoroutineDispatcher,
+    /** InferenceEngine.templateSupportsTools; a file holds no BOS/EOS text, only token ids, so those are not given. */
+    private val templateSupportsTools: (template: String, bosToken: String?, eosToken: String?) -> Boolean? = { _, _, _ -> null },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ModelsState())
     val state: StateFlow<ModelsState> = mutableState.asStateFlow()
@@ -107,7 +111,8 @@ class ModelsViewModel(
             // The same cap ActiveModel applies when loading, so the estimate matches reality.
             val requested = overrides.loadConfig(defaults).contextLength
             val contextLength = metadata?.contextLength?.takeIf { it in 1 until requested }?.toInt() ?: requested
-            InstalledModel(file, candidate.sizeBytes, metadata, ModelFit.assess(candidate, profile, contextLength), overrides)
+            val skills = metadata?.chatTemplate?.let { template -> withContext(ioDispatcher) { templateSupportsTools(template, null, null) } }
+            InstalledModel(file, candidate.sizeBytes, metadata, ModelFit.assess(candidate, profile, contextLength), overrides, skills)
         }
         mutableState.update { it.copy(models = models) }
     }

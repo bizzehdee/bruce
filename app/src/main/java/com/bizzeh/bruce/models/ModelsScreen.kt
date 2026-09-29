@@ -48,6 +48,9 @@ interface ModelsActions {
     fun importModel()
     fun delete(file: File)
     fun setOverrides(file: File, overrides: ModelOverrides)
+
+    /** Searches Hugging Face for [query] on the browser tab, where copies without skill support are marked. */
+    fun findCopies(query: String)
 }
 
 @Composable
@@ -82,7 +85,8 @@ fun ModelsScreen(
                 if (tab == 1 && browseActions != null) {
                     BrowsePane(browse, browseActions)
                 } else {
-                    Installed(state, actions, cores, backendChoices, fixedPromptTokens, expanded, { expanded = it }, { confirmDelete = it })
+                    val findCopies = browseActions?.let { { model: InstalledModel -> tab = 1; actions.findCopies(ModelsText.copySearch(model)) } }
+                    Installed(state, actions, cores, backendChoices, fixedPromptTokens, findCopies, expanded, { expanded = it }, { confirmDelete = it })
                 }
             }
         }
@@ -110,6 +114,7 @@ private fun Installed(
     cores: Int,
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
     fixedPromptTokens: Int?,
+    findCopies: ((InstalledModel) -> Unit)?,
     expanded: String?,
     onExpand: (String?) -> Unit,
     onDelete: (String) -> Unit,
@@ -134,6 +139,7 @@ private fun Installed(
             cores = cores,
             backendChoices = backendChoices,
             fixedPromptTokens = if (model.file == state.active) fixedPromptTokens else null,
+            onFindCopies = findCopies?.let { { it(model) } },
             onToggle = { onExpand(if (expanded == model.file.name) null else model.file.name) },
             actions = actions,
             onDelete = { onDelete(model.file.name) },
@@ -151,6 +157,7 @@ private fun ModelCard(
     cores: Int,
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
     fixedPromptTokens: Int?,
+    onFindCopies: (() -> Unit)?,
     onToggle: () -> Unit,
     actions: ModelsActions,
     onDelete: () -> Unit,
@@ -170,6 +177,17 @@ private fun ModelCard(
                 AssistChip(onClick = onToggle, label = { Text(stringResource(ModelsText.fitLabel(assessment))) }, modifier = Modifier.testTag("fit:${model.file.name}"))
                 if (assessment.supported) {
                     AssistChip(onClick = onToggle, label = { Text(stringResource(ModelsText.speedLabel(assessment.speed)) + " · " + ModelsText.speed(assessment)) })
+                }
+            }
+            if (model.skills == false) {
+                Text(
+                    stringResource(R.string.limited_skills),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.testTag("limitedSkills:${model.file.name}"),
+                )
+                onFindCopies?.let {
+                    TextButton(onClick = it, modifier = Modifier.testTag("findCopies:${model.file.name}")) { Text(stringResource(R.string.models_find_copies)) }
                 }
             }
             if (expanded) {
@@ -237,6 +255,10 @@ private fun <T> OverrideChips(label: String, options: List<T?>, selected: T?, te
 }
 
 internal object ModelsText {
+    /** A Hub search for other copies of [model]: its declared name, spaced as repository names are. */
+    fun copySearch(model: InstalledModel): String =
+        (model.metadata?.name?.takeIf { it.isNotBlank() } ?: model.file.nameWithoutExtension).trim().replace(Regex("\\s+"), "-")
+
     fun summary(model: InstalledModel): String = listOfNotNull(
         Format.bytes(model.sizeBytes),
         model.assessment.quantisation,

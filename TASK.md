@@ -427,8 +427,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: the search already expands `gguf`, which carries each repository's `chat_template`, `bos_token` and `eos_token` (research/sources/hf-hub-api-2026-09-29-chat-template); no extra requests. Each distinct template is judged once by llama.cpp's own check, with no model loaded (`InferenceEngine.templateSupportsTools`, native `templateSupportsTools`), off the main thread. Listings without support show "Limited skill use" and sort after the others in their rank; unknown templates are not marked. Templates over 64 KB are not judged.
   - Device-tested on the Pixel 11 against the live Hub: searching "llama-3.2-1b-instruct" put both hugging-quants copies, lmstudio-community, FuseChat and one featherless copy last, each marked; `TemplateCheckDeviceTest` runs the native check.
   - Depends on: TASK-031
-- [ ] TASK-062: Note limited skill use on installed models
+- [x] TASK-062: Note limited skill use on installed models
   - In Models, a model whose chat template cannot express tool calls shows that skills work poorly with it, and where the browser knows a copy of the same model with a full template, suggests it.
+  - Done: the GGUF reader keeps `tokenizer.chat_template` (skipped, not an error, past 64 KB); Models judges it with the same llama.cpp check, without BOS/EOS text since a file holds only token ids. A model without support shows "Limited Skill Use: This model's chat template has no tool support and will not use skills" (owner's wording, shared with the browser label) and "Find a copy with skills", which searches the Hugging Face tab for the model's declared name, where TASK-061 marks the copies.
+  - Device-tested: the Pixel 11's hugging-quants Llama 3.2 1B shows the note; on the Xperia 1 II bartowski's Llama 3.2 1B, Qwen2.5-1.5B and Qwen3.5-0.8B do not (so the check works without BOS/EOS text).
   - Depends on: TASK-061
 - [ ] TASK-063: Official tool templates for known model families
   - When a file's own template has no tool support but the model belongs to a known family (Llama 3.1 and 3.2 first), use that family's official tool template instead.
