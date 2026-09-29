@@ -97,6 +97,14 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
                         Text(model.id, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                         if (model.gated) Text(stringResource(R.string.browse_gated), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
                     }
+                    if (listing.skills == false) {
+                        Text(
+                            stringResource(R.string.browse_limited_skills),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.testTag("limitedSkills:${model.id}"),
+                        )
+                    }
                     Text(BrowseText.summary(model), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     listing.best?.let { best ->
                         Text(

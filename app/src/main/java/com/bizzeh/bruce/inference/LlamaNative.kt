@@ -66,6 +66,9 @@ internal interface LlamaApi {
     /** A GBNF grammar for Bruce's own tool-call format over the tools in the JSON request, or null. */
     fun toolCallGrammar(request: ByteArray): ByteArray?
 
+    /** 1 if a chat template can express tool calls, 0 if not, -1 if it cannot be read. Needs no model. */
+    fun templateSupportsTools(templateUtf8: ByteArray, bosUtf8: ByteArray, eosUtf8: ByteArray): Int
+
     /** How many tokens [textUtf8] is for [model], as a prompt: special tokens parsed, BOS added. */
     fun countTokens(model: Long, textUtf8: ByteArray): Int
 
@@ -152,6 +155,8 @@ internal object LlamaNative : LlamaApi {
     external override fun parseChat(request: ByteArray): ByteArray?
 
     external override fun toolCallGrammar(request: ByteArray): ByteArray?
+
+    external override fun templateSupportsTools(templateUtf8: ByteArray, bosUtf8: ByteArray, eosUtf8: ByteArray): Int
 
     external override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean): Int
 

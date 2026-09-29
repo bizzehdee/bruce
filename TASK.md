@@ -421,9 +421,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `ContextBudget` holds the reply reserve and the room a context leaves for the chat, shared with the runtime's fitting. The fixed part is the loaded model's empty-chat prompt (`BruceRuntime.fixedPromptTokens`), measured again when the loaded model changes. "Tight" means less than a quarter of the context left for the conversation; Settings shows the note under Context length, and Models under the active model's own context setting, with both numbers.
   - Not seen on a phone: with the Pixel's Llama 3.2 file (968 fixed tokens) no choice is tight, as expected; screen tests cover the note.
   - Depends on: TASK-045
-- [ ] TASK-061: Mark files without skill support in the model browser
+- [x] TASK-061: Mark files without skill support in the model browser
   - Some GGUFs carry a stripped chat template with no tool support (seen 2026-09-29: hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF, the top search result, has a 348-character template; bartowski's copy keeps Meta's). With it Bruce falls back to its own format, which small models rarely use.
   - Read each listed file's chat template from what Hugging Face reports (research first: which API field, and whether it needs one request per repository); mark files whose template cannot express tool calls "Limited skill use", and rank them below otherwise equal files that can.
+  - Done: the search already expands `gguf`, which carries each repository's `chat_template`, `bos_token` and `eos_token` (research/sources/hf-hub-api-2026-09-29-chat-template); no extra requests. Each distinct template is judged once by llama.cpp's own check, with no model loaded (`InferenceEngine.templateSupportsTools`, native `templateSupportsTools`), off the main thread. Listings without support show "Limited skill use" and sort after the others in their rank; unknown templates are not marked. Templates over 64 KB are not judged.
+  - Device-tested on the Pixel 11 against the live Hub: searching "llama-3.2-1b-instruct" put both hugging-quants copies, lmstudio-community, FuseChat and one featherless copy last, each marked; `TemplateCheckDeviceTest` runs the native check.
   - Depends on: TASK-031
 - [ ] TASK-062: Note limited skill use on installed models
   - In Models, a model whose chat template cannot express tool calls shows that skills work poorly with it, and where the browser knows a copy of the same model with a full template, suggests it.

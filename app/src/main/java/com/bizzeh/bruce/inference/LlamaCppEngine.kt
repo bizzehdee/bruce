@@ -165,6 +165,13 @@ internal class LlamaCppEngine(
         return ToolGrammar.bruceFormat(String(gbnf, Charsets.UTF_8))
     }
 
+    override fun templateSupportsTools(template: String, bosToken: String?, eosToken: String?): Boolean? =
+        when (llama.templateSupportsTools(template.toByteArray(Charsets.UTF_8), bosToken.orEmpty().toByteArray(Charsets.UTF_8), eosToken.orEmpty().toByteArray(Charsets.UTF_8))) {
+            1 -> true
+            0 -> false
+            else -> null
+        }
+
     private fun messageJson(message: ToolChatMessage): JSONObject = JSONObject()
         .put("role", message.role.wireName)
         .put("content", message.content)

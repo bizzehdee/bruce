@@ -511,6 +511,7 @@ class BruceRuntimeTest {
         override fun parseReply(format: ToolFormat, text: String, partial: Boolean): ParsedReply? = current?.parsed
 
         override fun bruceToolGrammar(tools: List<ToolDefinition>): ToolGrammar = bruceGrammar
+        override fun templateSupportsTools(template: String, bosToken: String?, eosToken: String?): Boolean? = error("not used")
 
         /** Prompts are counted as one token per message they were formatted from. */
         var contextLength = 1_000_000

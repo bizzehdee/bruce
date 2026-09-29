@@ -10,12 +10,15 @@ import com.bizzeh.bruce.huggingface.HubFile
 import com.bizzeh.bruce.huggingface.HubModel
 import com.bizzeh.bruce.huggingface.HubResult
 import com.bizzeh.bruce.huggingface.ModelDownloader
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /** A download in progress or finished badly; keyed by "repository/path". */
 data class DownloadState(val downloadedBytes: Long, val totalBytes: Long, val error: DownloadError? = null) {
@@ -51,10 +54,17 @@ class ModelBrowserViewModel(
     private val device: () -> DeviceProfile,
     private val contextLength: suspend () -> Int,
     private val onDownloaded: suspend () -> Unit,
+    /** Whether a chat template can express tool calls (InferenceEngine.templateSupportsTools); null if unknown. */
+    private val templateSupportsTools: (template: String, bosToken: String?, eosToken: String?) -> Boolean? = { _, _, _ -> null },
+    /** Judging templates parses them, off the main thread. */
+    private val checkDispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(BrowseState())
     val state: StateFlow<BrowseState> = mutableState.asStateFlow()
     private val downloadJobs = mutableMapOf<String, Job>()
+
+    /** Many repositories share a template, and judging one parses it. */
+    private val skillSupport = mutableMapOf<Triple<String, String?, String?>, Boolean?>()
 
     fun setQuery(query: String) {
         mutableState.update { it.copy(query = query) }
@@ -101,9 +111,15 @@ class ModelBrowserViewModel(
 
     private suspend fun relist() {
         val state = mutableState.value
-        val listings = Recommendations.listings(state.results, state.filters, device(), contextLength(), state.recommended)
+        val judged = withContext(checkDispatcher) {
+            state.results.associate { model -> model.id to model.chatTemplate?.let { skills(it, model.bosToken, model.eosToken) } }
+        }
+        val listings = Recommendations.listings(state.results, state.filters, device(), contextLength(), state.recommended) { judged[it.id] }
         mutableState.update { it.copy(listings = listings) }
     }
+
+    private fun skills(template: String, bos: String?, eos: String?): Boolean? =
+        synchronized(skillSupport) { skillSupport.getOrPut(Triple(template, bos, eos)) { templateSupportsTools(template, bos, eos) } }
 
     /** Lists and ranks a repository's GGUF files the first time it is opened. */
     fun openRepository(model: HubModel) {

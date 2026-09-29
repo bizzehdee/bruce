@@ -39,8 +39,28 @@ class HubClientTest {
                 parameterCount = 26_895_998_464,
                 contextLength = 262_144,
             ),
-            model,
+            model.copy(chatTemplate = null, bosToken = null, eosToken = null),
         )
+        assertTrue("the archived response carries the template", model.chatTemplate!!.isNotEmpty())
+    }
+
+    @Test
+    fun searchKeepsTheReportedChatTemplateUnlessItIsHuge() = runTest(dispatcher) {
+        transport.respond(
+            200,
+            """[
+              {"id":"a/tools","gguf":{"chat_template":"{{ tools }}","bos_token":"<s>","eos_token":"</s>"}},
+              {"id":"b/huge","gguf":{"chat_template":"${"x".repeat(70_000)}"}},
+              {"id":"c/blank","gguf":{"chat_template":"","bos_token":"","eos_token":""}}
+            ]""",
+        )
+
+        val models = client.search("x").value()
+
+        assertEquals(Triple("{{ tools }}", "<s>", "</s>"), Triple(models[0].chatTemplate, models[0].bosToken, models[0].eosToken))
+        assertNull(models[1].chatTemplate)
+        assertNull(models[2].chatTemplate)
+        assertNull(models[2].bosToken)
     }
 
     @Test

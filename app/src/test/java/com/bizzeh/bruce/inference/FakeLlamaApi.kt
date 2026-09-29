@@ -92,6 +92,9 @@ internal class FakeLlamaApi : LlamaApi {
 
     var lastReuse: Boolean? = null
 
+    var templateAnswer = 1
+    override fun templateSupportsTools(templateUtf8: ByteArray, bosUtf8: ByteArray, eosUtf8: ByteArray): Int = templateAnswer
+
     override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean): Int {
         lastPrompt = promptUtf8
         lastReuse = reuse
