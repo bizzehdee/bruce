@@ -174,7 +174,7 @@ class SettingsScreenTest {
         show(SettingsState(network = NetworkMode.GENERAL, signInError = SignInError.DENIED))
 
         compose.onNodeWithTag("signInError").assertIsDisplayed()
-        compose.onNodeWithText("Any site, once Bruce has skills that use the web.").assertIsDisplayed()
+        compose.onNodeWithText("Hugging Face, and any web site that skills reach.").assertIsDisplayed()
         assertEquals(com.bizzeh.bruce.R.string.network_approved_summary, SettingsText.networkSummary(NetworkMode.APPROVED_DOMAINS))
         assertEquals(com.bizzeh.bruce.R.string.network_approved, SettingsText.networkLabel(NetworkMode.APPROVED_DOMAINS))
         assertEquals("1 Jan 1970, 00:00", SettingsText.date(0, java.util.Locale.UK).let { it.substringBefore(',') + ", 00:00" })

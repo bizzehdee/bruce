@@ -1,5 +1,8 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.policy.SiteRule
+import com.bizzeh.bruce.skills.web.WebPages
+import com.bizzeh.bruce.skills.web.WebSkills
 import com.bizzeh.bruce.policy.SiteAccess
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
@@ -223,7 +226,8 @@ class AppContainer(private val context: Context) {
         SkillRegistry(
             AutomaticSkills.create(AndroidPhoneReaders(context)) +
                 FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create() +
-                settingsSkills.create(),
+                settingsSkills.create() +
+                WebSkills(WebPages(transport, Dispatchers.IO, userAgent)) { host -> sites.rule(host) == SiteRule.ALLOWED }.create(),
         )
     }
 

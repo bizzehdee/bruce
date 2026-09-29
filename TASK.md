@@ -489,10 +489,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - `PolicyMigrationTest` (three upgrades, 1→4) passes on the Pixel 11. The card's Always allow button is covered by Robolectric tests; it is tried on a phone with TASK-069's first web skill.
   - Depends on: TASK-028, TASK-035, TASK-041
   - Required by: TASK-069, TASK-070
-- [ ] TASK-069: Web page skill (GET only)
+- [x] TASK-069: Web page skill (GET only)
   - `fetch_page`: an http or https address; GET only, no cookies, no stored credentials, no request body; redirects followed only where the network mode allows each host (TASK-068), never from https to http. Capped download size and time.
   - HTML becomes plain text (headings, paragraphs, lists, link texts with their addresses), without scripts, styles or hidden content; other text types as they are; anything else refused. The result goes through `ToolOutput` as untrusted data, capped in length, with the final address.
   - Default state Declined until the user turns it on. Capability `HTTP_READ`.
+  - Done (`skills/web/`): `fetch_page` is Declined, locked while Offline, and checked per site by the policy engine (TASK-068). `WebPages` reads with GET through a new single-hop transport call, so every redirect is checked against the network mode (the site just approved counts for the call's own request only) and none goes from https to http; at most 5 redirects, 2 MB read (the rest noted as cut). `HtmlText` turns HTML into text with a linear scan, no regular expressions and no new dependency: scripts, styles, `hidden`, `aria-hidden` and `display:none` content left out; headings, list items and link addresses kept. Other text types are kept as they are; anything else is refused. The result goes through `ToolOutput` as untrusted data.
+  - Not yet tried on a phone: the Pixel 11 was in use when this was finished (its network mode was left on Approved sites and Read web pages on Accepted from the attempt).
   - Depends on: TASK-052, TASK-068
 - [ ] TASK-070: Web search skill (Brave Search API)
   - `web_search`: a query; returns the top results (title, address, snippet) from the Brave Search API as untrusted data. Default state Declined. Capability `WEB_SEARCH`.
