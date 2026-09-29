@@ -161,7 +161,7 @@ class ModelsViewModel(
                 header = metadata,
             )
             // The same cap ActiveModel applies when loading, so the estimate matches reality.
-            val requested = overrides.loadConfig(defaults).contextLength
+            val requested = overrides.loadConfig(defaults) { AutoContext.pick(metadata, profile.usableMemoryBytes) }.contextLength
             val contextLength = metadata?.contextLength?.takeIf { it in 1 until requested }?.toInt() ?: requested
             val fetched = modelSettings.template(file.name).first()
             // A fetched template was judged able to call tools before it was saved.

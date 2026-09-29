@@ -184,7 +184,7 @@ class AppContainer(private val context: Context) {
     val modelSettings: ModelSettingsRepository by lazy { ModelSettingsRepository(context.settingsDataStore) }
 
     val modelSelection: ModelSelection by lazy {
-        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO)
+        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO, ::memoryForModels)
     }
 
     private val conversationDatabase: ConversationDatabase by lazy {
@@ -265,6 +265,12 @@ class AppContainer(private val context: Context) {
 
     fun memoryInfo(): ActivityManager.MemoryInfo =
         ActivityManager.MemoryInfo().also { context.getSystemService(ActivityManager::class.java).getMemoryInfo(it) }
+
+    /** Memory a model may use: what is free now, plus what the loaded model takes, since loading another replaces it. */
+    fun memoryForModels(): Long {
+        val memory = memoryInfo()
+        return (memory.availMem - memory.threshold).coerceAtLeast(0) + activeModel.state.value.memoryBytes
+    }
 
     companion object {
         const val MODELS_DIR = "models"

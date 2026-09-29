@@ -508,9 +508,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: every model card shows "Expected RAM: X (N% of phone RAM)", a bar of that share (red when the estimate is not in the comfortable band) and "Model X + <context> context Y". Picking a context size recomputes it (capped at the model's trained context, as loading is).
   - Seen on the Pixel 11: Llama 3.2 1B at 32K, 1.75 GB (15% of 11.37 GB), 770.3 MB + 1.00 GB; switched to 8K, 1.00 GB (9%), 256 MB of context; set back to 32K.
   - Depends on: TASK-071
-- [ ] TASK-073: Default context size from the phone and the model
+- [x] TASK-073: Default context size from the phone and the model
   - Owner (2026-09-29): instead of always 2K, the default is the biggest size that fits without making the phone unusable for other apps: the largest choice whose memory estimate is in the comfortable band (at most 80% of the RAM free when the model loads, `ModelFit.TIGHT_SHARE`), and no larger than the model's trained context. At least 2K.
   - Settings' context choice gains "Auto" (the default), which shows the size it picked for the active model; picking a size, globally or per model, overrides it as today.
+  - Done (`models/AutoContext.kt`): the default context setting is now optional; unset means Auto (a size someone chose before is kept). Free memory counts the loaded model's own estimate back in (`ActiveModelState.memoryBytes`, `AppContainer.memoryForModels`), so Auto does not shrink each time a model is reloaded. The Models screen's RAM figure and the loader use the same pick; the model browser still judges downloads at 4K when the setting is Auto. Files that do not declare their attention shape get 4K.
+  - Seen on the Pixel 11 (11.37 GB): with Auto, Llama 3.2 1B was picked and loaded at 64K (1,303 of 65,536 tokens); Settings named "64K for the loaded model". Its earlier settings (default 8K, the model at 32K) were restored afterwards.
   - Depends on: TASK-071
 - [ ] TASK-074: Voice input
   - Owner (2026-09-29): a microphone button in the chat's message box starts Android's on-device speech recogniser (`SpeechRecognizer.createOnDeviceSpeechRecognizer`, Android 12 and later); audio never leaves the phone. The recognised text goes into the message box for the user to check and send.

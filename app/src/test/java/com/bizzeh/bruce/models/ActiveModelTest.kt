@@ -65,6 +65,21 @@ class ActiveModelTest {
     }
 
     @Test
+    fun theLoadedModelsMemoryIsKeptUntilItIsReleased() = runTest(dispatcher) {
+        val model = File(dir, "stories.gguf").apply { writeBytes(File("src/androidTest/assets/stories260K.gguf").readBytes()) }
+        engine.loadResult = LoadResult.Loaded(info, Backend.CPU)
+
+        activeModel.load(model, LoadConfig(contextLength = 1024))
+        val metadata = (com.bizzeh.bruce.gguf.GgufReader.read(model) as com.bizzeh.bruce.gguf.GgufReadResult.Read).metadata
+        assertEquals(ModelMemory.estimate(metadata, 1024).totalBytes, activeModel.state.value.memoryBytes)
+
+        activeModel.unload()
+        assertEquals(0L, activeModel.state.value.memoryBytes)
+        activeModel.load(File(dir, "not-gguf.gguf"), LoadConfig(contextLength = 1024))
+        assertEquals(0L, activeModel.state.value.memoryBytes, "no header, no estimate")
+    }
+
+    @Test
     fun unloadReleasesTheModel() = runTest(dispatcher) {
         engine.loadResult = LoadResult.Loaded(info, Backend.CPU)
         activeModel.load(File(dir, "a.gguf"))

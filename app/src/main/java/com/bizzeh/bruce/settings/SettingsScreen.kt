@@ -59,6 +59,8 @@ data class SettingsState(
     val signInError: SignInError? = null,
     /** Tokens every prompt starts with for the loaded model; null with none loaded. */
     val fixedPromptTokens: Int? = null,
+    /** The size Auto gave the loaded model; null with none loaded or when the model has its own size. */
+    val autoContext: Int? = null,
 )
 
 interface SettingsActions {
@@ -67,7 +69,8 @@ interface SettingsActions {
     fun setContextTrafficLights(enabled: Boolean)
     fun setBackend(backend: BackendPreference)
     fun setThreads(threads: Int?)
-    fun setContextLength(contextLength: Int)
+    /** Null is Auto. */
+    fun setContextLength(contextLength: Int?)
     fun clearAllData()
     fun deleteAllConversations()
     fun setNetworkMode(mode: NetworkMode)
@@ -196,16 +199,24 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             }
             Label(R.string.settings_context)
             Chips {
-                InferenceDefaults.CONTEXT_CHOICES.forEach { length ->
+                (listOf(null) + InferenceDefaults.CONTEXT_CHOICES).forEach { length ->
                     FilterChip(
                         selected = state.inference.contextLength == length,
                         onClick = { actions.setContextLength(length) },
-                        label = { Text(SettingsText.contextLabel(length)) },
-                        modifier = Modifier.testTag("context:$length"),
+                        label = { Text(length?.let(SettingsText::contextLabel) ?: stringResource(R.string.settings_context_auto)) },
+                        modifier = Modifier.testTag("context:${length ?: "auto"}"),
                     )
                 }
             }
-            TightContextNote(state.inference.contextLength, state.fixedPromptTokens)
+            if (state.inference.contextLength == null) {
+                Text(
+                    state.autoContext?.let { stringResource(R.string.settings_context_auto_picked, SettingsText.contextLabel(it)) } ?: stringResource(R.string.settings_context_auto_explained),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 16.dp).testTag("contextAuto"),
+                )
+            }
+            (state.inference.contextLength ?: state.autoContext)?.let { TightContextNote(it, state.fixedPromptTokens) }
             Text(
                 stringResource(R.string.settings_defaults_note),
                 style = MaterialTheme.typography.bodySmall,

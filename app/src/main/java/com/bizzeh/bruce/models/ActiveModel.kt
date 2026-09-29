@@ -23,6 +23,8 @@ data class ActiveModelState(
     val backend: Backend? = null,
     val loading: Boolean = false,
     val error: LoadError? = null,
+    /** The loaded model's estimated memory; free memory plus this is what a model may use. */
+    val memoryBytes: Long = 0,
 )
 
 /**
@@ -46,22 +48,24 @@ class ActiveModel(
 
     suspend fun unload() {
         engine.unloadModel()
-        mutableState.update { it.copy(active = null, info = null, backend = null, error = null) }
+        mutableState.update { it.copy(active = null, info = null, backend = null, error = null, memoryBytes = 0) }
     }
 
     /** Loads [file]; the context is capped at the length the model was trained for. */
     suspend fun load(file: File, config: LoadConfig = LoadConfig()): LoadResult {
         mutableState.update { it.copy(loading = true, error = null) }
-        val trained = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata?.contextLength }
+        val metadata = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata }
+        val trained = metadata?.contextLength
         val capped = if (trained != null && trained in 1 until config.contextLength) config.copy(contextLength = trained.toInt()) else config
         val result = engine.loadModel(file, capped)
+        val memory = metadata?.let { ModelMemory.estimate(it, capped.contextLength).totalBytes } ?: 0
         mutableState.update {
             when (result) {
-                is LoadResult.Loaded -> it.copy(active = file, info = result.info, backend = result.backend, loading = false)
+                is LoadResult.Loaded -> it.copy(active = file, info = result.info, backend = result.backend, loading = false, memoryBytes = memory)
                 // Some failures (missing file, not GGUF) keep the previous model loaded; others
                 // release it first. Ask the engine rather than assume.
                 is LoadResult.Failed -> if (engine.getModelInfo() == null) {
-                    it.copy(active = null, info = null, backend = null, loading = false, error = result.error)
+                    it.copy(active = null, info = null, backend = null, loading = false, error = result.error, memoryBytes = 0)
                 } else {
                     it.copy(loading = false, error = result.error)
                 }

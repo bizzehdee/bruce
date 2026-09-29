@@ -1,5 +1,7 @@
 package com.bizzeh.bruce.models
 
+import com.bizzeh.bruce.gguf.GgufReader
+import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.settings.InferenceSettingsRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -14,11 +16,15 @@ class ModelSelection(
     private val inferenceSettings: InferenceSettingsRepository,
     private val modelsDir: File,
     private val ioDispatcher: CoroutineDispatcher,
+    /** Memory a model may use: free memory plus what the loaded model takes (AppContainer.memoryForModels). */
+    private val memoryForModels: () -> Long = { 0 },
 ) {
     /** Loads [file] with its settings over the defaults, and remembers it for next launch. */
     suspend fun choose(file: File): LoadResult {
         val template = modelSettings.template(file.name).first()
-        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first()).copy(chatTemplate = template?.text)
+        val metadata = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata }
+        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first()) { AutoContext.pick(metadata, memoryForModels()) }
+            .copy(chatTemplate = template?.text)
         val result = activeModel.load(file, config)
         if (result is LoadResult.Loaded) modelSettings.setActiveModel(file.name)
         return result
