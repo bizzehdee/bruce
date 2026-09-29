@@ -5,6 +5,7 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 - **Your model.** You choose which open-weight model Bruce uses. Download one from Hugging Face or import your own GGUF file.
 - **Your phone.** The model runs on the device. Bruce works offline once a model is installed.
 - **Your permissions.** Bruce can only use the phone features and folders you allow. Sensitive actions, such as deleting a file, always ask you first. Settings → Permissions shows everything Bruce holds on the phone. If a folder you grant has an `AGENTS.md` file for AI helpers, Bruce shows it to you and follows it only if you say so.
+- **Readable replies.** Headings, lists, tables and code show formatted. Links ask before opening, and images from the web load only when you tap them.
 - **Your sidekick.** Pick a personality: Bruce, quick and eager, or Milo, calm and thoughtful.
 - **Your memory, if you want it.** Off unless you turn it on: Bruce then keeps short facts from your chats on the phone, uses them in later chats, and shows you every one to delete.
 - **Free.** Every feature is free. No ads, no subscription, no purchases, no account.
