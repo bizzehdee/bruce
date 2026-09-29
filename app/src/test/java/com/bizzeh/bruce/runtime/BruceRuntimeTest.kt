@@ -182,7 +182,7 @@ class BruceRuntimeTest {
     }
 
     @Test
-    fun theModelIsToldTheGrantNamesWhenFileSkillsAreOffered() = runBlocking {
+    fun fileSkillsAreOfferedWithTheGrantNamesOnlyOnceSomethingIsGranted() = runBlocking {
         val reader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, scope = ResourceScope.GRANTED_FILES) { SkillOutcome.Done("") }
         val files = SkillRegistry(listOf(clock, reader))
         var names = listOf("Documents", "report.pdf")
@@ -194,8 +194,10 @@ class BruceRuntimeTest {
         }
 
         assertTrue(system(files).endsWith("every path starts with one of these names): Documents, report.pdf."))
+        assertEquals(listOf("get_datetime", "read_file"), engine.offered.last().map { it.name })
         names = emptyList()
-        assertTrue(system(files).contains("has not granted any files or folders"))
+        assertTrue(system(files).endsWith(BruceRuntime.NO_GRANTS))
+        assertEquals("with nothing granted, file skills are not offered", listOf("get_datetime"), engine.offered.last().map { it.name })
         assertEquals("P\n\n" + BruceRuntime.GUIDANCE, system(SkillRegistry(listOf(clock))))
     }
 
