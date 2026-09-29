@@ -196,7 +196,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `.agents/skills/*/SKILL.md`). The first time, and whenever they change, Bruce
   shows them and asks whether to follow them for that folder. Followed
   instructions guide how Bruce works there, with `.agents/` files loaded as
-  needed; they never grant permissions or change skill states. `planned`
+  needed; they never grant permissions or change skill states. `done`
 - **Advanced skills** — Move/rename files, calendar create/modify/delete,
   sharing, opening apps and URLs, clipboard write, SMS, calls, notifications.
   `planned`
@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Folder instructions done: reviewed on the Permissions screen when a folder is granted or they change; followed ones go to the model once per chat with the first file result there. |
 | 2026-09-29 | Changed | Reply notifications done: replies finish off screen in a short foreground service and are announced; tapping opens the chat. |
 | 2026-09-29 | Changed | Memory done: off by default, per model or shared; facts found by a pass after each reply, recalled at a chat's start, reviewed and deleted in Settings. |
 | 2026-09-29 | Changed | Tool templates for stripped copies are fetched from another Hub copy of the same model, not shipped with Bruce (licence). |

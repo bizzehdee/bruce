@@ -62,6 +62,7 @@ import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.settings.Personality
 import com.bizzeh.bruce.settings.SettingsActions
 import com.bizzeh.bruce.settings.SettingsScreen
+import com.bizzeh.bruce.settings.FolderReview
 import com.bizzeh.bruce.settings.GrantActions
 import com.bizzeh.bruce.settings.GrantsViewModel
 import com.bizzeh.bruce.settings.PermissionsScreen
@@ -149,7 +150,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates) } }
-    private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO) } }
+    private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
     private val setup: SetupViewModel by viewModels {
         factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
@@ -290,6 +291,8 @@ class MainActivity : ComponentActivity() {
     private fun Permissions(onBack: () -> Unit, openNetwork: () -> Unit) {
         val granted by grants.grants.collectAsState()
         val addFailed by grants.addFailed.collectAsState()
+        val folders by grants.folders.collectAsState()
+        val reviewing by grants.reviewing.collectAsState()
         val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri -> uri?.let { grants.add(it, GrantKind.FOLDER) } }
         val filePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let { grants.add(it, GrantKind.FILE) } }
         val actions = remember {
@@ -297,9 +300,12 @@ class MainActivity : ComponentActivity() {
                 override fun addFolder() = folderPicker.launch(null)
                 override fun addFile() = filePicker.launch(arrayOf("*/*"))
                 override fun revoke(grant: Grant) = grants.revoke(grant)
+                override fun review(grant: Grant) = grants.review(grant)
+                override fun choose(review: FolderReview, follow: Boolean) = grants.choose(review, follow)
+                override fun closeReview() = grants.closeReview()
             }
         }
-        PermissionsScreen(granted, addFailed, actions, openNetwork, onBack)
+        PermissionsScreen(granted, addFailed, actions, openNetwork, onBack, folders, reviewing?.let(folders::get))
     }
 
     @androidx.compose.runtime.Composable

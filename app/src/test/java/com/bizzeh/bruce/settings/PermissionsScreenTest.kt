@@ -13,7 +13,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
+import com.bizzeh.bruce.R
+import com.bizzeh.bruce.policy.FolderInstructions
 import com.bizzeh.bruce.policy.Grant
+import com.bizzeh.bruce.policy.InstructionsChoice
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -153,6 +159,40 @@ class PermissionsScreenTest {
         compose.onNodeWithTag("addFolder").performClick()
         compose.onNodeWithTag("addFile").performClick()
         assertEquals(listOf("revoke report.pdf", "folder", "file"), calls)
+    }
+
+    @Test
+    fun foldersWithInstructionsShowTheirStateAndAreReviewedBeforeUse() {
+        val calls = mutableListOf<String>()
+        val actions = object : GrantActions {
+            override fun addFolder() = Unit
+            override fun addFile() = Unit
+            override fun revoke(grant: Grant) = Unit
+            override fun review(grant: Grant) { calls += "review ${grant.id}" }
+            override fun choose(review: FolderReview, follow: Boolean) { calls += "choose ${review.instructions.grantId} $follow" }
+            override fun closeReview() { calls += "close" }
+        }
+        val grants = listOf(1L, 2L, 3L).map { Grant(it, android.net.Uri.parse("content://docs/tree/$it"), "Folder $it", com.bizzeh.bruce.policy.GrantKind.FOLDER, 0, available = true) }
+        fun review(id: Long, choice: InstructionsChoice, problem: String? = null) =
+            FolderReview(FolderInstructions(id, "Folder $id", "Keep lists short.".takeIf { problem == null }, listOf("Folder $id/.agents/style.md"), "h$id", problem), choice)
+        val folders = mapOf(1L to review(1, InstructionsChoice.UNDECIDED), 2L to review(2, InstructionsChoice.FOLLOW), 3L to review(3, InstructionsChoice.IGNORE, "AGENTS.md is not plain text, so it is not used."))
+        var reviewing by mutableStateOf<FolderReview?>(folders[1L])
+        compose.setContent { BruceTheme { PermissionsContent(grants, false, actions, emptyList(), {}, {}, {}, folders, reviewing) } }
+
+        compose.onNodeWithText("Keep lists short.").assertIsDisplayed()
+        compose.onNodeWithText("Folder 1/.agents/style.md").assertIsDisplayed()
+        compose.onNodeWithTag("follow").performClick()
+        compose.onNodeWithTag("ignore").performClick()
+        reviewing = null
+        compose.onNodeWithTag("instructions:1", useUnmergedTree = true).assertTextEquals(context.getString(R.string.instructions_undecided))
+        compose.onNodeWithTag("instructions:2", useUnmergedTree = true).assertTextEquals(context.getString(R.string.instructions_followed))
+        compose.onNodeWithTag("instructions:3", useUnmergedTree = true).assertTextEquals(context.getString(R.string.instructions_unusable))
+        compose.onNodeWithTag("review:3", useUnmergedTree = true).performClick()
+
+        reviewing = folders[3L]
+        compose.onNodeWithTag("follow").assertDoesNotExist()
+        compose.onNodeWithText("AGENTS.md is not plain text, so it is not used.").assertIsDisplayed()
+        assertEquals(listOf("choose 1 true", "choose 1 false", "review 3"), calls)
     }
 
     @Test

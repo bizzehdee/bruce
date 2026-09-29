@@ -6,10 +6,13 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import com.bizzeh.bruce.policy.DocumentAccess
 import com.bizzeh.bruce.policy.DocumentRef
+import com.bizzeh.bruce.policy.FolderInstructionsStore
 import com.bizzeh.bruce.policy.Grant
 import com.bizzeh.bruce.policy.GrantKind
 import com.bizzeh.bruce.policy.GrantStore
+import com.bizzeh.bruce.policy.InstructionsChoice
 import com.bizzeh.bruce.policy.PolicyDatabase
+import com.bizzeh.bruce.testing.FakeDocuments
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
@@ -21,6 +24,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,5 +83,31 @@ class GrantsViewModelTest {
         refuse = false
         viewModel.add(tree, GrantKind.FOLDER)
         viewModel.addFailed.await { !it }
+    }
+
+    @Test
+    fun aNewFolderWithInstructionsIsReviewedAndTheChoiceShows() {
+        val documents = FakeDocuments()
+        val tree = Uri.parse("content://docs/tree/notes")
+        val agents = DocumentRef(Uri.parse("content://docs/agents-md"), isDirectory = false)
+        documents.names[tree] = "Notes"
+        documents.tree[documents.root(tree).uri] = listOf("AGENTS.md" to agents)
+        documents.contents[agents.uri] = "text/markdown" to "Keep lists short.".toByteArray()
+        val viewModel = GrantsViewModel(GrantStore(database.policy(), documents), Dispatchers.IO, FolderInstructionsStore(database.policy(), documents))
+
+        viewModel.add(tree, GrantKind.FOLDER)
+        val id = viewModel.reviewing.await { it != null }!!
+        val review = viewModel.folders.await { it[id] != null }.getValue(id)
+        assertEquals(InstructionsChoice.UNDECIDED, review.choice)
+        assertEquals("Keep lists short.", review.instructions.agentsMd)
+
+        viewModel.choose(review, follow = true)
+        assertNull(viewModel.reviewing.value)
+        viewModel.folders.await { it[id]?.choice == InstructionsChoice.FOLLOW }
+
+        viewModel.review(viewModel.grants.await { it.isNotEmpty() }.single())
+        assertEquals(id, viewModel.reviewing.value)
+        viewModel.closeReview()
+        assertNull(viewModel.reviewing.value)
     }
 }

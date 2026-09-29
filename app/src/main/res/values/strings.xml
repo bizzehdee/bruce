@@ -134,6 +134,16 @@
     <string name="permissions_grant_lost">Android no longer gives Bruce access to this. Revoke it and add it again.</string>
     <string name="permissions_revoke">Revoke</string>
     <string name="permissions_add_failed">Android did not let Bruce keep access to that. Try another location.</string>
+    <string name="instructions_undecided">Has instructions for AI helpers. Review them before Bruce uses them.</string>
+    <string name="instructions_followed">Bruce follows this folder\'s instructions.</string>
+    <string name="instructions_ignored">Bruce ignores this folder\'s instructions.</string>
+    <string name="instructions_unusable">This folder\'s instructions cannot be used.</string>
+    <string name="instructions_review">Review instructions</string>
+    <string name="instructions_title">Instructions in %1$s</string>
+    <string name="instructions_explained">This folder has instructions for AI helpers. If you follow them, Bruce reads them when it works with files here. They cannot give Bruce more access or skip a confirmation. If they change, Bruce asks again.</string>
+    <string name="instructions_more_files">More instruction files</string>
+    <string name="instructions_follow">Follow for this folder</string>
+    <string name="instructions_ignore">Ignore</string>
     <string name="permissions_android">Android permissions</string>
     <string name="permissions_allowed">Allowed</string>
     <string name="permissions_not_allowed">Not allowed</string>

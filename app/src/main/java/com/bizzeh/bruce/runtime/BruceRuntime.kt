@@ -24,6 +24,7 @@ import com.bizzeh.bruce.skills.ResourceScope
 import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.SkillState
+import com.bizzeh.bruce.skills.ToolOutput
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -171,7 +172,7 @@ class BruceRuntime(
                     continue
                 }
                 when (val decision = policy.decide(call.name, call.argumentsJson)) {
-                    is PolicyDecision.Allowed -> result(call, policy.execute(decision).toString().also { results[key] = it }, ran = true, added)
+                    is PolicyDecision.Allowed -> result(call, policy.execute(decision).toString().also { results[key] = it }, ran = true, added, history)
                     is PolicyDecision.Denied -> result(call, policy.refusal(decision).toString().also { results[key] = it }, ran = false, added)
                     is PolicyDecision.NeedsConfirmation -> {
                         emit(RuntimeEvent.NeedsConfirmation(call, decision))
@@ -199,9 +200,24 @@ class BruceRuntime(
         PolicyDecision.Denied(Denial(DenialCode.CONFIRMATION_REQUIRED, call.name, "Not run: an earlier call is waiting for the user's approval.", userCanChange = false, retryable = true)),
     )
 
-    private suspend fun FlowCollector<RuntimeEvent>.result(call: ToolCall, json: String, ran: Boolean, added: MutableList<ToolChatMessage>) {
-        added += ToolChatMessage(ChatRole.TOOL, json, toolCallId = call.id, toolName = call.name)
-        emit(RuntimeEvent.ToolResult(call, json, ran))
+    private suspend fun FlowCollector<RuntimeEvent>.result(call: ToolCall, json: String, ran: Boolean, added: MutableList<ToolChatMessage>, history: List<ToolChatMessage> = emptyList()) {
+        val result = withoutRepeatedGuidance(json, history + added)
+        added += ToolChatMessage(ChatRole.TOOL, result, toolCallId = call.id, toolName = call.name)
+        emit(RuntimeEvent.ToolResult(call, result, ran))
+    }
+
+    /** A folder's instructions go to the model once per chat (TASK-049); later results in that folder leave them out. */
+    private fun withoutRepeatedGuidance(json: String, earlier: List<ToolChatMessage>): String {
+        val result = try {
+            JSONObject(json)
+        } catch (e: JSONException) {
+            return json
+        }
+        val id = result.optJSONObject(ToolOutput.FOLDER_INSTRUCTIONS)?.optString("id")?.takeIf { it.isNotEmpty() } ?: return json
+        val seen = earlier.any { it.role == ChatRole.TOOL && it.content.contains("\"$id\"") }
+        if (!seen) return json
+        result.remove(ToolOutput.FOLDER_INSTRUCTIONS)
+        return result.toString()
     }
 
     /** What [history] takes of the context as the next prompt would send it; null with no model loaded. */

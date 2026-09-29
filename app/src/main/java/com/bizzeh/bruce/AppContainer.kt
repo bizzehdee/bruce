@@ -21,6 +21,7 @@ import com.bizzeh.bruce.models.ModelSelection
 import com.bizzeh.bruce.models.ModelSettingsRepository
 import com.bizzeh.bruce.notifications.ReplyNotifications
 import com.bizzeh.bruce.notifications.ReplyService
+import com.bizzeh.bruce.policy.FolderInstructionsStore
 import com.bizzeh.bruce.settings.DataReset
 import com.bizzeh.bruce.conversations.ConversationDatabase
 import com.bizzeh.bruce.conversations.ConversationStore
@@ -182,7 +183,7 @@ class AppContainer(private val context: Context) {
 
     private val policyDatabase: PolicyDatabase by lazy {
         Room.databaseBuilder(context, PolicyDatabase::class.java, PolicyDatabase.NAME)
-            .addMigrations(PolicyDatabase.MIGRATION_1_2)
+            .addMigrations(PolicyDatabase.MIGRATION_1_2, PolicyDatabase.MIGRATION_2_3)
             .build()
     }
 
@@ -194,11 +195,13 @@ class AppContainer(private val context: Context) {
 
     private val grantScope: GrantScope by lazy { GrantScope(grants, documentAccess) }
 
+    val folderInstructions: FolderInstructionsStore by lazy { FolderInstructionsStore(policyDatabase.policy(), documentAccess) }
+
     /** The names the model starts file paths with. */
     suspend fun grantNames(): List<String> = grantScope.names()
 
     val skills: SkillRegistry by lazy {
-        SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context)) + FileSkills(grantScope, documentAccess, Dispatchers.IO).create())
+        SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context)) + FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create())
     }
 
     val runtime: BruceRuntime by lazy {

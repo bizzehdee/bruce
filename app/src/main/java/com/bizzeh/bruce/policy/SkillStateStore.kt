@@ -64,18 +64,35 @@ interface PolicyDao {
     @Query("DELETE FROM grants")
     suspend fun clearGrants()
 
+    @Query("SELECT * FROM folder_instructions")
+    fun instructionChoices(): Flow<List<FolderInstructionsEntity>>
+
+    @Query("SELECT * FROM folder_instructions WHERE grantId = :grantId")
+    suspend fun instructionChoice(grantId: Long): FolderInstructionsEntity?
+
+    @Upsert
+    suspend fun setInstructionChoice(choice: FolderInstructionsEntity)
+
+    @Query("DELETE FROM folder_instructions WHERE grantId = :grantId")
+    suspend fun deleteInstructionChoice(grantId: Long)
+
+    @Query("DELETE FROM folder_instructions")
+    suspend fun clearInstructionChoices()
+
     @Transaction
     suspend fun addGrant(grant: GrantEntity): Long = insertGrant(grant).also { bumpVersion() }
 
     @Transaction
     suspend fun removeGrant(id: Long) {
         deleteGrant(id)
+        deleteInstructionChoice(id)
         bumpVersion()
     }
 
     @Transaction
     suspend fun resetGrants() {
         clearGrants()
+        clearInstructionChoices()
         bumpVersion()
     }
 
@@ -101,7 +118,11 @@ data class GrantEntity(
     val grantedAt: Long,
 )
 
-@Database(entities = [SkillStateEntity::class, PolicyVersionEntity::class, GrantEntity::class], version = 2)
+/** The user's choice about a granted folder's instructions (TASK-049), valid only while its files hash to [hash]. */
+@Entity(tableName = "folder_instructions")
+data class FolderInstructionsEntity(@PrimaryKey val grantId: Long, val hash: String, val follow: Boolean)
+
+@Database(entities = [SkillStateEntity::class, PolicyVersionEntity::class, GrantEntity::class, FolderInstructionsEntity::class], version = 3)
 abstract class PolicyDatabase : RoomDatabase() {
     abstract fun policy(): PolicyDao
 
@@ -112,6 +133,13 @@ abstract class PolicyDatabase : RoomDatabase() {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS `grants` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `grantedAt` INTEGER NOT NULL)")
+            }
+        }
+
+        /** Version 3 (TASK-049): the choice about each folder's instructions. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `folder_instructions` (`grantId` INTEGER NOT NULL, `hash` TEXT NOT NULL, `follow` INTEGER NOT NULL, PRIMARY KEY(`grantId`))")
             }
         }
     }

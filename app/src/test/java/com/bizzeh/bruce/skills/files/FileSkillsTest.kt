@@ -10,6 +10,7 @@ import com.bizzeh.bruce.policy.GrantScope
 import com.bizzeh.bruce.policy.GrantStore
 import com.bizzeh.bruce.policy.PolicyDatabase
 import com.bizzeh.bruce.skills.DenialCode
+import com.bizzeh.bruce.skills.FolderGuidance
 import com.bizzeh.bruce.skills.SkillArguments
 import com.bizzeh.bruce.skills.SkillOutcome
 import com.bizzeh.bruce.skills.SkillState
@@ -64,6 +65,25 @@ class FileSkillsTest {
         assertEquals(SkillState.ASK, skills.getValue("write_file").defaultState)
         assertEquals(SkillState.ASK, skills.getValue("delete_file").defaultState)
         assertEquals(listOf("delete_file"), skills.values.filter { it.highRisk }.map { it.id })
+    }
+
+    @Test
+    fun everySuccessCarriesTheFoldersFollowedInstructions() = runBlocking {
+        val asked = mutableListOf<String>()
+        val guided = FileSkills(GrantScope(grants, documents), documents, Dispatchers.Unconfined) { grant ->
+            asked += grant.name
+            FolderGuidance("h", grant.name, "Keep lists short.")
+        }.create().associateBy { it.id }
+        fun guidance(id: String, vararg arguments: Pair<String, Any>) = (runBlocking { guided.getValue(id).execute(SkillArguments(mapOf(*arguments))) } as SkillOutcome.Done).guidance
+
+        assertEquals("Documents", guidance("list_files", "path" to "Documents")?.folder)
+        assertEquals("Keep lists short.", guidance("read_file", "path" to "Documents/todo.txt")?.text)
+        assertEquals("h", guidance("create_file", "path" to "Documents/new.txt", "content" to "x")?.id)
+        assertEquals("h", guidance("write_file", "path" to "Documents/new.txt", "content" to "y")?.id)
+        assertEquals("h", guidance("delete_file", "path" to "Documents/new.txt")?.id)
+        assertEquals(5, asked.size)
+        assertTrue("failures carry none", guided.getValue("read_file").execute(SkillArguments(mapOf("path" to "Documents/gone.txt"))) is SkillOutcome.Failed)
+        assertEquals(5, asked.size)
     }
 
     @Test
