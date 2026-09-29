@@ -89,6 +89,8 @@
     <string name="skill_get_setting_summary">Reads the current value of a phone setting, such as screen timeout or whether Bluetooth is on.</string>
     <string name="skill_set_setting">Change settings</string>
     <string name="skill_set_setting_summary">Changes brightness, adaptive brightness, screen timeout, auto-rotate, vibrate on touch and volumes. Needs Modify system settings in Permissions for all but volumes.</string>
+    <string name="skill_fetch_page">Read web pages</string>
+    <string name="skill_fetch_page_summary">Reads a web page\'s text, only from sites your network setting allows. In Approved sites mode it asks before reaching a new site.</string>
     <string name="skill_open_settings_page">Open settings pages</string>
     <string name="skill_open_settings_page_summary">Opens the phone\'s settings page for a setting Bruce cannot change, such as Wi-Fi, so you can change it.</string>
     <string name="settings_appearance">Appearance</string>
@@ -215,8 +217,8 @@
     <string name="settings_approved_sites">Approved sites</string>
     <string name="settings_approved_sites_empty">None yet. The first time a skill reaches a new site, Bruce asks, and you can always allow it.</string>
     <string name="settings_site_remove">Remove</string>
-    <string name="network_approved_summary">Hugging Face, plus sites you approve once Bruce has skills that use the web.</string>
-    <string name="network_general_summary">Any site, once Bruce has skills that use the web.</string>
+    <string name="network_approved_summary">Hugging Face, plus web sites you approve for skills that use the web.</string>
+    <string name="network_general_summary">Hugging Face, and any web site that skills reach.</string>
     <string name="account_sign_in">Sign in to Hugging Face</string>
     <string name="account_sign_in_summary">Needed for gated models such as Llama and Gemma, and your private models.</string>
     <string name="account_sign_in_offline">Allow Hugging Face in Network to sign in.</string>

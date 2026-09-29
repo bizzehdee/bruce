@@ -31,6 +31,12 @@ interface HttpTransport {
     /** Opens a response for streaming large bodies. Throws [IOException] when the network fails. */
     fun open(url: String, headers: Map<String, String>): StreamingResponse
 
+    /**
+     * One request, redirects not followed: the caller sees the 3xx and its `location`, so it can
+     * check where it leads before going on (the web page skill checks each site).
+     */
+    fun openSingle(url: String, headers: Map<String, String>): StreamingResponse = open(url, headers)
+
     /** POSTs a form body; returns null when the response exceeds [maxBytes]. Throws [IOException] on network failure. */
     fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse?
 }
@@ -74,6 +80,8 @@ class UrlConnectionTransport(
         }
         throw IOException("too many redirects")
     }
+
+    override fun openSingle(url: String, headers: Map<String, String>): StreamingResponse = connect(URL(url), headers)
 
     override fun postForm(url: String, headers: Map<String, String>, form: Map<String, String>, maxBytes: Int): HttpResponse? {
         val connection = URL(url).openConnection() as HttpURLConnection
