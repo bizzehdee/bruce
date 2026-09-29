@@ -43,6 +43,8 @@ class SettingsScreenTest {
         override fun signIn() { calls += "signIn" }
         override fun signOut() { calls += "signOut" }
         override fun openSkills() { calls += "skills" }
+        override fun openMemory() { calls += "memory" }
+        override fun setMemoryMode(mode: com.bizzeh.bruce.memory.MemoryMode) { calls += "memory $mode" }
         override fun openPermissions() { calls += "permissions" }
         override fun openLicences() { calls += "licences" }
         override fun openDiagnostics() { calls += "diagnostics" }

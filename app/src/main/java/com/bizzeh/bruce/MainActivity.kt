@@ -35,6 +35,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import com.bizzeh.bruce.navigation.AppActions
 import com.bizzeh.bruce.navigation.BruceApp
 import com.bizzeh.bruce.huggingface.HubModel
+import com.bizzeh.bruce.memory.Fact
+import com.bizzeh.bruce.memory.MemoryActions
+import com.bizzeh.bruce.memory.MemoryMode
+import com.bizzeh.bruce.memory.MemoryScreen
+import com.bizzeh.bruce.memory.MemoryViewModel
 import com.bizzeh.bruce.models.Assessment
 import com.bizzeh.bruce.models.BrowseActions
 import com.bizzeh.bruce.models.BrowseFilters
@@ -90,6 +95,7 @@ class MainActivity : ComponentActivity() {
                 container.runtime::measure,
                 container.summarySettings.settings,
                 container.runtime::summarise,
+                container.chatMemory,
             )
         }
     }
@@ -131,6 +137,7 @@ class MainActivity : ComponentActivity() {
                 network = container.networkSettings,
                 personality = container.personalitySettings,
                 summary = container.summarySettings,
+                memory = container.memorySettings,
                 hubAuth = container.hubAuth,
                 dataReset = container.dataReset,
                 dynamicColourSupported = dynamicColourSupported(),
@@ -141,6 +148,7 @@ class MainActivity : ComponentActivity() {
     }
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates) } }
     private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO) } }
+    private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
     private val setup: SetupViewModel by viewModels {
         factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
     }
@@ -183,6 +191,7 @@ class MainActivity : ComponentActivity() {
             diagnosticsScreen = { onBack -> Diagnostics(onBack) },
             skillsScreen = { onBack, openPermissions -> Skills(onBack, openPermissions) },
             permissionsScreen = { onBack, openNetwork -> Permissions(onBack, openNetwork) },
+            memoryScreen = { onBack -> Memory(onBack) },
             startDestination = if (browse) Destination.MODELS else Destination.CHAT,
             conversations = active,
             archived = archived,
@@ -287,6 +296,18 @@ class MainActivity : ComponentActivity() {
         PermissionsScreen(granted, addFailed, actions, openNetwork, onBack)
     }
 
+    @androidx.compose.runtime.Composable
+    private fun Memory(onBack: () -> Unit) {
+        val facts by memory.facts.collectAsState()
+        val actions = remember {
+            object : MemoryActions {
+                override fun delete(fact: Fact) = memory.delete(fact)
+                override fun deleteAll() = memory.deleteAll()
+            }
+        }
+        MemoryScreen(facts, actions, onBack)
+    }
+
     /** The loaded model's fixed prompt size, measured again whenever the loaded model changes. */
     @androidx.compose.runtime.Composable
     private fun fixedPromptTokens(): Int? {
@@ -373,6 +394,8 @@ class MainActivity : ComponentActivity() {
         }
         override fun signOut() = settings.signOut()
         override fun openSkills() = open(Destination.SKILLS)
+        override fun openMemory() = open(Destination.MEMORY)
+        override fun setMemoryMode(mode: MemoryMode) = settings.setMemoryMode(mode)
         override fun openPermissions() = open(Destination.PERMISSIONS)
         override fun openLicences() = open(Destination.LICENCES)
         override fun openDiagnostics() = open(Destination.DIAGNOSTICS)

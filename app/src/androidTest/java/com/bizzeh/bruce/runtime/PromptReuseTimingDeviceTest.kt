@@ -59,6 +59,37 @@ class PromptReuseTimingDeviceTest {
         assertTrue("decoded ${reused.second} with reuse, ${fresh.second} without", reused.second < fresh.second)
     }
 
+    /** TASK-047's measurement: the memory pass after a reply, and whether the next turn still reuses the chat. */
+    @Test
+    fun theMemoryPassIsTimedAndKeepsTheChatReusable() = runBlocking {
+        val name = InstrumentationRegistry.getArguments().getString("model") ?: "Qwen3.5-0.8B-Q8_0.gguf"
+        val model = File(instrumentation.targetContext.filesDir, "test-models/$name")
+        assumeTrue("copy $name first", model.exists())
+        val nativeThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+        val engine = deviceEngine(nativeThread)
+        assertTrue(engine.loadModel(model, LoadConfig(contextLength = 4096, threads = 4, backend = BackendPreference.CPU)) is LoadResult.Loaded)
+        val database = Room.inMemoryDatabaseBuilder(instrumentation.targetContext, PolicyDatabase::class.java).build()
+        val states = SkillStateStore(database.policy())
+        val policy = PolicyEngine(container.skills, states, ToolOutput(), { true }, { ScopeCheck.OutOfScope("No grants in this test.") })
+        val runtime = BruceRuntime(engine, container.skills, states, policy, temperature = { 0f }, personality = container::personalityRules)
+        val memory = listOf("I like tea")
+
+        val history = mutableListOf(ToolChatMessage(ChatRole.USER, "Hi, I am Sam and I live in Leeds with my dog Rex."))
+        history += (runtime.respond(history.toList(), memory).toList().last() as RuntimeEvent.Finished).messages
+        val passStarted = TimeSource.Monotonic.markNow()
+        val facts = runtime.extractFacts(history, memory)
+        val passMs = passStarted.elapsedNow().inWholeMilliseconds
+        history += ToolChatMessage(ChatRole.USER, "Suggest a walk for us.")
+        val next = runtime.respond(history.toList(), memory).toList()
+        val decoded = next.filterIsInstance<RuntimeEvent.Step>().sumOf { it.stats?.promptTokens ?: 0 }
+
+        database.close()
+        engine.unloadModel()
+        nativeThread.close()
+        Log.i(TAG, "TIMING $name memoryPass=${passMs}ms facts=${facts?.size} nextTurnDecoded=$decoded")
+        assertTrue("the next turn decoded $decoded tokens", decoded < 300)
+    }
+
     /** Total milliseconds and prompt tokens decoded over the turns. */
     private suspend fun chat(engine: InferenceEngine, label: String): Pair<Long, Int> {
         val database = Room.inMemoryDatabaseBuilder(instrumentation.targetContext, PolicyDatabase::class.java).build()

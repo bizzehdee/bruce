@@ -448,7 +448,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_countTokens(JNIEnv *env, jobject, jl
 
 JNIEXPORT jint JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
-        JNIEnv *env, jobject, jlong handle, jbyteArray promptUtf8, jboolean reuse) {
+        JNIEnv *env, jobject, jlong handle, jbyteArray promptUtf8, jboolean reuse, jbyteArray checkpointPrefixUtf8) {
     Generation *generation = asGeneration(handle);
     const jsize promptLength = env->GetArrayLength(promptUtf8);
     std::vector<char> prompt(static_cast<size_t>(promptLength));
@@ -501,7 +501,20 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
         }
         return true;
     };
-    const int32_t checkpointAt = bruce::checkpointPosition(start, count, cache.canCut, kCheckpointOffset);
+    // Where the caller expects the next prompt to branch off: the prefix's length in tokens, if the
+    // prompt really starts with it.
+    int32_t preferred = -1;
+    const jsize prefixLength = env->GetArrayLength(checkpointPrefixUtf8);
+    if (prefixLength > 0 && !cache.canCut) {
+        std::vector<char> prefix(static_cast<size_t>(prefixLength));
+        env->GetByteArrayRegion(checkpointPrefixUtf8, 0, prefixLength, reinterpret_cast<jbyte *>(prefix.data()));
+        std::vector<llama_token> prefixTokens(static_cast<size_t>(count));
+        const int32_t prefixCount = llama_tokenize(generation->vocab, prefix.data(), prefixLength, prefixTokens.data(), count, true, true);
+        if (prefixCount > 0 && std::equal(prefixTokens.begin(), prefixTokens.begin() + prefixCount, tokens.begin())) {
+            preferred = prefixCount;
+        }
+    }
+    const int32_t checkpointAt = bruce::checkpointPosition(start, count, cache.canCut, kCheckpointOffset, preferred);
     bool decoded;
     if (checkpointAt > 0) {
         decoded = decodeRange(start, checkpointAt);

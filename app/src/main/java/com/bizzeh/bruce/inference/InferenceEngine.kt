@@ -81,6 +81,8 @@ data class GenerationRequest(
     val stops: List<String> = emptyList(),
     /** Keep what the prompt shares with the previous one instead of decoding it again; off for benchmarks. */
     val reusePrompt: Boolean = true,
+    /** The part of [prompt] the next one will share, when a pass branches off the chat (TASK-047). */
+    val checkpointPrefix: String? = null,
 ) {
     init {
         require(maxTokens > 0) { "maxTokens must be positive, was $maxTokens" }

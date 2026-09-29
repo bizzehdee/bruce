@@ -209,7 +209,7 @@ internal class LlamaCppEngine(
 
     private suspend fun FlowCollector<GenerationEvent>.streamCompletion(generation: Long, request: GenerationRequest) {
         val promptStart = timeSource.markNow()
-        val promptTokens = llama.evaluatePrompt(generation, request.prompt.toByteArray(Charsets.UTF_8), request.reusePrompt)
+        val promptTokens = llama.evaluatePrompt(generation, request.prompt.toByteArray(Charsets.UTF_8), request.reusePrompt, request.checkpointPrefix.orEmpty().toByteArray(Charsets.UTF_8))
         when (promptTokens) {
             LlamaApi.PROMPT_TOO_LONG -> return emit(GenerationEvent.Failed(GenerationError.PROMPT_TOO_LONG))
             LlamaApi.DECODE_FAILED -> return emit(GenerationEvent.Failed(GenerationError.DECODE_FAILED))

@@ -60,7 +60,7 @@ class ChatApprovalTest {
         val answers = mutableListOf<Boolean>()
         val saved = mutableListOf<List<ChatEntry>>()
 
-        fun respond(history: List<ToolChatMessage>) = flow {
+        fun respond(history: List<ToolChatMessage>, @Suppress("UNUSED_PARAMETER") memory: List<String>) = flow {
             histories += history
             if (histories.size == 1) {
                 emit(RuntimeEvent.Step("", "", listOf(call), null))
@@ -149,7 +149,7 @@ class ChatApprovalTest {
         val call = ToolCall("write_note", "{}", "c1")
         val skill = Skill("write_note", 1, "Write a note.", InputSchema(), emptySet(), SkillState.ASK) { SkillOutcome.Done("") }
         val events = flowOf(RuntimeEvent.Step("", "", listOf(call), null), RuntimeEvent.NeedsConfirmation(call, pending(skill)), RuntimeEvent.Finished(emptyList()))
-        val vm = ChatViewModel(FakeEngine(), MutableStateFlow(ActiveModelState()), { _, _ -> 1L }, { null }, { events }, { _, _, _ -> error("not answered") })
+        val vm = ChatViewModel(FakeEngine(), MutableStateFlow(ActiveModelState()), { _, _ -> 1L }, { null }, { _, _ -> events }, { _, _, _ -> error("not answered") })
 
         vm.setInput("Note this")
         vm.send()

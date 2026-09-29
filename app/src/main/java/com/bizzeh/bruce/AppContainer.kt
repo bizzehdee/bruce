@@ -3,9 +3,15 @@ package com.bizzeh.bruce
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
+import android.util.Log
+import com.bizzeh.bruce.chat.ChatMemory
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
+import com.bizzeh.bruce.inference.ToolChatMessage
+import com.bizzeh.bruce.memory.MemoryDatabase
+import com.bizzeh.bruce.memory.MemorySettingsRepository
+import com.bizzeh.bruce.memory.MemoryStore
 import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.models.ModelSelection
@@ -77,6 +83,30 @@ class AppContainer(private val context: Context) {
     val personalitySettings: PersonalitySettingsRepository by lazy { PersonalitySettingsRepository(context.settingsDataStore) }
 
     val summarySettings: SummarySettingsRepository by lazy { SummarySettingsRepository(context.settingsDataStore) }
+
+    val memorySettings: MemorySettingsRepository by lazy { MemorySettingsRepository(context.settingsDataStore) }
+
+    private val memoryDatabase: MemoryDatabase by lazy { Room.databaseBuilder(context, MemoryDatabase::class.java, MemoryDatabase.NAME).build() }
+
+    val memory: MemoryStore by lazy { MemoryStore(memoryDatabase.facts()) }
+
+    /** Memory as the chat uses it: the scope follows the Memory setting and the loaded model. */
+    val chatMemory: ChatMemory = object : ChatMemory {
+        override suspend fun recall(message: String): List<String> {
+            val scope = memoryScope() ?: return emptyList()
+            return memory.recall(scope, message).also { Log.i("BruceMemory", "recalled=${it.size}") }
+        }
+
+        override suspend fun learn(history: List<ToolChatMessage>, recalled: List<String>) {
+            val scope = memoryScope() ?: return
+            val facts = runtime.extractFacts(history, recalled) ?: return
+            val added = memory.add(scope, facts)
+            // Counts only: facts are the user's own words.
+            Log.i("BruceMemory", "facts found=${facts.size} new=$added")
+        }
+
+        private suspend fun memoryScope(): String? = MemoryStore.scope(memorySettings.mode.first(), activeModel.state.value.active?.name)
+    }
 
     internal suspend fun personalityRules(): String {
         val personality = personalitySettings.personality.first()
@@ -151,6 +181,7 @@ class AppContainer(private val context: Context) {
             conversations.deleteAll()
             skillStates.reset()
             grants.clear()
+            memory.deleteAll()
         }
     }
 

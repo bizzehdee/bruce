@@ -75,9 +75,10 @@ internal interface LlamaApi {
     /**
      * Evaluates the prompt and returns how many of its tokens were decoded, or [PROMPT_TOO_LONG] or
      * [DECODE_FAILED]. With [reuse], the part it shares with what the context already holds (the
-     * last prompt and reply) is kept rather than decoded again.
+     * last prompt and reply) is kept rather than decoded again. For memory that cannot be cut back,
+     * a non-empty [checkpointPrefixUtf8] that the prompt starts with marks where to checkpoint.
      */
-    fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean): Int
+    fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean, checkpointPrefixUtf8: ByteArray): Int
 
     /** Returns [TOKEN], [END_OF_GENERATION], [CONTEXT_FULL] or [DECODE_FAILED]. */
     fun nextToken(generation: Long): Int
@@ -158,7 +159,7 @@ internal object LlamaNative : LlamaApi {
 
     external override fun templateSupportsTools(templateUtf8: ByteArray, bosUtf8: ByteArray, eosUtf8: ByteArray): Int
 
-    external override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean): Int
+    external override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean, checkpointPrefixUtf8: ByteArray): Int
 
     external override fun nextToken(generation: Long): Int
 

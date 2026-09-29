@@ -60,8 +60,10 @@ class ChatViewModelTest {
     /** What the runtime does on each turn, in order; and the history it was given. */
     private val turns = ArrayDeque<Flow<RuntimeEvent>>()
     private val histories = mutableListOf<List<ToolChatMessage>>()
-    private val respond: (List<ToolChatMessage>) -> Flow<RuntimeEvent> = { history ->
+    private val memories = mutableListOf<List<String>>()
+    private val respond: (List<ToolChatMessage>, List<String>) -> Flow<RuntimeEvent> = { history, memory ->
         histories += history
+        memories += memory
         turns.removeFirstOrNull() ?: flowOf(RuntimeEvent.Finished(emptyList()))
     }
 
@@ -80,7 +82,7 @@ class ChatViewModelTest {
     @Test
     fun contextUseIsMeasuredAfterEachTurnAndWhenTheChatOrModelChanges() = runTest(dispatcher) {
         val measured = mutableListOf<Int>()
-        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, measure = { history ->
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, measure = { history, _ ->
             measured += history.size
             ContextUse(used = 10 * history.size, total = 100, dropped = 0)
         })
@@ -101,7 +103,7 @@ class ChatViewModelTest {
     private fun TestScope.summarisingChat(enabled: Boolean, used: Int, summary: String?, summarised: MutableList<List<ToolChatMessage>>): ChatViewModel {
         val vm = ChatViewModel(
             engine, activeModel, save, load, respond, noAnswer,
-            measure = { ContextUse(used = used, total = 100, dropped = 0, limit = 100) },
+            measure = { _, _ -> ContextUse(used = used, total = 100, dropped = 0, limit = 100) },
             summarySettings = flowOf(SummarySettings(enabled = enabled, threshold = 90)),
             summarise = { messages -> summarised += messages; summary },
         )
@@ -148,6 +150,39 @@ class ChatViewModelTest {
         chat("Q3", vm)
 
         assertEquals(listOf("Q1", "A1", "Q2", "A2", "Q3", "A3"), vm.state.value.entries.map { it.text })
+    }
+
+    @Test
+    fun aChatRecallsOnceFromItsFirstMessageAndLearnsAfterEachFinishedTurn() = runTest(dispatcher) {
+        val recalls = mutableListOf<String>()
+        val learned = mutableListOf<Pair<Int, List<String>>>()
+        val memory = object : ChatMemory {
+            override suspend fun recall(message: String): List<String> {
+                recalls += message
+                return listOf("I live in Leeds")
+            }
+            override suspend fun learn(history: List<ToolChatMessage>, recalled: List<String>) {
+                learned += history.size to recalled
+            }
+        }
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, memory = memory)
+        advanceUntilIdle()
+
+        turns += reply("A1")
+        chat("Q1", vm)
+        turns += flowOf(RuntimeEvent.Failed(RuntimeError.GENERATION_FAILED, emptyList()))
+        chat("Q2", vm)
+        turns += reply("A3")
+        chat("Q3", vm)
+
+        assertEquals(listOf("Q1"), recalls)
+        assertEquals(listOf(listOf("I live in Leeds"), listOf("I live in Leeds"), listOf("I live in Leeds")), memories)
+        assertEquals(listOf(2 to listOf("I live in Leeds"), 5 to listOf("I live in Leeds")), learned, "a failed turn teaches nothing")
+
+        vm.newChat()
+        turns += reply("B1")
+        chat("New question", vm)
+        assertEquals(listOf("Q1", "New question"), recalls)
     }
 
     @Test

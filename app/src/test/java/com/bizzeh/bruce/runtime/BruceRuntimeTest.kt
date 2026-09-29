@@ -407,6 +407,44 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun recalledFactsGoIntoTheSystemPromptAsNotes() = runBlocking {
+        engine.steps += Step("", ParsedReply("Hi.", "", emptyList()))
+
+        runtime().respond(question, memory = listOf("I live in Leeds", "My dog is Bruce")).toList()
+
+        assertTrue("first in the prompt, about the user", engine.formatted.last().first().content.startsWith(BruceRuntime.MEMORY_LEAD + "\n- The user lives in Leeds\n- The user's dog is Bruce\n\nYou are Milo."))
+    }
+
+    @Test
+    fun theFactPassContinuesTheChatAndMarksWhereTheChatEnds() = runBlocking {
+        engine.steps += Step("", ParsedReply("<think>\n\n</think>\n\n- My name is Sam\n* I live in Leeds\n- I like hiking and adventures\n- You are from the North\n- \"I like tea.\"\n- The user likes tea\n</think>\nNONE", "", emptyList()))
+        val history = listOf(ToolChatMessage(ChatRole.USER, "I'm Sam from Leeds and like tea"), ToolChatMessage(ChatRole.ASSISTANT, "Hi Sam!"))
+
+        val facts = runtime().extractFacts(history, memory = listOf("I like tea"))
+
+        assertEquals("markup and facts the user never stated are dropped", listOf("My name is Sam", "I live in Leeds"), facts)
+        val asked = engine.formatted[engine.formatted.size - 2]
+        assertEquals(history, asked.drop(1).dropLast(1))
+        assertEquals(BruceRuntime.FACTS_INSTRUCTIONS, asked.last().content)
+        assertTrue("the chat's memory stays in the system prompt", asked.first().content.contains("- The user likes tea"))
+        assertEquals("prompt", engine.requests.last().checkpointPrefix)
+        assertEquals(0f, engine.requests.last().temperature)
+    }
+
+    @Test
+    fun theFactPassFindsNothingInNoneOrACallAndFailsOnAGenerationFailure() = runBlocking {
+        val history = listOf(ToolChatMessage(ChatRole.USER, "What time is it?"))
+        engine.steps += Step("", ParsedReply("NONE.", "", emptyList()))
+        assertEquals(emptyList<String>(), runtime().extractFacts(history))
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}"))))
+        assertEquals(emptyList<String>(), runtime().extractFacts(history))
+        engine.steps += Step("", null, failure = GenerationError.DECODE_FAILED)
+        assertNull(runtime().extractFacts(history))
+        engine.noModel = true
+        assertNull(runtime().extractFacts(history))
+    }
+
+    @Test
     fun tooManyToolCallsEndTheTurn() {
         repeat(3) { i -> engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("calculate", "{\"expression\":\"$i+1\"}")))) }
 
