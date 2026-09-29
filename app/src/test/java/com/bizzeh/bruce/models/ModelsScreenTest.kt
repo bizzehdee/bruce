@@ -49,7 +49,7 @@ class ModelsScreenTest {
     @Test
     fun modelSettingsOfferOnlyTheBackendsGiven() {
         compose.setContent {
-            BruceTheme { ModelsScreen(ModelsState(models = listOf(stories)), actions, onBack = {}) { listOf(BackendPreference.AUTO, BackendPreference.CPU) } }
+            BruceTheme { ModelsScreen(ModelsState(models = listOf(stories)), actions, onBack = {}, backendChoices = { listOf(BackendPreference.AUTO, BackendPreference.CPU) }) }
         }
 
         compose.onNodeWithText("stories260K").performClick()
@@ -100,6 +100,21 @@ class ModelsScreenTest {
         compose.onNodeWithText("In use").assertIsDisplayed()
         compose.onNodeWithText("stories260K").performClick()
         compose.onNodeWithTag("use:stories260K.gguf").assertIsNotEnabled()
+    }
+
+    @Test
+    fun theActiveModelsTightContextOverrideIsCalledOut() {
+        val tight = stories.copy(overrides = ModelOverrides(contextLength = 2048))
+        val other = tight.copy(file = File(tight.file.parentFile, "other.gguf"))
+        compose.setContent {
+            BruceTheme { ModelsScreen(ModelsState(models = listOf(tight, other), active = tight.file), actions, onBack = {}, fixedPromptTokens = 1382) }
+        }
+
+        compose.onNodeWithText("stories260K").performClick()
+        compose.onNodeWithTag("contextTight", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("stories260K").performClick()
+        compose.onNodeWithText("other").performClick()
+        compose.onNodeWithTag("contextTight", useUnmergedTree = true).assertDoesNotExist()
     }
 
     @Test

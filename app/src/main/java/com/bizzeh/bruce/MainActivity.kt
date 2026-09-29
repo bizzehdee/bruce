@@ -236,7 +236,8 @@ class MainActivity : ComponentActivity() {
         }
         LaunchedEffect(Unit) { models.refresh() }
         val known by capabilities.collectAsState()
-        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace) { backendChoices(known, it) }
+        val fixed = fixedPromptTokens()
+        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace, { backendChoices(known, it) }, fixed)
     }
 
     @androidx.compose.runtime.Composable
@@ -244,7 +245,8 @@ class MainActivity : ComponentActivity() {
         val state by settings.state.collectAsState()
         val known by capabilities.collectAsState()
         val actions = remember { settingsActions(open) }
-        SettingsScreen(state.copy(backends = backendChoices(known, state.inference.backend)), actions, onBack)
+        val fixed = fixedPromptTokens()
+        SettingsScreen(state.copy(backends = backendChoices(known, state.inference.backend), fixedPromptTokens = fixed), actions, onBack)
     }
 
     @androidx.compose.runtime.Composable
@@ -273,6 +275,16 @@ class MainActivity : ComponentActivity() {
             }
         }
         PermissionsScreen(granted, addFailed, actions, openNetwork, onBack)
+    }
+
+    /** The loaded model's fixed prompt size, measured again whenever the loaded model changes. */
+    @androidx.compose.runtime.Composable
+    private fun fixedPromptTokens(): Int? {
+        val model by container.activeModel.state.collectAsState()
+        val fixed by androidx.compose.runtime.produceState<Int?>(null, model.active, model.loading) {
+            value = if (model.loading) null else container.runtime.fixedPromptTokens()
+        }
+        return fixed
     }
 
     @androidx.compose.runtime.Composable

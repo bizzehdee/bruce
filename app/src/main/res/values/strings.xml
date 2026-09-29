@@ -91,6 +91,7 @@
     <string name="settings_threads">Threads</string>
     <string name="settings_threads_auto">Auto (%1$d)</string>
     <string name="settings_context">Context length (tokens)</string>
+    <string name="settings_context_tight">With the loaded model, instructions and skills take about %1$,d tokens, leaving about %2$,d for the chat. Choose a longer context.</string>
     <string name="settings_defaults_note">Applied the next time a model is loaded.</string>
     <string name="settings_privacy">Data and privacy</string>
     <string name="settings_permissions">Permissions</string>

@@ -51,6 +51,20 @@ class SettingsScreenTest {
         compose.setContent { BruceTheme { SettingsScreen(state, actions) {} } }
 
     @Test
+    fun aTightContextLengthIsCalledOut() {
+        show(SettingsState(inference = InferenceDefaults(contextLength = 2048), fixedPromptTokens = 1382))
+
+        compose.onNodeWithText("With the loaded model, instructions and skills take about 1,382 tokens, leaving about 154 for the chat. Choose a longer context.")
+            .performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun aRoomyOrUnmeasuredContextSaysNothing() {
+        show(SettingsState(inference = InferenceDefaults(contextLength = 4096), fixedPromptTokens = 1382))
+        compose.onNodeWithTag("contextTight").assertDoesNotExist()
+    }
+
+    @Test
     fun summariseIsOffWithNoThresholdShown() {
         show()
         compose.onNodeWithText("90%").assertDoesNotExist()

@@ -415,8 +415,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `BruceRuntime.offer()` leaves out skills scoped to granted files while nothing is granted and adds one line pointing the user to Settings, Permissions; with grants, the skills and the granted names are offered as before.
   - Measured on the Xperia 1 II instead of the Pixel 11 (the Pixel has Documents granted from earlier tests): an empty chat with Qwen3.5-0.8B and default skill states went from 1,198 to 834 tokens (create, write and delete are offered by default; list and read are off).
   - Depends on: TASK-042, TASK-043, TASK-044
-- [ ] TASK-060: Warn when a context length leaves little room
+- [x] TASK-060: Warn when a context length leaves little room
   - Settings (Context length) and a model's own settings: when the fixed part of the prompt (system prompt and skills, as measured for the loaded model) leaves less than a set share of the chosen context for the conversation, say so beside the choice.
+  - Done: `ContextBudget` holds the reply reserve and the room a context leaves for the chat, shared with the runtime's fitting. The fixed part is the loaded model's empty-chat prompt (`BruceRuntime.fixedPromptTokens`), measured again when the loaded model changes. "Tight" means less than a quarter of the context left for the conversation; Settings shows the note under Context length, and Models under the active model's own context setting, with both numbers.
+  - Not seen on a phone: with the Pixel's Llama 3.2 file (968 fixed tokens) no choice is tight, as expected; screen tests cover the note.
   - Depends on: TASK-045
 - [ ] TASK-061: Mark files without skill support in the model browser
   - Some GGUFs carry a stripped chat template with no tool support (seen 2026-09-29: hugging-quants/Llama-3.2-1B-Instruct-Q4_K_M-GGUF, the top search result, has a 348-character template; bartowski's copy keeps Meta's). With it Bruce falls back to its own format, which small models rarely use.
