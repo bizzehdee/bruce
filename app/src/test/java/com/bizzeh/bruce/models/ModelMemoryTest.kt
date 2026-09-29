@@ -31,6 +31,37 @@ class ModelMemoryTest {
         assertTrue(estimate.complete)
     }
 
+    /**
+     * Shaped like Gemma 4 E4B: 42 layers, the last 18 sharing earlier layers' cache, every sixth
+     * layer attending over the whole context and the rest over a 512-token window. llama.cpp itself
+     * reported 104 MiB of cache at 4K and 552 MiB at 32K for that model (2026-09-29).
+     */
+    private val gemma = base.copy(
+        architecture = "gemma4", blockCount = 42, embeddingLength = 2560, headCount = 8, headCountKv = 2, keyLength = 512, valueLength = 512,
+        slidingWindow = 512, slidingWindowPattern = List(42) { (it + 1) % 6 != 0 }, keyLengthSwa = 256, valueLengthSwa = 256, sharedKvLayers = 18,
+        fileSizeBytes = 5_335_289_792L, lookupOnlyBytes = 2_312_110_080L,
+    )
+
+    @Test
+    fun slidingWindowAndSharedLayersAreSizedAsLlamaCppBuildsThem() {
+        val mib = 1L shl 20
+        assertEquals(104 * mib, ModelMemory.estimate(gemma, 4096).kvCacheBytes)
+        assertEquals(552 * mib, ModelMemory.estimate(gemma, 32768).kvCacheBytes)
+        assertEquals(4L * 512 * 2 * 1024 * 2 + 20L * 512 * 2 * 512 * 2, ModelMemory.estimate(gemma, 512).kvCacheBytes, "a window cache never exceeds the context")
+    }
+
+    @Test
+    fun lookupOnlyTablesAreNotCountedAsMemory() {
+        assertEquals(5_335_289_792L - 2_312_110_080L, ModelMemory.estimate(gemma, 4096).weightsBytes)
+    }
+
+    @Test
+    fun aPatternThatDoesNotMatchTheLayersFallsBackToEveryLayerHoldingTheWholeContext() {
+        val full = 42L * 4096 * 2 * 1024 * 2
+        assertEquals(full, ModelMemory.estimate(gemma.copy(slidingWindowPattern = List(10) { true }), 4096).kvCacheBytes)
+        assertEquals(full, ModelMemory.estimate(gemma.copy(slidingWindow = null), 4096).kvCacheBytes)
+    }
+
     @Test
     fun groupedQueryAttentionModel() {
         // Shaped like a 4B model: 36 layers, 2560 wide, 32 query heads, 8 KV heads, 128 per head.

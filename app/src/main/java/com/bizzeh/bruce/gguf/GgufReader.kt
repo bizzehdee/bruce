@@ -26,6 +26,16 @@ data class GgufMetadata(
     val valueLength: Long? = null,
     /** `tokenizer.chat_template`, if at most 64 KB; untrusted text. */
     val chatTemplate: String? = null,
+    /** Sliding-window attention: the window in tokens, and per layer whether it uses the window (true) or the whole context. */
+    val slidingWindow: Long? = null,
+    val slidingWindowPattern: List<Boolean>? = null,
+    /** Head sizes of the sliding-window layers, when they differ from [keyLength] and [valueLength]. */
+    val keyLengthSwa: Long? = null,
+    val valueLengthSwa: Long? = null,
+    /** The last this many layers reuse earlier layers' KV cache and keep none of their own (Gemma 3n and 4). */
+    val sharedKvLayers: Long? = null,
+    /** Bytes of tensors only ever looked up by row, which llama.cpp reads from the mapped file as needed rather than holding in memory. */
+    val lookupOnlyBytes: Long = 0,
 )
 
 sealed interface GgufReadResult {
@@ -59,6 +69,15 @@ object GgufReader {
     private val SUPPORTED_VERSIONS = 2..3
     private const val MAX_KEPT_STRING_BYTES = 64 * 1024
     private const val MAX_TENSOR_DIMENSIONS = 4
+    private const val MAX_PATTERN_LAYERS = 4096
+    private const val DEFAULT_ALIGNMENT = 32L
+
+    /**
+     * Per-layer token embeddings (Gemma 3n and 4): a lookup table that is 44% of Gemma 4 E4B's file.
+     * Measured 2026-09-29: llama.cpp keeps it in the mapped file (CPU_Mapped, not repacked), and the
+     * process's own memory for that model was 2.1 GB against a 5.3 GB file.
+     */
+    private val LOOKUP_ONLY_TENSORS = setOf("per_layer_token_embd.weight")
 
     private const val TYPE_UINT8 = 0
     private const val TYPE_INT8 = 1
@@ -78,6 +97,9 @@ object GgufReader {
     private const val KEY_NAME = "general.name"
     private const val KEY_CHAT_TEMPLATE = "tokenizer.chat_template"
     private const val KEY_FILE_TYPE = "general.file_type"
+    private const val KEY_ALIGNMENT = "general.alignment"
+    private const val SWA_PATTERN_SUFFIX = ".attention.sliding_window_pattern"
+    private const val MAX_TENSOR_NAME_BYTES = 256
     private const val CONTEXT_LENGTH_SUFFIX = ".context_length"
 
     /** Raised only inside the parser, and converted to [GgufError.MALFORMED]. */
@@ -129,6 +151,7 @@ object GgufReader {
 
         val strings = mutableMapOf<String, String>()
         val integers = mutableMapOf<String, Long>()
+        var pattern: List<Boolean>? = null
         repeatCount(keyValueCount) {
             val key = input.string(MAX_KEPT_STRING_BYTES)
             when (val type = input.int32()) {
@@ -139,7 +162,7 @@ object GgufReader {
                         KEY_CHAT_TEMPLATE -> input.stringOrSkip(MAX_KEPT_STRING_BYTES)?.let { strings[key] = it }
                         else -> input.skipString()
                     }
-                TYPE_ARRAY -> skipArray(input)
+                TYPE_ARRAY -> if (key.endsWith(SWA_PATTERN_SUFFIX)) pattern = boolArrayOrSkip(input) else skipArray(input)
                 TYPE_UINT32 -> integers[key] = input.uint32()
                 TYPE_INT32 -> integers[key] = input.int32().toLong()
                 TYPE_UINT64, TYPE_INT64 -> integers[key] = input.int64()
@@ -148,8 +171,10 @@ object GgufReader {
         }
 
         var parameterCount = 0L
+        val offsets = mutableListOf<Long>()
+        val lookupOffsets = mutableListOf<Long>()
         repeatCount(tensorCount) {
-            input.skipString()
+            val name = input.stringOrSkip(MAX_TENSOR_NAME_BYTES)
             val dimensions = input.int32()
             if (dimensions !in 1..MAX_TENSOR_DIMENSIONS) throw MalformedGguf()
             var elements = 1L
@@ -158,9 +183,15 @@ object GgufReader {
                 if (size < 0) throw MalformedGguf()
                 elements = checkedMultiply(elements, size)
             }
-            input.skip(Int.SIZE_BYTES.toLong() + Long.SIZE_BYTES)
+            input.skip(Int.SIZE_BYTES.toLong())
+            val offset = input.int64()
+            offsets += offset
+            if (name in LOOKUP_ONLY_TENSORS) lookupOffsets += offset
             parameterCount = checkedAdd(parameterCount, elements)
         }
+        val alignment = integers[KEY_ALIGNMENT]?.takeIf { it > 0 } ?: DEFAULT_ALIGNMENT
+        val dataStart = (input.position + alignment - 1) / alignment * alignment
+        val lookupOnlyBytes = lookupOffsets.sumOf { tensorBytes(it, offsets, fileSize - dataStart) }
 
         val architecture = strings[KEY_ARCHITECTURE]
         val fileType = integers[KEY_FILE_TYPE]?.toInt()
@@ -182,8 +213,34 @@ object GgufReader {
                 headCountKv = architecture?.let { integers["$it.attention.head_count_kv"] },
                 keyLength = architecture?.let { integers["$it.attention.key_length"] },
                 valueLength = architecture?.let { integers["$it.attention.value_length"] },
+                slidingWindow = architecture?.let { integers["$it.attention.sliding_window"] },
+                slidingWindowPattern = pattern,
+                keyLengthSwa = architecture?.let { integers["$it.attention.key_length_swa"] },
+                valueLengthSwa = architecture?.let { integers["$it.attention.value_length_swa"] },
+                sharedKvLayers = architecture?.let { integers["$it.attention.shared_kv_layers"] },
+                lookupOnlyBytes = lookupOnlyBytes,
             ),
         )
+    }
+
+    /** A tensor's size: up to the next tensor's data, or to the end of the file for the last. */
+    private fun tensorBytes(offset: Long, offsets: List<Long>, dataBytes: Long): Long {
+        val next = offsets.filter { it > offset }.minOrNull() ?: dataBytes
+        return (next - offset).coerceAtLeast(0)
+    }
+
+    private fun boolArrayOrSkip(input: LittleEndianInput): List<Boolean>? {
+        val elementType = input.int32()
+        val count = input.count()
+        if (elementType != TYPE_BOOL || count > MAX_PATTERN_LAYERS) {
+            when (elementType) {
+                TYPE_STRING -> repeatCount(count) { input.skipString() }
+                TYPE_ARRAY -> throw MalformedGguf()
+                else -> input.skip(checkedMultiply(count, scalarSize(elementType)))
+            }
+            return null
+        }
+        return List(count.toInt()) { input.byte() != 0 }
     }
 
     private fun skipArray(input: LittleEndianInput) {
@@ -228,8 +285,13 @@ object GgufReader {
     private class LittleEndianInput(
         private val stream: InputStream,
         private val size: Long,
-        private var position: Long,
+        start: Long,
     ) {
+        var position: Long = start
+            private set
+
+        fun byte(): Int = bytes(1)[0].toInt() and 0xFF
+
         private val remaining: Long get() = size - position
 
         fun int32(): Int {

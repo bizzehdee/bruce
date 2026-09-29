@@ -35,15 +35,24 @@ class GgufBuilder(private val version: Int = 3) {
         write(ByteArray((count * elementBytes).toInt()))
     }
 
+    fun boolArray(key: String, vararg values: Boolean) = keyValue(key, 9) {
+        writeInt(7)
+        writeLong(values.size.toLong())
+        values.forEach { write(if (it) 1 else 0) }
+    }
+
     fun rawKeyValue(key: String, type: Int, body: ByteArrayOutputStream.() -> Unit) = keyValue(key, type, body)
 
-    fun tensor(name: String, vararg dims: Long) = apply {
+    fun tensor(name: String, vararg dims: Long) = tensorAt(name, 0, *dims)
+
+    /** A tensor whose data starts [offset] bytes into the data section. */
+    fun tensorAt(name: String, offset: Long, vararg dims: Long) = apply {
         tensorCount++
         tensors.writeString(name)
         tensors.writeInt(dims.size)
         dims.forEach { tensors.writeLong(it) }
         tensors.writeInt(0)
-        tensors.writeLong(0)
+        tensors.writeLong(offset)
     }
 
     fun build(tensorCountOverride: Long? = null, keyValueCountOverride: Long? = null): ByteArray =

@@ -120,6 +120,46 @@ class GgufReaderTest {
     }
 
     @Test
+    fun readsSlidingWindowShapeAndLookupOnlyTables() {
+        val header = GgufBuilder()
+            .string("general.architecture", "gemma4")
+            .uint32("gemma4.attention.sliding_window", 512)
+            .boolArray("gemma4.attention.sliding_window_pattern", true, true, false)
+            .uint32("gemma4.attention.key_length_swa", 256)
+            .uint32("gemma4.attention.value_length_swa", 128)
+            .uint32("gemma4.attention.shared_kv_layers", 1)
+            .tensorAt("token_embd.weight", 0, 4)
+            .tensorAt("per_layer_token_embd.weight", 64, 4)
+            .tensorAt("blk.0.attn_q.weight", 1064, 4)
+            .build()
+        val metadata = metadata(header + ByteArray(3000))
+
+        assertEquals(512L, metadata.slidingWindow)
+        assertEquals(listOf(true, true, false), metadata.slidingWindowPattern)
+        assertEquals(256L, metadata.keyLengthSwa)
+        assertEquals(128L, metadata.valueLengthSwa)
+        assertEquals(1L, metadata.sharedKvLayers)
+        assertEquals(1000L, metadata.lookupOnlyBytes)
+    }
+
+    @Test
+    fun aLookupTableLastInTheFileRunsToItsEnd() {
+        val header = GgufBuilder().string("general.architecture", "gemma4").tensorAt("blk.0.attn_q.weight", 0, 4).tensorAt("per_layer_token_embd.weight", 96, 4).build()
+        val dataStart = (header.size + 31) / 32 * 32
+        val metadata = metadata(header + ByteArray(dataStart - header.size + 96 + 500))
+
+        assertEquals(500L, metadata.lookupOnlyBytes)
+    }
+
+    @Test
+    fun aPatternOfAnotherTypeIsSkipped() {
+        val metadata = metadata(GgufBuilder().string("general.architecture", "gemma4").scalarArray("gemma4.attention.sliding_window_pattern", 4, 3, 4).build())
+
+        assertEquals(null, metadata.slidingWindowPattern)
+        assertEquals(0L, metadata.lookupOnlyBytes)
+    }
+
+    @Test
     fun unknownFileTypeKeepsNumberWithoutName() {
         val metadata = metadata(GgufBuilder().int32("general.file_type", 999).build())
 
