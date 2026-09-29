@@ -92,7 +92,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 
 - **Model manager** — Import, install, verify, inspect (architecture, parameters,
   quantisation, context size, file size, compatibility, memory), select, load,
-  unload, delete. Model files live outside the database. `planned`
+  unload, delete. Model files live outside the database. Each model shows the
+  RAM it is expected to use at its context size, as a share of the phone's RAM.
+  Context sizes run from 2K to 64K; by default Bruce picks the biggest that
+  leaves the phone room for other apps, within what the model was trained for.
+  `planned`
 - **Hugging Face discovery** — Search public GGUF repositories through the
   anonymous Hub API. Search results already carry architecture, parameter count,
   context length, licence and gated status, so incompatible or gated models can be
@@ -226,7 +230,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   bottom, and replies that stream in as they are generated. Bruce's actions,
   permission requests and confirmations appear inline in the conversation.
   This familiar layout is the starting point because it is what users expect;
-  how Bruce's interface stands apart is decided later. `in progress`
+  how Bruce's interface stands apart is decided later. A microphone button fills
+  the message box by speech, through Android's on-device recogniser only; it is
+  not shown on phones without one. `in progress`
 - **Personalities** — Settings offers personalities, one choice for every chat:
   **Bruce** (fast, energetic, confident, warm, a little silly; the default) and
   **Milo** (curious, observant, calm, thoughtful). Each has fixed personality
@@ -444,6 +450,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Added | Voice input through Android's on-device recogniser only; RAM use per model with a bar against the phone's RAM; context sizes up to 64K; a default context picked from the phone and the model. |
 | 2026-09-29 | Changed | Skill defaults (owner): settings, battery, device and storage skills start off; file skills are locked off until something is granted, and network status while the network mode is Offline. Locked skills show why on the Skills screen and are never offered. |
 | 2026-09-29 | Changed | Tool definitions reach the model on one line instead of indented, and three skill descriptions are shorter (owner): the Pixel's empty-chat prompt with Llama 3.2 1B drops by about a fifth, measured with no loss of tool-call accuracy. |
 | 2026-09-29 | Changed | Changing Android settings done: brightness, screen timeout, auto-rotate, vibrate on touch and volumes, asking each time; other settings open their Android page. |
