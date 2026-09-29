@@ -29,9 +29,19 @@ under Auto froze the phone until a forced reboot (`sys.boot.reason` `reboot,long
 same app on the CPU backend (i8mm variant), 1 and 4 threads, matches the reference.
 ggml's OpenCL backend drops the device as unsupported.
 
-**Cause not established.** Bruce's Vulkan path has never been checked on a GPU known to work, so
-the fault may be in our shader build (host `glslc`), our integration, llama.cpp's Vulkan code or
-the PowerVR driver. TASK-050 separates these.
+**Cause (established 2026-09-29, TASK-050): the PowerVR driver, not Bruce.** Eliminated in turn:
+- *Our shader build and llama.cpp's Vulkan code in general*: the pinned llama.cpp built with the
+  same host `glslc` passes every `test-backend-ops` case on an AMD RX 6750 XT (RADV) and gives the
+  stories260K reference there.
+- *Bruce's integration*: standalone llama.cpp built with Bruce's backend settings, run on the Pixel
+  without Bruce, gives Bruce's wrong output exactly.
+On the Pixel, FLASH_ATTN_EXT fails 2,288 of 3,015 op tests, a batched F32 MUL_MAT fails with
+cooperative matrices, IQ GET_ROWS fail, and whole-graph output changes from run to run although
+most single ops pass. Flash attention off plus `GGML_VK_SERIALIZE_SUBMISSIONS=1` fixed stories260K
+and a short Qwen3.5 answer, but a 64-token Qwen3.5 answer still differed from the CPU's, so no
+known setting makes this GPU trustworthy. The phone freeze matches upstream's firmware crashes on
+the same GPU (llama.cpp #28214, `GUILTY_OVERRUNING` / `FW_PAGEFAULT`). Evidence:
+`research/experiments/vulkan-powervr-2026-09-29`, `research/sources/llama-cpp-powervr-issues-2026-09-29`.
 
 So Auto always uses the CPU; Vulkan and OpenCL run only when the user picks them, marked
 experimental. A "usable" device (API version check) is not evidence that it computes
