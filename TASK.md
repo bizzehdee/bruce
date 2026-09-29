@@ -433,7 +433,9 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Open before starting: the licence of each template Bruce would ship (Meta's may count as Llama Materials under the Llama 3.2 licence) and how a family is recognised reliably (architecture, tokenizer's special tokens).
   - Measure with the TASK-033 cases: Llama 3.2 1B scored 15/36 in Bruce's format and 18/36 in its own on the host.
   - Depends on: TASK-036
-- [ ] TASK-064: Context traffic lights
+- [x] TASK-064: Context traffic lights
   - The chat's context bar is green below 65%, amber from 65% to below 85% and red from 85%, measured against what the prompt may use (the context less the reply reserve, as "Nearly full" is), so red means old messages are about to be dropped at any context size.
   - Appearance setting "Context traffic lights", on by default; off, the bar looks as it does now.
+  - Done: `ContextLight.of` picks the light from use of the prompt limit; `BruceTheme` provides the colours (separate light and dark shades) through `LocalTrafficLights`, or none when the Appearance switch is off, so the bar keeps its usual colour.
+  - Seen on the Pixel 11: green at 968 of 8,192 tokens. Amber and red covered by unit tests only.
   - Depends on: TASK-045
