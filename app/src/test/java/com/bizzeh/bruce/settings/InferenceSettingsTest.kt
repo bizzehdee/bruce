@@ -37,6 +37,14 @@ class InferenceSettingsTest {
 
         repository.setThreads(null)
         assertEquals(null, repository.defaults.first().threads)
+
+        repository.setContextLength(65536)
+        assertEquals(65536, repository.defaults.first().contextLength)
+    }
+
+    @Test
+    fun contextChoicesRunFrom2kTo64k() {
+        assertEquals(listOf("2K", "4K", "8K", "16K", "24K", "32K", "48K", "64K"), InferenceDefaults.CONTEXT_CHOICES.map(SettingsText::contextLabel))
     }
 
     @Test
