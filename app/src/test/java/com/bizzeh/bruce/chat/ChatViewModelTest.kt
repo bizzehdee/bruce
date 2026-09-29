@@ -186,6 +186,25 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun eachTurnIsReportedStartedAndFinishedWithItsAnswer() = runTest(dispatcher) {
+        val reports = mutableListOf<String>()
+        val observer = object : TurnObserver {
+            override fun turnStarted() { reports += "started" }
+            override fun turnFinished(conversationId: Long, reply: String?, completed: Boolean) { reports += "finished $conversationId $reply $completed" }
+        }
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, turns = observer)
+        advanceUntilIdle()
+
+        turns += flowOf(RuntimeEvent.Step("<think>hm</think>Noon.", "", emptyList(), stats), RuntimeEvent.Finished(emptyList()))
+        chat("Time?", vm)
+        turns += flowOf(RuntimeEvent.Failed(RuntimeError.GENERATION_FAILED, emptyList()))
+        chat("Again?", vm)
+
+        val id = vm.state.value.conversationId
+        assertEquals(listOf("started", "started", "finished $id Noon. true", "started", "started", "finished $id Noon. false"), reports)
+    }
+
+    @Test
     fun titleFollowsTheActiveModel() = runTest(dispatcher) {
         val vm = viewModel()
         assertEquals("Qwen3-0.6B-Q4_0", vm.state.value.modelName)

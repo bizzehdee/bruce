@@ -17,6 +17,10 @@
     <string name="chat_context_use">%1$,d of %2$,d tokens used · %3$,d free</string>
     <string name="chat_context_nearly_full">Nearly full. New messages will push the oldest out; the chat carries on.</string>
     <string name="chat_context_dropped">The model no longer sees the messages above. They stay here and in the saved chat.</string>
+    <string name="notification_channel_replies">Replies</string>
+    <string name="notification_channel_working">Writing a reply</string>
+    <string name="notification_working">Bruce is writing a reply…</string>
+    <string name="notification_reply_ready">Your reply is ready</string>
     <string name="chat_summary_title">Summary: the model now sees this instead of the messages above</string>
     <string name="chat_summarising">Summarising older messages…</string>
     <string name="chat_context_title">Context</string>

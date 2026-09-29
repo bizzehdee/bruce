@@ -5,6 +5,7 @@
     <!-- Hugging Face model search and downloads, only when the network mode allows them. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Network status skill: whether the phone is online and how; granted at install. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -20,6 +21,12 @@
         android:theme="@style/Theme.Bruce"
         tools:targetApi="36">
         <!-- singleTask so the sign-in redirect returns to the running app, not a new copy. -->
+        <!-- Keeps a reply going with Bruce off screen (TASK-048); a short service, ended with the turn. -->
+        <service
+            android:name=".notifications.ReplyService"
+            android:exported="false"
+            android:foregroundServiceType="shortService" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Reply notifications done: replies finish off screen in a short foreground service and are announced; tapping opens the chat. |
 | 2026-09-29 | Changed | Memory done: off by default, per model or shared; facts found by a pass after each reply, recalled at a chat's start, reviewed and deleted in Settings. |
 | 2026-09-29 | Changed | Tool templates for stripped copies are fetched from another Hub copy of the same model, not shipped with Bruce (licence). |
 | 2026-09-29 | Changed | Installed models whose template has no tool support say so, with a search for a copy that has it. |

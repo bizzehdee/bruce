@@ -41,6 +41,7 @@ import com.bizzeh.bruce.memory.MemoryMode
 import com.bizzeh.bruce.memory.MemoryScreen
 import com.bizzeh.bruce.memory.MemoryViewModel
 import com.bizzeh.bruce.models.Assessment
+import com.bizzeh.bruce.notifications.ReplyNotifications
 import com.bizzeh.bruce.models.BrowseActions
 import com.bizzeh.bruce.models.BrowseFilters
 import com.bizzeh.bruce.models.DeviceProfile
@@ -96,6 +97,7 @@ class MainActivity : ComponentActivity() {
                 container.summarySettings.settings,
                 container.runtime::summarise,
                 container.chatMemory,
+                container.turnObserver,
             )
         }
     }
@@ -155,7 +157,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState == null) handleSignInRedirect(intent)
+        if (savedInstanceState == null) {
+            handleSignInRedirect(intent)
+            handleOpenChat(intent)
+        }
+        container.stopTurn = { chat.stop() }
         lifecycleScope.launch(Dispatchers.IO) { capabilities.value = container.engine.getCapabilities() }
         enableEdgeToEdge()
         setContent {
@@ -331,6 +337,36 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleSignInRedirect(intent)
+        handleOpenChat(intent)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        container.onScreen = true
+    }
+
+    override fun onStop() {
+        container.onScreen = false
+        super.onStop()
+    }
+
+    /** A reply notification's tap: shows the chat it belongs to. */
+    private fun handleOpenChat(intent: Intent?) {
+        if (intent?.action != ReplyNotifications.ACTION_OPEN_CHAT) return
+        val id = intent.getLongExtra(ReplyNotifications.EXTRA_CONVERSATION, -1)
+        if (id >= 0) chat.open(id)
+    }
+
+    /** Asked once, the first time a reply might need it, if Android needs the permission and does not have it (TASK-048). */
+    private val replyPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
+    private fun askForNotificationsOnce() {
+        if (!needsNotificationPermission()) return
+        lifecycleScope.launch {
+            if (container.setupSettings.notificationsAskedForReply.first()) return@launch
+            container.setupSettings.markNotificationsAskedForReply()
+            replyPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     /** The Hugging Face sign-in redirect; HubAuth rejects anything that does not match the sign-in it started. */
@@ -353,7 +389,10 @@ class MainActivity : ComponentActivity() {
 
     private fun chatActions() = object : ChatActions {
         override fun setInput(input: String) = chat.setInput(input)
-        override fun send() = chat.send()
+        override fun send() {
+            askForNotificationsOnce()
+            chat.send()
+        }
         override fun stop() = chat.stop()
         override fun decide(callId: String, approved: Boolean) = chat.decide(callId, approved)
     }
