@@ -1,5 +1,8 @@
 package com.bizzeh.bruce
 
+import android.util.Log
+import android.content.ActivityNotFoundException
+import com.bizzeh.bruce.chat.Markdown
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -401,6 +404,15 @@ class MainActivity : ComponentActivity() {
         }
         override fun stop() = chat.stop()
         override fun decide(callId: String, approved: Boolean) = chat.decide(callId, approved)
+        override fun openLink(url: String) {
+            val address = Markdown.openable(url) ?: return
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(address)).addCategory(Intent.CATEGORY_BROWSABLE))
+            } catch (e: ActivityNotFoundException) {
+                Log.w("BruceLinks", "no app opens web links")
+            }
+        }
+        override suspend fun loadImage(url: String) = container.remoteImages.load(url)
     }
 
     private fun conversationActions() = object : ConversationActions {

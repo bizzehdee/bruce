@@ -36,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +58,11 @@ interface ChatActions {
 
     /** The user's answer to a skill call awaiting approval. */
     fun decide(callId: String, approved: Boolean)
+
+    /** Opens an http or https address the user confirmed, in the browser. */
+    fun openLink(url: String) = Unit
+
+    suspend fun loadImage(url: String): ImageResult = ImageResult.NotAllowed
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,6 +113,27 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
         }
         return
     }
+    var confirmLink by rememberSaveable { mutableStateOf<String?>(null) }
+    confirmLink?.let { url ->
+        AlertDialog(
+            onDismissRequest = { confirmLink = null },
+            title = { Text(stringResource(R.string.markdown_link_title)) },
+            text = { Text(url, modifier = Modifier.testTag("linkAddress")) },
+            confirmButton = {
+                TextButton(onClick = { confirmLink = null; actions.openLink(url) }, modifier = Modifier.testTag("openLink")) { Text(stringResource(R.string.markdown_link_open)) }
+            },
+            dismissButton = { TextButton(onClick = { confirmLink = null }) { Text(stringResource(R.string.markdown_link_cancel)) } },
+        )
+    }
+    val markdownActions = remember(actions) {
+        object : MarkdownActions {
+            override fun link(url: String) {
+                confirmLink = url
+            }
+
+            override suspend fun image(url: String) = actions.loadImage(url)
+        }
+    }
     val listState = rememberLazyListState()
     LaunchedEffect(state.entries.size, state.entries.lastOrNull()?.text?.length) {
         listState.scrollToItem(state.entries.lastIndex)
@@ -135,7 +162,7 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
                 entry.tool != null -> Unit
                 // A reply that only asked for skills has nothing to show; its tool rows follow.
                 entry.text.isEmpty() && entry.toolCalls.isNotEmpty() -> Unit
-                else -> Reply(index, entry, state.sidekick)
+                else -> Reply(index, entry, state.sidekick, markdownActions)
             }
         }
         if (state.summarising) {
@@ -269,7 +296,7 @@ private fun UserMessage(text: String) {
 }
 
 @Composable
-private fun Reply(index: Int, entry: ChatEntry, sidekick: String) {
+private fun Reply(index: Int, entry: ChatEntry, sidekick: String, markdown: MarkdownActions) {
     val reply = ThinkingText.split(entry.text)
     var showReasoning by rememberSaveable(index) { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth().testTag("reply:$index"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -293,7 +320,7 @@ private fun Reply(index: Int, entry: ChatEntry, sidekick: String) {
             }
         }
         if (reply.answer.isNotEmpty()) {
-            Text(reply.answer, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("answer:$index"))
+            MarkdownText(reply.answer, markdown, modifier = Modifier.testTag("answer:$index"))
         }
     }
 }

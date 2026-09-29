@@ -221,9 +221,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Formatted replies** — Replies are rendered as Markdown (headings, emphasis,
   lists, code, tables, quotes) in Bruce's own theme, parsed by commonmark-java and
   drawn in Compose, with no web view. Links show their full address and open in
-  the browser only after the user confirms. Images load only when the network
-  mode allows the site (Any site; Approved sites for approved domains); otherwise
-  the alt text and address are shown. `planned`
+  the browser only after the user confirms. Images show their description and
+  address, and load only when the user taps Load image and the network mode
+  allows the site (Any site; Approved sites for approved domains, once there is
+  a list of them). `done`
 - **Navigation** — A side drawer, as in the ChatGPT, Claude and Gemini apps, holds
   the conversation list and entries for Models and Settings. The chat screen's top
   bar shows the active model; tapping it opens a quick model switcher. The
@@ -427,6 +428,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Formatted replies done. Images in replies load only when tapped, even in Any site mode: an image address written by the model could carry chat text to any server. |
 | 2026-09-29 | Changed | Folder instructions done: reviewed on the Permissions screen when a folder is granted or they change; followed ones go to the model once per chat with the first file result there. |
 | 2026-09-29 | Changed | Reply notifications done: replies finish off screen in a short foreground service and are announced; tapping opens the chat. |
 | 2026-09-29 | Changed | Memory done: off by default, per model or shared; facts found by a pass after each reply, recalled at a chat's start, reviewed and deleted in Settings. |

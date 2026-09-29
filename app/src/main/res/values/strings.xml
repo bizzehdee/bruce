@@ -269,4 +269,12 @@
     <string name="settings_delete_conversations">Delete all chats</string>
     <string name="settings_delete_conversations_summary">Removes every saved and archived chat from this phone.</string>
     <string name="settings_delete_conversations_confirm_title">Delete all chats?</string>
+    <string name="markdown_link_title">Open this address?</string>
+    <string name="markdown_link_open">Open in browser</string>
+    <string name="markdown_link_cancel">Cancel</string>
+    <string name="markdown_image">Image</string>
+    <string name="markdown_image_load">Load image</string>
+    <string name="markdown_image_loading">Loading…</string>
+    <string name="markdown_image_not_allowed">Images from the web load only in the Any site network mode.</string>
+    <string name="markdown_image_failed">The image could not be loaded.</string>
 </resources>

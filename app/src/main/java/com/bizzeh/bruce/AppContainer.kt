@@ -1,5 +1,7 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.settings.NetworkMode
+import com.bizzeh.bruce.chat.RemoteImages
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
@@ -163,6 +165,11 @@ class AppContainer(private val context: Context) {
 
     val downloader: ModelDownloader by lazy {
         ModelDownloader(transport, modelsDir, networkSettings::huggingFaceAllowed, Dispatchers.IO, userAgent, token = hubAuth::accessToken)
+    }
+
+    /** Only Any site allows images: Approved sites has no list of sites yet, so none are approved. */
+    val remoteImages: RemoteImages by lazy {
+        RemoteImages(transport, { networkSettings.mode.first() == NetworkMode.GENERAL }, Dispatchers.IO, userAgent)
     }
 
     val setupSettings: SetupSettingsRepository by lazy { SetupSettingsRepository(context.settingsDataStore) }

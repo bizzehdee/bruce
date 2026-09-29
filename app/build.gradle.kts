@@ -125,6 +125,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.room.runtime)
+    implementation(libs.commonmark)
+    implementation(libs.commonmark.ext.gfm.tables)
     ksp(libs.room.compiler)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

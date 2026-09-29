@@ -16,6 +16,7 @@ object OpenSourceLicences {
         LicensedComponent("LLVM libc++ and OpenMP runtime", "Apache License 2.0 with LLVM Exceptions", R.raw.licence_llvm),
         LicensedComponent("Android Jetpack (AndroidX, Compose, Material 3, DataStore)", "Apache License 2.0", R.raw.licence_apache_2_0),
         LicensedComponent("Kotlin standard library and kotlinx.coroutines", "Apache License 2.0", R.raw.licence_apache_2_0),
+        LicensedComponent("commonmark-java", "BSD 2-Clause", R.raw.licence_bsd_2_commonmark),
         LicensedComponent("Material Icons", "Apache License 2.0", R.raw.licence_apache_2_0),
     )
 }

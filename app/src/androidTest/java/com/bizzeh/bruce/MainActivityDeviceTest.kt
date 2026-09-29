@@ -6,7 +6,9 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasTestTag
+import com.bizzeh.bruce.skills.SkillState
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTouchInput
@@ -49,7 +51,11 @@ class MainActivityDeviceTest {
     @Before
     fun setUp() {
         // The engine and settings outlive a single test, so each test starts from cleared data.
-        runBlocking { container.dataReset.clearAll() }
+        runBlocking {
+            container.dataReset.clearAll()
+            // stories260K reads about one token per character: the skills' descriptions alone overfill its context.
+            container.skills.skills.forEach { container.skillStates.set(it, SkillState.DECLINED) }
+        }
         modelsDir.mkdirs()
         instrumentation.context.assets.open("stories260K.gguf").use { input ->
             File(modelsDir, "stories260K.gguf").outputStream().use { input.copyTo(it) }
@@ -114,7 +120,7 @@ class MainActivityDeviceTest {
 
         // Wait for the reply itself: the typed text and the Send button are both still on screen
         // until the next frame, so waiting on either raced the send.
-        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasNonBlankText, TIMEOUT_MS)
+        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasAnyDescendant(hasNonBlankText), TIMEOUT_MS)
         compose.waitUntilAtLeastOneExists(hasTestTag("send"), TIMEOUT_MS)
     }
 
@@ -124,7 +130,7 @@ class MainActivityDeviceTest {
         compose.waitUntilAtLeastOneExists(hasTestTag("chatTitle") and hasText("stories260K"), TIMEOUT_MS)
         compose.onNodeWithTag("composer").performTextInput("Tell me a story")
         compose.onNodeWithTag("send").performClick()
-        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasNonBlankText, TIMEOUT_MS)
+        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasAnyDescendant(hasNonBlankText), TIMEOUT_MS)
         compose.waitUntilAtLeastOneExists(hasTestTag("send"), TIMEOUT_MS)
         val chat = hasText("Tell me a story") and hasAnyAncestor(hasTestTag("conversations"))
 
@@ -136,7 +142,7 @@ class MainActivityDeviceTest {
         compose.onNodeWithTag("openDrawer").performClick()
         compose.waitUntilAtLeastOneExists(chat, TIMEOUT_MS)
         compose.onNode(chat).performClick()
-        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasNonBlankText, TIMEOUT_MS)
+        compose.waitUntilAtLeastOneExists(hasTestTag("answer:1") and hasAnyDescendant(hasNonBlankText), TIMEOUT_MS)
 
         // Rename, then archive with a long press.
         compose.onNodeWithTag("openDrawer").performClick()

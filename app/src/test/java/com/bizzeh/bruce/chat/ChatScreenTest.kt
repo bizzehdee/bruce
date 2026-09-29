@@ -1,6 +1,8 @@
 package com.bizzeh.bruce.chat
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.performFirstLinkClick
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -173,5 +175,37 @@ class ChatScreenTest {
         compose.onNodeWithText("Monday, 14:37", substring = true).assertDoesNotExist()
         compose.onNodeWithText("read_file", substring = true).assertDoesNotExist()
         compose.onNodeWithTag("answer:4").assertIsDisplayed()
+    }
+
+    @Test
+    fun repliesAreFormattedLinksAskFirstAndImagesLoadOnlyWhenAsked() {
+        val opened = mutableListOf<String>()
+        val loads = mutableListOf<String>()
+        val markdownActions = object : ChatActions by actions {
+            override fun openLink(url: String) { opened += url }
+            override suspend fun loadImage(url: String): ImageResult {
+                loads += url
+                return ImageResult.NotAllowed
+            }
+        }
+        val reply = "## Plan\n\n```\ncode here\n```\n\nSee [the docs](https://example.com/docs).\n\n![diagram](https://example.com/d.png)"
+        compose.setContent { BruceTheme { ChatScreen(ChatState(modelName = "m", entries = listOf(ChatEntry(ChatRole.USER, "Hi"), ChatEntry(ChatRole.ASSISTANT, reply))), markdownActions) } }
+
+        compose.onNodeWithText("Plan").assertIsDisplayed()
+        compose.onNodeWithTag("codeBlock").assertIsDisplayed()
+        compose.onNodeWithText("```", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("diagram").assertIsDisplayed()
+        assertEquals("nothing is fetched on its own", emptyList<String>(), loads)
+
+        compose.onNodeWithText("See the docs.").performFirstLinkClick()
+        compose.onNodeWithTag("linkAddress").assertTextEquals("https://example.com/docs")
+        assertEquals(emptyList<String>(), opened)
+        compose.onNodeWithTag("openLink").performClick()
+        assertEquals(listOf("https://example.com/docs"), opened)
+
+        compose.onNodeWithTag("loadImage").performClick()
+        compose.onNodeWithTag("imageNotAllowed").assertIsDisplayed()
+        compose.onNodeWithTag("loadImage").assertDoesNotExist()
+        assertEquals(listOf("https://example.com/d.png"), loads)
     }
 }
