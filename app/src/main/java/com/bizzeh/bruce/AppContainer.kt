@@ -1,5 +1,7 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.skills.settings.SettingsSkills
+import com.bizzeh.bruce.skills.settings.AndroidSettingsReader
 import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.chat.RemoteImages
 import android.app.ActivityManager
@@ -208,7 +210,11 @@ class AppContainer(private val context: Context) {
     suspend fun grantNames(): List<String> = grantScope.names()
 
     val skills: SkillRegistry by lazy {
-        SkillRegistry(AutomaticSkills.create(AndroidPhoneReaders(context)) + FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create())
+        SkillRegistry(
+            AutomaticSkills.create(AndroidPhoneReaders(context)) +
+                FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create() +
+                SettingsSkills(AndroidSettingsReader(context)).create(),
+        )
     }
 
     val runtime: BruceRuntime by lazy {
