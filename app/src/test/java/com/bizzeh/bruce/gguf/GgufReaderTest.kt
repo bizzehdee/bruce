@@ -195,6 +195,14 @@ class GgufReaderTest {
     }
 
     @Test
+    fun theChatTemplateIsKeptOrSkippedButNeverAnError() {
+        assertEquals("{{ tools }}", metadata(GgufBuilder().string("tokenizer.chat_template", "{{ tools }}").build()).chatTemplate)
+        val huge = metadata(GgufBuilder().string("tokenizer.chat_template", "x".repeat(70_000)).string("general.name", "after").build())
+        assertEquals(null, huge.chatTemplate)
+        assertEquals("after", huge.name, "the rest of the header is still read")
+    }
+
+    @Test
     fun oversizedKeptStringIsMalformed() {
         assertEquals(GgufError.MALFORMED, failure(GgufBuilder().string("general.name", "x".repeat(70_000)).build()))
     }

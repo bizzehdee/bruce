@@ -24,6 +24,8 @@ data class GgufMetadata(
     val headCountKv: Long? = null,
     val keyLength: Long? = null,
     val valueLength: Long? = null,
+    /** `tokenizer.chat_template`, if at most 64 KB; untrusted text. */
+    val chatTemplate: String? = null,
 )
 
 sealed interface GgufReadResult {
@@ -74,6 +76,7 @@ object GgufReader {
 
     private const val KEY_ARCHITECTURE = "general.architecture"
     private const val KEY_NAME = "general.name"
+    private const val KEY_CHAT_TEMPLATE = "tokenizer.chat_template"
     private const val KEY_FILE_TYPE = "general.file_type"
     private const val CONTEXT_LENGTH_SUFFIX = ".context_length"
 
@@ -130,10 +133,11 @@ object GgufReader {
             val key = input.string(MAX_KEPT_STRING_BYTES)
             when (val type = input.int32()) {
                 TYPE_STRING ->
-                    if (key == KEY_ARCHITECTURE || key == KEY_NAME) {
-                        strings[key] = input.string(MAX_KEPT_STRING_BYTES)
-                    } else {
-                        input.skipString()
+                    when (key) {
+                        KEY_ARCHITECTURE, KEY_NAME -> strings[key] = input.string(MAX_KEPT_STRING_BYTES)
+                        // Kept only if it is of a size worth judging; a longer one is skipped, not an error.
+                        KEY_CHAT_TEMPLATE -> input.stringOrSkip(MAX_KEPT_STRING_BYTES)?.let { strings[key] = it }
+                        else -> input.skipString()
                     }
                 TYPE_ARRAY -> skipArray(input)
                 TYPE_UINT32 -> integers[key] = input.uint32()
@@ -165,6 +169,7 @@ object GgufReader {
                 version = version,
                 architecture = architecture,
                 name = strings[KEY_NAME],
+                chatTemplate = strings[KEY_CHAT_TEMPLATE],
                 parameterCount = parameterCount,
                 tensorCount = tensorCount,
                 contextLength = architecture?.let { integers[it + CONTEXT_LENGTH_SUFFIX] },
@@ -257,6 +262,17 @@ object GgufReader {
         }
 
         fun skipString() = skip(int64())
+
+        /** The string, or null (skipped) if it is longer than [maxBytes]. */
+        fun stringOrSkip(maxBytes: Int): String? {
+            val length = int64()
+            if (length < 0) throw MalformedGguf()
+            if (length > maxBytes) {
+                skip(length)
+                return null
+            }
+            return String(bytes(length.toInt()), Charsets.UTF_8)
+        }
 
         fun skip(count: Long) {
             if (count < 0 || count > remaining) throw MalformedGguf()

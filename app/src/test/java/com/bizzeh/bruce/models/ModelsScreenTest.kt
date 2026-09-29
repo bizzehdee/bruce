@@ -32,6 +32,7 @@ class ModelsScreenTest {
         override fun importModel() { calls += "import" }
         override fun delete(file: File) { calls += "delete ${file.name}" }
         override fun setOverrides(file: File, overrides: ModelOverrides) { calls += "overrides $overrides" }
+        override fun findCopies(query: String) { calls += "find $query" }
     }
     private val fixture = File("src/androidTest/assets/stories260K.gguf")
     private val metadata = (GgufReader.read(fixture) as GgufReadResult.Read).metadata
@@ -56,6 +57,36 @@ class ModelsScreenTest {
         compose.onNodeWithTag("backend:CPU").assertExists()
         compose.onNodeWithTag("backend:OPENCL").assertDoesNotExist()
         compose.onNodeWithText("Auto uses the CPU", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    fun aModelWithoutSkillSupportSaysSoAndFindsOtherCopies() {
+        val limited = stories.copy(skills = false, metadata = stories.metadata?.copy(name = "Llama 3.2 1B Instruct"))
+        val browse = object : BrowseActions {
+            override fun setQuery(query: String) = Unit
+            override fun search() = Unit
+            override fun recommend() = Unit
+            override fun setFilters(filters: BrowseFilters) = Unit
+            override fun openRepository(model: com.bizzeh.bruce.huggingface.HubModel) = Unit
+            override fun download(model: com.bizzeh.bruce.huggingface.HubModel, assessment: Assessment) = Unit
+            override fun cancel(repositoryId: String, path: String) = Unit
+        }
+        compose.setContent { BruceTheme { ModelsScreen(ModelsState(models = listOf(limited, stories)), actions, onBack = {}, browseActions = browse) } }
+
+        compose.onNodeWithTag("limitedSkills:stories260K.gguf", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("findCopies:stories260K.gguf").performClick()
+
+        assertEquals(listOf("find Llama-3.2-1B-Instruct"), calls)
+        compose.onNodeWithTag("browseQuery").assertIsDisplayed()
+    }
+
+    @Test
+    fun withoutTheBrowserThereIsNothingToSuggest() {
+        show(ModelsState(models = listOf(stories.copy(skills = false))))
+
+        compose.onNodeWithTag("limitedSkills:stories260K.gguf", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("findCopies:stories260K.gguf").assertDoesNotExist()
+        assertEquals("stories260K", ModelsText.copySearch(stories.copy(metadata = null)))
     }
 
     @Test

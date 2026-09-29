@@ -60,8 +60,23 @@ class ModelsViewModelTest {
         val viewModel = ModelsViewModel(
             activeModel, selection, settings, flowOf(InferenceDefaults()), { importResult },
             { DeviceProfile(4L shl 30, cpu) }, dispatcher,
+            templateSupportsTools = { template, bos, eos -> judged += Triple(template, bos, eos); "tools" in template },
         )
+        val judged = mutableListOf<Triple<String, String?, String?>>()
         fun stories() = File(modelsDir, "stories260K.gguf").apply { writeBytes(File("src/androidTest/assets/stories260K.gguf").readBytes()) }
+    }
+
+    @Test
+    fun installedModelsSayWhetherTheirTemplateSupportsSkills() = runTest(dispatcher) {
+        val f = Fixture(this)
+        File(f.modelsDir, "full.gguf").writeBytes(com.bizzeh.bruce.gguf.GgufBuilder().string("tokenizer.chat_template", "{{ tools }}").build())
+        File(f.modelsDir, "stripped.gguf").writeBytes(com.bizzeh.bruce.gguf.GgufBuilder().string("tokenizer.chat_template", "{{ messages }}").build())
+        File(f.modelsDir, "none.gguf").writeBytes(com.bizzeh.bruce.gguf.GgufBuilder().build())
+
+        f.viewModel.refresh()
+
+        assertEquals(mapOf("full.gguf" to true, "none.gguf" to null, "stripped.gguf" to false), f.viewModel.state.value.models.associate { it.file.name to it.skills })
+        assertEquals("a file has token ids, not BOS/EOS text", listOf(Triple("{{ tools }}", null, null), Triple("{{ messages }}", null, null)), f.judged)
     }
 
     @Test

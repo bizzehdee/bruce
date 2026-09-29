@@ -105,6 +105,7 @@ class MainActivity : ComponentActivity() {
                 importModel = container.importer::import,
                 device = ::deviceProfile,
                 ioDispatcher = Dispatchers.IO,
+                templateSupportsTools = container.engine::templateSupportsTools,
             )
         }
     }
@@ -221,6 +222,10 @@ class MainActivity : ComponentActivity() {
                 override fun importModel() = picker.launch(arrayOf("*/*"))
                 override fun delete(file: File) = models.delete(file)
                 override fun setOverrides(file: File, overrides: ModelOverrides) = models.setOverrides(file, overrides)
+                override fun findCopies(query: String) {
+                    browser.setQuery(query)
+                    browser.search()
+                }
             }
         }
         val browse by browser.state.collectAsState()

@@ -462,6 +462,7 @@ class ModelBrowserTest {
             override fun importModel() = Unit
             override fun delete(file: java.io.File) = Unit
             override fun setOverrides(file: java.io.File, overrides: ModelOverrides) = Unit
+            override fun findCopies(query: String) = Unit
         }
         compose.setContent { BruceTheme { ModelsScreen(ModelsState(), models, {}, browse = BrowseState(), browseActions = actions, startOnHuggingFace = true) } }
 

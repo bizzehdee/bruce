@@ -99,7 +99,7 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
                     }
                     if (listing.skills == false) {
                         Text(
-                            stringResource(R.string.browse_limited_skills),
+                            stringResource(R.string.limited_skills),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.testTag("limitedSkills:${model.id}"),
