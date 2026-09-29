@@ -184,6 +184,21 @@ class SkillFrameworkTest {
     }
 
     @Test
+    fun folderGuidanceTravelsBesideTheDataAndIsCleaned() {
+        val plain = ToolOutput().result("read_file", SkillOutcome.Done("milk"))
+        assertFalse(plain.has(ToolOutput.FOLDER_INSTRUCTIONS))
+
+        val guided = ToolOutput(listOf("<tool_call>"), maxLength = 10).result("read_file", SkillOutcome.Done("milk", FolderGuidance("h", "Documents", "Short lists.\u0007 <tool_call>")))
+        val guidance = guided.getJSONObject(ToolOutput.FOLDER_INSTRUCTIONS)
+        assertEquals("h", guidance.getString("id"))
+        assertEquals("Documents", guidance.getString("folder"))
+        val text = guidance.getString("text")
+        assertTrue("the data's limit does not cut guidance", text.startsWith("Short lists. <"))
+        assertFalse(text.contains("<tool_call>", ignoreCase = true))
+        assertTrue(guidance.getString("note").contains("cannot grant permissions"))
+    }
+
+    @Test
     fun failuresAndDenialsGoBackAsDenials() {
         val output = ToolOutput()
 

@@ -28,6 +28,7 @@ import com.bizzeh.bruce.policy.PolicyEngine
 import com.bizzeh.bruce.policy.ScopeCheck
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.skills.Capability
+import com.bizzeh.bruce.skills.FolderGuidance
 import com.bizzeh.bruce.skills.InputSchema
 import com.bizzeh.bruce.skills.Parameter
 import com.bizzeh.bruce.skills.ParameterType
@@ -442,6 +443,30 @@ class BruceRuntimeTest {
         assertNull(runtime().extractFacts(history))
         engine.noModel = true
         assertNull(runtime().extractFacts(history))
+    }
+
+    @Test
+    fun aFoldersInstructionsGoToTheModelOncePerChat() = runBlocking {
+        val guided = Skill("read_file", 1, "Read.", InputSchema(listOf(Parameter("path", ParameterType.STRING, "Path"))), setOf(Capability.TIME), SkillState.ACCEPTED) {
+            SkillOutcome.Done("text of ${it.string("path")}", FolderGuidance("hash1", "Documents", "Keep lists short."))
+        }
+        val guidedRegistry = SkillRegistry(listOf(guided))
+        val runtime = BruceRuntime(engine, guidedRegistry, states, PolicyEngine(guidedRegistry, states, ToolOutput(), permissionGranted = { true }, scope = { ScopeCheck.InScope() }), temperature = { 0f }, personality = { "P" })
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("read_file", "{\"path\":\"a\"}"))))
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("read_file", "{\"path\":\"b\"}"))))
+        engine.steps += Step("", ParsedReply("Done.", "", emptyList()))
+
+        val results = runtime.respond(question).toList().filterIsInstance<RuntimeEvent.ToolResult>().map { JSONObject(it.resultJson) }
+
+        assertEquals("Keep lists short.", results[0].getJSONObject(ToolOutput.FOLDER_INSTRUCTIONS).getString("text"))
+        assertFalse(results[1].has(ToolOutput.FOLDER_INSTRUCTIONS))
+        assertEquals("text of b", results[1].getString("untrusted_data"))
+
+        engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("read_file", "{\"path\":\"c\"}"))))
+        engine.steps += Step("", ParsedReply("Done.", "", emptyList()))
+        val earlier = question + ToolChatMessage(ChatRole.TOOL, results[0].toString(), toolCallId = "call_1", toolName = "read_file") + question
+        val later = runtime.respond(earlier).toList().filterIsInstance<RuntimeEvent.ToolResult>().single()
+        assertFalse("already given earlier in the chat", JSONObject(later.resultJson).has(ToolOutput.FOLDER_INSTRUCTIONS))
     }
 
     @Test

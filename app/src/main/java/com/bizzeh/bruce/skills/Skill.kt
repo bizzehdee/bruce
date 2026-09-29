@@ -53,8 +53,12 @@ enum class ResourceScope {
 }
 
 /** What a skill's execution produced, before sanitising. */
+/** Instructions a granted folder supplies, which the user chose to follow (TASK-049); [id] identifies this version of them. */
+data class FolderGuidance(val id: String, val folder: String, val text: String)
+
 sealed interface SkillOutcome {
-    data class Done(val content: String) : SkillOutcome
+    /** [guidance] travels with the result the first time a chat works in a folder with followed instructions. */
+    data class Done(val content: String, val guidance: FolderGuidance? = null) : SkillOutcome
 
     /** The skill ran and could not do it; [code] is one of the spec's failure codes. */
     data class Failed(val code: DenialCode, val message: String, val retryable: Boolean = false) : SkillOutcome

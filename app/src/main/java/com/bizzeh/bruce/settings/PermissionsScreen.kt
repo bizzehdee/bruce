@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,8 +25,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.navigation.SubScreen
+import com.bizzeh.bruce.policy.FolderInstructionsStore
 import com.bizzeh.bruce.policy.Grant
 import com.bizzeh.bruce.policy.GrantKind
+import com.bizzeh.bruce.policy.InstructionsChoice
 import java.text.DateFormat
 import java.util.Date
 
@@ -33,11 +36,22 @@ interface GrantActions {
     fun addFolder()
     fun addFile()
     fun revoke(grant: Grant)
+    fun review(grant: Grant) = Unit
+    fun choose(review: FolderReview, follow: Boolean) = Unit
+    fun closeReview() = Unit
 }
 
 /** Reads the permissions again whenever the screen resumes, so a change made in Android's settings shows on return. */
 @Composable
-fun PermissionsScreen(grants: List<Grant>, addFailed: Boolean, grantActions: GrantActions, onOpenNetworkSettings: () -> Unit, onBack: () -> Unit) {
+fun PermissionsScreen(
+    grants: List<Grant>,
+    addFailed: Boolean,
+    grantActions: GrantActions,
+    onOpenNetworkSettings: () -> Unit,
+    onBack: () -> Unit,
+    folders: Map<Long, FolderReview> = emptyMap(),
+    reviewing: FolderReview? = null,
+) {
     val context = LocalContext.current
     var permissions by remember { mutableStateOf(AndroidPermissions.read(context)) }
     LifecycleResumeEffect(Unit) {
@@ -52,6 +66,8 @@ fun PermissionsScreen(grants: List<Grant>, addFailed: Boolean, grantActions: Gra
         onChange = { context.startActivity(AndroidPermissions.settingsIntent(context, it)) },
         onOpenNetworkSettings = onOpenNetworkSettings,
         onBack = onBack,
+        folders = folders,
+        reviewing = reviewing,
     )
 }
 
@@ -64,7 +80,10 @@ fun PermissionsContent(
     onChange: (HeldPermission) -> Unit,
     onOpenNetworkSettings: () -> Unit,
     onBack: () -> Unit,
+    folders: Map<Long, FolderReview> = emptyMap(),
+    reviewing: FolderReview? = null,
 ) {
+    reviewing?.let { ReviewDialog(it, grantActions) }
     SubScreen(stringResource(R.string.settings_permissions), onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             Heading(R.string.permissions_files)
@@ -75,7 +94,7 @@ fun PermissionsContent(
                     modifier = Modifier.padding(horizontal = 16.dp).testTag("grantsEmpty"),
                 )
             }
-            grants.forEach { GrantRow(it, grantActions) }
+            grants.forEach { GrantRow(it, folders[it.id], grantActions) }
             if (addFailed) {
                 Text(
                     stringResource(R.string.permissions_add_failed),
@@ -94,7 +113,7 @@ fun PermissionsContent(
 }
 
 @Composable
-private fun GrantRow(grant: Grant, actions: GrantActions) {
+private fun GrantRow(grant: Grant, folder: FolderReview?, actions: GrantActions) {
     val kind = stringResource(if (grant.kind == GrantKind.FOLDER) R.string.permissions_kind_folder else R.string.permissions_kind_file)
     val date = remember(grant.grantedAt) { DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(grant.grantedAt)) }
     ListItem(
@@ -105,12 +124,58 @@ private fun GrantRow(grant: Grant, actions: GrantActions) {
                 if (!grant.available) {
                     Text(stringResource(R.string.permissions_grant_lost), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("lost:${grant.id}"))
                 }
+                folder?.let { InstructionsStatus(grant, it, actions) }
             }
         },
         trailingContent = {
             TextButton(onClick = { actions.revoke(grant) }, modifier = Modifier.testTag("revoke:${grant.id}")) { Text(stringResource(R.string.permissions_revoke)) }
         },
         modifier = Modifier.testTag("grant:${grant.id}"),
+    )
+}
+
+@Composable
+private fun InstructionsStatus(grant: Grant, folder: FolderReview, actions: GrantActions) {
+    val status = when {
+        folder.instructions.problem != null -> R.string.instructions_unusable
+        folder.choice == InstructionsChoice.FOLLOW -> R.string.instructions_followed
+        folder.choice == InstructionsChoice.IGNORE -> R.string.instructions_ignored
+        else -> R.string.instructions_undecided
+    }
+    val colour = if (folder.choice == InstructionsChoice.UNDECIDED) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+    Text(stringResource(status), color = colour, modifier = Modifier.testTag("instructions:${grant.id}"))
+    TextButton(onClick = { actions.review(grant) }, modifier = Modifier.testTag("review:${grant.id}")) { Text(stringResource(R.string.instructions_review)) }
+}
+
+/** Shows what the folder asks, in full, before the user lets Bruce follow it. */
+@Composable
+private fun ReviewDialog(folder: FolderReview, actions: GrantActions) {
+    val instructions = folder.instructions
+    AlertDialog(
+        onDismissRequest = actions::closeReview,
+        title = { Text(stringResource(R.string.instructions_title, instructions.folder)) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState()).testTag("instructionsText")) {
+                Text(stringResource(R.string.instructions_explained))
+                instructions.problem?.let { Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 8.dp)) }
+                instructions.agentsMd?.let {
+                    Text(FolderInstructionsStore.AGENTS_MD, style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
+                    Text(it, style = MaterialTheme.typography.bodySmall)
+                }
+                if (instructions.agentsFiles.isNotEmpty()) {
+                    Text(stringResource(R.string.instructions_more_files), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
+                    instructions.agentsFiles.forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
+                }
+            }
+        },
+        confirmButton = {
+            if (instructions.problem == null) {
+                TextButton(onClick = { actions.choose(folder, follow = true) }, modifier = Modifier.testTag("follow")) { Text(stringResource(R.string.instructions_follow)) }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { actions.choose(folder, follow = false) }, modifier = Modifier.testTag("ignore")) { Text(stringResource(R.string.instructions_ignore)) }
+        },
     )
 }
 

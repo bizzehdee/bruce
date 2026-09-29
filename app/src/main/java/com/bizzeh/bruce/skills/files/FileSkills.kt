@@ -2,11 +2,13 @@ package com.bizzeh.bruce.skills.files
 
 import com.bizzeh.bruce.policy.DocumentAccess
 import com.bizzeh.bruce.policy.DocumentRef
+import com.bizzeh.bruce.policy.Grant
 import com.bizzeh.bruce.policy.GrantScope
 import com.bizzeh.bruce.policy.PathResolution
 import com.bizzeh.bruce.policy.PathRules
 import com.bizzeh.bruce.skills.Capability
 import com.bizzeh.bruce.skills.DenialCode
+import com.bizzeh.bruce.skills.FolderGuidance
 import com.bizzeh.bruce.skills.InputSchema
 import com.bizzeh.bruce.skills.Parameter
 import com.bizzeh.bruce.skills.ParameterType
@@ -25,7 +27,13 @@ import java.nio.charset.CodingErrorAction
  * Skills that act inside the user's granted files and folders. The policy engine has already
  * checked the path against the grants; each skill resolves it again to act on the same document.
  */
-class FileSkills(private val scope: GrantScope, private val access: DocumentAccess, private val io: CoroutineDispatcher) {
+class FileSkills(
+    private val scope: GrantScope,
+    private val access: DocumentAccess,
+    private val io: CoroutineDispatcher,
+    /** Followed instructions of the folder a skill worked in (FolderInstructionsStore.guidance). */
+    private val guidance: suspend (Grant) -> FolderGuidance? = { null },
+) {
     fun create(): List<Skill> = listOf(listFiles(), readFile(), createFile(), writeFile(), deleteFile())
 
     private fun pathParameter(description: String) =
@@ -94,7 +102,7 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         // A granted file has no granted folder around it; the user granted it to be used, not removed.
         if (found.parent == null) return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, "Only files inside a granted folder can be deleted.")
         if (!access.delete(file.uri)) return SkillOutcome.Failed(DenialCode.TOOL_FAILED, "The folder did not allow the file to be deleted.")
-        return SkillOutcome.Done("Deleted the file.")
+        return SkillOutcome.Done("Deleted the file.", guidance(found.grant))
     }
 
     private suspend fun createNew(arguments: SkillArguments): SkillOutcome {
@@ -107,7 +115,7 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         val file = access.create(found.grant.uri, parent, found.name) ?: return SkillOutcome.Failed(DenialCode.TOOL_FAILED, "The folder did not accept a new file.")
         val content = arguments.string(CONTENT_ARGUMENT).orEmpty()
         access.write(file.uri, content.toByteArray())
-        return SkillOutcome.Done("Created the file (${content.length} characters).")
+        return SkillOutcome.Done("Created the file (${content.length} characters).", guidance(found.grant))
     }
 
     private suspend fun replace(arguments: SkillArguments): SkillOutcome {
@@ -123,7 +131,7 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         if (PlainText.decode(existing) == null) return notPlainText()
         val content = arguments.string(CONTENT_ARGUMENT).orEmpty()
         access.write(file.uri, content.toByteArray())
-        return SkillOutcome.Done("Replaced the file's contents (${content.length} characters).")
+        return SkillOutcome.Done("Replaced the file's contents (${content.length} characters).", guidance(found.grant))
     }
 
     private suspend fun list(arguments: SkillArguments): SkillOutcome {
@@ -136,9 +144,9 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         val names = access.children(found.grant.uri, folder)
             .map { (name, ref) -> if (ref.isDirectory) "$name/" else name }
             .sortedWith(String.CASE_INSENSITIVE_ORDER)
-        if (names.isEmpty()) return SkillOutcome.Done("The folder is empty.")
+        if (names.isEmpty()) return SkillOutcome.Done("The folder is empty.", guidance(found.grant))
         val shown = names.take(MAX_LISTED).joinToString("\n")
-        return SkillOutcome.Done(if (names.size > MAX_LISTED) "$shown\n[${names.size - MAX_LISTED} more not shown]" else shown)
+        return SkillOutcome.Done(if (names.size > MAX_LISTED) "$shown\n[${names.size - MAX_LISTED} more not shown]" else shown, guidance(found.grant))
     }
 
     private suspend fun read(arguments: SkillArguments): SkillOutcome {
@@ -152,7 +160,7 @@ class FileSkills(private val scope: GrantScope, private val access: DocumentAcce
         val bytes = access.read(file.uri, MAX_READ_BYTES + 1) ?: return notFound()
         val cut = bytes.size > MAX_READ_BYTES
         val text = PlainText.decode(if (cut) bytes.copyOf(MAX_READ_BYTES) else bytes) ?: return notPlainText()
-        return SkillOutcome.Done(if (cut) "$text\n[Only the start of this file was read.]" else text)
+        return SkillOutcome.Done(if (cut) "$text\n[Only the start of this file was read.]" else text, guidance(found.grant))
     }
 
     private suspend fun resolve(arguments: SkillArguments): PathResolution =
