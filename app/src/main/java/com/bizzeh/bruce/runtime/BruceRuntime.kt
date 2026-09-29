@@ -104,9 +104,9 @@ class BruceRuntime(
     }
 
     private suspend fun FlowCollector<RuntimeEvent>.loop(history: List<ToolChatMessage>, added: MutableList<ToolChatMessage>) {
-        val skills = offeredSkills()
-        val tools = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
-        val guidance = guidance(skills)
+        val offer = offer()
+        val tools = offer.tools
+        val guidance = offer.guidance
         var calls = 0
         // Results of calls run this turn, by call. A model that repeats one is stuck. The first
         // repeat gets the earlier result with a note to answer, keeping the prompt (and the reused
@@ -189,11 +189,10 @@ class BruceRuntime(
 
     /** What [history] takes of the context as the next prompt would send it; null with no model loaded. */
     suspend fun measure(history: List<ToolChatMessage>): ContextUse? {
-        val skills = offeredSkills()
-        val tools = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
+        val offer = offer()
         // Some templates refuse a conversation with no user message; a blank one adds only a few tokens.
         val measured = if (history.any { it.role == ChatRole.USER }) history else history + ToolChatMessage(ChatRole.USER, "")
-        val fitted = fit(measured, tools, guidance(skills))?.takeUnless { it.formatFailed } ?: return null
+        val fitted = fit(measured, offer.tools, offer.guidance)?.takeUnless { it.formatFailed } ?: return null
         return ContextUse(fitted.tokens, fitted.total, fitted.dropped, fitted.limit)
     }
 
@@ -271,19 +270,23 @@ class BruceRuntime(
         }
     }
 
-    /** Skills the user has not declined; the policy engine still checks every call. */
-    private suspend fun offeredSkills(): List<Skill> = registry.skills.filter { states.state(it) != SkillState.DECLINED }
+    /** What the model is offered: skills and the guidance that goes with them. */
+    private data class Offer(val skills: List<Skill>, val guidance: String) {
+        val tools: List<ToolDefinition> get() = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
+    }
 
-    /** [GUIDANCE], plus the granted names when a file skill is offered, since every path starts with one. */
-    private suspend fun guidance(skills: List<Skill>): String {
-        if (skills.none { it.scope == ResourceScope.GRANTED_FILES }) return GUIDANCE
+    /**
+     * Skills the user has not declined; the policy engine still checks every call. File skills are
+     * offered only once something is granted, with the granted names every path starts with; until
+     * then a short line tells the model where the user grants one, costing far fewer tokens than
+     * the skills' definitions (TASK-059).
+     */
+    private suspend fun offer(): Offer {
+        val enabled = registry.skills.filter { states.state(it) != SkillState.DECLINED }
+        if (enabled.none { it.scope == ResourceScope.GRANTED_FILES }) return Offer(enabled, GUIDANCE)
         val names = grantNames()
-        val grants = if (names.isEmpty()) {
-            "The user has not granted any files or folders. If they ask about files, tell them to grant one in Settings, Permissions."
-        } else {
-            "Files and folders the user has granted (every path starts with one of these names): " + names.joinToString(", ") + "."
-        }
-        return "$GUIDANCE $grants"
+        if (names.isEmpty()) return Offer(enabled.filter { it.scope != ResourceScope.GRANTED_FILES }, "$GUIDANCE $NO_GRANTS")
+        return Offer(enabled, "$GUIDANCE Files and folders the user has granted (every path starts with one of these names): ${names.joinToString(", ")}.")
     }
 
     private data class Prompt(val text: String, val format: ToolFormat)
@@ -344,6 +347,7 @@ class BruceRuntime(
         const val MAX_REPLY_TOKENS = 4096
 
         private const val TAG = "BruceRuntime"
+        const val NO_GRANTS = "The user has not granted any files or folders. If they ask about files, tell them to grant one in Settings, Permissions."
         const val REPEAT_NOTE = "You already have this result. Do not call a tool again: answer the user now, using it."
         const val SUMMARY_TOKENS = 400
         private const val SUMMARY_MARGIN = 64

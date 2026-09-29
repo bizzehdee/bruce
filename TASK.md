@@ -409,9 +409,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Light dog puns in small UI copy only: loading and empty states (for example "Fetching…" while a model loads, "Sniffing out models for this phone" while recommendations load, an empty chat list). Errors, warnings, permission requests, confirmations and settings explanations stay plain.
   - Play listing text (TASK-017) follows the same rule.
   - Depends on: TASK-057
-- [ ] TASK-059: Offer file skills only when something is granted
+- [x] TASK-059: Offer file skills only when something is granted
   - With no file or folder granted, the file skills are not offered to the model and the system prompt says nothing about grants; the fixed prompt shrinks accordingly. Measure the saving on the Pixel 11.
   - Asking about files with nothing granted: the model is told once, in the guidance, to point the user to Settings, Permissions (a short line, not the skill definitions).
+  - Done: `BruceRuntime.offer()` leaves out skills scoped to granted files while nothing is granted and adds one line pointing the user to Settings, Permissions; with grants, the skills and the granted names are offered as before.
+  - Measured on the Xperia 1 II instead of the Pixel 11 (the Pixel has Documents granted from earlier tests): an empty chat with Qwen3.5-0.8B and default skill states went from 1,198 to 834 tokens (create, write and delete are offered by default; list and read are off).
   - Depends on: TASK-042, TASK-043, TASK-044
 - [ ] TASK-060: Warn when a context length leaves little room
   - Settings (Context length) and a model's own settings: when the fixed part of the prompt (system prompt and skills, as measured for the loaded model) leaves less than a set share of the chosen context for the conversation, say so beside the choice.
