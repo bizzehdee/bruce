@@ -1,5 +1,7 @@
 package com.bizzeh.bruce.remote
 
+import androidx.compose.ui.Alignment
+import com.bizzeh.bruce.models.RemoteChoice
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,6 +31,9 @@ interface ServersActions {
     fun add(name: String, address: String, key: String)
     fun check(server: RemoteServer)
     fun remove(server: RemoteServer)
+
+    /** Chat with [model] on [server] instead of a model on the phone (TASK-077). */
+    fun use(server: RemoteServer, model: String) = Unit
 }
 
 /** Model servers the user added, and a form to add one (TASK-075). */
@@ -36,13 +41,13 @@ interface ServersActions {
 fun ServersPane(state: ServersState, actions: ServersActions) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.servers_explained), style = MaterialTheme.typography.bodyMedium)
-        state.servers.forEach { server -> ServerCard(server, state.statuses[server.id], actions) }
+        state.servers.forEach { server -> ServerCard(server, state.statuses[server.id], state.active, actions) }
         AddServer(state.addError, actions)
     }
 }
 
 @Composable
-private fun ServerCard(server: RemoteServer, status: ServerStatus?, actions: ServersActions) {
+private fun ServerCard(server: RemoteServer, status: ServerStatus?, active: RemoteChoice?, actions: ServersActions) {
     Card(modifier = Modifier.fillMaxWidth().testTag("server:${server.id}")) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(server.name, style = MaterialTheme.typography.titleMedium)
@@ -54,13 +59,24 @@ private fun ServerCard(server: RemoteServer, status: ServerStatus?, actions: Ser
                 when (status) {
                     null -> stringResource(R.string.servers_unchecked)
                     ServerStatus.Checking -> stringResource(R.string.servers_checking)
-                    is ServerStatus.Ready -> if (status.models.isEmpty()) stringResource(R.string.servers_no_models) else stringResource(R.string.servers_models, status.models.joinToString())
+                    is ServerStatus.Ready -> if (status.models.isEmpty()) stringResource(R.string.servers_no_models) else stringResource(R.string.servers_models_heading)
                     is ServerStatus.Failed -> status.reason
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = if (status is ServerStatus.Failed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.testTag("status:${server.id}"),
             )
+            (status as? ServerStatus.Ready)?.models?.forEach { model ->
+                val inUse = active?.serverId == server.id && active.model == model
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.testTag("serverModel:${server.id}:$model")) {
+                    Text(model, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    if (inUse) {
+                        Text(stringResource(R.string.models_active), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                    } else {
+                        TextButton(onClick = { actions.use(server, model) }, modifier = Modifier.testTag("use:${server.id}:$model")) { Text(stringResource(R.string.servers_use)) }
+                    }
+                }
+            }
             Row {
                 TextButton(onClick = { actions.check(server) }, enabled = status != ServerStatus.Checking, modifier = Modifier.testTag("check:${server.id}")) { Text(stringResource(R.string.servers_check)) }
                 TextButton(onClick = { actions.remove(server) }, modifier = Modifier.testTag("remove:${server.id}")) { Text(stringResource(R.string.servers_remove)) }

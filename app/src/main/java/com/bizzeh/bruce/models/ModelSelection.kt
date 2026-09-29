@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.models
 
+import com.bizzeh.bruce.remote.RemoteServer
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.inference.LoadResult
@@ -18,7 +19,15 @@ class ModelSelection(
     private val ioDispatcher: CoroutineDispatcher,
     /** Memory a model may use: free memory plus what the loaded model takes (AppContainer.memoryForModels). */
     private val memoryForModels: () -> Long = { 0 },
+    /** The user's model servers, to restore a chosen server model only while its server is still there. */
+    private val servers: suspend () -> List<RemoteServer> = { emptyList() },
 ) {
+    /** Uses a server's model instead of one on the phone (TASK-077), and remembers it for next launch. */
+    suspend fun chooseRemote(server: RemoteServer, model: String) {
+        activeModel.useRemote(RemoteChoice(server.id, server.name, model))
+        modelSettings.setActiveRemote(server.id, model)
+    }
+
     /** Loads [file] with its settings over the defaults, and remembers it for next launch. */
     suspend fun choose(file: File): LoadResult {
         val template = modelSettings.template(file.name).first()
@@ -33,6 +42,9 @@ class ModelSelection(
     /** Loads the model chosen last time if it is still installed, otherwise the only installed model. */
     suspend fun restore() {
         activeModel.refresh()
+        val remote = modelSettings.activeRemote.first()
+        val server = remote?.let { (id, _) -> servers().firstOrNull { it.id == id } }
+        if (remote != null && server != null) return activeModel.useRemote(RemoteChoice(server.id, server.name, remote.second))
         val remembered = modelSettings.activeModelName.first()?.let { File(modelsDir, it) }
         val file = remembered?.takeIf { withContext(ioDispatcher) { it.isFile } }
             ?: activeModel.state.value.installed.singleOrNull()

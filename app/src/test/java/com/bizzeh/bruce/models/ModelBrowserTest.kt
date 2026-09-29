@@ -519,6 +519,7 @@ class ModelBrowserTest {
             override fun add(name: String, address: String, key: String) { calls += "add $name $address $key" }
             override fun check(server: com.bizzeh.bruce.remote.RemoteServer) { calls += "check ${server.id}" }
             override fun remove(server: com.bizzeh.bruce.remote.RemoteServer) { calls += "remove ${server.id}" }
+            override fun use(server: com.bizzeh.bruce.remote.RemoteServer, model: String) { calls += "use ${server.id} $model" }
         }
         val browse = object : BrowseActions {
             override fun setQuery(query: String) = Unit
@@ -542,13 +543,16 @@ class ModelBrowserTest {
         val cloud = com.bizzeh.bruce.remote.RemoteServer("b", "Cloud", "https://llm.example.com", false, true)
         val state = com.bizzeh.bruce.remote.ServersState(
             listOf(home, cloud),
-            mapOf("a" to com.bizzeh.bruce.remote.ServerStatus.Ready(listOf("qwen3-8b")), "b" to com.bizzeh.bruce.remote.ServerStatus.Failed("The server refused the API key.")),
+            mapOf("a" to com.bizzeh.bruce.remote.ServerStatus.Ready(listOf("qwen3-8b", "gemma-4")), "b" to com.bizzeh.bruce.remote.ServerStatus.Failed("The server refused the API key.")),
             addError = "Unencrypted http:// is only allowed on your local network. Use https:// for this server.",
+            active = RemoteChoice("a", "Home", "gemma-4"),
         )
         compose.setContent { BruceTheme { ModelsScreen(ModelsState(), models, {}, browseActions = browse, servers = state, serversActions = servers) } }
 
         compose.onNodeWithTag("tab:servers").performClick()
-        compose.onNodeWithText("Models: qwen3-8b").assertExists()
+        compose.onNodeWithText("qwen3-8b").assertExists()
+        compose.onNodeWithTag("use:a:gemma-4").assertDoesNotExist()
+        compose.onNodeWithTag("use:a:qwen3-8b").performClick()
         compose.onNodeWithTag("plain:a", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("plain:b", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithText("The server refused the API key.").assertExists()
@@ -560,7 +564,7 @@ class ModelBrowserTest {
         compose.onNodeWithTag("serverKey").performTextInput("k1")
         compose.onNodeWithTag("addServer").performClick()
 
-        assertEquals(listOf("check b", "remove a", "add Box 10.0.0.2:8080 k1"), calls)
+        assertEquals(listOf("use a qwen3-8b", "check b", "remove a", "add Box 10.0.0.2:8080 k1"), calls)
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.models.RemoteChoice
 import com.bizzeh.bruce.remote.RemoteServer
 import com.bizzeh.bruce.remote.ServersActions
 import com.bizzeh.bruce.remote.ServersViewModel
@@ -113,6 +114,7 @@ class MainActivity : ComponentActivity() {
                 container.runtime::summarise,
                 container.chatMemory,
                 container.turnObserver,
+                container::stopModel,
             )
         }
     }
@@ -165,7 +167,9 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-    private val servers: ServersViewModel by viewModels { factory { ServersViewModel(container.remoteServers, container.serverClient) } }
+    private val servers: ServersViewModel by viewModels {
+        factory { ServersViewModel(container.remoteServers, container.serverClient, container.activeModel.state.map { it.remote }) { container.modelSelection.chooseRemote(it.first, it.second) } }
+    }
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates, container.unmetRequirements) } }
     private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
@@ -201,6 +205,7 @@ class MainActivity : ComponentActivity() {
     private fun Main(exit: SetupExit) {
         val chatState by chat.state.collectAsState()
         val voice by voiceState.collectAsState()
+        val serverModels by servers.state.collectAsState()
         val activeModel by container.activeModel.state.collectAsState()
         LaunchedEffect(Unit) { container.modelSelection.restore() }
         val browse = exit == SetupExit.BROWSE_MODELS
@@ -210,6 +215,7 @@ class MainActivity : ComponentActivity() {
             chat = chatState.copy(voice = voice),
             chatActions = remember { chatActions() },
             activeModel = activeModel,
+            remoteModels = serverModels.choices(),
             actions = remember { appActions() },
             modelsScreen = { onBack -> Models(onBack, startOnHuggingFace = browse) },
             settingsScreen = { onBack, open -> Settings(onBack, open) },
@@ -287,6 +293,7 @@ class MainActivity : ComponentActivity() {
                 override fun add(name: String, address: String, key: String) = servers.add(name, address, key)
                 override fun check(server: RemoteServer) = servers.check(server)
                 override fun remove(server: RemoteServer) = servers.remove(server)
+                override fun use(server: RemoteServer, model: String) = servers.use(RemoteChoice(server.id, server.name, model))
             }
         }
         ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace, { backendChoices(known, it) }, fixed, serverState, serverActions)
@@ -495,6 +502,7 @@ class MainActivity : ComponentActivity() {
         override fun selectModel(file: File) {
             lifecycleScope.launch { container.modelSelection.choose(file) }
         }
+        override fun selectRemote(choice: RemoteChoice) = servers.use(choice)
     }
 
     private fun settingsActions(open: (Destination) -> Unit) = object : SettingsActions {

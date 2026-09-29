@@ -39,7 +39,8 @@ class ModelSettingsTest {
         val settings = ModelSettingsRepository(dataStore)
         val inference = InferenceSettingsRepository(dataStore)
         val activeModel = ActiveModel(engine, modelsDir, dispatcher)
-        val selection = ModelSelection(activeModel, settings, inference, modelsDir, dispatcher)
+        var servers = listOf(com.bizzeh.bruce.remote.RemoteServer("s", "Home", "http://192.168.1.20:8080", true, false))
+        val selection = ModelSelection(activeModel, settings, inference, modelsDir, dispatcher) { servers }
         fun model(name: String) = File(modelsDir, name).apply { writeText("x") }
     }
 
@@ -127,6 +128,26 @@ class ModelSettingsTest {
         f.selection.restore()
 
         assertEquals(b, engine.loads.single().first)
+    }
+
+    @Test
+    fun aChosenServerModelIsRememberedWhileItsServerExists() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val only = f.model("m.gguf")
+
+        f.selection.chooseRemote(f.servers.single(), "qwen3")
+        assertEquals(RemoteChoice("s", "Home", "qwen3"), f.activeModel.state.value.remote)
+        f.selection.restore()
+        assertEquals(RemoteChoice("s", "Home", "qwen3"), f.activeModel.state.value.remote)
+        assertEquals(emptyList<File>(), engine.loads.map { it.first })
+
+        f.servers = emptyList()
+        f.selection.restore()
+        assertEquals(listOf(only), engine.loads.map { it.first }, "a removed server falls back to the phone's model")
+
+        f.selection.chooseRemote(com.bizzeh.bruce.remote.RemoteServer("s", "Home", "http://192.168.1.20:8080", true, false), "qwen3")
+        f.selection.choose(only)
+        assertEquals(null, f.settings.activeRemote.first())
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.navigation
 
+import com.bizzeh.bruce.models.RemoteChoice
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -76,6 +77,7 @@ internal fun backTarget(destination: Destination): Destination? = when (destinat
 interface AppActions {
     fun newChat()
     fun selectModel(file: File)
+    fun selectRemote(choice: RemoteChoice) = Unit
 }
 
 /**
@@ -90,6 +92,8 @@ fun BruceApp(
     chatActions: ChatActions,
     activeModel: ActiveModelState,
     actions: AppActions,
+    /** Server models the user can switch to (TASK-077). */
+    remoteModels: List<RemoteChoice> = emptyList(),
     modelsScreen: @Composable (onBack: () -> Unit) -> Unit,
     settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
@@ -202,7 +206,9 @@ fun BruceApp(
         ModalBottomSheet(onDismissRequest = { switcherOpen = false }, modifier = Modifier.testTag("switcher")) {
             ModelSwitcher(
                 state = activeModel,
+                remoteModels = remoteModels,
                 onSelect = { file -> actions.selectModel(file); switcherOpen = false },
+                onSelectRemote = { choice -> actions.selectRemote(choice); switcherOpen = false },
                 onManage = { switcherOpen = false; destination = Destination.MODELS },
             )
         }
@@ -210,10 +216,16 @@ fun BruceApp(
 }
 
 @Composable
-private fun ModelSwitcher(state: ActiveModelState, onSelect: (File) -> Unit, onManage: () -> Unit) {
+private fun ModelSwitcher(
+    state: ActiveModelState,
+    remoteModels: List<RemoteChoice>,
+    onSelect: (File) -> Unit,
+    onSelectRemote: (RemoteChoice) -> Unit,
+    onManage: () -> Unit,
+) {
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
         Text(stringResource(R.string.switcher_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
-        if (state.installed.isEmpty()) {
+        if (state.installed.isEmpty() && remoteModels.isEmpty()) {
             Text(stringResource(R.string.switcher_empty), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
         }
         state.installed.forEach { file ->
@@ -224,6 +236,16 @@ private fun ModelSwitcher(state: ActiveModelState, onSelect: (File) -> Unit, onM
             ) {
                 RadioButton(selected = file == state.active, onClick = null, modifier = Modifier.padding(12.dp))
                 Text(file.nameWithoutExtension)
+            }
+        }
+        remoteModels.forEach { choice ->
+            Row(
+                modifier = Modifier.fillMaxWidth().clickable(enabled = !state.loading) { onSelectRemote(choice) }
+                    .padding(horizontal = 12.dp).testTag("switchRemote:${choice.serverId}:${choice.model}"),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RadioButton(selected = choice == state.remote, onClick = null, modifier = Modifier.padding(12.dp))
+                Text(choice.label)
             }
         }
         if (state.loading) Text(stringResource(R.string.switcher_loading), modifier = Modifier.padding(horizontal = 24.dp))

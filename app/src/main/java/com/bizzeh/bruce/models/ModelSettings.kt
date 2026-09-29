@@ -70,7 +70,19 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
     }
 
     suspend fun setActiveModel(fileName: String?) {
-        dataStore.edit { if (fileName == null) it.remove(ACTIVE) else it[ACTIVE] = fileName }
+        dataStore.edit {
+            if (fileName == null) it.remove(ACTIVE) else it[ACTIVE] = fileName
+            it.remove(ACTIVE_REMOTE)
+        }
+    }
+
+    /** The server model chosen last (TASK-077), which wins over [activeModelName] while it is set. */
+    val activeRemote: Flow<Pair<String, String>?> = dataStore.data.map { preferences ->
+        preferences[ACTIVE_REMOTE]?.split('\n', limit = 2)?.takeIf { it.size == 2 }?.let { it[0] to it[1] }
+    }
+
+    suspend fun setActiveRemote(serverId: String, model: String) {
+        dataStore.edit { it[ACTIVE_REMOTE] = "$serverId\n$model" }
     }
 
     suspend fun setOverrides(fileName: String, overrides: ModelOverrides) {
@@ -104,6 +116,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
 
     private companion object {
         val ACTIVE = stringPreferencesKey("active_model")
+        val ACTIVE_REMOTE = stringPreferencesKey("active_remote_model")
         fun backendKey(name: String) = stringPreferencesKey("model.$name.backend")
         fun threadsKey(name: String) = intPreferencesKey("model.$name.threads")
         fun contextKey(name: String) = intPreferencesKey("model.$name.context")

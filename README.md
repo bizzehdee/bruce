@@ -4,6 +4,7 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 
 - **Your model.** You choose which open-weight model Bruce uses. Download one from Hugging Face or import your own GGUF file.
 - **Your phone.** The model runs on the device. Bruce works offline once a model is installed.
+- **Or your own server.** If you run llama.cpp (or another OpenAI-compatible server) at home, Bruce can use its models instead. Your skills and permissions still stay on the phone.
 - **Your permissions.** Bruce can only use the phone features and folders you allow. Sensitive actions, such as deleting a file, always ask you first. Settings → Permissions shows everything Bruce holds on the phone. If a folder you grant has an `AGENTS.md` file for AI helpers, Bruce shows it to you and follows it only if you say so.
 - **Talk to it.** Tap the microphone to speak a message. Speech is turned into text on the phone itself; the audio never leaves it.
 - **Readable replies.** Headings, lists, tables and code show formatted. Links ask before opening, and images from the web load only when you tap them.

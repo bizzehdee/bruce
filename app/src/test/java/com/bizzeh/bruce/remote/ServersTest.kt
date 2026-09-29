@@ -124,6 +124,25 @@ class ServersTest {
     }
 
     @Test
+    fun serversAreCheckedAtStartAndTheirModelsCanBeChosen() = runBlocking {
+        val server = store.add("Home", local(), null)
+        val chosen = mutableListOf<Pair<RemoteServer, String>>()
+        val active = kotlinx.coroutines.flow.MutableStateFlow<com.bizzeh.bruce.models.RemoteChoice?>(null)
+        val viewModel = ServersViewModel(store, client, active) { chosen += it }
+
+        val ready = withTimeout(5_000) { viewModel.state.first { it.statuses[server.id] is ServerStatus.Ready } }
+        assertEquals(listOf(com.bizzeh.bruce.models.RemoteChoice(server.id, "Home", "qwen3-8b"), com.bizzeh.bruce.models.RemoteChoice(server.id, "Home", "gemma-4")), ready.choices())
+
+        viewModel.use(ready.choices().last())
+        withTimeout(5_000) { while (chosen.isEmpty()) kotlinx.coroutines.delay(10) }
+        assertEquals(listOf(server to "gemma-4"), chosen)
+        viewModel.use(com.bizzeh.bruce.models.RemoteChoice("gone", "Old", "m"))
+        active.value = ready.choices().last()
+        withTimeout(5_000) { viewModel.state.first { it.active?.model == "gemma-4" } }
+        assertEquals(1, chosen.size)
+    }
+
+    @Test
     fun theViewModelAddsChecksAndRemoves() = runBlocking {
         val viewModel = ServersViewModel(store, client)
         suspend fun await(predicate: (ServersState) -> Boolean) = withTimeout(5_000) { viewModel.state.first(predicate) }

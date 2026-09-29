@@ -319,7 +319,8 @@
     <string name="servers_plain_warning">Not encrypted: others on this network could read your chats.</string>
     <string name="servers_unchecked">Not checked yet.</string>
     <string name="servers_checking">Checking…</string>
-    <string name="servers_models">Models: %1$s</string>
+    <string name="servers_models_heading">Models on this server:</string>
+    <string name="servers_use">Use</string>
     <string name="servers_no_models">Connected, but the server lists no models.</string>
     <string name="servers_check">Check</string>
     <string name="servers_remove">Remove</string>

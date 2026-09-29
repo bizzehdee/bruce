@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.remote
 
+import android.util.Log
 import com.bizzeh.bruce.huggingface.HttpTransport
 import com.bizzeh.bruce.huggingface.StreamingResponse
 import com.bizzeh.bruce.inference.ChatRole
@@ -72,6 +73,8 @@ class RemoteBackend(
         val response = try {
             transport.postStream("${server.address}/v1/chat/completions", headers() + ("Content-Type" to "application/json"), body, FIRST_TOKEN_TIMEOUT_MS)
         } catch (e: IOException) {
+            // The failure's kind only: its message can name the address, and never the chat.
+            Log.w(TAG, "request failed: ${e.javaClass.simpleName}")
             emit(StepEvent.Failed(RuntimeError.SERVER_UNREACHABLE))
             return@flow
         }
@@ -95,6 +98,7 @@ class RemoteBackend(
             emit(StepEvent.Done(stream.reply(), stream.stats))
         } catch (e: IOException) {
             // Stopping closes the connection; the reply so far is what the user asked to keep.
+            Log.w(TAG, "stream ended: ${e.javaClass.simpleName}")
             emit(StepEvent.Failed(RuntimeError.SERVER_UNREACHABLE))
         } finally {
             open = null
@@ -213,5 +217,6 @@ class RemoteBackend(
         private const val MAX_ERROR_CHARS = 2000
         private const val THINK_OPEN = "<think>"
         private const val THINK_CLOSE = "</think>"
+        private const val TAG = "BruceRemote"
     }
 }

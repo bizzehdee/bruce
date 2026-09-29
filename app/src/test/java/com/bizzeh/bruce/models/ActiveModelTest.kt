@@ -80,6 +80,20 @@ class ActiveModelTest {
     }
 
     @Test
+    fun aServerModelReplacesThePhonesAndLoadingOneClearsIt() = runTest(dispatcher) {
+        engine.loadResult = LoadResult.Loaded(info, Backend.CPU)
+        activeModel.load(File(dir, "a.gguf"))
+
+        activeModel.useRemote(RemoteChoice("s", "Home", "qwen3"))
+        assertEquals(1, engine.unloads)
+        assertNull(activeModel.state.value.active)
+        assertEquals("qwen3 (Home)", activeModel.state.value.remote?.label)
+
+        activeModel.load(File(dir, "a.gguf"))
+        assertNull(activeModel.state.value.remote)
+    }
+
+    @Test
     fun unloadReleasesTheModel() = runTest(dispatcher) {
         engine.loadResult = LoadResult.Loaded(info, Backend.CPU)
         activeModel.load(File(dir, "a.gguf"))

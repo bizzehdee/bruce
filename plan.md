@@ -102,7 +102,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   phone. HTTPS anywhere, plain HTTP only on the local network with a warning; an
   optional API key stored encrypted. Adding a server is the permission for that
   address alone, and Offline mode blocks it. Skills still run on the phone under
-  the same policy. Servers' models are listed with installed ones. `planned`
+  the same policy. Servers' models are listed with installed ones. `done`
 - **Hugging Face discovery** — Search public GGUF repositories through the
   anonymous Hub API. Search results already carry architecture, parameter count,
   context length, licence and gated status, so incompatible or gated models can be
@@ -457,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Remote model servers done: chat through a server's model, chosen from the Servers tab or the switcher (TASK-076, TASK-077). |
 | 2026-09-29 | Changed | Remote model servers can be added and checked (TASK-075); chatting through one follows. |
 | 2026-09-29 | Changed | Web search done with Brave's LLM Context endpoint; results saved with the chat (owner's choice, against a storage clause in Brave's terms) (TASK-070). |
 | 2026-09-29 | Changed | Web pages skill done (TASK-069). |

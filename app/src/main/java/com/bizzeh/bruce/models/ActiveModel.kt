@@ -16,6 +16,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 import java.io.File
 
+/** A model on a remote server, chosen instead of one on the phone (TASK-077). */
+data class RemoteChoice(val serverId: String, val serverName: String, val model: String) {
+    /** How the chat title and switcher name it. */
+    val label: String get() = "$model ($serverName)"
+}
+
 data class ActiveModelState(
     val installed: List<File> = emptyList(),
     val active: File? = null,
@@ -25,6 +31,8 @@ data class ActiveModelState(
     val error: LoadError? = null,
     /** The loaded model's estimated memory; free memory plus this is what a model may use. */
     val memoryBytes: Long = 0,
+    /** When the chosen model runs on a server; then no model is loaded on the phone. */
+    val remote: RemoteChoice? = null,
 )
 
 /**
@@ -51,6 +59,12 @@ class ActiveModel(
         mutableState.update { it.copy(active = null, info = null, backend = null, error = null, memoryBytes = 0) }
     }
 
+    /** Uses a server's model: the phone's model is unloaded, as it is not needed and its memory is freed. */
+    suspend fun useRemote(choice: RemoteChoice) {
+        engine.unloadModel()
+        mutableState.update { it.copy(active = null, info = null, backend = null, error = null, memoryBytes = 0, loading = false, remote = choice) }
+    }
+
     /** Loads [file]; the context is capped at the length the model was trained for. */
     suspend fun load(file: File, config: LoadConfig = LoadConfig()): LoadResult {
         mutableState.update { it.copy(loading = true, error = null) }
@@ -61,7 +75,7 @@ class ActiveModel(
         val memory = metadata?.let { ModelMemory.estimate(it, capped.contextLength).totalBytes } ?: 0
         mutableState.update {
             when (result) {
-                is LoadResult.Loaded -> it.copy(active = file, info = result.info, backend = result.backend, loading = false, memoryBytes = memory)
+                is LoadResult.Loaded -> it.copy(active = file, info = result.info, backend = result.backend, loading = false, memoryBytes = memory, remote = null)
                 // Some failures (missing file, not GGUF) keep the previous model loaded; others
                 // release it first. Ask the engine rather than assume.
                 is LoadResult.Failed -> if (engine.getModelInfo() == null) {

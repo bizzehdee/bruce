@@ -1,5 +1,7 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.remote.RemoteBackend
+import com.bizzeh.bruce.models.RemoteChoice
 import com.bizzeh.bruce.remote.ServerClient
 import com.bizzeh.bruce.remote.RemoteServerStore
 import com.bizzeh.bruce.skills.web.SearchKeyRepository
@@ -155,7 +157,10 @@ class AppContainer(private val context: Context) {
             Log.i("BruceMemory", "facts found=${facts.size} new=$added")
         }
 
-        private suspend fun memoryScope(): String? = MemoryStore.scope(memorySettings.mode.first(), activeModel.state.value.active?.name)
+        private suspend fun memoryScope(): String? = MemoryStore.scope(
+            memorySettings.mode.first(),
+            activeModel.state.value.let { model -> model.active?.name ?: model.remote?.let { "remote:${it.serverId}:${it.model}" } },
+        )
     }
 
     internal suspend fun personalityRules(): String {
@@ -192,7 +197,7 @@ class AppContainer(private val context: Context) {
     val modelSettings: ModelSettingsRepository by lazy { ModelSettingsRepository(context.settingsDataStore) }
 
     val modelSelection: ModelSelection by lazy {
-        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO, ::memoryForModels)
+        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO, ::memoryForModels) { remoteServers.servers.first() }
     }
 
     private val conversationDatabase: ConversationDatabase by lazy {
@@ -248,6 +253,22 @@ class AppContainer(private val context: Context) {
 
     val remoteServers: RemoteServerStore by lazy { RemoteServerStore(context.settingsDataStore, KeystoreTokenCipher(SERVER_KEY_ALIAS)) }
 
+    /** The chosen server model's backend, made again only when the choice changes; null when the model is on the phone. */
+    private var remoteBackend: Pair<RemoteChoice, RemoteBackend>? = null
+
+    suspend fun remoteBackend(): RemoteBackend? {
+        val choice = activeModel.state.value.remote ?: return null
+        remoteBackend?.takeIf { it.first == choice }?.let { return it.second }
+        val server = remoteServers.servers.first().firstOrNull { it.id == choice.serverId } ?: return null
+        return RemoteBackend(server, choice.model, remoteServers.key(server.id), transport, Dispatchers.IO, userAgent).also { remoteBackend = choice to it }
+    }
+
+    /** Stops generation wherever the chosen model runs. */
+    fun stopModel() {
+        engine.stop()
+        remoteBackend?.second?.stop()
+    }
+
     val serverClient: ServerClient by lazy {
         ServerClient(transport, Dispatchers.IO, userAgent) { networkSettings.mode.first() != NetworkMode.OFFLINE }
     }
@@ -274,7 +295,7 @@ class AppContainer(private val context: Context) {
                 else -> grantScope.check(request)
             }
         }, requirementMet = ::requirementMet, sites = sites)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet)
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend)
     }
 
     val dataReset: DataReset by lazy {

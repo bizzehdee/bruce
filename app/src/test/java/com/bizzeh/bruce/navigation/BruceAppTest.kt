@@ -37,6 +37,7 @@ class BruceAppTest {
     private val appActions = object : AppActions {
         override fun newChat() { calls += "newChat" }
         override fun selectModel(file: File) { calls += "select ${file.name}" }
+        override fun selectRemote(choice: com.bizzeh.bruce.models.RemoteChoice) { calls += "remote ${choice.label}" }
     }
     private val qwen = File("Qwen3-0.6B-Q4_0.gguf")
     private val models = ActiveModelState(installed = listOf(qwen, File("stories.gguf")), active = qwen)
@@ -54,6 +55,7 @@ class BruceAppTest {
                 chatActions = chatActions,
                 activeModel = models,
                 actions = appActions,
+                remoteModels = listOf(com.bizzeh.bruce.models.RemoteChoice("s", "Home", "qwen3-8b")),
                 modelsScreen = { onBack -> SubScreen("Models screen", onBack) { Text("models body") } },
                 settingsScreen = { onBack, open ->
                     SubScreen("Settings screen", onBack) {
@@ -154,9 +156,12 @@ class BruceAppTest {
         show()
 
         compose.onNodeWithTag("chatTitle").performClick()
+        compose.onNodeWithText("qwen3-8b (Home)").assertExists()
         compose.onNodeWithTag("switch:stories.gguf").performClick()
+        compose.onNodeWithTag("chatTitle").performClick()
+        compose.onNodeWithTag("switchRemote:s:qwen3-8b").performClick()
 
-        assertEquals(listOf("select stories.gguf"), calls)
+        assertEquals(listOf("select stories.gguf", "remote qwen3-8b (Home)"), calls)
     }
 
     @Test

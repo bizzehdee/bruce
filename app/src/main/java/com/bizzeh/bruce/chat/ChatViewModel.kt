@@ -107,6 +107,8 @@ class ChatViewModel(
     private val summarise: suspend (List<ToolChatMessage>) -> String? = { null },
     private val memory: ChatMemory = ChatMemory.Off,
     private val turns: TurnObserver = TurnObserver.None,
+    /** Stops generation wherever the model runs; the phone's engine unless a server's model is in use. */
+    private val stopModel: () -> Unit = engine::stop,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -122,7 +124,7 @@ class ChatViewModel(
     init {
         viewModelScope.launch {
             activeModel.collect { model ->
-                mutableState.update { it.copy(modelName = model.active?.nameWithoutExtension) }
+                mutableState.update { it.copy(modelName = model.active?.nameWithoutExtension ?: model.remote?.label) }
                 remeasure()
             }
         }
@@ -310,7 +312,7 @@ class ChatViewModel(
     /** Stops generation and the turn, so no skill runs after the user has moved on. */
     private fun endTurn() {
         if (turn?.isActive != true) return
-        engine.stop()
+        stopModel()
         turn?.cancel()
     }
 
