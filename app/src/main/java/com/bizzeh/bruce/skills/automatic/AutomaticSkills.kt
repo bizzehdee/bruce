@@ -43,11 +43,12 @@ interface PhoneReaders {
 
 /**
  * The six automatic skills (product spec §29): read-only, no Android runtime permissions, Accepted
- * on a fresh install. Their ids and descriptions are those measured in TASK-033.
+ * on a fresh install. Their ids are those measured in TASK-033; the time and battery descriptions
+ * are the owner's shorter wording (2026-09-29).
  */
 object AutomaticSkills {
     fun create(phone: PhoneReaders): List<Skill> = listOf(
-        skill("get_datetime", "Get the current date, time, day of the week and time zone on this phone.", Capability.TIME) { dateTime(phone.now()) },
+        skill("get_datetime", "Get the date/time/day of week on the current device", Capability.TIME) { dateTime(phone.now()) },
         Skill(
             id = "calculate",
             version = 1,
@@ -61,7 +62,7 @@ object AutomaticSkills {
                 is Calculation.Error -> SkillOutcome.Failed(DenialCode.TOOL_FAILED, "Cannot calculate that: ${result.reason}.", retryable = true)
             }
         },
-        skill("get_battery_status", "Get the phone's battery level, whether it is charging, and battery temperature.", Capability.BATTERY) { battery(phone.battery()) },
+        skill("get_battery_status", "get the devices battery level, temperature and charge state", Capability.BATTERY) { battery(phone.battery()) },
         skill("get_device_info", "Get the phone's manufacturer, model, Android version, processor and total memory.", Capability.DEVICE) { device(phone.device()) },
         skill("get_storage_status", "Get the phone's total, used and free storage space.", Capability.STORAGE_STATUS) { storage(phone.storage()) },
         skill("get_network_status", "Get whether the phone is online and whether it uses Wi-Fi or mobile data.", Capability.NETWORK_STATUS) { network(phone.network()) },

@@ -1,0 +1,384 @@
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indented", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indented", "question": "What phone is this?", "expected": "get_device_info", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indented", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_network_status", "ok": false, "content": ""}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": ""}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "indented", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": ""}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indented", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_network_status", "ok": false, "content": ""}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_network_status", "ok": false, "content": ""}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indented", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "compact", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_setting", "ok": false, "content": ""}
+{"label": "compact", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "compact", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "compact", "question": "Tell me a joke about dogs.", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_setting", "ok": false, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "oneline", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "oneline", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": ""}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "set_setting", "ok": true, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "open_settings_page", "ok": true, "content": ""}
+{"label": "indent2", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": ""}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "indent2", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}
+{"label": "indent2", "question": "Tell me a joke about dogs.", "expected": null, "called": "get_battery_status", "ok": false, "content": ""}

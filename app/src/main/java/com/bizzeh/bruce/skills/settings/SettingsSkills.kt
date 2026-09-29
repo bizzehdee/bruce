@@ -98,7 +98,7 @@ class SettingsSkills(private val reader: SettingsReader, private val writer: Set
     private fun open() = Skill(
         id = "open_settings_page",
         version = 1,
-        description = "Open the phone's settings page for a setting, so the user can change it themselves. Use for settings Bruce cannot change, such as wifi or bluetooth.",
+        description = "Open the phone's settings page for a setting, so the user can change it. Use for settings Bruce cannot change, such as wifi or bluetooth",
         input = InputSchema(listOf(Parameter(ID, ParameterType.STRING, "The setting id from find_settings, for example wifi", maxLength = MAX_ID))),
         capabilities = setOf(Capability.APP_LAUNCH),
         defaultState = SkillState.ACCEPTED,

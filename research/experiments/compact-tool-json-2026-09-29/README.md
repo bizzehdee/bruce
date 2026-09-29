@@ -1,0 +1,25 @@
+# Tool JSON layout in Llama 3.2's chat template (2026-09-29)
+
+Question: Llama 3.2's template prints each tool with `tojson(indent=4)`. Does printing it with less
+whitespace cost tool-calling accuracy?
+
+Setup: host `llama-server` (llama.cpp v0.5.0, `--jinja`), bartowski Llama-3.2-1B-Instruct Q4_K_M,
+the template from that file with its two `tojson(indent=4)` calls rewritten per layout. System
+prompt and the 15 tools of an empty Bruce chat on the Pixel 11 (Bruce personality, Documents and
+Camera granted, settings skills on), from `PromptDumpDeviceTest`, with the owner's shorter
+descriptions. 12 questions, 8 runs each, temperature 0.8 (Bruce's default). `run.py`,
+`results.jsonl`. A call llama-server cannot parse (HTTP 500) is "unparsed".
+
+| Layout | Template call | Prompt tokens | Correct | Unparsed |
+|---|---|---|---|---|
+| Indented, 4 spaces (as shipped) | `tojson(indent=4)` | 2,009 | 75/96 | 14 |
+| Indented, 2 spaces | `tojson(indent=2)` | 2,009 | 76/96 | 8 |
+| One line | `tojson` | 1,639 | 85/96 | 0 |
+| Compact | `tojson(separators=[",",":"])` | 1,386 | 23/96 | 71 |
+
+Indentation width does not change the count: the tokenizer takes a run of spaces as one token.
+Compact JSON made the model copy a definition (`{"type":"function","name":...}`) instead of writing
+a call. "Tell me a joke" never got a plain answer in any layout: Llama 3.2 1B calls some tool
+whenever tools are offered.
+
+Decision: Bruce prints template JSON on one line (`template_one_line.cpp`), not compact.

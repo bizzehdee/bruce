@@ -15,8 +15,10 @@ set(MAIN_CPP ${CMAKE_CURRENT_LIST_DIR}/../../main/cpp)
 add_executable(bruce_native_tests
     cpu_features_test.cpp
     prompt_cache_test.cpp
+    template_one_line_test.cpp
     ${MAIN_CPP}/cpu_features.cpp
-    ${MAIN_CPP}/prompt_cache.cpp)
+    ${MAIN_CPP}/prompt_cache.cpp
+    ${MAIN_CPP}/template_one_line.cpp)
 target_include_directories(bruce_native_tests PRIVATE ${MAIN_CPP})
 target_link_libraries(bruce_native_tests PRIVATE GTest::gtest_main)
 
