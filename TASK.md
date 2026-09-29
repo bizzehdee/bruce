@@ -498,4 +498,18 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Requests go only to Brave's API host, and only when the network mode allows it (TASK-068 treats that host like any other site).
   - Verify the API's current address, headers, limits and terms before building, with research provenance.
   - Depends on: TASK-068
+- [ ] TASK-071: More context sizes
+  - Owner (2026-09-29): context choices 2K, 4K, 8K, 16K, 24K, 32K, 48K and 64K, in Settings and in each model's settings.
+  - Required by: TASK-072, TASK-073
+- [ ] TASK-072: RAM use in model settings
+  - Owner (2026-09-29): on the Models screen, each model shows how much RAM it is expected to use (weights plus the KV cache for its context size), updated as the user picks another context size, with a bar showing that as a share of the phone's total RAM.
+  - The number is the existing memory estimate (`ModelMemory`); where the file does not declare its attention shape, the bar shows the weights only and says the context's share is unknown.
+  - Depends on: TASK-071
+- [ ] TASK-073: Default context size from the phone and the model
+  - Owner (2026-09-29): instead of always 2K, the default is the biggest size that fits without making the phone unusable for other apps: the largest choice whose memory estimate is in the comfortable band (at most 80% of the RAM free when the model loads, `ModelFit.TIGHT_SHARE`), and no larger than the model's trained context. At least 2K.
+  - Settings' context choice gains "Auto" (the default), which shows the size it picked for the active model; picking a size, globally or per model, overrides it as today.
+  - Depends on: TASK-071
+- [ ] TASK-074: Voice input
+  - Owner (2026-09-29): a microphone button in the chat's message box starts Android's on-device speech recogniser (`SpeechRecognizer.createOnDeviceSpeechRecognizer`, Android 12 and later); audio never leaves the phone. The recognised text goes into the message box for the user to check and send.
+  - Where the phone has no on-device recogniser, the button is not shown. The microphone permission is asked on first use and listed in Permissions.
 
