@@ -30,6 +30,7 @@ class SettingsScreenTest {
     private val actions = object : SettingsActions {
         override fun setThemeMode(mode: ThemeMode) { calls += "theme $mode" }
         override fun setDynamicColour(enabled: Boolean) { calls += "dynamic $enabled" }
+        override fun setContextTrafficLights(enabled: Boolean) { calls += "lights $enabled" }
         override fun setBackend(backend: BackendPreference) { calls += "backend $backend" }
         override fun setThreads(threads: Int?) { calls += "threads $threads" }
         override fun setContextLength(contextLength: Int) { calls += "context $contextLength" }
@@ -87,12 +88,13 @@ class SettingsScreenTest {
 
         compose.onNodeWithText("Dark").performClick()
         compose.onNodeWithTag("dynamicColour").performClick()
+        compose.onNodeWithTag("contextTrafficLights").performScrollTo().performClick()
         compose.onNodeWithText("CPU").performScrollTo().performClick()
         compose.onNodeWithTag("threads:2").performClick()
         compose.onNodeWithTag("threads:auto").performClick()
         compose.onNodeWithTag("context:8192").performClick()
 
-        assertEquals(listOf("theme DARK", "dynamic true", "backend CPU", "threads 2", "threads null", "context 8192"), calls)
+        assertEquals(listOf("theme DARK", "dynamic true", "lights false", "backend CPU", "threads 2", "threads null", "context 8192"), calls)
         compose.onNodeWithText("Auto (4)").assertIsDisplayed()
     }
 

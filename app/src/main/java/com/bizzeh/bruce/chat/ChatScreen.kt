@@ -26,6 +26,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.runtime.ContextUse
+import com.bizzeh.bruce.ui.theme.LocalTrafficLights
 import com.bizzeh.bruce.skills.SkillText
 import com.bizzeh.bruce.inference.ChatRole
 
@@ -161,7 +163,15 @@ private fun ContextBar(use: ContextUse) {
         modifier = Modifier.fillMaxWidth().clickable { open = true }.padding(horizontal = 16.dp, vertical = 4.dp).testTag("contextBar"),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        LinearProgressIndicator(progress = { fraction.coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
+        val lights = LocalTrafficLights.current
+        val colour = lights?.let {
+            when (ContextLight.of(use)) {
+                ContextLight.GREEN -> it.green
+                ContextLight.AMBER -> it.amber
+                ContextLight.RED -> it.red
+            }
+        } ?: ProgressIndicatorDefaults.linearColor
+        LinearProgressIndicator(progress = { fraction.coerceIn(0f, 1f) }, color = colour, modifier = Modifier.fillMaxWidth().testTag("contextProgress"))
         Text(
             stringResource(R.string.chat_context_use, use.used, use.total, (use.total - use.used).coerceAtLeast(0)),
             style = MaterialTheme.typography.labelSmall,
@@ -178,6 +188,28 @@ private fun ContextBar(use: ContextUse) {
             text = { Text(stringResource(R.string.chat_context_explained)) },
             confirmButton = { TextButton(onClick = { open = false }) { Text(stringResource(R.string.chat_context_ok)) } },
         )
+    }
+}
+
+/** The context bar's traffic light, by use of what the prompt may fill, as "Nearly full" is measured (TASK-064). */
+enum class ContextLight {
+    GREEN,
+    AMBER,
+    RED,
+    ;
+
+    companion object {
+        private const val AMBER_FROM = 0.65
+        private const val RED_FROM = 0.85
+
+        fun of(use: ContextUse): ContextLight {
+            val share = if (use.limit > 0) use.used.toDouble() / use.limit else 1.0
+            return when {
+                share >= RED_FROM -> RED
+                share >= AMBER_FROM -> AMBER
+                else -> GREEN
+            }
+        }
     }
 }
 

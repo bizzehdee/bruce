@@ -35,6 +35,16 @@ class ThemeSettingsRepositoryTest {
     }
 
     @Test
+    fun contextTrafficLightsAreOnUntilTurnedOff() = runTest {
+        val repository = ThemeSettingsRepository(store())
+        assertEquals(true, repository.settings.first().contextTrafficLights)
+
+        repository.setContextTrafficLights(false)
+
+        assertEquals(false, repository.settings.first().contextTrafficLights)
+    }
+
+    @Test
     fun unknownStoredModeFallsBackToSystem() = runTest {
         val dataStore = store()
         dataStore.edit { it[stringPreferencesKey("theme_mode")] = "SEPIA" }

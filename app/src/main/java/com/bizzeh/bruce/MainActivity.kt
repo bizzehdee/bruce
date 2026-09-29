@@ -345,6 +345,7 @@ class MainActivity : ComponentActivity() {
     private fun settingsActions(open: (Destination) -> Unit) = object : SettingsActions {
         override fun setThemeMode(mode: ThemeMode) = settings.setThemeMode(mode)
         override fun setDynamicColour(enabled: Boolean) = settings.setDynamicColour(enabled)
+        override fun setContextTrafficLights(enabled: Boolean) = settings.setContextTrafficLights(enabled)
         override fun setBackend(backend: BackendPreference) = settings.setBackend(backend)
         override fun setThreads(threads: Int?) = settings.setThreads(threads)
         override fun setContextLength(contextLength: Int) = settings.setContextLength(contextLength)

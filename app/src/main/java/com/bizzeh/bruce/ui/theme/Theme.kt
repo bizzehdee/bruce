@@ -7,6 +7,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import com.bizzeh.bruce.settings.ThemeMode
 import com.bizzeh.bruce.settings.ThemeSettings
@@ -34,5 +36,10 @@ fun BruceTheme(
     } else {
         bruceColorScheme(dark)
     }
-    MaterialTheme(colorScheme = colorScheme, content = content)
+    val trafficLights = if (!settings.contextTrafficLights) null else if (dark) DarkTrafficLights else LightTrafficLights
+    CompositionLocalProvider(LocalTrafficLights provides trafficLights) {
+        MaterialTheme(colorScheme = colorScheme, content = content)
+    }
 }
+
+val LocalTrafficLights = staticCompositionLocalOf<TrafficLights?> { null }

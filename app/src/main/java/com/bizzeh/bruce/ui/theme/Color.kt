@@ -69,3 +69,10 @@ internal val BruceDarkColors = darkColorScheme(
     inverseOnSurface = Color(0xFF362F2A),
     inversePrimary = Color(0xFF855318),
 )
+
+/** The chat's context bar by how full the chat is (TASK-064); null in [LocalTrafficLights] when the setting is off. */
+data class TrafficLights(val green: Color, val amber: Color, val red: Color)
+
+internal val LightTrafficLights = TrafficLights(green = Color(0xFF2E7D32), amber = Color(0xFFB26A00), red = Color(0xFFBA1A1A))
+internal val DarkTrafficLights = TrafficLights(green = Color(0xFF81C995), amber = Color(0xFFFFB951), red = Color(0xFFFFB4AB))
+

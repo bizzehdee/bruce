@@ -79,6 +79,8 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_dynamic_colour">Use wallpaper colours</string>
+    <string name="settings_context_traffic_lights">Context traffic lights</string>
+    <string name="settings_context_traffic_lights_summary">Colour the chat\'s context bar green, amber or red as the chat fills up.</string>
     <string name="settings_long_chats">Long chats</string>
     <string name="settings_summarise">Summarise older messages</string>
     <string name="settings_summarise_summary">When a chat nears the model\'s limit, the oldest messages are replaced, in what the model sees, by a short summary shown in the chat. Off: the oldest messages are left out instead.</string>

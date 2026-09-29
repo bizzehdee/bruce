@@ -61,6 +61,7 @@ data class SettingsState(
 interface SettingsActions {
     fun setThemeMode(mode: ThemeMode)
     fun setDynamicColour(enabled: Boolean)
+    fun setContextTrafficLights(enabled: Boolean)
     fun setBackend(backend: BackendPreference)
     fun setThreads(threads: Int?)
     fun setContextLength(contextLength: Int)
@@ -115,6 +116,14 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                     },
                 )
             }
+
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_context_traffic_lights)) },
+                supportingContent = { Text(stringResource(R.string.settings_context_traffic_lights_summary)) },
+                trailingContent = {
+                    Switch(state.theme.contextTrafficLights, actions::setContextTrafficLights, modifier = Modifier.testTag("contextTrafficLights"))
+                },
+            )
 
             Heading(R.string.settings_long_chats)
             ListItem(
