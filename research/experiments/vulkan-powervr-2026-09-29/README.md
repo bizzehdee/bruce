@@ -28,7 +28,7 @@ Greedy stories260K, "Once upon a time", 24 tokens:
 | `-ngl 99 -fa off` | different garbage on every run |
 | `-fa off` + `GGML_VK_SERIALIZE_SUBMISSIONS=1` | reference, 3/3 runs |
 | `-fa off` + `GGML_VK_DISABLE_ASYNC=1` | reference, 3/3 runs |
-| `-fa off` + any one of DISABLE_COOPMAT, DISABLE_FUSION, DISABLE_GRAPH_OPTIMIZE, DISABLE_MULTI_ADD | wrong, 0/3 |
+| `-fa off` + any one of DISABLE_COOPMAT, DISABLE_FUSION, DISABLE_GRAPH_OPTIMIZE, DISABLE_MULTI_ADD, MAX_NODES_PER_SUBMIT=1 | wrong, 0/3 |
 | `-fa on` + every switch above | wrong, 0/3 |
 
 Greedy Qwen3.5-0.8B Q8_0, "Write a short paragraph about why the sky is blue.", 64 tokens:
