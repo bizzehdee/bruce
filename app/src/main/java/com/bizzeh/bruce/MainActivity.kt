@@ -394,7 +394,7 @@ class MainActivity : ComponentActivity() {
 
     private fun deviceProfile(): DeviceProfile {
         val memory = container.memoryInfo()
-        return DeviceProfile((memory.availMem - memory.threshold).coerceAtLeast(0), container.cpuFeatures())
+        return DeviceProfile((memory.availMem - memory.threshold).coerceAtLeast(0), container.cpuFeatures(), memory.totalMem)
     }
 
     private fun chatActions() = object : ChatActions {

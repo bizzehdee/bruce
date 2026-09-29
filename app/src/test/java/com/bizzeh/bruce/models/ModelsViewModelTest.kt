@@ -59,7 +59,7 @@ class ModelsViewModelTest {
         val selection = ModelSelection(activeModel, settings, InferenceSettingsRepository(dataStore), modelsDir, dispatcher)
         val viewModel = ModelsViewModel(
             activeModel, selection, settings, flowOf(InferenceDefaults()), { importResult },
-            { DeviceProfile(4L shl 30, cpu) }, dispatcher,
+            { DeviceProfile(4L shl 30, cpu, totalMemoryBytes = 8L shl 30) }, dispatcher,
             templateSupportsTools = { template, bos, eos -> judged += Triple(template, bos, eos); "tools" in template },
             findTemplate = { searched += it.file.name; search },
         )
@@ -141,6 +141,7 @@ class ModelsViewModelTest {
         assertEquals("llama", models[1].metadata?.architecture)
         assertEquals(Fit.FITS, models[1].assessment.fit)
         assertEquals(2048, models[1].assessment.estimate.contextLength)
+        assertEquals(8L shl 30, f.viewModel.state.value.totalMemoryBytes)
     }
 
     @Test
@@ -198,6 +199,16 @@ class ModelsViewModelTest {
         assertEquals("1.1 MB · Q4_0", ModelsText.summary(model))
         assertEquals(R.string.models_unsupported, ModelsText.fitLabel(model.assessment))
         assertEquals(listOf("Not a readable GGUF file."), ModelsText.details(model))
+
+        val gb = 1L shl 30
+        assertEquals(
+            ModelsText.RamUse("Expected RAM: 1.50 GB (19% of 8.00 GB)", "Model 1.00 GB + 8K context 512.0 MB", 0.1875f),
+            ModelsText.ram(MemoryEstimate(gb, gb / 2, 8192), 8 * gb),
+        )
+        assertEquals(
+            ModelsText.RamUse("Expected RAM: 1.00 GB", "Model 1.00 GB; the file does not say how much the context adds", null),
+            ModelsText.ram(MemoryEstimate(gb, null, 2048), 0),
+        )
         assertEquals(R.string.models_speed_slow, ModelsText.speedLabel(SpeedBand.SLOW))
         assertEquals(R.string.models_speed_usable, ModelsText.speedLabel(SpeedBand.USABLE))
         assertEquals(R.string.models_speed_fast, ModelsText.speedLabel(SpeedBand.FAST))

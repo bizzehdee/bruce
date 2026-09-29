@@ -52,6 +52,8 @@ data class ModelsState(
     val importError: ImportError? = null,
     /** By model file name. */
     val templates: Map<String, TemplateStatus> = emptyMap(),
+    /** The phone's RAM, which each model's expected use is shown against; 0 until read. */
+    val totalMemoryBytes: Long = 0,
 )
 
 class ModelsViewModel(
@@ -166,6 +168,6 @@ class ModelsViewModel(
             val skills = if (fetched != null) true else metadata?.chatTemplate?.let { template -> withContext(ioDispatcher) { templateSupportsTools(template, null, null) } }
             InstalledModel(file, candidate.sizeBytes, metadata, ModelFit.assess(candidate, profile, contextLength), overrides, skills, fetched)
         }
-        mutableState.update { it.copy(models = models) }
+        mutableState.update { it.copy(models = models, totalMemoryBytes = profile.totalMemoryBytes) }
     }
 }
