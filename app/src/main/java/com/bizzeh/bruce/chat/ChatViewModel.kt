@@ -49,7 +49,8 @@ enum class ToolStatus { RAN, REFUSED, AWAITING_APPROVAL, DECLINED }
 data class ToolUse(val callId: String, val name: String, val resultJson: String, val status: ToolStatus)
 
 /** What the approval card shows for a call awaiting the user's decision. */
-data class Confirmation(val callId: String, val skillId: String, val arguments: List<Pair<String, String>>, val targets: List<String>)
+/** [newSites] are sites the user has not approved, which the card offers to always allow (TASK-068). */
+data class Confirmation(val callId: String, val skillId: String, val arguments: List<Pair<String, String>>, val targets: List<String>, val newSites: List<String> = emptyList())
 
 data class ChatState(
     val modelName: String? = null,
@@ -186,10 +187,12 @@ class ChatViewModel(
     private fun sent(entries: List<ChatEntry>): List<ToolChatMessage> = entries.drop(firstSent(entries)).map(::toMessage)
 
     /** Approves or declines a call awaiting approval, then lets the model carry on with the outcome. */
-    fun decide(callId: String, approved: Boolean) {
+    /** [alwaysAllowSites] also adds the call's new sites to the approved list, once the policy engine accepts the approval. */
+    fun decide(callId: String, approved: Boolean, alwaysAllowSites: Boolean = false) {
         val current = mutableState.value
         if (current.generating) return
-        val (call, decision) = pending.remove(callId) ?: return
+        val (call, asked) = pending.remove(callId) ?: return
+        val decision = if (approved && alwaysAllowSites) asked.copy(rememberSites = true) else asked
         val decidingSession = session
         mutableState.update { it.copy(confirmations = it.confirmations - callId, generating = true) }
         viewModelScope.launch {
@@ -316,6 +319,7 @@ class ChatViewModel(
         skillId = decision.request.skill.id,
         arguments = arguments(call.argumentsJson),
         targets = decision.targets.map { it.display },
+        newSites = decision.newSites,
     )
 
     /** The arguments as the user reads them; the policy engine has already validated them. */

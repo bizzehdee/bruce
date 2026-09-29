@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.chat
 
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.IconButton
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -59,6 +60,9 @@ interface ChatActions {
 
     /** The user's answer to a skill call awaiting approval. */
     fun decide(callId: String, approved: Boolean)
+
+    /** Approves the call and always allows the sites it reaches from now on (TASK-068). */
+    fun alwaysAllowSites(callId: String) = Unit
 
     /** Opens an http or https address the user confirmed, in the browser. */
     fun openLink(url: String) = Unit
@@ -264,9 +268,14 @@ private fun ConfirmationCard(tool: ToolUse, confirmation: Confirmation?, enabled
             confirmation.arguments.forEach { (name, value) ->
                 Text(if (name.isEmpty()) value else "$name: $value", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { actions.decide(tool.callId, true) }, enabled = enabled, modifier = Modifier.testTag("approve:${tool.callId}")) {
                     Text(stringResource(R.string.chat_confirm_allow))
+                }
+                if (confirmation.newSites.isNotEmpty()) {
+                    OutlinedButton(onClick = { actions.alwaysAllowSites(tool.callId) }, enabled = enabled, modifier = Modifier.testTag("alwaysAllow:${tool.callId}")) {
+                        Text(stringResource(R.string.chat_confirm_always_site, confirmation.newSites.joinToString()))
+                    }
                 }
                 OutlinedButton(onClick = { actions.decide(tool.callId, false) }, enabled = enabled, modifier = Modifier.testTag("deny:${tool.callId}")) {
                     Text(stringResource(R.string.chat_confirm_deny))

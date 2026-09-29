@@ -1,5 +1,6 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.policy.SiteAccess
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
 import com.bizzeh.bruce.skills.SkillRequirement
@@ -197,7 +198,7 @@ class AppContainer(private val context: Context) {
 
     private val policyDatabase: PolicyDatabase by lazy {
         Room.databaseBuilder(context, PolicyDatabase::class.java, PolicyDatabase.NAME)
-            .addMigrations(PolicyDatabase.MIGRATION_1_2, PolicyDatabase.MIGRATION_2_3)
+            .addMigrations(PolicyDatabase.MIGRATION_1_2, PolicyDatabase.MIGRATION_2_3, PolicyDatabase.MIGRATION_3_4)
             .build()
     }
 
@@ -215,6 +216,8 @@ class AppContainer(private val context: Context) {
     suspend fun grantNames(): List<String> = grantScope.names()
 
     private val settingsSkills by lazy { SettingsSkills(AndroidSettingsReader(context), AndroidSettingsWriter(context)) }
+
+    val sites: SiteAccess by lazy { SiteAccess(policyDatabase.policy(), { networkSettings.mode.first() }) }
 
     val skills: SkillRegistry by lazy {
         SkillRegistry(
@@ -248,7 +251,7 @@ class AppContainer(private val context: Context) {
                 ResourceScope.PHONE_SETTINGS -> settingsSkills.check(request)
                 else -> grantScope.check(request)
             }
-        }, requirementMet = ::requirementMet)
+        }, requirementMet = ::requirementMet, sites = sites)
         BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, networkAllowed = { requirementMet(SkillRequirement.NETWORK_ALLOWED) })
     }
 
@@ -257,6 +260,7 @@ class AppContainer(private val context: Context) {
             conversations.deleteAll()
             skillStates.reset()
             grants.clear()
+            sites.clear()
             memory.deleteAll()
         }
     }

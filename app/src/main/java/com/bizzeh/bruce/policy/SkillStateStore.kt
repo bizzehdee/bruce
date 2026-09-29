@@ -25,6 +25,21 @@ data class PolicyVersionEntity(@PrimaryKey val id: Int = 0, val version: Long)
 
 @Dao
 interface PolicyDao {
+    @Query("SELECT * FROM approved_sites ORDER BY host")
+    fun approvedSites(): Flow<List<ApprovedSiteEntity>>
+
+    @Query("SELECT COUNT(*) > 0 FROM approved_sites WHERE host = :host")
+    suspend fun isApprovedSite(host: String): Boolean
+
+    @Upsert
+    suspend fun approveSite(site: ApprovedSiteEntity)
+
+    @Query("DELETE FROM approved_sites WHERE host = :host")
+    suspend fun removeSite(host: String)
+
+    @Query("DELETE FROM approved_sites")
+    suspend fun clearSites()
+
     @Query("SELECT * FROM skill_states")
     fun states(): Flow<List<SkillStateEntity>>
 
@@ -122,7 +137,11 @@ data class GrantEntity(
 @Entity(tableName = "folder_instructions")
 data class FolderInstructionsEntity(@PrimaryKey val grantId: Long, val hash: String, val follow: Boolean)
 
-@Database(entities = [SkillStateEntity::class, PolicyVersionEntity::class, GrantEntity::class, FolderInstructionsEntity::class], version = 3)
+/** A web site the user always allows in the Approved sites network mode (TASK-068). */
+@Entity(tableName = "approved_sites")
+data class ApprovedSiteEntity(@PrimaryKey val host: String, val approvedAt: Long)
+
+@Database(entities = [SkillStateEntity::class, PolicyVersionEntity::class, GrantEntity::class, FolderInstructionsEntity::class, ApprovedSiteEntity::class], version = 4)
 abstract class PolicyDatabase : RoomDatabase() {
     abstract fun policy(): PolicyDao
 
@@ -133,6 +152,13 @@ abstract class PolicyDatabase : RoomDatabase() {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS `grants` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `uri` TEXT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `grantedAt` INTEGER NOT NULL)")
+            }
+        }
+
+        /** Version 4 (TASK-068): sites the user always allows. */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `approved_sites` (`host` TEXT NOT NULL, `approvedAt` INTEGER NOT NULL, PRIMARY KEY(`host`))")
             }
         }
 

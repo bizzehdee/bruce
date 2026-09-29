@@ -32,7 +32,16 @@ sealed interface PolicyDecision {
      * The skill is in the Ask state: the user must approve this exact operation first. [confirm]
      * binds the approval to the request, its [targets], the [policyVersion] and [askedAt].
      */
-    data class NeedsConfirmation(val request: SkillRequest, val policyVersion: Long, val targets: List<ResourceTarget>, val askedAt: Long) : PolicyDecision
+    data class NeedsConfirmation(
+        val request: SkillRequest,
+        val policyVersion: Long,
+        val targets: List<ResourceTarget>,
+        val askedAt: Long,
+        /** Sites the call reaches that the user has not approved (TASK-068); the card can always allow them. */
+        val newSites: List<String> = emptyList(),
+        /** Set by the chat, never the model, when the user chose to always allow [newSites]. */
+        val rememberSites: Boolean = false,
+    ) : PolicyDecision
 
     data class Denied(val denial: Denial) : PolicyDecision
 }
@@ -52,6 +61,8 @@ class PolicyEngine(
     private val scope: suspend (SkillRequest) -> ScopeCheck,
     /** Whether a skill's requirement holds; a skill whose requirement does not is locked off. */
     private val requirementMet: suspend (SkillRequirement) -> Boolean = { true },
+    /** Which sites web skills may reach; without it, none. */
+    private val sites: SiteAccess? = null,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     suspend fun decide(tool: String, rawArguments: String): PolicyDecision = when (val resolution = registry.resolve(tool, rawArguments)) {
@@ -72,6 +83,7 @@ class PolicyEngine(
             is PolicyDecision.Denied -> now
             is PolicyDecision.NeedsConfirmation ->
                 if (now.policyVersion == pending.policyVersion && now.targets == pending.targets) {
+                    if (pending.rememberSites) sites?.approve(now.newSites)
                     PolicyDecision.Allowed(request, now.policyVersion)
                 } else {
                     changed(request)
@@ -103,16 +115,31 @@ class PolicyEngine(
         if (!skill.androidPermissions.all(permissionGranted)) {
             return deny(request, DenialCode.ANDROID_PERMISSION_DENIED, "Android has not granted a permission this skill needs.", userCanChange = true)
         }
-        val targets = if (skill.scope == ResourceScope.NONE) {
-            emptyList()
-        } else {
-            when (val check = scope(request)) {
+        var newSites = emptyList<String>()
+        val targets = when (skill.scope) {
+            ResourceScope.NONE -> emptyList()
+            ResourceScope.WEB -> {
+                val host = skill.site?.invoke(request.arguments)
+                    ?: return deny(request, DenialCode.INVALID_ARGUMENTS, "This skill needs an http or https address.", userCanChange = false, retryable = true)
+                when (sites?.rule(host) ?: SiteRule.BLOCKED) {
+                    SiteRule.BLOCKED -> return deny(request, DenialCode.NETWORK_DISABLED, "The network mode in Settings does not allow web access.", userCanChange = true)
+                    SiteRule.ASK -> newSites = listOf(host)
+                    SiteRule.ALLOWED -> Unit
+                }
+                listOf(ResourceTarget(host, "site:$host"))
+            }
+            else -> when (val check = scope(request)) {
                 is ScopeCheck.OutOfScope -> return deny(request, DenialCode.RESOURCE_OUTSIDE_SCOPE, check.message, userCanChange = true)
                 is ScopeCheck.InScope -> check.targets
             }
         }
         val version = states.policyVersion()
-        return if (state == SkillState.ASK) PolicyDecision.NeedsConfirmation(request, version, targets, clock()) else PolicyDecision.Allowed(request, version)
+        // A site the user has not approved is asked about even when the skill itself is Accepted.
+        return if (state == SkillState.ASK || newSites.isNotEmpty()) {
+            PolicyDecision.NeedsConfirmation(request, version, targets, clock(), newSites)
+        } else {
+            PolicyDecision.Allowed(request, version)
+        }
     }
 
     /** Runs an allowed request and returns what goes back to the model: a sanitised result or a denial. */

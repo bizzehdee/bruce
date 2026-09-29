@@ -1,5 +1,7 @@
 package com.bizzeh.bruce.settings
 
+import kotlinx.coroutines.flow.flowOf
+import com.bizzeh.bruce.policy.SiteAccess
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bizzeh.bruce.huggingface.HubAuth
@@ -24,6 +26,7 @@ class SettingsViewModel(
     private val memory: MemorySettingsRepository,
     private val hubAuth: HubAuth,
     private val dataReset: DataReset,
+    private val sites: SiteAccess? = null,
     dynamicColourSupported: Boolean,
     performanceCores: Int,
     cores: Int,
@@ -40,7 +43,10 @@ class SettingsViewModel(
             theme = themeSettings, inference = defaults, network = mode, account = account, signInError = error,
             personality = chosen, summary = summarising, memory = remembering,
         )
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, initial)
+    }.combine(sites?.approved ?: flowOf(emptyList())) { settings, approved -> settings.copy(approvedSites = approved) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initial)
+
+    fun removeSite(host: String) = launch { sites?.remove(host) }
 
     fun setPersonality(chosen: Personality) = launch { personality.set(chosen) }
 

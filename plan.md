@@ -215,7 +215,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Approved sites** — In the Approved sites network mode, the first request to a
   new site shows a card in the chat: Allow once, Always allow this site, or Don't
   allow. Always-allowed sites are listed in Settings, where they can be removed.
-  `planned`
+  `done`
 - **Web pages** — Fetch a web page (GET only) as plain text, size-capped and
   marked as untrusted data. No forms, uploads, cookies or sign-ins. Only where the
   network mode allows the site. `planned`
@@ -457,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Approved sites done (TASK-068). |
 | 2026-09-29 | Added | Remote model servers (owner): OpenAI-compatible API, HTTPS or plain HTTP on the local network, a server is its own permission, listed with installed models (TASK-075 to TASK-077). |
 | 2026-09-29 | Changed | Downloads are no longer blocked by the size-only fit (owner): Download reads the file's header first and stops only if the model really cannot fit. Gemma 4's memory is estimated as llama.cpp uses it. |
 | 2026-09-29 | Changed | Voice input done, on-device only (TASK-074). |

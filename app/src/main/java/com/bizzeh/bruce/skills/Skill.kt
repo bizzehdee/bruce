@@ -62,6 +62,9 @@ enum class ResourceScope {
 
     /** Phone settings Bruce may change (TASK-067): one exact change to one catalog setting. */
     PHONE_SETTINGS,
+
+    /** One web site, which the network mode allows, blocks or asks about (TASK-068). */
+    WEB,
 }
 
 /** What a skill's execution produced, before sanitising. */
@@ -92,6 +95,8 @@ class Skill(
     val androidPermissions: List<String> = emptyList(),
     /** What must hold before the skill can be used at all; while it does not, the skill is locked off. */
     val requires: SkillRequirement? = null,
+    /** For [ResourceScope.WEB]: the host a call reaches, from its arguments (WebAddress.host), or null if it names none. */
+    val site: ((SkillArguments) -> String?)? = null,
     val execute: suspend (SkillArguments) -> SkillOutcome,
 ) {
     init {
