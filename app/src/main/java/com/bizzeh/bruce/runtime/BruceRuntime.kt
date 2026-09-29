@@ -108,10 +108,12 @@ class BruceRuntime(
         val tools = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
         val guidance = guidance(skills)
         var calls = 0
-        // Results of calls run this turn, by call. A model that repeats one is stuck (Llama 3.2 1B
-        // calls again after every result while skills are offered), so it gets the same result and
-        // no skills for the rest of the turn, which leaves answering as its only move.
+        // Results of calls run this turn, by call. A model that repeats one is stuck. The first
+        // repeat gets the earlier result with a note to answer, keeping the prompt (and the reused
+        // prompt cache) as it was; Qwen3.5 then answers. Llama 3.2 1B ignores the note, so a second
+        // repeat takes the skills away for the rest of the turn, which leaves answering as the only move.
         val results = mutableMapOf<Pair<String, String>, String>()
+        var repeats = 0
         var answerOnly = false
         while (true) {
             val fitted = fit(history + added, if (answerOnly) emptyList() else tools, guidance) ?: return emit(RuntimeEvent.Failed(RuntimeError.NO_MODEL_LOADED, added.toList()))
@@ -147,8 +149,8 @@ class BruceRuntime(
                 val key = call.name to call.argumentsJson.trim()
                 val earlier = results[key]
                 if (earlier != null) {
-                    result(call, earlier, ran = true, added)
-                    answerOnly = true
+                    result(call, JSONObject(earlier).put("note", REPEAT_NOTE).toString(), ran = true, added)
+                    answerOnly = ++repeats > 1
                     continue
                 }
                 when (val decision = policy.decide(call.name, call.argumentsJson)) {
@@ -342,6 +344,7 @@ class BruceRuntime(
         const val MAX_REPLY_TOKENS = 4096
 
         private const val TAG = "BruceRuntime"
+        const val REPEAT_NOTE = "You already have this result. Do not call a tool again: answer the user now, using it."
         const val SUMMARY_TOKENS = 400
         private const val SUMMARY_MARGIN = 64
         private const val SUMMARY_TEMPERATURE = 0.2f

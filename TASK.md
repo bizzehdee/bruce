@@ -384,10 +384,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Needed before the skills outgrow the budget: at the latest with the file skills (TASK-042 to TASK-044).
   - Prioritised (2026-09-28): done after TASK-059 and TASK-060 and before TASK-047; the nine skills take about 1,100 of the 1,382 fixed tokens with Qwen3.5-0.8B.
   - Depends on: TASK-052
-- [ ] TASK-056: Reuse the evaluated prompt between turns
+- [x] TASK-056: Reuse the evaluated prompt between turns
   - Every turn re-evaluates the whole conversation (TASK-024), and with tools the fixed part alone is 300–600 tokens: about a minute on the XZ Premium (TASK-033). Keep the KV cache between generations and evaluate only the tokens after the longest shared prefix with the previous prompt; clear it when the model, context or template changes.
   - Measure turn time before and after on both Sony phones with the TASK-033 cases.
   - Prioritised (2026-09-29): next, before TASK-059, TASK-060 and TASK-054; the owner found replies with Qwen3.5-0.8B, and skill replies above all, very slow.
+  - Done: the native layer keeps what each context holds between generations and decodes only what follows the longest prefix the new prompt shares with it (`prompt_cache.cpp`, with native tests). Plain attention memory is cut back to that prefix; recurrent, hybrid and sliding-window memory (Qwen3.5, Gemma) is reused as an exact extension or through a partial-state checkpoint saved 8 tokens before each prompt's end. Benchmarks and Diagnostics turn reuse off. A repeated skill call now first gets its result with a note to answer, keeping the prompt (and its cache) unchanged; only a second repeat removes the skills.
+  - Measured (research/experiments/prompt-reuse-2026-09-29): three-turn chats took about half the time with Qwen3.5-0.8B and a third with Llama 3.2 1B on both Sony phones; later turns on the XZ Premium went from over a minute to 5–27 s. Output with and without reuse matched exactly on the Xperia 1 II.
   - Depends on: TASK-052
 - [x] TASK-057: Personalities (Bruce and Milo)
   - Settings gains a Personality choice, one for every chat: Bruce (default) and Milo. The setup wizard does not ask; it can be changed any time and applies from the next reply.

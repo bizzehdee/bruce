@@ -364,7 +364,7 @@ class BruceRuntimeTest {
     }
 
     @Test
-    fun aRepeatedCallGetsTheEarlierResultAndTheNextStepHasNoSkills() = runBlocking {
+    fun aRepeatedCallGetsTheEarlierResultWithANoteAndKeepsTheSkills() = runBlocking {
         engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}", "a"))))
         engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", " {} ", "b"))))
         engine.steps += Step("", ParsedReply("It is noon.", "", emptyList()))
@@ -372,9 +372,22 @@ class BruceRuntimeTest {
         val events = events()
 
         assertEquals(listOf("get_datetime"), ran)
-        val results = events.filterIsInstance<RuntimeEvent.ToolResult>()
-        assertEquals(results[0].resultJson, results[1].resultJson)
-        assertEquals(listOf(true, true, false), engine.offered.map { it.isNotEmpty() })
+        val (first, second) = events.filterIsInstance<RuntimeEvent.ToolResult>().map { JSONObject(it.resultJson) }
+        assertEquals(first.getString("untrusted_data"), second.getString("untrusted_data"))
+        assertEquals(BruceRuntime.REPEAT_NOTE, second.getString("note"))
+        assertEquals("the prompt keeps its skills, so the prompt cache still applies", listOf(true, true, true), engine.offered.map { it.isNotEmpty() })
+        assertTrue(events.last() is RuntimeEvent.Finished)
+    }
+
+    @Test
+    fun aSecondRepeatTakesTheSkillsAwaySoTheModelMustAnswer() = runBlocking {
+        repeat(3) { engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_datetime", "{}")))) }
+        engine.steps += Step("", ParsedReply("It is noon.", "", emptyList()))
+
+        val events = events()
+
+        assertEquals(listOf("get_datetime"), ran)
+        assertEquals(listOf(true, true, true, false), engine.offered.map { it.isNotEmpty() })
         assertTrue(events.last() is RuntimeEvent.Finished)
     }
 

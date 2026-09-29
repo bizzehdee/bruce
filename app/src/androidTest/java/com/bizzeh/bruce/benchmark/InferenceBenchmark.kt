@@ -58,8 +58,8 @@ class InferenceBenchmark {
                             )
                         }
                         check(loaded is LoadResult.Loaded) { "load failed: $loaded" }
-                        engine.generate(GenerationRequest(PROMPT, maxTokens = 8, temperature = 0f)).toList()
-                        val events = engine.generate(GenerationRequest(PROMPT, maxTokens = TOKENS, temperature = 0f)).toList()
+                        engine.generate(GenerationRequest(PROMPT, maxTokens = 8, temperature = 0f, reusePrompt = false)).toList()
+                        val events = engine.generate(GenerationRequest(PROMPT, maxTokens = TOKENS, temperature = 0f, reusePrompt = false)).toList()
                         val stats = (events.last() as GenerationEvent.Completed).stats
                         val after = residentMemory()
                         engine.unloadModel()

@@ -7,11 +7,13 @@
 #include <exception>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <nlohmann/json.hpp>
 
 #include "cpu_features.h"
+#include "prompt_cache.h"
 #include "vulkan_devices.h"
 #include "ggml-backend.h"
 #include "common.h"
@@ -32,7 +34,49 @@ constexpr jint kToken = 0;
 constexpr jint kEndOfGeneration = 1;
 constexpr jint kContextFull = 2;
 
+// What a context's memory holds between generations, so a new prompt decodes only what follows the
+// part it shares with the last one (TASK-056).
+struct PromptCache {
+    std::vector<llama_token> tokens;
+    // Plain attention memory can drop its newest positions; recurrent, hybrid and sliding-window
+    // memory cannot, and is reused through [checkpoint] instead.
+    bool canCut = false;
+    // Their partial state (LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) after [checkpointTokens] tokens.
+    std::vector<uint8_t> checkpoint;
+    int32_t checkpointTokens = -1;
+
+    void reset(llama_context *context) {
+        llama_memory_clear(llama_get_memory(context), true);
+        tokens.clear();
+        checkpoint.clear();
+        checkpointTokens = -1;
+    }
+};
+
+// Tokens before a prompt's end at which uncuttable memory is checkpointed: enough to cover the
+// assistant header a template adds, where the next prompt usually starts to differ.
+constexpr int32_t kCheckpointOffset = 8;
+
+std::mutex gCachesMutex;
+std::unordered_map<llama_context *, PromptCache> gCaches;
+
+PromptCache *cacheFor(llama_context *context) {
+    std::lock_guard<std::mutex> lock(gCachesMutex);
+    auto found = gCaches.find(context);
+    if (found != gCaches.end()) {
+        return &found->second;
+    }
+    const llama_model *model = llama_get_model(context);
+    PromptCache &cache = gCaches[context];
+    cache.canCut = !llama_model_is_recurrent(model) && !llama_model_is_hybrid(model) && llama_model_n_swa(model) == 0;
+    __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt cache: recurrent=%d hybrid=%d swa=%d rs_seq=%u -> %s",
+            llama_model_is_recurrent(model), llama_model_is_hybrid(model), llama_model_n_swa(model), llama_n_rs_seq(context),
+            cache.canCut ? "cut back" : "checkpoints");
+    return &cache;
+}
+
 struct Generation {
+    PromptCache *cache;
     llama_context *context;
     const llama_vocab *vocab;
     llama_sampler *sampler;
@@ -205,6 +249,10 @@ Java_com_bizzeh_bruce_inference_LlamaNative_newContext(
 
 JNIEXPORT void JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_freeContext(JNIEnv *, jobject, jlong context) {
+    {
+        std::lock_guard<std::mutex> lock(gCachesMutex);
+        gCaches.erase(asContext(context));
+    }
     llama_free(asContext(context));
 }
 
@@ -352,8 +400,8 @@ JNIEXPORT jlong JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_beginGeneration(
         JNIEnv *, jobject, jlong context, jfloat temperature, jint seed) {
     llama_context *ctx = asContext(context);
-    llama_memory_clear(llama_get_memory(ctx), true);
     auto *generation = new Generation{
+            cacheFor(ctx),
             ctx,
             llama_model_get_vocab(llama_get_model(ctx)),
             newSampler(temperature, static_cast<uint32_t>(seed)),
@@ -384,8 +432,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_beginGenerationWithGrammar(
     if (grammar == nullptr) {
         return 0;
     }
-    llama_memory_clear(llama_get_memory(ctx), true);
-    auto *generation = new Generation{ctx, vocab, newSampler(temperature, static_cast<uint32_t>(seed), grammar), {}, preserved};
+    auto *generation = new Generation{cacheFor(ctx), ctx, vocab, newSampler(temperature, static_cast<uint32_t>(seed), grammar), {}, preserved};
     return reinterpret_cast<jlong>(generation);
 }
 
@@ -401,7 +448,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_countTokens(JNIEnv *env, jobject, jl
 
 JNIEXPORT jint JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
-        JNIEnv *env, jobject, jlong handle, jbyteArray promptUtf8) {
+        JNIEnv *env, jobject, jlong handle, jbyteArray promptUtf8, jboolean reuse) {
     Generation *generation = asGeneration(handle);
     const jsize promptLength = env->GetArrayLength(promptUtf8);
     std::vector<char> prompt(static_cast<size_t>(promptLength));
@@ -414,15 +461,67 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
     if (count < 0 || count >= contextLength) {
         return kPromptTooLong;
     }
-    // llama_decode aborts the process, rather than failing, if a batch exceeds n_batch.
-    const int32_t batchSize = static_cast<int32_t>(llama_n_batch(generation->context));
-    for (int32_t start = 0; start < count; start += batchSize) {
-        const int32_t length = std::min(batchSize, count - start);
-        if (llama_decode(generation->context, llama_batch_get_one(tokens.data() + start, length)) != 0) {
-            return kDecodeFailed;
+    tokens.resize(static_cast<size_t>(count));
+
+    llama_context *context = generation->context;
+    PromptCache &cache = *generation->cache;
+    llama_memory_t memory = llama_get_memory(context);
+    if (!reuse) {
+        cache.reset(context);
+    }
+    const bruce::ReusePlan plan = bruce::planReuse(cache.tokens, tokens, cache.canCut, cache.checkpointTokens);
+    int32_t start = plan.start;
+    if (plan.restoreCheckpoint) {
+        const size_t size = cache.checkpoint.size();
+        if (llama_state_seq_set_data_ext(context, cache.checkpoint.data(), size, 0, LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) != size) {
+            start = 0;
         }
     }
-    return count;
+    if (start > 0 && !llama_memory_seq_rm(memory, 0, start, -1)) {
+        start = 0;
+    }
+    if (start == 0) {
+        cache.reset(context);
+    } else {
+        cache.tokens.resize(static_cast<size_t>(start));
+        if (cache.checkpointTokens > start) {
+            cache.checkpoint.clear();
+            cache.checkpointTokens = -1;
+        }
+    }
+
+    // llama_decode aborts the process, rather than failing, if a batch exceeds n_batch.
+    const int32_t batchSize = static_cast<int32_t>(llama_n_batch(context));
+    const auto decodeRange = [&](int32_t from, int32_t to) {
+        for (int32_t at = from; at < to; at += batchSize) {
+            const int32_t length = std::min(batchSize, to - at);
+            if (llama_decode(context, llama_batch_get_one(tokens.data() + at, length)) != 0) {
+                return false;
+            }
+        }
+        return true;
+    };
+    const int32_t checkpointAt = bruce::checkpointPosition(start, count, cache.canCut, kCheckpointOffset);
+    bool decoded;
+    if (checkpointAt > 0) {
+        decoded = decodeRange(start, checkpointAt);
+        if (decoded) {
+            const size_t size = llama_state_seq_get_size_ext(context, 0, LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY);
+            cache.checkpoint.resize(size);
+            const bool saved = llama_state_seq_get_data_ext(context, cache.checkpoint.data(), size, 0, LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) == size;
+            cache.checkpointTokens = saved ? checkpointAt : -1;
+            decoded = decodeRange(checkpointAt, count);
+        }
+    } else {
+        decoded = decodeRange(start, count);
+    }
+    if (!decoded) {
+        cache.reset(context);
+        return kDecodeFailed;
+    }
+    cache.tokens = tokens;
+    __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt: %d tokens, %d reused%s", count, start, plan.restoreCheckpoint && start > 0 ? " (checkpoint)" : "");
+    return count - start;
 }
 
 JNIEXPORT jint JNICALL
@@ -437,8 +536,10 @@ Java_com_bizzeh_bruce_inference_LlamaNative_nextToken(JNIEnv *, jobject, jlong h
     }
     storePiece(generation, token);
     if (llama_decode(generation->context, llama_batch_get_one(&token, 1)) != 0) {
+        generation->cache->reset(generation->context);
         return kDecodeFailed;
     }
+    generation->cache->tokens.push_back(token);
     return kToken;
 }
 

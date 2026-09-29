@@ -78,7 +78,7 @@ class AppContainer(private val context: Context) {
 
     val summarySettings: SummarySettingsRepository by lazy { SummarySettingsRepository(context.settingsDataStore) }
 
-    private suspend fun personalityRules(): String {
+    internal suspend fun personalityRules(): String {
         val personality = personalitySettings.personality.first()
         return withContext(Dispatchers.IO) { context.resources.openRawResource(personality.rules).bufferedReader().use { it.readText() } }
     }

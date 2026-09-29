@@ -54,6 +54,7 @@ class LlamaCppEngineGenerationTest {
         assertEquals(StopReason.END_OF_GENERATION, events.completion().reason)
         assertEquals(Triple(20L, 0f, 7), llama.generationRequest)
         assertArrayEquals("Tell a story".toByteArray(), llama.lastPrompt)
+        assertEquals(true, llama.lastReuse)
         assertEquals(listOf(30L), llama.endedGenerations)
     }
 
