@@ -75,7 +75,7 @@ class SettingsViewModel(
 
     fun setThreads(threads: Int?) = launch { inference.setThreads(threads) }
 
-    fun setContextLength(contextLength: Int) = launch { inference.setContextLength(contextLength) }
+    fun setContextLength(contextLength: Int?) = launch { inference.setContextLength(contextLength) }
 
     fun clearAllData() = launch { dataReset.clearAll() }
 

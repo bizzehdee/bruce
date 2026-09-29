@@ -85,7 +85,9 @@ class ModelSettingsTest {
     @Test
     fun overridesWinOverDefaults() {
         val defaults = InferenceDefaults(BackendPreference.AUTO, 4, 4096)
-        assertEquals(LoadConfig(contextLength = 8192, threads = 4, backend = BackendPreference.CPU), ModelOverrides(backend = BackendPreference.CPU, contextLength = 8192).loadConfig(defaults))
+        assertEquals(LoadConfig(contextLength = 8192, threads = 4, backend = BackendPreference.CPU), ModelOverrides(backend = BackendPreference.CPU, contextLength = 8192).loadConfig(defaults) { error("not asked") })
+        assertEquals(4096, ModelOverrides().loadConfig(defaults) { error("not asked") }.contextLength)
+        assertEquals(16384, ModelOverrides().loadConfig(defaults.copy(contextLength = null)) { 16384 }.contextLength, "automatic when neither names a size")
         assertEquals(0.8f, ModelOverrides().temperature())
         assertEquals(0.3f, ModelOverrides(temperature = 0.3f).temperature())
     }

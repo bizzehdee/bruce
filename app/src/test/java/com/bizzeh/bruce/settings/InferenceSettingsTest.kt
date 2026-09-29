@@ -23,7 +23,7 @@ class InferenceSettingsTest {
 
     @Test
     fun defaults() = runTest {
-        assertEquals(InferenceDefaults(BackendPreference.AUTO, null, 4096), InferenceSettingsRepository(store()).defaults.first())
+        assertEquals(InferenceDefaults(BackendPreference.AUTO, null, null), InferenceSettingsRepository(store()).defaults.first())
     }
 
     @Test
@@ -40,6 +40,8 @@ class InferenceSettingsTest {
 
         repository.setContextLength(65536)
         assertEquals(65536, repository.defaults.first().contextLength)
+        repository.setContextLength(null)
+        assertEquals(null, repository.defaults.first().contextLength)
     }
 
     @Test
@@ -68,7 +70,7 @@ class InferenceSettingsTest {
 
     @Test
     fun loadConfigUsesAutomaticThreadsWhenUnset() {
-        assertEquals(LoadConfig(contextLength = 8192, backend = BackendPreference.VULKAN), InferenceDefaults(BackendPreference.VULKAN, null, 8192).toLoadConfig())
-        assertEquals(LoadConfig(contextLength = 2048, threads = 3), InferenceDefaults(threads = 3, contextLength = 2048).toLoadConfig())
+        assertEquals(LoadConfig(contextLength = 8192, backend = BackendPreference.VULKAN), InferenceDefaults(BackendPreference.VULKAN, null, 8192).toLoadConfig(8192))
+        assertEquals(LoadConfig(contextLength = 2048, threads = 3), InferenceDefaults(threads = 3, contextLength = 2048).toLoadConfig(2048))
     }
 }

@@ -20,11 +20,11 @@ data class ModelOverrides(
     val contextLength: Int? = null,
     val temperature: Float? = null,
 ) {
-    fun loadConfig(defaults: InferenceDefaults): LoadConfig = defaults.copy(
+    /** [automatic] is the size to use when neither this model nor the defaults name one. */
+    fun loadConfig(defaults: InferenceDefaults, automatic: () -> Int): LoadConfig = defaults.copy(
         backend = backend ?: defaults.backend,
         threads = threads ?: defaults.threads,
-        contextLength = contextLength ?: defaults.contextLength,
-    ).toLoadConfig()
+    ).toLoadConfig(contextLength ?: defaults.contextLength ?: automatic())
 
     fun temperature(): Float = temperature ?: DEFAULT_TEMPERATURE
 

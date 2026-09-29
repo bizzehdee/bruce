@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.settings
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -33,7 +34,7 @@ class SettingsScreenTest {
         override fun setContextTrafficLights(enabled: Boolean) { calls += "lights $enabled" }
         override fun setBackend(backend: BackendPreference) { calls += "backend $backend" }
         override fun setThreads(threads: Int?) { calls += "threads $threads" }
-        override fun setContextLength(contextLength: Int) { calls += "context $contextLength" }
+        override fun setContextLength(contextLength: Int?) { calls += "context $contextLength" }
         override fun clearAllData() { calls += "clear" }
         override fun deleteAllConversations() { calls += "deleteChats" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
@@ -98,6 +99,23 @@ class SettingsScreenTest {
 
         assertEquals(listOf("theme DARK", "dynamic true", "lights false", "backend CPU", "threads 2", "threads null", "context 8192"), calls)
         compose.onNodeWithText("Auto (4)").assertIsDisplayed()
+    }
+
+    @Test
+    fun autoContextIsTheDefaultAndSaysWhatItPicked() {
+        show(SettingsState(inference = InferenceDefaults(), autoContext = 8192))
+        compose.onNodeWithTag("context:auto").performScrollTo().assertIsSelected()
+        compose.onNodeWithText("8K for the loaded model", substring = true).assertExists()
+        compose.onNodeWithTag("context:65536").performScrollTo().performClick()
+        assertEquals(listOf("context 65536"), calls)
+    }
+
+    @Test
+    fun aChosenContextHidesTheAutoNoteAndAutoCanBeChosenAgain() {
+        show(SettingsState(inference = InferenceDefaults(contextLength = 4096)))
+        compose.onNodeWithTag("contextAuto").assertDoesNotExist()
+        compose.onNodeWithTag("context:auto").performScrollTo().performClick()
+        assertEquals(listOf("context null"), calls)
     }
 
     @Test

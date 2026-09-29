@@ -1,5 +1,10 @@
 package com.bizzeh.bruce
 
+import kotlinx.coroutines.withContext
+import com.bizzeh.bruce.gguf.GgufReadResult
+import com.bizzeh.bruce.gguf.GgufReader
+import com.bizzeh.bruce.models.AutoContext
+import com.bizzeh.bruce.settings.InferenceDefaults
 import android.util.Log
 import android.content.ActivityNotFoundException
 import com.bizzeh.bruce.chat.Markdown
@@ -129,7 +134,7 @@ class MainActivity : ComponentActivity() {
                 hub = container.hubClient,
                 downloader = container.downloader,
                 device = ::deviceProfile,
-                contextLength = { container.inferenceSettings.defaults.first().contextLength },
+                contextLength = { container.inferenceSettings.defaults.first().contextLength ?: InferenceDefaults.FALLBACK_CONTEXT },
                 onDownloaded = { models.refresh() },
                 templateSupportsTools = container.engine::templateSupportsTools,
             )
@@ -275,7 +280,8 @@ class MainActivity : ComponentActivity() {
         val known by capabilities.collectAsState()
         val actions = remember { settingsActions(open) }
         val fixed = fixedPromptTokens()
-        SettingsScreen(state.copy(backends = backendChoices(known, state.inference.backend), fixedPromptTokens = fixed), actions, onBack)
+        val auto = autoContext()
+        SettingsScreen(state.copy(backends = backendChoices(known, state.inference.backend), fixedPromptTokens = fixed, autoContext = auto), actions, onBack)
     }
 
     @androidx.compose.runtime.Composable
@@ -322,6 +328,22 @@ class MainActivity : ComponentActivity() {
             }
         }
         MemoryScreen(facts, actions, onBack)
+    }
+
+    /** The size Auto picks for the loaded model, as loading would; null when none is loaded or the model has its own size. */
+    @androidx.compose.runtime.Composable
+    private fun autoContext(): Int? {
+        val model by container.activeModel.state.collectAsState()
+        val picked by androidx.compose.runtime.produceState<Int?>(null, model.active, model.loading) {
+            val active = model.active
+            value = if (model.loading || active == null || container.modelSettings.overridesNow(active.name).contextLength != null) {
+                null
+            } else {
+                val metadata = withContext(Dispatchers.IO) { (GgufReader.read(active) as? GgufReadResult.Read)?.metadata }
+                AutoContext.pick(metadata, container.memoryForModels())
+            }
+        }
+        return picked
     }
 
     /** The loaded model's fixed prompt size, measured again whenever the loaded model changes. */
@@ -393,8 +415,7 @@ class MainActivity : ComponentActivity() {
         BackendSelection.choices(known ?: EngineCapabilities(emptyList(), emptyList()), current)
 
     private fun deviceProfile(): DeviceProfile {
-        val memory = container.memoryInfo()
-        return DeviceProfile((memory.availMem - memory.threshold).coerceAtLeast(0), container.cpuFeatures(), memory.totalMem)
+        return DeviceProfile(container.memoryForModels(), container.cpuFeatures(), container.memoryInfo().totalMem)
     }
 
     private fun chatActions() = object : ChatActions {
@@ -437,7 +458,7 @@ class MainActivity : ComponentActivity() {
         override fun setContextTrafficLights(enabled: Boolean) = settings.setContextTrafficLights(enabled)
         override fun setBackend(backend: BackendPreference) = settings.setBackend(backend)
         override fun setThreads(threads: Int?) = settings.setThreads(threads)
-        override fun setContextLength(contextLength: Int) = settings.setContextLength(contextLength)
+        override fun setContextLength(contextLength: Int?) = settings.setContextLength(contextLength)
         override fun clearAllData() {
             settings.clearAllData()
             chat.newChat()
