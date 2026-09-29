@@ -320,6 +320,14 @@ Java_com_bizzeh_bruce_inference_LlamaNative_vulkanDeviceApiVersion(JNIEnv *env, 
     return static_cast<jint>(version);
 }
 
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_vulkanDeviceVendorId(JNIEnv *env, jobject, jstring deviceName) {
+    const char *name = env->GetStringUTFChars(deviceName, nullptr);
+    const uint32_t vendor = bruce::vulkanDeviceVendorId(name);
+    env->ReleaseStringUTFChars(deviceName, name);
+    return static_cast<jint>(vendor);
+}
+
 // Formats a conversation with the model's own chat template, or ChatML when the model has none or
 // llama.cpp does not recognise it. Returns {usedFallback (1 byte), formatted UTF-8 bytes...}, or
 // null if even ChatML fails. Message text crosses JNI as UTF-8 bytes (.learnings/jni-text-as-utf8-bytes.md).

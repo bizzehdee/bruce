@@ -26,18 +26,19 @@ object BackendSelection {
     private val CPU_ATTEMPT = LoadAttempt(Backend.CPU, emptyList())
 
     /**
-     * The choices to offer on this phone: Auto, CPU, and each GPU backend with a usable device.
-     * [current] is kept even when unavailable (a setting saved on another build), so it can be changed.
+     * The choices to offer on this phone: CPU and each GPU backend with a usable device, plus Auto
+     * when there is more than one. [current] is kept even when unavailable (a setting saved on
+     * another build), so it can be changed.
      */
     fun choices(capabilities: EngineCapabilities, current: BackendPreference? = null): List<BackendPreference> {
         val usable = capabilities.usableBackends
-        return BackendPreference.entries.filter { preference ->
-            when (preference) {
-                BackendPreference.AUTO, BackendPreference.CPU -> true
-                BackendPreference.VULKAN, BackendPreference.OPENCL -> Backend.valueOf(preference.name) in usable || preference == current
-            }
-        }
+        val gpus = BackendPreference.entries.filter { it.isGpu && (Backend.valueOf(it.name) in usable || it == current) }
+        return if (gpus.isEmpty()) listOf(BackendPreference.CPU) else listOf(BackendPreference.AUTO, BackendPreference.CPU) + gpus
     }
+
+    /** The choice to show as selected: a saved Auto shows as the CPU when Auto is not offered, since that is what it picks. */
+    fun shown(current: BackendPreference, choices: List<BackendPreference>): BackendPreference =
+        if (current == BackendPreference.AUTO && current !in choices) BackendPreference.CPU else current
 
     internal fun plan(preference: BackendPreference, capabilities: EngineCapabilities): BackendPlan {
         fun gpuAttempt(backend: Backend): LoadAttempt? =

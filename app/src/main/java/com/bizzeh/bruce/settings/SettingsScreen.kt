@@ -38,6 +38,7 @@ import com.bizzeh.bruce.R
 import com.bizzeh.bruce.huggingface.HubAccount
 import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.BackendSelection
 import com.bizzeh.bruce.memory.MemoryMode
 import com.bizzeh.bruce.navigation.SubScreen
 import com.bizzeh.bruce.runtime.ContextBudget
@@ -164,7 +165,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             Label(R.string.settings_backend)
             Choice(
                 options = state.backends,
-                selected = state.inference.backend,
+                selected = BackendSelection.shown(state.inference.backend, state.backends),
                 label = { if (it == BackendPreference.AUTO) stringResource(R.string.settings_backend_auto) else it.name.let(SettingsText::backendName) },
                 onSelect = actions::setBackend,
             )

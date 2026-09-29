@@ -144,6 +144,21 @@ class LlamaCppEngineTest {
         assertEquals(setOf(Backend.CPU), capabilities.usableBackends)
     }
 
+    @Test
+    fun powerVrGpusAreNotUsableWhateverTheirVulkanVersion() {
+        llama.devices = listOf(
+            FakeLlamaApi.Device("CPU", "CPU", "Tensor G6", 0, 0),
+            FakeLlamaApi.Device("Vulkan", "Vulkan0", "PowerVR C-Series CXTP-48-1536 MC1", 2, 0),
+        )
+        llama.vulkanApiVersions = mapOf("PowerVR C-Series CXTP-48-1536 MC1" to VULKAN_1_2 + (2 shl 12))
+        llama.vulkanVendorIds = mapOf("PowerVR C-Series CXTP-48-1536 MC1" to 0x1010)
+
+        val capabilities = engine.getCapabilities()
+
+        assertEquals(listOf(true, false), capabilities.devices.map { it.usable })
+        assertEquals(listOf(BackendPreference.CPU), BackendSelection.choices(capabilities))
+    }
+
     private fun withVulkanAndOpenCl() {
         llama.devices = listOf(
             FakeLlamaApi.Device("CPU", "CPU", "Kryo", 0, 0),

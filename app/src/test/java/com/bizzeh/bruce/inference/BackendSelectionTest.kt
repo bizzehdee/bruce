@@ -56,7 +56,8 @@ class BackendSelectionTest {
 
     @Test
     fun onlyUsableGpuBackendsAreOffered() {
-        assertEquals(listOf(BackendPreference.AUTO, BackendPreference.CPU), choices(null, cpu, oldVulkan))
+        assertEquals(listOf(BackendPreference.CPU), choices(null, cpu, oldVulkan), "one backend: no Auto")
+        assertEquals(listOf(BackendPreference.CPU), choices(BackendPreference.AUTO, cpu))
         assertEquals(listOf(BackendPreference.AUTO, BackendPreference.CPU, BackendPreference.VULKAN), choices(null, cpu, vulkan))
         assertEquals(BackendPreference.entries, choices(BackendPreference.AUTO, cpu, vulkan, openCl))
     }
@@ -64,6 +65,8 @@ class BackendSelectionTest {
     @Test
     fun aSavedChoiceThatIsNoLongerUsableStaysVisibleSoItCanBeChanged() {
         assertEquals(listOf(BackendPreference.AUTO, BackendPreference.CPU, BackendPreference.OPENCL), choices(BackendPreference.OPENCL, cpu, oldVulkan))
+        assertEquals(BackendPreference.CPU, BackendSelection.shown(BackendPreference.AUTO, listOf(BackendPreference.CPU)))
+        assertEquals(BackendPreference.AUTO, BackendSelection.shown(BackendPreference.AUTO, BackendPreference.entries))
         assertTrue(BackendPreference.VULKAN.isGpu && BackendPreference.OPENCL.isGpu && !BackendPreference.CPU.isGpu && !BackendPreference.AUTO.isGpu)
     }
 }

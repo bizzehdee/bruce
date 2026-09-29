@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.BackendSelection
 import com.bizzeh.bruce.navigation.SubScreen
 import com.bizzeh.bruce.settings.InferenceDefaults
 import com.bizzeh.bruce.settings.SettingsText
@@ -229,7 +230,7 @@ private fun ModelCard(
                 OverrideChips(
                     label = stringResource(R.string.settings_backend),
                     options = listOf(null) + backendChoices(model.overrides.backend),
-                    selected = model.overrides.backend,
+                    selected = model.overrides.backend?.let { BackendSelection.shown(it, backendChoices(it)) },
                     text = { it?.name?.let(SettingsText::backendName) },
                     tag = "backend",
                 ) { actions.setOverrides(model.file, model.overrides.copy(backend = it)) }

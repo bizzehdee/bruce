@@ -10,8 +10,13 @@ namespace bruce {
 
 namespace {
 
-std::map<std::string, uint32_t> queryDeviceApiVersions() {
-    std::map<std::string, uint32_t> versions;
+struct DeviceIdentity {
+    uint32_t apiVersion = 0;
+    uint32_t vendorId = 0;
+};
+
+std::map<std::string, DeviceIdentity> queryDevices() {
+    std::map<std::string, DeviceIdentity> versions;
     VkApplicationInfo app{};
     app.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app.apiVersion = VK_API_VERSION_1_0;
@@ -30,20 +35,24 @@ std::map<std::string, uint32_t> queryDeviceApiVersions() {
     for (VkPhysicalDevice device : devices) {
         VkPhysicalDeviceProperties properties{};
         vkGetPhysicalDeviceProperties(device, &properties);
-        versions[properties.deviceName] = properties.apiVersion;
+        versions[properties.deviceName] = {properties.apiVersion, properties.vendorID};
     }
     vkDestroyInstance(instance, nullptr);
     return versions;
 }
 
+DeviceIdentity deviceIdentity(const std::string &deviceName) {
+    static std::once_flag queried;
+    static std::map<std::string, DeviceIdentity> devices;
+    std::call_once(queried, [] { devices = queryDevices(); });
+    auto found = devices.find(deviceName);
+    return found == devices.end() ? DeviceIdentity{} : found->second;
+}
+
 }  // namespace
 
-uint32_t vulkanDeviceApiVersion(const std::string &deviceName) {
-    static std::once_flag queried;
-    static std::map<std::string, uint32_t> versions;
-    std::call_once(queried, [] { versions = queryDeviceApiVersions(); });
-    auto found = versions.find(deviceName);
-    return found == versions.end() ? 0 : found->second;
-}
+uint32_t vulkanDeviceApiVersion(const std::string &deviceName) { return deviceIdentity(deviceName).apiVersion; }
+
+uint32_t vulkanDeviceVendorId(const std::string &deviceName) { return deviceIdentity(deviceName).vendorId; }
 
 }  // namespace bruce

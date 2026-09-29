@@ -43,6 +43,8 @@ known setting makes this GPU trustworthy. The phone freeze matches upstream's fi
 the same GPU (llama.cpp #28214, `GUILTY_OVERRUNING` / `FW_PAGEFAULT`). Evidence:
 `research/experiments/vulkan-powervr-2026-09-29`, `research/sources/llama-cpp-powervr-issues-2026-09-29`.
 
+Since TASK-065 (2026-09-29) Bruce treats any Imagination Technologies GPU (vendor ID `0x1010`) as unusable for Vulkan, so the Pixel 11 is no longer offered it.
+
 So Auto always uses the CPU; Vulkan and OpenCL run only when the user picks them, marked
 experimental. A "usable" device (API version check) is not evidence that it computes
 correctly. Before trusting any GPU, run the manual-only `GpuReferenceOutputDeviceTest`.
