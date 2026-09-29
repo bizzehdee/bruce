@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Added | Model files whose chat template cannot do tool calls are marked in the browser and on installed models; official tool templates for known families (licence permitting). |
 | 2026-09-29 | Changed | The evaluated prompt is reused between turns and skill steps; later turns take a half to a third of the time. |
 | 2026-09-29 | Changed | Skill use is no longer shown in the chat (owner: people want the answer); approval cards still show. It is still saved with the chat. |
 | 2026-09-29 | Changed | TASK-056 (reuse the evaluated prompt) moved ahead of TASK-059, TASK-060 and TASK-054: replies with skills were very slow. |
