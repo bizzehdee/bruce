@@ -25,8 +25,16 @@ class SetupSettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[COMPLETE] = true }
     }
 
+    /** Whether the notification permission was asked for when a reply first needed it (TASK-048). */
+    val notificationsAskedForReply: Flow<Boolean> = dataStore.data.map { it[NOTIFICATIONS_ASKED] ?: false }
+
+    suspend fun markNotificationsAskedForReply() {
+        dataStore.edit { it[NOTIFICATIONS_ASKED] = true }
+    }
+
     private companion object {
         val COMPLETE = booleanPreferencesKey("setup_complete")
+        val NOTIFICATIONS_ASKED = booleanPreferencesKey("notifications_asked_for_reply")
     }
 }
 

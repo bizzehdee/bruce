@@ -3,8 +3,11 @@ package com.bizzeh.bruce
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.bizzeh.bruce.chat.ChatMemory
+import com.bizzeh.bruce.chat.TurnObserver
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
@@ -16,6 +19,8 @@ import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.models.ModelSelection
 import com.bizzeh.bruce.models.ModelSettingsRepository
+import com.bizzeh.bruce.notifications.ReplyNotifications
+import com.bizzeh.bruce.notifications.ReplyService
 import com.bizzeh.bruce.settings.DataReset
 import com.bizzeh.bruce.conversations.ConversationDatabase
 import com.bizzeh.bruce.conversations.ConversationStore
@@ -83,6 +88,33 @@ class AppContainer(private val context: Context) {
     val personalitySettings: PersonalitySettingsRepository by lazy { PersonalitySettingsRepository(context.settingsDataStore) }
 
     val summarySettings: SummarySettingsRepository by lazy { SummarySettingsRepository(context.settingsDataStore) }
+
+    val replyNotifications: ReplyNotifications by lazy { ReplyNotifications(context).also { it.createChannels() } }
+
+    /** Whether a Bruce screen is showing; MainActivity keeps it up to date. */
+    @Volatile
+    var onScreen: Boolean = false
+
+    /** Stops the turn in progress; set by the chat, used when Android ends the reply service. */
+    @Volatile
+    var stopTurn: () -> Unit = {}
+
+    /** Keeps a turn alive off screen and announces its reply there (TASK-048). */
+    val turnObserver: TurnObserver = object : TurnObserver {
+        override fun turnStarted() {
+            try {
+                ContextCompat.startForegroundService(context, Intent(context, ReplyService::class.java))
+            } catch (e: IllegalStateException) {
+                // Not allowed from the background (ForegroundServiceStartNotAllowedException): the turn runs without it.
+                Log.w("BruceReply", "reply service not started: ${e.javaClass.simpleName}")
+            }
+        }
+
+        override fun turnFinished(conversationId: Long, reply: String?, completed: Boolean) {
+            context.stopService(Intent(context, ReplyService::class.java))
+            if (completed && !onScreen && !reply.isNullOrBlank()) replyNotifications.replyReady(conversationId, reply)
+        }
+    }
 
     val memorySettings: MemorySettingsRepository by lazy { MemorySettingsRepository(context.settingsDataStore) }
 

@@ -100,6 +100,7 @@ class ChatViewModel(
     /** A summary of messages written by the model, raw (BruceRuntime.summarise). */
     private val summarise: suspend (List<ToolChatMessage>) -> String? = { null },
     private val memory: ChatMemory = ChatMemory.Off,
+    private val turns: TurnObserver = TurnObserver.None,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -135,6 +136,7 @@ class ChatViewModel(
         val history = current.entries + ChatEntry(ChatRole.USER, text)
         val turnSession = session
         mutableState.update { it.copy(input = "", entries = history, generating = true, error = null) }
+        turns.turnStarted()
         turn = viewModelScope.launch {
             val summarised = try {
                 summariseIfDue(history)
@@ -142,6 +144,7 @@ class ChatViewModel(
                 // Stopped while summarising: the request is kept, unanswered and without a summary.
                 withContext(NonCancellable) {
                     val saved = save(current.conversationId, history)
+                    turns.turnFinished(saved, null, completed = false)
                     if (session == turnSession) mutableState.update { it.copy(generating = false, summarising = false, conversationId = saved) }
                 }
                 throw e
@@ -206,6 +209,7 @@ class ChatViewModel(
         val current = mutableState.value
         val turnSession = session
         mutableState.update { it.copy(entries = history + ChatEntry(ChatRole.ASSISTANT, ""), generating = true, error = null) }
+        turns.turnStarted()
         turn = viewModelScope.launch {
             val added = mutableListOf<ChatEntry>()
             var streaming = ChatEntry(ChatRole.ASSISTANT, "")
@@ -243,6 +247,8 @@ class ChatViewModel(
                     if (streaming.text.isNotEmpty()) added += streaming
                     val entries = history + added.filterNot { it.role == ChatRole.ASSISTANT && it.text.isEmpty() && it.toolCalls.isEmpty() }
                     val saved = save(current.conversationId, entries)
+                    val answer = entries.lastOrNull { it.role == ChatRole.ASSISTANT && it.text.isNotBlank() }?.let { ThinkingText.split(it.text).answer.trim() }
+                    turns.turnFinished(saved, answer, completed = finished)
                     if (onScreen()) mutableState.update { it.copy(entries = entries, generating = false, error = error, conversationId = saved) }
                     if (finished) viewModelScope.launch { memory.learn(sent(entries), remembered) }
                 }
