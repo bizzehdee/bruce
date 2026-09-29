@@ -387,6 +387,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [ ] TASK-056: Reuse the evaluated prompt between turns
   - Every turn re-evaluates the whole conversation (TASK-024), and with tools the fixed part alone is 300–600 tokens: about a minute on the XZ Premium (TASK-033). Keep the KV cache between generations and evaluate only the tokens after the longest shared prefix with the previous prompt; clear it when the model, context or template changes.
   - Measure turn time before and after on both Sony phones with the TASK-033 cases.
+  - Prioritised (2026-09-29): next, before TASK-059, TASK-060 and TASK-054; the owner found replies with Qwen3.5-0.8B, and skill replies above all, very slow.
   - Depends on: TASK-052
 - [x] TASK-057: Personalities (Bruce and Milo)
   - Settings gains a Personality choice, one for every chat: Bruce (default) and Milo. The setup wizard does not ask; it can be changed any time and applies from the next reply.

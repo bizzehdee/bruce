@@ -22,10 +22,6 @@
     <string name="chat_context_title">Context</string>
     <string name="chat_context_explained">The context is how much of this chat the model can read at once. When it is full, the chat does not end: each new message pushes the oldest ones out of what the model sees. They stay on screen and in the saved chat.</string>
     <string name="chat_context_ok">OK</string>
-    <string name="chat_tool_ran">Used %1$s</string>
-    <string name="chat_tool_refused">Not allowed: %1$s</string>
-    <string name="chat_tool_awaiting">Waiting for your approval: %1$s</string>
-    <string name="chat_tool_declined">You declined: %1$s</string>
     <string name="chat_confirm_title">Allow %1$s?</string>
     <string name="chat_confirm_target">On: %1$s</string>
     <string name="chat_confirm_allow">Allow once</string>

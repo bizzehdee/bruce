@@ -129,7 +129,8 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
                 entry.role == ChatRole.USER -> UserMessage(entry.text)
                 entry.role == ChatRole.SYSTEM -> SummaryNote(index, entry.text)
                 entry.tool?.status == ToolStatus.AWAITING_APPROVAL -> ConfirmationCard(entry.tool, state.confirmations[entry.tool.callId], !state.generating, actions)
-                entry.tool != null -> ToolRow(index, entry.tool)
+                // Skill use is not shown: people want the answer (owner, 2026-09-29). It is still saved.
+                entry.tool != null -> Unit
                 // A reply that only asked for skills has nothing to show; its tool rows follow.
                 entry.text.isEmpty() && entry.toolCalls.isNotEmpty() -> Unit
                 else -> Reply(index, entry, state.sidekick)
@@ -222,25 +223,6 @@ private fun SummaryNote(index: Int, text: String) {
     }
 }
 
-/** One skill use: its name and outcome; tapping shows exactly what the model was given. */
-@Composable
-private fun ToolRow(index: Int, tool: ToolUse) {
-    var open by rememberSaveable(index) { mutableStateOf(false) }
-    Column(modifier = Modifier.fillMaxWidth().testTag("tool:$index")) {
-        TextButton(onClick = { open = !open }, modifier = Modifier.testTag("toolToggle:$index")) {
-            Text(stringResource(ChatText.toolStatus(tool.status), tool.name), style = MaterialTheme.typography.labelLarge)
-        }
-        if (open) {
-            Text(
-                ChatText.toolDetail(tool.resultJson),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 12.dp).testTag("toolDetail:$index"),
-            )
-        }
-    }
-}
-
 @Composable
 private fun UserMessage(text: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -324,21 +306,5 @@ internal object ChatText {
         ChatError.GENERATION_FAILED -> R.string.chat_error_failed
         ChatError.TOO_MANY_TOOL_CALLS -> R.string.chat_error_too_many_tools
         ChatError.TIMED_OUT -> R.string.chat_error_timed_out
-    }
-
-    @StringRes
-    fun toolStatus(status: ToolStatus): Int = when (status) {
-        ToolStatus.RAN -> R.string.chat_tool_ran
-        ToolStatus.REFUSED -> R.string.chat_tool_refused
-        ToolStatus.AWAITING_APPROVAL -> R.string.chat_tool_awaiting
-        ToolStatus.DECLINED -> R.string.chat_tool_declined
-    }
-
-    /** What the tool gave the model, for the expanded row: the result itself, or the refusal's message. */
-    fun toolDetail(resultJson: String): String = try {
-        val json = org.json.JSONObject(resultJson)
-        json.optString("untrusted_data").ifEmpty { json.optString("message") }.ifEmpty { resultJson }
-    } catch (e: org.json.JSONException) {
-        resultJson
     }
 }

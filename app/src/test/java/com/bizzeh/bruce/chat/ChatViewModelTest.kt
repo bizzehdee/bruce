@@ -338,15 +338,12 @@ class ChatViewModelTest {
     }
 
     @Test
-    fun errorAndToolText() {
+    fun errorText() {
         assertNull(ChatText.error(null))
         assertEquals(R.string.chat_error_no_model, ChatText.error(ChatError.NO_MODEL_LOADED))
         assertEquals(R.string.chat_error_too_long, ChatText.error(ChatError.CONVERSATION_TOO_LONG))
         assertEquals(R.string.chat_error_failed, ChatText.error(ChatError.GENERATION_FAILED))
         assertEquals(R.string.chat_error_too_many_tools, ChatText.error(ChatError.TOO_MANY_TOOL_CALLS))
         assertEquals(R.string.chat_error_timed_out, ChatText.error(ChatError.TIMED_OUT))
-        assertEquals(R.string.chat_tool_ran, ChatText.toolStatus(ToolStatus.RAN))
-        assertEquals(R.string.chat_tool_refused, ChatText.toolStatus(ToolStatus.REFUSED))
-        assertEquals(R.string.chat_tool_awaiting, ChatText.toolStatus(ToolStatus.AWAITING_APPROVAL))
     }
 }
