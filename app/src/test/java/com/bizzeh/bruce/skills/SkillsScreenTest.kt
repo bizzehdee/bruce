@@ -2,6 +2,8 @@ package com.bizzeh.bruce.skills
 
 import android.content.Context
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -73,6 +75,19 @@ class SkillsScreenTest {
     }
 
     @Test
+    fun rowsAreLockedWhileTheirRequirementIsUnmet() {
+        val unmet = kotlinx.coroutines.flow.MutableStateFlow(setOf(SkillRequirement.FILE_GRANT))
+        val locked = skill("read_note", SkillState.ACCEPTED, scope = ResourceScope.GRANTED_FILES).let {
+            Skill(it.id, 1, it.description, InputSchema(), emptySet(), SkillState.ACCEPTED, requires = SkillRequirement.FILE_GRANT) { SkillOutcome.Done("") }
+        }
+        val viewModel = SkillsViewModel(SkillRegistry(listOf(clock, locked)), store, unmet)
+
+        assertEquals(listOf(null, SkillRequirement.FILE_GRANT), viewModel.awaitRows { true }.map { it.locked })
+        unmet.value = emptySet()
+        viewModel.awaitRows { rows -> rows.all { it.locked == null } }
+    }
+
+    @Test
     fun highRiskSkillIsNotAcceptedWithoutTheWarning() {
         val viewModel = SkillsViewModel(registry, store)
         viewModel.awaitRows { true }
@@ -88,6 +103,7 @@ class SkillsScreenTest {
     private val actions = object : SkillsActions {
         override fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean) { calls += "${skill.id} $state $highRiskWarningAccepted" }
         override fun openPermissions() { calls += "permissions" }
+        override fun openNetworkSettings() { calls += "network" }
     }
 
     private fun show() = compose.setContent {
@@ -109,9 +125,30 @@ class SkillsScreenTest {
         compose.onNodeWithTag("state:get_datetime:ACCEPTED").performClick()
         compose.onNodeWithTag("state:get_datetime:DECLINED").performClick()
         compose.onNodeWithTag("state:shred_file:DECLINED").performScrollTo().performClick()
-        compose.onNodeWithTag("permissions:shred_file").performScrollTo().performClick()
+        compose.onNodeWithTag("permissions:shred_file").assertDoesNotExist()
 
-        assertEquals(listOf("get_datetime DECLINED false", "shred_file DECLINED false", "permissions"), calls)
+        assertEquals(listOf("get_datetime DECLINED false", "shred_file DECLINED false"), calls)
+    }
+
+    @Test
+    fun lockedSkillsShowWhyAndCannotBeChanged() {
+        val network = skill("get_network_status", SkillState.ACCEPTED)
+        compose.setContent {
+            BruceTheme {
+                SkillsScreen(listOf(SkillRow(delete, SkillState.ASK, SkillRequirement.FILE_GRANT), SkillRow(network, SkillState.ACCEPTED, SkillRequirement.NETWORK_ALLOWED)), actions) {}
+            }
+        }
+
+        compose.onNodeWithTag("locked:shred_file", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Locked off until you grant a file or folder in Permissions.").assertExists()
+        compose.onNodeWithText("Locked off while Network is set to Offline.").assertExists()
+        compose.onNodeWithTag("state:get_network_status:DECLINED").assertIsSelected()
+        compose.onNodeWithTag("state:get_network_status:ACCEPTED").assertIsNotEnabled()
+        compose.onNodeWithTag("state:shred_file:ASK").assertIsNotSelected()
+        compose.onNodeWithTag("permissions:shred_file").performScrollTo().performClick()
+        compose.onNodeWithTag("network:get_network_status").performScrollTo().performClick()
+
+        assertEquals(listOf("permissions", "network"), calls)
     }
 
     @Test

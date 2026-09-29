@@ -10,6 +10,7 @@ import com.bizzeh.bruce.skills.DenialCode
 import com.bizzeh.bruce.skills.Resolution
 import com.bizzeh.bruce.skills.SkillOutcome
 import com.bizzeh.bruce.skills.SkillRegistry
+import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -43,12 +44,17 @@ class AutomaticSkillsTest {
     private fun text(tool: String, arguments: String = "{}") = (run(tool, arguments) as SkillOutcome.Done).content
 
     @Test
-    fun allSixAreAcceptedAndNeedNoRuntimePermission() {
+    fun onlyTimeCalculatorAndNetworkStartOnAndNoneNeedsARuntimePermission() {
         assertEquals(
             listOf("get_datetime", "calculate", "get_battery_status", "get_device_info", "get_storage_status", "get_network_status"),
             registry.skills.map { it.id },
         )
-        assertTrue(registry.skills.all { it.defaultState == SkillState.ACCEPTED && it.androidPermissions.isEmpty() && !it.highRisk })
+        assertEquals(
+            listOf(SkillState.ACCEPTED, SkillState.ACCEPTED, SkillState.DECLINED, SkillState.DECLINED, SkillState.DECLINED, SkillState.ACCEPTED),
+            registry.skills.map { it.defaultState },
+        )
+        assertEquals(listOf(null, null, null, null, null, SkillRequirement.NETWORK_ALLOWED), registry.skills.map { it.requires })
+        assertTrue(registry.skills.all { it.androidPermissions.isEmpty() && !it.highRisk })
     }
 
     @Test

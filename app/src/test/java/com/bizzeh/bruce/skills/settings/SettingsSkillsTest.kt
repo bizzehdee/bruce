@@ -87,15 +87,12 @@ class SettingsSkillsTest {
     private fun value(id: String) = SettingsCatalog.value(SettingsCatalog[id]!!, reader)
 
     @Test
-    fun findingReadsNothingAndReadingStartsDeclined() {
-        assertEquals(SkillState.ACCEPTED, skills.getValue("find_settings").defaultState)
+    fun allStartDeclined() {
+        assertEquals(listOf(SkillState.DECLINED), skills.values.map { it.defaultState }.distinct())
         assertEquals(emptySet<Capability>(), skills.getValue("find_settings").capabilities)
-        assertEquals(SkillState.DECLINED, skills.getValue("get_setting").defaultState)
         assertEquals(setOf(Capability.SETTINGS_READ), skills.getValue("get_setting").capabilities)
-        assertEquals(SkillState.ASK, skills.getValue("set_setting").defaultState)
         assertEquals(ResourceScope.PHONE_SETTINGS, skills.getValue("set_setting").scope)
         assertEquals(setOf(Capability.SETTINGS_WRITE), skills.getValue("set_setting").capabilities)
-        assertEquals(SkillState.ACCEPTED, skills.getValue("open_settings_page").defaultState)
     }
 
     private fun plan(id: String, value: String) = SettingChanges.plan(SettingsCatalog[id]!!, value, reader)

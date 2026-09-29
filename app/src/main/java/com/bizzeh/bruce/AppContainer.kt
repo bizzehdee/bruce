@@ -1,5 +1,8 @@
 package com.bizzeh.bruce
 
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.Flow
+import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.ResourceScope
 import com.bizzeh.bruce.skills.settings.AndroidSettingsWriter
 import com.bizzeh.bruce.skills.settings.SettingsSkills
@@ -221,6 +224,22 @@ class AppContainer(private val context: Context) {
         )
     }
 
+    /** Whether a skill's requirement holds now; a skill whose requirement does not is locked off. */
+    suspend fun requirementMet(requirement: SkillRequirement): Boolean = when (requirement) {
+        SkillRequirement.FILE_GRANT -> grantNames().isNotEmpty()
+        SkillRequirement.NETWORK_ALLOWED -> networkSettings.mode.first() != NetworkMode.OFFLINE
+    }
+
+    /** The requirements not met now, as the Skills screen shows them. */
+    val unmetRequirements: Flow<Set<SkillRequirement>> by lazy {
+        combine(grants.grants, networkSettings.mode) { granted, mode ->
+            setOfNotNull(
+                SkillRequirement.FILE_GRANT.takeIf { granted.none { it.available } },
+                SkillRequirement.NETWORK_ALLOWED.takeIf { mode == NetworkMode.OFFLINE },
+            )
+        }
+    }
+
     val runtime: BruceRuntime by lazy {
         val policy = PolicyEngine(skills, skillStates, ToolOutput(reservedMarkers = RESERVED_MARKERS), permissionGranted = { permission ->
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
@@ -229,8 +248,8 @@ class AppContainer(private val context: Context) {
                 ResourceScope.PHONE_SETTINGS -> settingsSkills.check(request)
                 else -> grantScope.check(request)
             }
-        })
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames)
+        }, requirementMet = ::requirementMet)
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, networkAllowed = { requirementMet(SkillRequirement.NETWORK_ALLOWED) })
     }
 
     val dataReset: DataReset by lazy {

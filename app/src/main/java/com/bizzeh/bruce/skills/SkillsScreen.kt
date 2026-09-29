@@ -31,6 +31,7 @@ import com.bizzeh.bruce.navigation.SubScreen
 interface SkillsActions {
     fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean)
     fun openPermissions()
+    fun openNetworkSettings() = Unit
 }
 
 @Composable
@@ -79,16 +80,17 @@ private fun SkillItem(row: SkillRow, actions: SkillsActions, onSelect: (SkillSta
         if (skill.highRisk) {
             Text(stringResource(R.string.skills_high_risk), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("highRisk:${skill.id}"))
         }
-        if (skill.scope == ResourceScope.GRANTED_FILES) {
-            Text(stringResource(R.string.skills_needs_folder), style = MaterialTheme.typography.bodySmall)
-            TextButton(onClick = actions::openPermissions, modifier = Modifier.testTag("permissions:${skill.id}")) {
-                Text(stringResource(R.string.settings_permissions))
-            }
+        when (row.locked) {
+            SkillRequirement.FILE_GRANT -> Locked(R.string.skills_locked_files, R.string.settings_permissions, "permissions:${skill.id}", actions::openPermissions)
+            SkillRequirement.NETWORK_ALLOWED -> Locked(R.string.skills_locked_network, R.string.settings_network, "network:${skill.id}", actions::openNetworkSettings)
+            null -> Unit
         }
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
             SkillState.entries.forEachIndexed { index, state ->
                 SegmentedButton(
-                    selected = state == row.state,
+                    // A locked skill is off, and cannot be changed until its requirement is met; the user's choice returns then.
+                    selected = if (row.locked != null) state == SkillState.DECLINED else state == row.state,
+                    enabled = row.locked == null,
                     onClick = { if (state != row.state) onSelect(state) },
                     shape = SegmentedButtonDefaults.itemShape(index, SkillState.entries.size),
                     modifier = Modifier.testTag("state:${skill.id}:$state"),
@@ -96,4 +98,10 @@ private fun SkillItem(row: SkillRow, actions: SkillsActions, onSelect: (SkillSta
             }
         }
     }
+}
+
+@Composable
+private fun Locked(reason: Int, link: Int, tag: String, open: () -> Unit) {
+    Text(stringResource(reason), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("locked:${tag.substringAfter(':')}"))
+    TextButton(onClick = open, modifier = Modifier.testTag(tag)) { Text(stringResource(link)) }
 }

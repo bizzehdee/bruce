@@ -15,9 +15,8 @@ import com.bizzeh.bruce.skills.SkillState
 
 /**
  * Finding and reading the phone's settings (TASK-066), and changing the few Android lets an app
- * change (TASK-067). Finding reads nothing from the phone, so it is Accepted; reading a value is
- * device state, so it starts Declined, as reading files does. Every change asks first by default,
- * and opening a settings page changes nothing, so it is Accepted.
+ * change (TASK-067). All four start Declined, so they cost no prompt space until the user turns
+ * them on (owner, 2026-09-29).
  */
 class SettingsSkills(private val reader: SettingsReader, private val writer: SettingsWriter) {
     fun create(): List<Skill> = listOf(find(), get(), set(), open())
@@ -46,7 +45,7 @@ class SettingsSkills(private val reader: SettingsReader, private val writer: Set
         description = "Find phone settings by words, such as \"brightness\" or \"wifi\". With no query, lists every setting. Returns setting ids for get_setting.",
         input = InputSchema(listOf(Parameter("query", ParameterType.STRING, "Words describing the setting", required = false, maxLength = MAX_QUERY))),
         capabilities = emptySet(),
-        defaultState = SkillState.ACCEPTED,
+        defaultState = SkillState.DECLINED,
     ) { arguments ->
         val found = SettingsCatalog.find(arguments.string("query"))
         SkillOutcome.Done(
@@ -80,7 +79,7 @@ class SettingsSkills(private val reader: SettingsReader, private val writer: Set
             ),
         ),
         capabilities = setOf(Capability.SETTINGS_WRITE),
-        defaultState = SkillState.ASK,
+        defaultState = SkillState.DECLINED,
         scope = ResourceScope.PHONE_SETTINGS,
     ) { arguments ->
         // The policy check ran on these same arguments; this plans again to write exactly that.
@@ -101,7 +100,7 @@ class SettingsSkills(private val reader: SettingsReader, private val writer: Set
         description = "Open the phone's settings page for a setting, so the user can change it. Use for settings Bruce cannot change, such as wifi or bluetooth",
         input = InputSchema(listOf(Parameter(ID, ParameterType.STRING, "The setting id from find_settings, for example wifi", maxLength = MAX_ID))),
         capabilities = setOf(Capability.APP_LAUNCH),
-        defaultState = SkillState.ACCEPTED,
+        defaultState = SkillState.DECLINED,
     ) { arguments ->
         val entry = SettingsCatalog[arguments.string(ID).orEmpty()] ?: return@Skill SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, UNKNOWN, retryable = true)
         if (writer.open(entry.page)) {

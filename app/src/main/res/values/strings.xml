@@ -52,7 +52,8 @@
     <string name="skills_ask">Ask</string>
     <string name="skills_accepted">Accepted</string>
     <string name="skills_high_risk">High risk</string>
-    <string name="skills_needs_folder">Also needs a file or folder you grant in Permissions.</string>
+    <string name="skills_locked_files">Locked off until you grant a file or folder in Permissions.</string>
+    <string name="skills_locked_network">Locked off while Network is set to Offline.</string>
     <string name="skills_warning_title">Always allow %1$s?</string>
     <string name="skills_warning_text">This skill can make changes that cannot be undone. When it is Accepted, Bruce uses it without asking you first. Ask is safer.</string>
     <string name="skills_warning_accept">Accept the risk</string>
