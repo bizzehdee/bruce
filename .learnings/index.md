@@ -27,3 +27,4 @@
 - [tool-calling-format.md](tool-calling-format.md) — Why Bruce uses each model's own tool-call format, what fails with one shared format, and the grammar and prompt-size costs. Read before TASK-036 or any prompt-format work.
 - [llama-chat-code-in-bruce.md](llama-chat-code-in-bruce.md) — Which llama.cpp common sources Bruce builds for tool calls, and the special-token and grammar-trigger rules that break tool calls if missed. Read before changing native chat or generation code.
 - [device-tests-that-wipe-app-data.md](device-tests-that-wipe-app-data.md) — `MainActivityDeviceTest` clears all app data (models, chats, settings); how to restore models, and why stories260K needs skills declined. Read before running device tests on a phone set up for manual testing.
+- [tool-json-layout.md](tool-json-layout.md) — Why template JSON is printed on one line and never compact: measured prompt size and Llama 3.2 1B accuracy. Read before changing how tools reach the prompt.

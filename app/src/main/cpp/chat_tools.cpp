@@ -15,6 +15,7 @@
 #include "chat.h"
 #include "json-schema-to-grammar.h"
 #include "llama.h"
+#include "template_one_line.h"
 
 namespace {
 
@@ -62,7 +63,15 @@ JNIEXPORT jlong JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_chatTemplatesInit(JNIEnv *env, jobject, jlong model, jbyteArray overrideUtf8) {
     try {
         // An override replaces the file's template; the model still supplies the BOS and EOS tokens.
-        return reinterpret_cast<jlong>(common_chat_templates_init(reinterpret_cast<llama_model *>(model), bytesToString(env, overrideUtf8)).release());
+        // Either template prints its JSON on one line. A model with a separate tool-use template keeps
+        // its own templates: an override would drop that one.
+        const auto *llamaModel = reinterpret_cast<llama_model *>(model);
+        std::string source = bytesToString(env, overrideUtf8);
+        if (source.empty() && llama_model_chat_template(llamaModel, "tool_use") == nullptr) {
+            const char *own = llama_model_chat_template(llamaModel, nullptr);
+            if (own != nullptr) source = own;
+        }
+        return reinterpret_cast<jlong>(common_chat_templates_init(llamaModel, bruce::oneLineToolJson(source)).release());
     } catch (const std::exception &error) {
         logFailure("chat template init", error);
         return 0;
