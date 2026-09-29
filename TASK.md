@@ -498,8 +498,9 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Requests go only to Brave's API host, and only when the network mode allows it (TASK-068 treats that host like any other site).
   - Verify the API's current address, headers, limits and terms before building, with research provenance.
   - Depends on: TASK-068
-- [ ] TASK-071: More context sizes
+- [x] TASK-071: More context sizes
   - Owner (2026-09-29): context choices 2K, 4K, 8K, 16K, 24K, 32K, 48K and 64K, in Settings and in each model's settings.
+  - Done: `InferenceDefaults.CONTEXT_CHOICES`; both chip rows scroll sideways, and ActiveModel still caps a choice at the model's trained context.
   - Required by: TASK-072, TASK-073
 - [ ] TASK-072: RAM use in model settings
   - Owner (2026-09-29): on the Models screen, each model shows how much RAM it is expected to use (weights plus the KV cache for its context size), updated as the user picks another context size, with a bar showing that as a share of the phone's total RAM.

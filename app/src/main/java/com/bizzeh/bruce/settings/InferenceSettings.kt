@@ -25,7 +25,7 @@ data class InferenceDefaults(
     companion object {
         /** Room for a chat; about 900 MB in all for Qwen3 0.6B, which fits a 4 GB phone. */
         const val DEFAULT_CONTEXT = 4096
-        val CONTEXT_CHOICES = listOf(2048, 4096, 8192, 16384, 32768)
+        val CONTEXT_CHOICES = listOf(2048, 4096, 8192, 16384, 24576, 32768, 49152, 65536)
         const val MAX_THREADS = 16
     }
 }
