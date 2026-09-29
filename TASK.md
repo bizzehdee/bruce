@@ -466,3 +466,32 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `LlamaCppEngine.getCapabilities` asks the device's vendor ID (`vulkanDeviceVendorId`, read with the API version from `vkGetPhysicalDeviceProperties`) along with the 1.2 rule. `BackendSelection.choices` lists Auto only beside a GPU choice; `BackendSelection.shown` maps a saved Auto to CPU in Settings and in a model's settings.
   - Seen on the Pixel 11: Settings, Backend shows only CPU, selected.
   - Depends on: TASK-050
+- [ ] TASK-066: Android settings: search, list and read
+  - Skills `search_settings` (by words, over a catalog of the settings Bruce knows: name, description, where it lives), `list_settings` (by area: display, sound, network, and so on) and `get_setting` (current value, readable form). Values come from `Settings.System`, `Settings.Global` and `Settings.Secure` where Android lets an app read them, and from platform APIs where it does not (for example Wi-Fi and Bluetooth state).
+  - Catalog: a fixed list in Bruce, not free-form keys from the model; each entry names its store and key, how to show its value, whether Bruce can change it (TASK-067), and the Android settings page for it.
+  - Default state: Accepted for search and list (they read nothing from the phone), Declined for get_setting until the user turns it on (it reads device state). Capability `SETTINGS_READ`.
+  - Depends on: TASK-035, TASK-052
+  - Required by: TASK-067
+- [ ] TASK-067: Android settings: change the few Android allows, open the page for the rest
+  - `set_setting` changes only catalog entries marked changeable, and only those Android lets an app write after the user grants "Modify system settings" (`WRITE_SETTINGS`): screen brightness and auto-brightness, screen timeout, auto-rotate, and sound levels through `AudioManager`. Values are checked against each setting's range. Default state Ask: every change shows a confirmation card with the setting, its current value and the new one. Capability `SETTINGS_WRITE`.
+  - Without the grant, the skill's result says so, and Permissions shows "Modify system settings" with a button to Android's page for it.
+  - `open_settings_page` opens the Android settings page for any catalog entry (for example Wi-Fi, Bluetooth, mobile data), for the user to change; it changes nothing itself. Default state Accepted.
+  - Depends on: TASK-038, TASK-041, TASK-066
+- [ ] TASK-068: Approved sites
+  - A store of always-allowed sites (host names), in `policy.db`, listed in Settings under Network with Remove. Clear all data removes them.
+  - In the Approved sites network mode, a web skill's request to a site not on the list stops the turn with a card: Allow once, Always allow this site, Don't allow. Any site mode needs no approval; Offline and Hugging Face modes refuse web skills with a message naming the network setting. Hugging Face remains allowed as today.
+  - The approval is part of the policy check (the model cannot approve a site), bound to the host of the exact request, as TASK-041's confirmations are.
+  - Depends on: TASK-028, TASK-035, TASK-041
+  - Required by: TASK-069, TASK-070
+- [ ] TASK-069: Web page skill (GET only)
+  - `fetch_page`: an http or https address; GET only, no cookies, no stored credentials, no request body; redirects followed only where the network mode allows each host (TASK-068), never from https to http. Capped download size and time.
+  - HTML becomes plain text (headings, paragraphs, lists, link texts with their addresses), without scripts, styles or hidden content; other text types as they are; anything else refused. The result goes through `ToolOutput` as untrusted data, capped in length, with the final address.
+  - Default state Declined until the user turns it on. Capability `HTTP_READ`.
+  - Depends on: TASK-052, TASK-068
+- [ ] TASK-070: Web search skill (Brave Search API)
+  - `web_search`: a query; returns the top results (title, address, snippet) from the Brave Search API as untrusted data. Default state Declined. Capability `WEB_SEARCH`.
+  - The user's own API key, entered in Settings (with a link to Brave's sign-up page) and stored encrypted with the Android Keystore, as the Hugging Face token is; never logged or sent anywhere else. Without a key the skill is not offered.
+  - Requests go only to Brave's API host, and only when the network mode allows it (TASK-068 treats that host like any other site).
+  - Verify the API's current address, headers, limits and terms before building, with research provenance.
+  - Depends on: TASK-068
+

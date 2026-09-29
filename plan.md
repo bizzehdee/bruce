@@ -186,17 +186,32 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Automatic skills** — Date/time, calculator, battery, device information,
   storage status, network status. `done` (in chat once tool calls are shown there)
 - **File read** — Read selected files and directories granted via the Storage
-  Access Framework. `planned`
+  Access Framework. `done`
 - **File create/write** — Create and write single files in granted scopes;
-  confirmation on each operation. `planned`
+  confirmation on each operation. `done`
 - **File delete** — Delete single files in granted scopes; always-confirm.
-  `planned`
+  `done`
 - **Folder instructions** — When Bruce works in a granted folder, it looks for
   `AGENTS.md` at the folder root and the `.agents/` directory (for example
   `.agents/skills/*/SKILL.md`). The first time, and whenever they change, Bruce
   shows them and asks whether to follow them for that folder. Followed
   instructions guide how Bruce works there, with `.agents/` files loaded as
   needed; they never grant permissions or change skill states. `done`
+- **Android settings** — Search and list the phone's settings and read their
+  values. Change the few Android lets an app change (such as brightness, screen
+  timeout, auto-rotate and sound levels) once the user grants "Modify system
+  settings", asking before each change; for any other setting, open the right
+  Android settings page so the user changes it. `planned`
+- **Approved sites** — In the Approved sites network mode, the first request to a
+  new site shows a card in the chat: Allow once, Always allow this site, or Don't
+  allow. Always-allowed sites are listed in Settings, where they can be removed.
+  `planned`
+- **Web pages** — Fetch a web page (GET only) as plain text, size-capped and
+  marked as untrusted data. No forms, uploads, cookies or sign-ins. Only where the
+  network mode allows the site. `planned`
+- **Web search** — Search the web through the Brave Search API with the user's
+  own key, entered in Settings and stored encrypted on the phone. Bruce ships no
+  key. Only where the network mode allows it. `planned`
 - **Advanced skills** — Move/rename files, calendar create/modify/delete,
   sharing, opening apps and URLs, clipboard write, SMS, calls, notifications.
   `planned`
@@ -355,7 +370,9 @@ device-to-device transfer.
 | System | Used for | Required |
 |---|---|---|
 | Hugging Face Hub API | Model search, metadata, GGUF download, optional sign-in | No. Bruce works offline once a model is installed. |
-| Android platform APIs | Battery, device, storage, network, SAF, calendar, and other skills | Yes, per skill and per user grant. |
+| Android platform APIs | Battery, device, storage, network, SAF, calendar, settings, and other skills | Yes, per skill and per user grant. |
+| Brave Search API | The web search skill, with the user's own key | No. Only if the user adds a key and allows the network. |
+| Web sites | The web page skill, GET only | No. Only where the network mode allows the site. |
 
 ## Constraints
 
@@ -393,7 +410,6 @@ device-to-device transfer.
 |---|---|
 | App signing arrangements (Play App Signing, upload key custody). | User |
 | Local embedding model for RAG. | User, from evidence |
-| Web search provider for `WEB_SEARCH`. | User |
 | Conversation export format. | User |
 | Dependency injection approach (Hilt or manual). | Developer, with user approval |
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
@@ -428,6 +444,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Added | Android settings skills (search, list, read; change the few Android allows, asking first; otherwise open the settings page), approved sites with in-chat approval, web pages (GET only) and web search (Brave Search API, user's own key). Search provider decided. |
 | 2026-09-29 | Changed | Vulkan is not offered on PowerVR GPUs (owner, for now): their driver gives wrong output and can crash the GPU on the Pixel 11. With the CPU as the only backend, Auto is not offered. |
 | 2026-09-29 | Changed | Formatted replies done. Images in replies load only when tapped, even in Any site mode: an image address written by the model could carry chat text to any server. |
 | 2026-09-29 | Changed | Folder instructions done: reviewed on the Permissions screen when a folder is granted or they change; followed ones go to the model once per chat with the first file result there. |
