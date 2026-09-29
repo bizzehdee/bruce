@@ -59,7 +59,24 @@ class SettingsLogicTest {
         val personality = PersonalitySettingsRepository(dataStore)
         val summary = SummarySettingsRepository(dataStore)
         val memory = com.bizzeh.bruce.memory.MemorySettingsRepository(dataStore)
-        val viewModel = SettingsViewModel(theme, inference, network, personality, summary, memory, hubAuth, reset, dynamicColourSupported = true, performanceCores = 4, cores = 8)
+        val searchKey = com.bizzeh.bruce.skills.web.SearchKeyRepository(dataStore, PlainCipher)
+        val viewModel = SettingsViewModel(theme, inference, network, personality, summary, memory, hubAuth, reset, searchKey = searchKey, dynamicColourSupported = true, performanceCores = 4, cores = 8)
+    }
+
+    @Test
+    fun aSearchKeyIsSavedRejectedOrRemoved() = runTest(dispatcher) {
+        val f = Fixture(this)
+
+        f.viewModel.saveSearchKey("short")
+        f.viewModel.state.first { it.searchKeyRejected && !it.searchKeySaved }
+        f.viewModel.saveSearchKey("  BSA-valid-key-123  ")
+        f.viewModel.state.first { it.searchKeySaved && !it.searchKeyRejected }
+        assertEquals("BSA-valid-key-123", f.searchKey.key())
+        assertEquals(false, f.searchKey.save("has a space in it"))
+
+        f.viewModel.removeSearchKey()
+        f.viewModel.state.first { !it.searchKeySaved }
+        assertNull(f.searchKey.key())
     }
 
     @Test

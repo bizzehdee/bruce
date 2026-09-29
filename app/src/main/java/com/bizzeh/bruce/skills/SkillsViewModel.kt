@@ -23,7 +23,7 @@ class SkillsViewModel(
 ) : ViewModel() {
     /** Empty until the stored states are read, so a default never shows in place of the user's choice. */
     val rows: StateFlow<List<SkillRow>> = combine(store.stored, unmet) { stored, missing ->
-        registry.skills.map { SkillRow(it, stored[it.id] ?: it.defaultState, it.requires?.takeIf { requirement -> requirement in missing }) }
+        registry.skills.map { SkillRow(it, stored[it.id] ?: it.defaultState, it.requires.firstOrNull { requirement -> requirement in missing }) }
     }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())
 

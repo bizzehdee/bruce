@@ -17,8 +17,38 @@ import com.bizzeh.bruce.skills.SkillState
  * Offline, and each site checked by the policy engine (TASK-068) before it runs. [allowed] is
  * asked again for every redirect.
  */
-class WebSkills(private val pages: WebPages, private val allowed: suspend (host: String) -> Boolean) {
-    fun create(): List<Skill> = listOf(fetchPage())
+class WebSkills(
+    private val pages: WebPages,
+    private val allowed: suspend (host: String) -> Boolean,
+    private val search: BraveSearch? = null,
+) {
+    fun create(): List<Skill> = listOfNotNull(fetchPage(), search?.let(::webSearch))
+
+    /** Brave's search (TASK-070): Declined, and locked until a key is saved and while the network is Offline. */
+    private fun webSearch(brave: BraveSearch) = Skill(
+        id = "web_search",
+        version = 1,
+        description = "Search the web and return text from the best matching pages, with their addresses.",
+        input = InputSchema(listOf(Parameter(QUERY, ParameterType.STRING, "What to search for", maxLength = MAX_QUERY))),
+        capabilities = setOf(Capability.WEB_SEARCH),
+        defaultState = SkillState.DECLINED,
+        scope = ResourceScope.WEB,
+        requires = setOf(SkillRequirement.NETWORK_ALLOWED, SkillRequirement.SEARCH_KEY),
+        site = { BraveSearch.HOST },
+    ) { arguments ->
+        when (val found = brave.search(arguments.string(QUERY).orEmpty())) {
+            is SearchResult.Failed -> SkillOutcome.Failed(found.code, found.reason, retryable = found.code == DenialCode.RATE_LIMITED)
+            is SearchResult.Found -> SkillOutcome.Done(
+                if (found.sources.isEmpty()) {
+                    "No results."
+                } else {
+                    found.sources.mapIndexed { i, source ->
+                        "${i + 1}. ${source.title.ifBlank { source.url }}\n${source.url}\n${source.snippets.joinToString("\n")}"
+                    }.joinToString("\n\n")
+                },
+            )
+        }
+    }
 
     private fun fetchPage() = Skill(
         id = "fetch_page",
@@ -28,7 +58,7 @@ class WebSkills(private val pages: WebPages, private val allowed: suspend (host:
         capabilities = setOf(Capability.HTTP_READ),
         defaultState = SkillState.DECLINED,
         scope = ResourceScope.WEB,
-        requires = SkillRequirement.NETWORK_ALLOWED,
+        requires = setOf(SkillRequirement.NETWORK_ALLOWED),
         site = { WebAddress.host(it.string(URL).orEmpty()) },
     ) { arguments ->
         val address = arguments.string(URL).orEmpty()
@@ -50,5 +80,9 @@ class WebSkills(private val pages: WebPages, private val allowed: suspend (host:
     private companion object {
         const val URL = "url"
         const val MAX_URL = 2000
+        const val QUERY = "query"
+
+        /** Brave's limit for a query. */
+        const val MAX_QUERY = 600
     }
 }

@@ -186,7 +186,7 @@ class BruceRuntimeTest {
 
     @Test
     fun fileSkillsAreOfferedWithTheGrantNamesOnlyOnceSomethingIsGranted() = runBlocking {
-        val reader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, scope = ResourceScope.GRANTED_FILES, requires = SkillRequirement.FILE_GRANT) { SkillOutcome.Done("") }
+        val reader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, scope = ResourceScope.GRANTED_FILES, requires = setOf(SkillRequirement.FILE_GRANT)) { SkillOutcome.Done("") }
         val files = SkillRegistry(listOf(clock, reader))
         var names = listOf("Documents", "report.pdf")
         fun system(registry: SkillRegistry): String {
@@ -206,11 +206,11 @@ class BruceRuntimeTest {
 
     @Test
     fun skillsNeedingTheNetworkAreNotOfferedWhileItIsOffAndAreRefusedIfCalled() = runBlocking {
-        val status = Skill("get_network_status", 1, "Net.", InputSchema(), setOf(Capability.NETWORK_STATUS), SkillState.ACCEPTED, requires = SkillRequirement.NETWORK_ALLOWED) { SkillOutcome.Done("online") }
+        val status = Skill("get_network_status", 1, "Net.", InputSchema(), setOf(Capability.NETWORK_STATUS), SkillState.ACCEPTED, requires = setOf(SkillRequirement.NETWORK_ALLOWED)) { SkillOutcome.Done("online") }
         val registry = SkillRegistry(listOf(clock, status))
         var allowed = false
         val guarded = PolicyEngine(registry, states, ToolOutput(), permissionGranted = { true }, scope = { ScopeCheck.InScope() }, requirementMet = { allowed })
-        val runtime = BruceRuntime(engine, registry, states, guarded, temperature = { 0f }, personality = { "P" }, networkAllowed = { allowed })
+        val runtime = BruceRuntime(engine, registry, states, guarded, temperature = { 0f }, personality = { "P" }, requirementMet = { allowed })
 
         engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("get_network_status", "{}"))))
         engine.steps += Step("Offline.", ParsedReply("Offline.", "", emptyList()))
@@ -224,7 +224,7 @@ class BruceRuntimeTest {
         engine.steps += Step("Hi.", ParsedReply("Hi.", "", emptyList()))
         runtime.respond(question).toList()
         assertEquals(listOf("get_datetime", "get_network_status"), engine.offered.last().map { it.name })
-        val fileReader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, requires = SkillRequirement.FILE_GRANT) { SkillOutcome.Done("") }
+        val fileReader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, requires = setOf(SkillRequirement.FILE_GRANT)) { SkillOutcome.Done("") }
         val noFiles = PolicyEngine(SkillRegistry(listOf(fileReader)), states, ToolOutput(), permissionGranted = { true }, scope = { ScopeCheck.InScope() }, requirementMet = { false })
         val denied = noFiles.decide("read_file", "{}") as PolicyDecision.Denied
         assertTrue(denied.denial.message.contains("Permissions"))

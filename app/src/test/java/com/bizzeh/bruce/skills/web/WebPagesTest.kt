@@ -104,11 +104,11 @@ class WebPagesTest {
         sites["https://example.com/away"] = Site(302, mapOf("location" to "https://elsewhere.org/"))
         sites["https://elsewhere.org/"] = html("<p>there</p>")
         allowedHosts = emptySet()
-        val skill = WebSkills(pages) { false }.create().single()
+        val skill = WebSkills(pages, allowed = { false }).create().single()
 
         assertEquals(SkillState.DECLINED, skill.defaultState)
         assertEquals(ResourceScope.WEB, skill.scope)
-        assertEquals(SkillRequirement.NETWORK_ALLOWED, skill.requires)
+        assertEquals(setOf(SkillRequirement.NETWORK_ALLOWED), skill.requires)
         assertEquals("example.com", skill.site!!(SkillArguments(mapOf("url" to "https://example.com/a"))))
         assertEquals(SkillOutcome.Done("Address: https://example.com/a\nTitle: A\n\nHello"), skill.execute(SkillArguments(mapOf("url" to "https://example.com/a"))))
         assertEquals(SkillOutcome.Done("Address: https://example.com/empty\n\n(The page has no readable text.)"), skill.execute(SkillArguments(mapOf("url" to "https://example.com/empty"))))

@@ -219,9 +219,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Web pages** — Fetch a web page (GET only) as plain text, size-capped and
   marked as untrusted data. No forms, uploads, cookies or sign-ins. Only where the
   network mode allows the site. `done`
-- **Web search** — Search the web through the Brave Search API with the user's
-  own key, entered in Settings and stored encrypted on the phone. Bruce ships no
-  key. Only where the network mode allows it. `planned`
+- **Web search** — Search the web through the Brave Search API (its LLM Context
+  endpoint) with the user's own key, entered in Settings and stored encrypted on
+  the phone. Bruce ships no key. Only where the network mode allows it. `done`
 - **Advanced skills** — Move/rename files, calendar create/modify/delete,
   sharing, opening apps and URLs, clipboard write, SMS, calls, notifications.
   `planned`
@@ -457,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Web search done with Brave's LLM Context endpoint; results saved with the chat (owner's choice, against a storage clause in Brave's terms) (TASK-070). |
 | 2026-09-29 | Changed | Web pages skill done (TASK-069). |
 | 2026-09-29 | Changed | Approved sites done (TASK-068). |
 | 2026-09-29 | Added | Remote model servers (owner): OpenAI-compatible API, HTTPS or plain HTTP on the local network, a server is its own permission, listed with installed models (TASK-075 to TASK-077). |

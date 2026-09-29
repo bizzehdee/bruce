@@ -52,6 +52,9 @@ enum class SkillRequirement {
 
     /** A network mode other than Offline. */
     NETWORK_ALLOWED,
+
+    /** A Brave Search key saved in Settings (TASK-070). */
+    SEARCH_KEY,
 }
 
 enum class ResourceScope {
@@ -93,8 +96,8 @@ class Skill(
     val highRisk: Boolean = false,
     val scope: ResourceScope = ResourceScope.NONE,
     val androidPermissions: List<String> = emptyList(),
-    /** What must hold before the skill can be used at all; while it does not, the skill is locked off. */
-    val requires: SkillRequirement? = null,
+    /** What must hold before the skill can be used at all; while any does not, the skill is locked off. */
+    val requires: Set<SkillRequirement> = emptySet(),
     /** For [ResourceScope.WEB]: the host a call reaches, from its arguments (WebAddress.host), or null if it names none. */
     val site: ((SkillArguments) -> String?)? = null,
     val execute: suspend (SkillArguments) -> SkillOutcome,

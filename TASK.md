@@ -496,11 +496,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/web/`): `fetch_page` is Declined, locked while Offline, and checked per site by the policy engine (TASK-068). `WebPages` reads with GET through a new single-hop transport call, so every redirect is checked against the network mode (the site just approved counts for the call's own request only) and none goes from https to http; at most 5 redirects, 2 MB read (the rest noted as cut). `HtmlText` turns HTML into text with a linear scan, no regular expressions and no new dependency: scripts, styles, `hidden`, `aria-hidden` and `display:none` content left out; headings, list items and link addresses kept. Other text types are kept as they are; anything else is refused. The result goes through `ToolOutput` as untrusted data.
   - Not yet tried on a phone: the Pixel 11 was in use when this was finished (its network mode was left on Approved sites and Read web pages on Accepted from the attempt).
   - Depends on: TASK-052, TASK-068
-- [ ] TASK-070: Web search skill (Brave Search API)
+- [x] TASK-070: Web search skill (Brave Search API)
   - `web_search`: a query; returns the top results (title, address, snippet) from the Brave Search API as untrusted data. Default state Declined. Capability `WEB_SEARCH`.
   - The user's own API key, entered in Settings (with a link to Brave's sign-up page) and stored encrypted with the Android Keystore, as the Hugging Face token is; never logged or sent anywhere else. Without a key the skill is not offered.
   - Requests go only to Brave's API host, and only when the network mode allows it (TASK-068 treats that host like any other site).
   - Verify the API's current address, headers, limits and terms before building, with research provenance.
+  - Owner decisions (2026-09-29, after the terms were checked, research/sources/brave-search-api-2026-09-29): Brave's LLM Context endpoint (`/res/v1/llm/context`), not Web Search; results are saved with the chat like other skill results, although Brave's terms restrict storing search results (the key and agreement are the user's).
+  - Done (`skills/web/BraveSearch.kt`, `SearchKey.kt`): `web_search` asks Brave for its smallest budget (1,024 tokens, 5 pages) and returns each page's title, address and text chunks. It is Declined, locked until a key is saved and while the network is Offline (skill requirements became a set for this), and its one site, `api.search.brave.com`, goes through TASK-068's check. The key is sealed with its own Android Keystore key, sent only as `X-Subscription-Token` to Brave, with redirects not followed so it cannot go elsewhere; Settings, Network shows a key field, then only "saved" with Remove, and a link to Brave's sign-up page. Key refused, rate limits and failures come back as refusals the model can explain.
+  - Not tried against Brave: that needs the owner's key. Covered by tests against a scripted server using the documented response shape.
   - Depends on: TASK-068
 - [x] TASK-071: More context sizes
   - Owner (2026-09-29): context choices 2K, 4K, 8K, 16K, 24K, 32K, 48K and 64K, in Settings and in each model's settings.

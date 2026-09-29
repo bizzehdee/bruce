@@ -67,10 +67,10 @@ object AutomaticSkills {
         skill("get_battery_status", "get the devices battery level, temperature and charge state", Capability.BATTERY, SkillState.DECLINED) { battery(phone.battery()) },
         skill("get_device_info", "Get the phone's manufacturer, model, Android version, processor and total memory.", Capability.DEVICE, SkillState.DECLINED) { device(phone.device()) },
         skill("get_storage_status", "Get the phone's total, used and free storage space.", Capability.STORAGE_STATUS, SkillState.DECLINED) { storage(phone.storage()) },
-        skill("get_network_status", "Get whether the phone is online and whether it uses Wi-Fi or mobile data.", Capability.NETWORK_STATUS, requires = SkillRequirement.NETWORK_ALLOWED) { network(phone.network()) },
+        skill("get_network_status", "Get whether the phone is online and whether it uses Wi-Fi or mobile data.", Capability.NETWORK_STATUS, requires = setOf(SkillRequirement.NETWORK_ALLOWED)) { network(phone.network()) },
     )
 
-    private fun skill(id: String, description: String, capability: Capability, default: SkillState = SkillState.ACCEPTED, requires: SkillRequirement? = null, read: () -> String) =
+    private fun skill(id: String, description: String, capability: Capability, default: SkillState = SkillState.ACCEPTED, requires: Set<SkillRequirement> = emptySet(), read: () -> String) =
         Skill(id, 1, description, InputSchema(), setOf(capability), default, requires = requires) { SkillOutcome.Done(read()) }
 
     private val DATE_TIME = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy, HH:mm:ss", Locale.ENGLISH)

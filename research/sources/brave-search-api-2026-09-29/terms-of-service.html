@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="https://cdn.search.brave.com/search-api/web/v1/client/favicon.png" />
+    <title>Brave Search - API</title>
+    <!--12qhfyh--><!--[0--><script>
+      var url = new URL(window.location.href);
+      url.searchParams.delete('token');
+      url.searchParams.delete('email');
+
+      var _paq = (window._paq = window._paq || []);
+      _paq.push(['setDoNotTrack', true]);
+      _paq.push(['disableCookies']);
+      _paq.push(['setTrackerUrl', 'https://analytics.brave.com/matomo.php']);
+      _paq.push(['setSiteId', '13']);
+      if (navigator.brave?.isBrave) {
+        var brave_ua = navigator.userAgent.replace('Chrome', 'Chrome(Brave)');
+        _paq.push(['appendToTrackingUrl', 'ua=' + brave_ua]);
+      }
+      _paq.push(['setCustomDimension', 1, navigator.language]);
+      _paq.push(['setCustomDimension', 2, navigator.language]);
+      _paq.push(['setCustomUrl', url.toString()]);
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+    </script> <script type="text/javascript" src="/matomo.js" async=""></script><!--]--> <!--[0--><!--]--><!----><title>Terms of service - Brave Search API</title>
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/FullAlert.Dbf5cOYq.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/ShikiJsonView.DW73XjZw.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/arrow_diagonal_up_right.BZmkM8v_.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/docs.CaeCrp1N.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/CodeGroup.DF0SGhhL.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/forms.B_ErHhPi.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/Alert.DUZnTSWK.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/Modal.CcWneE0O.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/ModalActions.Dq19rkxF.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/PlaygroundPanel.Dk23E-wT.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/Tooltip.CSBYjH6I.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/0.BXq4ag4G.css" rel="stylesheet">
+		<link href="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/61.B7jM-O5n.css" rel="stylesheet">
+    <!-- A/B variation assignment. Contents are filled in by hooks.server.ts; they live here,
+         last in <head>, so they run before the first paint. The script picks up the CSP nonce;
+         the style cannot (style-src never gets one) and is allow-listed by hash in
+         svelte.config.js instead. -->
+    <script nonce="X8HaXugM+GoU72kUUNLBWw==" data-ab-bootstrap>(function(){function matchesPath(e,i){if(e==="*")return!0;if(e.endsWith("/*"))return i.startsWith(e.slice(0,-1));if(e.endsWith("*")){const s=e.slice(0,-1);return i===s||i.startsWith(`${s}/`)}return i===e}function abAssign(e,i){const s=document.documentElement;let c={};try{c=JSON.parse(localStorage.getItem(e)||"{}")||{}}catch{}let l=!0;try{localStorage.setItem(e+"__probe","1"),localStorage.getItem(e),localStorage.removeItem(e+"__probe")}catch{l=!1}let u=!1;for(const r of i){const{name:n,variations:o,weights:g,percentage:a}=r;let t=c[n]??"";t!=="excluded"&&!o.includes(t)&&(t=l&&Math.random()*100<a?f(o,g):"excluded",c[n]=t,u=!0),r.paths?.some(d=>matchesPath(d,location.pathname))&&s.setAttribute("data-experiment-"+n,t==="excluded"?o[0]:t)}if(u&&l)try{localStorage.setItem(e,JSON.stringify(c))}catch{}function f(r,n){let o=0;for(const t of n)o+=t;const g=Math.random()*o;let a=0;for(let t=0;t<n.length;t++)if(a+=n[t]??0,g<a)return r[t]??r[0];return r[r.length-1]??r[0]}}
+abAssign("brave_ab",[{"name":"register_simplified_registration","variations":["original","simplified_registration"],"weights":[50,50],"percentage":100,"paths":["/register"]}]);})();</script>
+    <style data-ab-styles>[data-experiment-variation-wrap]{display:contents}html[data-experiment-register_simplified_registration]:not([data-experiment-register_simplified_registration="original"]) [data-experiment-variation="register_simplified_registration:original"]{display:none!important}html[data-experiment-register_simplified_registration]:not([data-experiment-register_simplified_registration="simplified_registration"]) [data-experiment-variation="register_simplified_registration:simplified_registration"]{display:none!important}html:not([data-experiment-register_simplified_registration]) [data-experiment-variation="register_simplified_registration:simplified_registration"]{display:none!important}</style>
+  </head>
+  <body class="desktop-default-regular">
+    <div><!--[--><!--[0--><!--[--><!--[-1--><!--]--> <!--[-1--><!--]--> <!--[-1--><!--]-->  <div class="layout svelte-12qhfyh"><header class="svelte-12qhfyh"><a href="/" class="svelte-12qhfyh"><img src="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/brave-logo.BytqdRrN.svg" alt="Brave" class="theme--light svelte-12qhfyh"/> <img src="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/brave-logo-dark.DFq21q25.svg" alt="Brave" class="theme--dark svelte-12qhfyh"/></a> <!--[0--><!--[-1--><div class="command-bar-trigger-container svelte-12qhfyh"><button class="command-bar-trigger svelte-12qhfyh" type="button"><div class="command-bar-trigger-icon svelte-12qhfyh"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="icon" viewBox="0 0 24 24"><!----><path fill="currentColor" fill-rule="evenodd" d="M10.498 2a8.498 8.498 0 1 0 5.843 14.67l4.292 4.291a.8.8 0 1 0 1.131-1.13l-4.367-4.368A8.498 8.498 0 0 0 10.499 2M3.6 10.498a6.898 6.898 0 1 1 13.797 0 6.898 6.898 0 0 1-13.797 0" clip-rule="evenodd"/><!----></svg><!----></div> <div class="command-bar-trigger-text desktop-large-regular t-tertiary svelte-12qhfyh">Search...</div> <div class="command-bar-trigger-shortcut desktop-xsmall-semibold t-tertiary svelte-12qhfyh">Ctrl K</div></button> <button class="assistant-trigger svelte-12qhfyh" aria-label="Open AI Assistant"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" class="icon" viewBox="0 0 16 16"><!----><path fill="currentColor" d="M15.348 15.014a.577.577 0 1 1-.817.817l-2.891-2.892.817-.817z"/><path fill="currentColor" fill-rule="evenodd" d="M7.713 3.313c.337 0 .63.228.713.555l.254 1.013c.23.92.95 1.638 1.87 1.868L11.564 7a.734.734 0 0 1 .001 1.424l-1.013.254c-.92.231-1.638.95-1.868 1.871l-.252 1.013a.734.734 0 0 1-1.424.002l-.254-1.013a2.57 2.57 0 0 0-1.87-1.868L3.87 8.43a.734.734 0 0 1-.002-1.424l1.014-.254c.92-.23 1.638-.95 1.867-1.87l.253-1.014a.734.734 0 0 1 .711-.556M12.116 1.105c.169 0 .316.114.357.278l.127.506c.115.46.475.82.935.934l.507.127a.367.367 0 0 1 0 .712l-.506.127c-.46.115-.82.475-.934.935l-.126.507a.367.367 0 0 1-.713 0l-.127-.506a1.29 1.29 0 0 0-.935-.934l-.507-.126a.367.367 0 0 1 0-.712l.506-.127c.46-.116.82-.475.934-.936l.127-.507a.37.37 0 0 1 .355-.278" clip-rule="evenodd"/><path fill="currentColor" d="M3.786 1.074A7.7 7.7 0 0 1 8.29.022a.578.578 0 0 1-.088 1.153 6.556 6.556 0 0 0-5.1 11.196 6.554 6.554 0 0 0 11.14-5.222.578.578 0 1 1 1.152-.1A7.712 7.712 0 1 1 3.786 1.074"/><!----></svg><!----></button></div><!----><!--]--><!--]--> <!--[-1--><div class="actions-container svelte-12qhfyh"><nav class="actions svelte-12qhfyh"><!--[0--><!--[--><a href="/documentation" class="svelte-12qhfyh">Documentation</a><a href="/api-reference/ai/llm_context/get" class="svelte-12qhfyh">API Reference</a><!--]--><!--]--> <!--[0--><a href="/login" class="btn btn--filled btn--small primary svelte-12qhfyh">Log in</a><!--]--> <!--[-1--><!--]--></nav></div><!----><!--]--><!----></header> <main class="svelte-12qhfyh"><!--[0--><button class="sidebar-toggle svelte-12qhfyh" aria-label="Navigation"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="icon" viewBox="0 0 24 24"><!----><path fill="currentColor" fill-rule="evenodd" d="M2 4.8a.8.8 0 0 1 .8-.8h18.4a.8.8 0 0 1 0 1.6H2.8a.8.8 0 0 1-.8-.8m0 14.4a.8.8 0 0 1 .8-.8h18.4a.8.8 0 0 1 0 1.6H2.8a.8.8 0 0 1-.8-.8m.8-8a.8.8 0 0 0 0 1.6h18.4a.8.8 0 0 0 0-1.6z" clip-rule="evenodd"/><!----></svg><!----> <!--[0--><div class="breadcrumbs desktop-default-regular t-tertiary svelte-12qhfyh"><div class="parents svelte-12qhfyh"><!--[--><span class="svelte-12qhfyh">Documentation</span> <span class="svelte-12qhfyh">›</span><span class="svelte-12qhfyh">Resources</span> <span class="svelte-12qhfyh">›</span><!--]--></div> <div class="t-primary desktop-default-semibold">Terms of service</div></div><!--]--></button> <aside class="svelte-12qhfyh"><nav class="menu svelte-12qhfyh"><div class="menu-actions svelte-12qhfyh"><div class="menu-actions-logo"><img src="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/brave-logo.BytqdRrN.svg" alt="Brave" class="theme--light svelte-12qhfyh"/> <img src="https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/assets/brave-logo-dark.DFq21q25.svg" alt="Brave" class="theme--dark svelte-12qhfyh"/></div> <!--[-1--><!--]--> <!--[0--><!--[-1--><!--[--><a href="/documentation" class="svelte-12qhfyh">Documentation</a><a href="/api-reference/ai/llm_context/get" class="svelte-12qhfyh">API Reference</a><!--]--> <!--[0--><a href="/login" class="svelte-12qhfyh">Log in</a><!--]--><!----><!--]--><!--]--></div> <!--[--><div class="menu-group"><h5 class="desktop-default-semibold t-tertiary svelte-12qhfyh">Getting started</h5> <ul class="menu-list svelte-12qhfyh"><!--[--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/quickstart" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Quickstart</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/playground" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Playground</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/pricing" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Pricing</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--]--></ul></div><div class="menu-group"><h5 class="desktop-default-semibold t-tertiary svelte-12qhfyh">AI Search</h5> <ul class="menu-list svelte-12qhfyh"><!--[--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/llm-context" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">LLM Context</span> <!--[-1--><!--]--> <!--[0--><span class="nav-item-subtitle desktop-small-regular t-tertiary svelte-12qhfyh">Web search for AI agents</span><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/answers" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Answers</span> <!--[-1--><!--]--> <!--[0--><span class="nav-item-subtitle desktop-small-regular t-tertiary svelte-12qhfyh">AI-generated cited answers</span><!--]--><!----></a><!--]--></li><!--]--><!--]--></ul></div><div class="menu-group"><h5 class="desktop-default-semibold t-tertiary svelte-12qhfyh">Specialized search</h5> <ul class="menu-list svelte-12qhfyh"><!--[--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/web-search" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Web Search</span> <!--[-1--><!--]--> <!--[0--><span class="nav-item-subtitle desktop-small-regular t-tertiary svelte-12qhfyh">Results pages for humans</span><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/news-search" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">News search</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/video-search" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Video search</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/image-search" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Image search</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/place-search" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Place search</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/suggest" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Autosuggest</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/services/spellcheck" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Spellcheck</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--]--></ul></div><div class="menu-group"><h5 class="desktop-default-semibold t-tertiary svelte-12qhfyh">Guides</h5> <ul class="menu-list svelte-12qhfyh"><!--[--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/guides/authentication" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Authentication</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/guides/versioning" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Versioning</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/guides/rate-limiting" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Rate limiting</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--]--></ul></div><div class="menu-group"><h5 class="desktop-default-semibold t-tertiary svelte-12qhfyh">Resources</h5> <ul class="menu-list svelte-12qhfyh"><!--[--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/skills" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Skills</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/help-feedback" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Help &amp; Feedback</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/goggles" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Goggles</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/search-operators" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Search operators</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/status-updates" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Status updates</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/security" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Security</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/privacy-notice" class="nav-item t-primary svelte-12qhfyh desktop-default-regular"><span class="nav-item-label svelte-12qhfyh">Privacy notice</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--[-1--><li class="svelte-12qhfyh"><!--[-1--><a href="/documentation/resources/terms-of-service" class="nav-item t-primary svelte-12qhfyh selected desktop-default-semibold"><span class="nav-item-label svelte-12qhfyh">Terms of service</span> <!--[-1--><!--]--> <!--[-1--><!--]--><!----></a><!--]--></li><!--]--><!--]--></ul></div><!--]--></nav> <div class="theme-toggle-container svelte-12qhfyh"><form method="POST" action="/api/set-theme" class="theme-toggle"><input type="hidden" name="theme" value="dark"/> <input type="hidden" name="redirectUrl" value="/app/terms-of-service"/> <button type="submit" class="toggle-row desktop-default-regular t-secondary svelte-lu0t34" aria-label="Switch to dark theme" title="Toggle theme"><span class="toggle-label svelte-lu0t34">Theme</span> <span class="toggle svelte-lu0t34"><span class="track svelte-lu0t34"></span> <span class="thumb svelte-lu0t34"><!--[-1--><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" class="icon" viewBox="0 0 20 20"><!----><path fill="currentColor" fill-rule="evenodd" d="M10 0c.477 0 .863.386.863.863v2.284a.863.863 0 1 1-1.726 0V.863C9.137.386 9.523 0 10 0M2.929 2.929a.863.863 0 0 1 1.22 0l1.616 1.615a.863.863 0 0 1-1.22 1.22L2.928 4.15a.863.863 0 0 1 0-1.22m14.142 0a.863.863 0 0 1 0 1.22l-1.615 1.616a.863.863 0 1 1-1.22-1.22l1.615-1.616a.863.863 0 0 1 1.22 0M10 7.056a2.944 2.944 0 1 0 0 5.888 2.944 2.944 0 0 0 0-5.888M5.33 10a4.67 4.67 0 1 1 9.34 0 4.67 4.67 0 0 1-9.34 0M0 10c0-.477.386-.863.863-.863h2.284a.863.863 0 1 1 0 1.726H.863A.863.863 0 0 1 0 10m15.99 0c0-.477.386-.863.863-.863h2.284a.863.863 0 0 1 0 1.726h-2.284A.863.863 0 0 1 15.99 10M5.765 14.236a.863.863 0 0 1 0 1.22L4.149 17.07a.863.863 0 1 1-1.22-1.22l1.615-1.616a.863.863 0 0 1 1.22 0m8.47 0a.863.863 0 0 1 1.22 0l1.616 1.615a.863.863 0 0 1-1.22 1.22l-1.616-1.615a.863.863 0 0 1 0-1.22M10 15.99c.477 0 .863.386.863.863v2.284a.863.863 0 0 1-1.726 0v-2.284c0-.477.386-.863.863-.863" clip-rule="evenodd"/><!----></svg><!--]--></span></span></button></form><!----></div></aside><!--]--> <div class="main-container svelte-12qhfyh"><div class="main-content svelte-12qhfyh type--wide"><!--[0--><!--[--><!--[-1--><!--[--><div class="page svelte-9iv3v5"><!----><h1>SEARCH API TERMS OF USE</h1>
+
+<p>
+  <b>Last updated:</b> 1 Sep, 2026
+</p>
+
+<p>
+  These Search API Terms of Use (“<b>Agreement</b>”) are between Brave Software, Inc., a
+  Delaware corporation (“<b>Provider</b>”, “<b>we</b>” or “<b>our</b>”) and you or the entity
+  that you represent (“<b>Customer</b>”, “<b>you</b>” or “<b>your</b>”). Provider and Customer
+  are collectively, the “<b>Parties</b>” and each a “<b>Party</b>.” The Agreement consists of
+  these terms of use (“<b>Terms of Use</b>”) and any other documents incorporated herein by
+  reference.
+</p>
+
+<p>
+  This Agreement takes effect upon the earliest of when you click the “Subscribe” or “I Accept”
+  button, check a box presented with this Agreement, or access or use the API, or the Effective
+  Date listed in an Order Form. You represent and warrant that you are lawfully able to enter
+  into contract, and that have the right, power, and authority to enter into this Agreement on
+  behalf of yourself or the entity that you represent and bind such entity to this agreement.
+</p>
+
+<p>
+  We may amend this Agreement at any time. If you do not agree to the amended Agreement, you
+  must stop using the API and Documentation.
+</p>
+
+<ol>
+  <li>
+    <p><u>Definitions</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          “<b>API</b>” means the Brave Search API application programming interface that
+          provides access to Provider’s software or services, and includes any Updates thereto.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>API Key</b>” means the security key Provider makes available for Customer to
+          access and use the API.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Customer Applications</b>” means any applications, products or services offered by
+          Customer that are designed to access the API.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Documentation</b>” means the documentation relating to the API that Provider makes
+          available to Customer in any form or medium from time to time including via the
+          Website.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>End Users</b>” means, collectively, all third party end users of the Customer
+          Applications.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Generated Results</b>” means outputs from calls made to the API that are generated
+          by a generative artificial intelligence system or model.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Marks</b>” means a Party’s proprietary trademarks, trade names, logos or other
+          branding made available for use in connection with this Agreement.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Order Form</b>” means an order form executed by and between Provider and Customer
+          which provides for the provision of the API to Customer by Provider.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Search Query Data</b>” means any queries or other information that Customer makes
+          available to Provider via calls to the API.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Search Results</b>” means any outputs from calls made to the API, which may
+          consist of (i) internet search results; (ii) Generated Results; or (iii) Third-Party
+          Content.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Third-Party Content</b>” means materials and information, in any form or medium,
+          that are not proprietary to Provider, including any third party documents, text,
+          images, video, audio, data, information or other materials not provided by Provider.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Updates</b>” means any updates, bug fixes, patches, or other error corrections to
+          the API.
+        </p>
+      </li>
+      <li>
+        <p>
+          “<b>Website</b>” means the Provider’s websites used for the API, including
+          api.search.brave.com and any subdomains thereof.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>
+      <u>Additional Terms</u>. Any Order Form issued pursuant to this Agreement may be executed
+      by electronic means and will be effective upon execution by duly authorized
+      representatives of both Parties. All Order Forms are incorporated into and made part of
+      this Agreement.
+    </p>
+  </li>
+  <li>
+    <p><u>License</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>License Grant</u>. Provider hereby grants Customer a limited, worldwide, revocable
+          (as provided in this Agreement), non-exclusive, non-transferable and non-assignable,
+          non-sublicensable license during the Term to (i) use the API and Documentation solely
+          to develop, test, and integrate the API with, the Customer Applications; (ii) use the
+          Search Results with the Customer Applications; and (iii) use and display the
+          Provider’s Marks solely as provided herein.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Use Restrictions</u>. Customer shall not use the API, Search Results, Documentation
+          or Provider’s Marks for any purposes beyond the scope of the license granted in this
+          Agreement and the restrictions in this Section. Customer shall not and shall not
+          permit End Users or others to: (i) store, cache, or create a database of Search
+          Results, in whole or in part, other than transient storage required for operation of
+          Customer Applications or related software, service or systems; (ii) create derivative
+          works of the API, Documentation or Search Results; (iii) rent, lease, lend, sell,
+          distribute, publish, sublicense, assign, transfer, or otherwise make available the API
+          or Documentation to any third party, in whole or in part; (iv) reverse engineer,
+          disassemble, decompile, decode, adapt, or otherwise attempt to derive or gain access
+          to any software component of, the API, in whole or in part; (v) circumvent or bypass
+          rate limits or service limits through any method, including by creating multiple
+          accounts; (vi) remove any proprietary notices from the API or Documentation; (vii) use
+          the API or Search Results in any manner or for any purpose that infringes,
+          misappropriates, or otherwise violates any intellectual property right or other right
+          of any person, or that violates any applicable law, rule or regulation; (viii) use the
+          API or Documentation in any manner that harms the Provider, including without
+          limitation, Provider’s products, services, systems, infrastructure, brand, or
+          goodwill; (ix) combine or integrate the API with any software, services, systems,
+          technology or materials not authorized by Provider, other than Customer Applications;
+          (x) use the API in Customer Applications to replicate or attempt to replace the
+          functionality of the API, or circumvent use of the API; (xi) attempt to obfuscate or
+          conceal Customer’s identity or the identity of the Customer Applications when
+          requesting authorization to use the API; (xii) redistribute, resell, or sublicense the
+          Search Results; (xiii) use the Search Results to create, evaluate, train, re-train,
+          fine-tune, benchmark or otherwise improve artificial intelligence models or services
+          offered by Customer or third parties; (xiv) upon expiration or termination of this
+          Agreement, continue any further use of the API or Documentation or retain
+          Documentation or Search Results in Customer’s possession and control; or (xv) use the
+          API in connection with any spyware, adware, or other malicious programs or code,
+          counterfeit goods, items subject to US embargo, unsolicited mass distribution of
+          email, multi-level marketing, hate materials, hacking, surveillance, interception, or
+          descrambling equipment, libelous, defamatory, obscene, abusive, or otherwise offensive
+          content, stolen products, and items used for theft, hazardous material, or any illegal
+          activities.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Customer Responsibilities</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>API Keys</u>. Customer must obtain an API Key from Provider to access and use the
+          API. Customer shall keep the API Key secure, may not share the API Key with any third
+          party other than its affiliates, contractors and agents that need to know the API.
+          Provider may revoke and replace an API Key at any time. Customer shall provide prompt
+          notice to Provider of any actual or suspected unauthorized use or disclosure of an API
+          Key.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Compliance Obligations</u>. Customer shall comply with (i) this Agreement; (ii) the
+          Documentation; and (iii) all applicable laws, rules, and regulations.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>End Users</u>. Customer shall ensure that each End User is bound by a written
+          agreement with Customer pursuant to which such End User agrees to be bound by
+          obligations substantially similar to those in section 3(b) of these Terms of Use.
+          Customer is solely responsible for posting any privacy notices and obtaining any
+          consents from End Users required under applicable laws, rules, and regulations for
+          their use of the Customer Applications, as used with the API. Customer is solely
+          responsible and liable for all acts and omissions of End Users. Customer shall (i)
+          monitor the use of the Customer Applications for End User use that may violate such
+          obligations to Customer, may be a breach of this Agreement by Customer, or if
+          conducted by Customer, may be a breach of this Agreement by Customer; and (ii)
+          promptly suspend or restrict such End Users from use of the Customer Applications.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Attribution</u>. Customer may provide attribution to Provider in the Customer
+          Applications. If Customer elects to provide attribution, such attribution shall (i) be
+          displayed in a conspicuous manner; (ii) consist of the language “POWERED BY BRAVE”
+          plus Provider’s logo in the description of the applicable Customer Application, or
+          other attribution content as approved in advance by Provider in writing; and (iii) be
+          in compliance with any written usage guidelines that Provider may specify from time to
+          time. Provider may upon prior written notice to Customer, require Customer to change
+          the manner of display of any such attribution or Provider’s Marks or revoke the
+          license to Provider’s Marks granted herein. Customer’s use of Provider’s Marks will
+          not create any right, title, or interest in or to Provider’s Marks in favor of
+          Customer and all goodwill associated with the use of Provider’s Marks will inure to
+          the benefit of Provider. Customer shall not make any statement regarding use of the
+          API, Documentation or Search Results or use Provider’s Marks in any way that would
+          suggest partnership with, sponsorship by, or endorsement by Provider.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>
+      <u>Updates</u>. Provider may make Updates available to Customer, each of which are a part
+      of the API and are subject to this Agreement. Provider will use commercially reasonable
+      efforts to ensure that Updates do not materially degrade the functionality of the API.
+      Provider may require Customer to access and use the most recent version of the API.
+      Updates may require that Customer modify integrations between the API and Customer
+      Applications, which modifications shall be Customer’s sole responsibility and expense.
+      Provider will use commercially reasonable efforts to provide Customer with advance written
+      notice of material Updates, which notice may be provided via the Website or other means by
+      which general notice is provided to Provider’s other API customers.
+    </p>
+  </li>
+  <li>
+    <p><u>Fees and Payment</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>Fees</u>. Customer shall pay Provider the fees (“<b>Fees</b>”) set forth on the
+          Website or in the applicable Order Form. Customer shall make all payments hereunder in
+          United States dollars on or before the due date by a means specified by Provider. All
+          payments are non-refundable except as otherwise expressly provided in this Agreement
+          or as required by law. If Customer fails to pay the Fees when due, Provider may charge
+          interest on the past due amount at the rate of 1.5% per month, calculated daily and
+          compounded monthly, or if lower, the highest rate permitted under applicable law,
+          Customer shall reimburse Provider for all costs incurred by Provider in collecting any
+          late payments or interest, including attorneys’ fees, court costs, and collection
+          agency fees.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Service Credits</u>. Customer may purchase, or Provider may issue to Customer free
+          of charge, service credits redeemable for use of the API. All service credits are
+          subject to the <a href="/terms-of-service/credit-terms" target="_self">Credit Terms</a>.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Taxes</u>. All Fees and other amounts payable by Customer under this Agreement are
+          exclusive of Taxes. Customer is responsible for all sales, use, and excise taxes, and
+          any other similar taxes, duties, and charges of any kind imposed by any federal,
+          state, or local governmental or regulatory authority on any amounts payable by
+          Customer hereunder, other than any taxes imposed on Provider’s income
+          (“<b>Taxes</b>”). If any Taxes are to be withheld on payments Customer makes to
+          Provider, Customer may deduct such taxes from the amount owed to Provider and pay them
+          to the appropriate taxing authority; provided, however, that Customer promptly secure
+          and deliver an official receipt for those withholdings and other documents Provider
+          reasonably requests to claim a foreign tax credit or refund. Customer must ensure that
+          any Taxes withheld are minimized to the extent possible under applicable law.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>No Deductions or Setoffs</u>. All amounts payable to Provider under this Agreement
+          shall be paid by Customer to Provider in full without any setoff, recoupment,
+          counterclaim, deduction, debit or withholding for any reason, other than any deduction
+          or withholding of Tax as may be required by applicable law, rule or regulation.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Data Protection</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          Provider may process certain data and information about Customer or Customer’s
+          employees, contractors, or agents as part of its performance hereunder. Customer
+          consents to all processing activities by Provider with respect to such data and
+          information in accordance with the then-current version of Provider’s privacy notice
+          and data protection addendum available on the Website (“<b>Privacy Notice</b>”).
+        </p>
+      </li>
+      <li>
+        <p>
+          Provider shall implement and maintain reasonable and appropriate technical,
+          administrative, and physical safeguards designed to protect Search Query Data.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Confidentiality</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>Confidential Information</u>. In connection with this Agreement, each Party (as the
+          “<b>Disclosing Party</b>”) may disclose or make available Confidential Information to
+          the other Party (as the “<b>Receiving Party</b>”). “<b>Confidential Information</b>”
+          means information in any form or medium (whether oral, written, electronic or other)
+          that (i) is marked “confidential” or “proprietary” or is identified as confidential or
+          proprietary when disclosed; or (ii) would reasonably be understood to be confidential
+          or proprietary. Without limiting the foregoing, the API, Documentation, and the terms
+          and existence of this Agreement are the Confidential Information of Provider.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Exclusions</u>. Confidential Information does not include information that the
+          Receiving Party can demonstrate by written or other documentary records: (i) was
+          rightfully known to the Receiving Party without restriction on use or disclosure prior
+          to such information being disclosed or made available to the Receiving Party in
+          connection with this Agreement; (ii) was or becomes generally known by the public
+          other than by the Receiving Party’s or any of its Representatives’ noncompliance with
+          this Agreement; (iii) was or is received by the Receiving Party on a non-confidential
+          basis from a third party that was not or is not, at the time of such receipt, under
+          any obligation to maintain its confidentiality; or (iv) was or is independently
+          developed by the Receiving Party without reference to or use of any Confidential
+          Information.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Protection of Confidential Information</u>. As a condition to being provided with
+          any disclosure of or access to Confidential Information, the Receiving Party shall
+          during the Term and for two years following the Term: (i) not access or use
+          Confidential Information other than as necessary to exercise its rights or perform its
+          obligations under and in accordance with this Agreement; (ii) not disclose or permit
+          access to Confidential Information other than to its personnel, contractors or agents
+          (“<b>Representatives</b>”) who need to know such Confidential Information for purposes
+          of the Receiving Party’s exercise of its rights or performance of its obligations
+          under and in accordance with this Agreement and are bound by confidentiality and
+          restricted use obligations at least as protective of the Confidential Information as
+          the terms set forth in this section; (iii) safeguard the Confidential Information from
+          unauthorized use, access or disclosure using at least the degree of care it uses to
+          protect its similarly sensitive information and in no event less than a reasonable
+          degree of care; and (iv) be responsible for any of its Representatives’ violations of
+          their obligations with respect to such Confidential Information.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Compelled Disclosure</u>. If the Receiving Party or any of its Representatives is
+          compelled by a court, other government body or applicable law to disclose any
+          Confidential Information then, to the extent permitted, the Receiving Party will: (i)
+          promptly, and prior to such disclosure, notify the Disclosing Party in writing of such
+          requirement so that the Disclosing Party can seek a protective order or other remedy
+          or waive its rights under section 8 of these Terms of Use; and (ii) provide reasonable
+          assistance to the Disclosing Party, at the Disclosing Party’s sole cost and expense,
+          in opposing such disclosure or seeking a protective order or other limitations on
+          disclosure. The Receiving Party will disclose only that portion of the Confidential
+          Information that the Receiving Party is legally required to disclose.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Intellectual Property</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>Intellectual Property Ownership</u>. (i) Provider is the sole and exclusive owner
+          of all right, title, and interest, including all intellectual property rights, in and
+          to the API, Documentation, and Provider’s Marks, subject to the limited licenses
+          granted under this Agreement; and (ii) as between Provider and Customer, Provider is
+          the sole and exclusive owner of all right, title, and interest, including all
+          intellectual property rights, in and to the Search Results, subject to the rights of
+          third parties in any Third-Party Content referenced, linked to or included in Search
+          Results. Customer is the sole and exclusive owner of all right, title, and interest,
+          including all intellectual property rights, in and to the Search Query Data and
+          Customer’s Marks, subject to the limited licenses granted under this Agreement.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>License to Search Query Data</u>. Customer hereby grants Provider a worldwide,
+          irrevocable, non-exclusive, sublicensable through multiple levels, royalty-free and
+          fully paid, license during the Term to use Search Query Data for purposes of use with
+          the API, providing the Search Results, and otherwise performing hereunder.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Customer Cooperation and Notice of Infringement</u>. Customer will use commercially
+          reasonable efforts to safeguard the API, Documentation and Search Results from
+          infringement, misappropriation, theft, misuse, unauthorized disclosure, unauthorized
+          copying, or unauthorized access. Customer will promptly notify Provider when Customer
+          becomes aware of any activity in violation of the foregoing and will fully cooperate
+          with Provider in any legal action taken by Provider to maintain and enforce Provider’s
+          intellectual property rights in the API, Documentation and Search Results.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Third-Party Content</u>. Customer acknowledges and agrees that (i) Third-Party
+          Content may be referenced, linked to or included in Search Results that is proprietary
+          to a third party and not Provider; and (ii) Customer’s use of such Third-Party Content
+          in or with the Customer Applications may be subject to the intellectual property
+          rights of such Third-Party Content’s owner(s) or licensor(s).
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Feedback</u>. Customer may, from time to time, provide Provider with feedback,
+          suggestions, or comments regarding the API, Documentation, or Provider’s products,
+          services, or business (“<b>Feedback</b>”). Any Feedback is provided voluntarily, and
+          without confidentiality or other obligations. Provider may use, modify, or incorporate
+          such Feedback in the API, Documentation, its business, products, and services without
+          restriction and without any obligation to Customer.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Disclaimers</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          THE API, DOCUMENTATION AND SEARCH RESULTS ARE PROVIDED “AS IS,” AND “AS AVAILABLE.”
+          PROVIDER DISCLAIMS ALL WARRANTIES, WHETHER IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING
+          ALL IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+          NON-INFRINGEMENT, AND ALL WARRANTIES ARISING FROM COURSE OF DEALING, USAGE, OR TRADE
+          PRACTICE. PROVIDER MAKES NO WARRANTY OF ANY KIND THAT THE API, DOCUMENTATION, SEARCH
+          RESULTS, OR PROVIDER MARKS, OR ANY PRODUCTS OR RESULTS OF THE USE THEREOF, WILL MEET
+          CUSTOMER’S OR ANY OTHER PERSON’S REQUIREMENTS, OPERATE WITHOUT INTERRUPTION, ACHIEVE
+          ANY INTENDED RESULT, BE COMPATIBLE OR WORK WITH ANY OF CUSTOMER’S OR ANY THIRD PARTY’S
+          SOFTWARE, SYSTEM, OR OTHER SERVICES, INCLUDING THE CUSTOMER APPLICATIONS, OR BE
+          SECURE, ACCURATE, COMPLETE, FREE OF HARMFUL CODE, OR ERROR-FREE, OR THAT ANY ERRORS OR
+          DEFECTS CAN OR WILL BE CORRECTED.
+        </p>
+      </li>
+      <li>
+        <p>
+          TO THE EXTENT PROVIDED, GENERATED RESULTS ARE PROVIDED USING EMERGING TECHNOLOGY AND
+          ARE NOT INTENDED TO MEET CUSTOMER’S OR ANY OTHER PERSON’S PROFESSIONAL, LEGAL,
+          REGULATORY, ETHICAL OR OTHER OBLIGATIONS, OR TO BE USED TO PROVIDE PROFESSIONAL,
+          LEGAL, MEDICAL, HEALTH, FINANCIAL OR OTHER ADVICE. GENERATED RESULTS MAY BE THE SAME
+          OR SIMILAR TO THOSE PROVIDED TO OTHER API CUSTOMERS.
+        </p>
+      </li>
+      <li>
+        <p>
+          TO THE EXTENT PROVIDED, ALL THIRD-PARTY CONTENT IS PROVIDED “AS IS,” IS PROVIDED
+          WITHOUT ANY WARRANTY BY PROVIDER, WHETHER EXPRESS, IMPLIED, STATUTORY OR OTHERWISE.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Indemnification</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>By Provider</u>. Provider agrees to indemnify, defend, and hold harmless Customer
+          and its officers, directors, employees, agents, affiliates, successors, and assigns
+          from and against any and all Losses incurred as a result of Claims, alleging
+          infringement, misappropriation or violation of any third party intellectual property
+          rights by the API or Documentation. In the event a court of competent jurisdiction
+          issues an injunction prohibiting the use or provision of the API or Documentation,
+          Provider shall, at its expense, either: (i) procure for Customer the right to continue
+          using the affected component of the API or Documentation; or (ii) replace or modify
+          the affected component so that they become non-infringing; or (iii) if neither (i) or
+          (ii) above is commercially reasonable, terminate the Agreement and issue a refund to
+          Customer of any prepaid Fees. THIS SECTION STATES CUSTOMER’S SOLE AND EXCLUSIVE
+          REMEDIES FOR CLAIMS ALLEGING INFRINGEMENT.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>By Customer</u>. Customer agrees to indemnify, defend, and hold harmless Provider
+          and its officers, directors, employees, agents, affiliates, successors, and assigns
+          from and against any and all losses, damages, liabilities, deficiencies, claims,
+          actions, judgments, settlements, interest, awards, penalties, fines, costs, or
+          expenses of whatever kind, including attorneys’ fees (“<b>Losses</b>”), incurred as a
+          result of third party claims, actions or proceedings (“<b>Claims</b>”), relating to
+          (i) Customer Applications, Search Query Data, or other outputs, products or services
+          that Customer provides using the API; (ii) acts or omissions of End Users; (iii)
+          infringement, misappropriation or violation of any third party intellectual property
+          rights by the Customer Applications or Search Query Data; or (iv) violation of any
+          applicable law, rule or regulation, by Customer, its affiliates or personnel, or End
+          Users.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Exclusions</u>. Provider’s obligations in section 11(a) shall not apply to Claims
+          relate to (i) Customer Applications, Search Query Data, or other outputs, products or
+          services that Customer provides using the API; (ii) Search Results; (iii) acts or
+          omissions of End Users; (iv) unauthorized modifications to, or use of, the API or
+          Documentation; (v) use of the API or Documentation in combination with software,
+          services, systems or data not provided by Provider; or (vi) use of an old version of
+          the API or Documentation where a newer release would avoid the applicable Claim.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Indemnification Procedures</u>. In the event either Party (the “<b>Indemnified
+          Party</b>”) seeks indemnification or defense from the other Party (the
+          “<b>Indemnifying Party</b>”) under this provision, Indemnified Party will promptly
+          notify Indemnifying Party in writing of the Claims brought against Indemnified Party
+          for which Indemnified Party seeks indemnification or defense. Indemnified Party
+          reserves the right, at Indemnified Party’s option and in Indemnified Party’s sole
+          discretion, to assume full control of the defense with legal counsel of Indemnified
+          Party’s choice at the Indemnified Party’s sole cost and expense. Indemnifying Party
+          may not enter into any third party agreement that would, in any manner whatsoever,
+          constitute an admission of fault by Indemnified Party or bind Indemnified Party in any
+          manner, without Indemnified Party’s prior written consent.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Limitations of Liability</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          IN NO EVENT WILL PROVIDER BE LIABLE TO CUSTOMER OR TO ANY THIRD PARTY UNDER ANY TORT,
+          CONTRACT, NEGLIGENCE, STRICT LIABILITY, OR OTHER LEGAL OR EQUITABLE THEORY FOR ANY
+          INDIRECT, INCIDENTAL, CONSEQUENTIAL, PUNITIVE, EXEMPLARY, SPECIAL OR ENHANCED DAMAGES
+          RELATED TO THIS AGREEMENT, INCLUDING DAMAGES FOR LOST PROFITS, LOST OR CORRUPTED DATA,
+          COMPUTER FAILURE OR MALFUNCTION, INTERRUPTION OF BUSINESS.
+        </p>
+      </li>
+      <li>
+        <p>
+          IN NO EVENT SHALL PROVIDER’S LIABILITY RELATED TO THIS AGREEMENT EXCEED, IN THE
+          AGGREGATE, THE AMOUNT OF FEES PAID BY CUSTOMER TO THE PROVIDER IN THE 12 MONTHS
+          PRECEDING THE DATE OF THE APPLICABLE CLAIM.
+        </p>
+      </li>
+      <li>
+        <p>
+          THE FOREGOING LIMITATIONS SHALL APPLY TO THE FULLEST EXTENT PERMITTED UNDER APPLICABLE
+          LAW AND EVEN IF EITHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH LOSS OR
+          DAMAGES AND WHETHER OR NOT SUCH LOSS OR DAMAGES ARE FORESEEABLE OR PROVIDER WAS
+          ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Term; Termination; and Suspension</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>Term</u>. This Agreement is effective upon the earliest of the Effective Date
+          indicated in an Order Form and the date of your acceptance of these Terms of Use, and
+          expires upon the earliest of the date when all Order Forms have terminated, the date
+          you stop using the API, or as earlier terminated as provided herein (“<b>Term</b>”).
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Termination</u>. Provider may terminate this Agreement or any Order Form for any
+          reason upon 10 days prior written notice to Customer. Customer may terminate this
+          Agreement for any reason upon 30 days’ prior written notice to Provider. Either Party
+          may terminate this Agreement for a material breach of this Agreement by the other
+          Party which remains uncured 30 days’ following written notice describing such breach.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Effect of Termination</u>. Upon expiration or termination of this Agreement (i) all
+          licenses and rights granted under this Agreement shall terminate; (ii) Customer shall
+          cease using, destroy, and permanently erase all copies of the API, Documentation,
+          Search Results (except as otherwise provided in an Order Form) and Provider’s Marks
+          from all devices and systems Customer controls; (iii) each Party, as Receiving Party,
+          must return, destroy or delete all Confidential Information of the Disclosing Party,
+          and upon written request of the Disclosing Party, certify in writing as to such
+          return, destruction or deletion; and (iv) all Fees incurred prior to the effective
+          date of termination shall immediately and automatically become due, and Customer shall
+          promptly pay such Fees.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Survival</u>. Any terms that by their nature are intended to continue beyond the
+          termination or expiration of this Agreement will survive such expiration or
+          termination, including without limitation sections 1, 2, 4(c), 6, 7(b), 8, 9, 10, 11,
+          12, 13(c), 13(d), and 14 of these Terms of Use.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Suspension</u>. Provider may suspend Customer’s access to and use of the API: (i)
+          immediately upon written notice to Customer if Provider reasonably believes that (A)
+          Customer’s use will imminently cause material damage to Provider’s or a third party’s
+          systems, (B) Customer’s use of the API or Documentation creates material legal
+          exposure for Provider, or (C) if Provider is compelled or directed to do so by any
+          competent court of law or government authority with jurisdiction to do so; or (ii)
+          upon written notice to Customer after a five day cure period, for any suspected breach
+          of section 3(b) of these Terms of Use by Customer or End Users, or Customer’s failure
+          to timely pay undisputed Fees. Provider will reinstate Customer’s access to and use of
+          the API promptly when the reason for suspension has been resolved. Provider may
+          suspend or terminate Customer’s access to Customer’s service credit balance if
+          Provider reasonably believes Customer has violated the Service Credit Terms or laws,
+          rules or regulations applicable to service credits.
+        </p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><u>Miscellaneous</u>.</p>
+    <ol type="a">
+      <li>
+        <p>
+          <u>Entire Agreement</u>. This Agreement, together with all Order Forms, and any other
+          documents incorporated herein by reference, constitutes the sole and entire agreement
+          of the Parties with respect to the subject matter of this Agreement and supersedes all
+          prior and contemporaneous understandings and agreements, both written and oral, with
+          respect to such subject matter.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Order of Precedence</u>. In the event of any conflict or ambiguity in or between
+          any of the following sections of the Agreement, the sections shall control in the
+          following, descending order of precedence: (i) Privacy Notice; (ii) Order Forms; (iii)
+          Service Credit Terms; (iv) Terms of Use; and (v) any other documents or terms
+          incorporated herein by reference.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Public Announcements</u>. Neither Party will issue any press release or public
+          statement in connection with this Agreement unless approved in writing by the other
+          Party. Notwithstanding the foregoing, following the Effective Date, Provider may (i)
+          create and publish a customer list, or other marketing or promotional materials, that
+          names Customer or announces the commercial relationship between Provider and Customer,
+          and which may include Customer’s Marks and the names of Customer Applications
+          (“<b>Public Announcements</b>”); and (ii) Provider may publish such Public
+          Announcement without any additional prior written consent of Customer.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Force Majeure</u>. Provider will not be in breach of this Agreement if performance
+          hereunder or the functionality of the API is delayed, prevented, degraded or adversely
+          affected for reasons beyond its reasonable control, so long as it resumes performance
+          as soon as practicable.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Relationship of the Parties</u>. Provider and Customer are acting as independent
+          contractors, and nothing in this Agreement will be construed as creating a
+          partnership, franchise, joint venture, employer-employee, fiduciary, or agency
+          relationship.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>No Third-Party Beneficiaries</u>. This Agreement is for the sole benefit of the
+          Parties hereto and their respective successors and permitted assigns and nothing
+          herein, express or implied, is intended to or will confer on any other person any
+          legal or equitable right, benefit, or remedy of any nature whatsoever under or by
+          reason of this Agreement.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Notices</u>. All notices, requests, consents, claims, demands, waivers, and other
+          communications hereunder (each, a “<b>Notice</b>”) from the Customer to the Provider
+          must be delivered to Provider at 580 Howard Street, Unit 402, San Francisco, CA 94105
+          by registered mail, return receipt requested. All Notices from the Provider to the
+          Customer will be electronically delivered to the email address associated with the
+          Customer’s API account. Except as otherwise provided in this Agreement, a Notice is
+          effective only: (i) upon receipt by the receiving Party; and (ii) if the Party giving
+          the Notice has complied with the requirements of this section.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Waiver</u>. No failure or delay by a Party to exercise any rights, remedies, or
+          privileges hereunder will operate or be construed as a waiver. No waiver by any Party
+          of any of the provisions hereof will be effective unless explicitly set forth in
+          writing and signed by the Party so waiving.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Severability</u>. If any provision of this Agreement is invalid, illegal, or
+          unenforceable in any jurisdiction, such invalidity, illegality, or unenforceability
+          will not affect any other term or provision of this Agreement or invalidate or render
+          unenforceable such term or provision in any other jurisdiction. Upon such
+          determination that any term or other provision is invalid, illegal, or unenforceable,
+          the Parties shall negotiate in good faith to modify this Agreement so as to affect the
+          original intent of the Parties as closely as possible in a mutually acceptable manner
+          in order that the transactions contemplated hereby be consummated as originally
+          contemplated to the greatest extent possible.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Governing Law and Jurisdiction</u>. This Agreement shall be governed by and
+          construed in accordance with the laws of the State of California without giving effect
+          to any choice or conflict of law provision or rule that would require or permit the
+          application of the laws of any jurisdiction other than those of the State of
+          California. The provisions of the United Nations Convention on Contracts for the
+          International Sales of Goods shall not apply to this Agreement. Any legal suit,
+          action, or proceeding arising out of or related to this Agreement or the licenses
+          granted hereunder will be instituted exclusively in the federal courts of the United
+          States of America or the courts of the State of California, in each case located in
+          the city and County of San Francisco, and each Party irrevocably submits to the
+          exclusive jurisdiction of such courts in any such suit, action, or proceeding. The
+          Parties waive all defenses of forum non conveniens.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Equitable Relief</u>. The Parties agree that a breach or threatened breach by
+          Customer of any of its obligations under sections 3(b), 8, or 9 of these Terms of Use
+          may cause Provider irreparable harm for which monetary damages would not be an
+          adequate remedy and that, in the event of such breach or threatened breach, Provider
+          will be entitled to equitable relief, including in a restraining order, an injunction,
+          specific performance, and any other relief that may be available from any court of
+          competent jurisdiction, without any requirement to post a bond or other security, or
+          to prove actual damages or that monetary damages are not an adequate remedy. Such
+          remedies are not exclusive and are in addition to all other remedies that may be
+          available at law, in equity, or otherwise.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Assignment</u>. Customer may not assign or transfer any of its rights or delegate
+          any of its obligations hereunder, in each case whether voluntarily, involuntarily, by
+          operation of law, or otherwise, without the prior written consent of Provider.
+          Provider may assign or transfer any rights and obligations hereunder fully or
+          partially without the consent of Customer. Any purported assignment, transfer, or
+          delegation in violation of this section is null and void. This Agreement is binding on
+          and inures to the benefit of the Parties and their respective permitted successors and
+          assigns.
+        </p>
+      </li>
+      <li>
+        <p>
+          <u>Counterparts</u>. This Agreement may be executed in counterparts, including by
+          electronic means of execution and delivery, each of which is deemed an original, but
+          all of which together are deemed to be one and the same agreement.
+        </p>
+      </li>
+    </ol>
+  </li>
+</ol><!----><!----></div><!--]--><!--]--><!----><!--]--><!--]--><!----></div> <!--[-1--><!--]--></div> <!--[-1--><!--]--></main></div> <dialog class="svelte-uyy5ql"><div class="command-bar svelte-uyy5ql"><div class="command-bar-input-row svelte-uyy5ql"><div class="command-bar-icon svelte-uyy5ql"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="icon" viewBox="0 0 24 24"><!----><path fill="currentColor" fill-rule="evenodd" d="M10.498 2a8.498 8.498 0 1 0 5.843 14.67l4.292 4.291a.8.8 0 1 0 1.131-1.13l-4.367-4.368A8.498 8.498 0 0 0 10.499 2M3.6 10.498a6.898 6.898 0 1 1 13.797 0 6.898 6.898 0 0 1-13.797 0" clip-rule="evenodd"/><!----></svg><!----></div> <input value="" class="command-bar-input desktop-large-regular svelte-uyy5ql" placeholder="Search pages, ask questions ..." type="text" autocomplete="off" spellcheck="false"/> <button class="command-bar-close-btn svelte-uyy5ql" aria-label="Close"><svg xmlns="http://www.w3.org/2000/svg" fill="none" class="icon" viewBox="0 0 24 24"><!----><path fill="currentColor" fill-rule="evenodd" d="M5.992 5.992a.85.85 0 0 0 0 1.202L10.798 12l-4.81 4.81a.85.85 0 1 0 1.202 1.202l4.81-4.81 4.806 4.806a.85.85 0 0 0 1.202-1.202L13.202 12l4.81-4.81a.85.85 0 1 0-1.202-1.202L12 10.798 7.194 5.992a.85.85 0 0 0-1.202 0" clip-rule="evenodd"/><!----></svg><!----></button> <button class="command-bar-ask-btn desktop-small-semibold svelte-uyy5ql"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" class="icon" viewBox="0 0 16 16"><!----><path fill="currentColor" d="M15.348 15.014a.577.577 0 1 1-.817.817l-2.891-2.892.817-.817z"/><path fill="currentColor" fill-rule="evenodd" d="M7.713 3.313c.337 0 .63.228.713.555l.254 1.013c.23.92.95 1.638 1.87 1.868L11.564 7a.734.734 0 0 1 .001 1.424l-1.013.254c-.92.231-1.638.95-1.868 1.871l-.252 1.013a.734.734 0 0 1-1.424.002l-.254-1.013a2.57 2.57 0 0 0-1.87-1.868L3.87 8.43a.734.734 0 0 1-.002-1.424l1.014-.254c.92-.23 1.638-.95 1.867-1.87l.253-1.014a.734.734 0 0 1 .711-.556M12.116 1.105c.169 0 .316.114.357.278l.127.506c.115.46.475.82.935.934l.507.127a.367.367 0 0 1 0 .712l-.506.127c-.46.115-.82.475-.934.935l-.126.507a.367.367 0 0 1-.713 0l-.127-.506a1.29 1.29 0 0 0-.935-.934l-.507-.126a.367.367 0 0 1 0-.712l.506-.127c.46-.116.82-.475.934-.936l.127-.507a.37.37 0 0 1 .355-.278" clip-rule="evenodd"/><path fill="currentColor" d="M3.786 1.074A7.7 7.7 0 0 1 8.29.022a.578.578 0 0 1-.088 1.153 6.556 6.556 0 0 0-5.1 11.196 6.554 6.554 0 0 0 11.14-5.222.578.578 0 1 1 1.152-.1A7.712 7.712 0 1 1 3.786 1.074"/><!----></svg><!----> Ask</button></div> <!--[0--><div class="command-bar-spacer svelte-uyy5ql"></div><!--]--> <button class="command-bar-footer desktop-small-regular svelte-uyy5ql"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" class="icon" viewBox="0 0 16 16"><!----><path fill="currentColor" d="M15.348 15.014a.577.577 0 1 1-.817.817l-2.891-2.892.817-.817z"/><path fill="currentColor" fill-rule="evenodd" d="M7.713 3.313c.337 0 .63.228.713.555l.254 1.013c.23.92.95 1.638 1.87 1.868L11.564 7a.734.734 0 0 1 .001 1.424l-1.013.254c-.92.231-1.638.95-1.868 1.871l-.252 1.013a.734.734 0 0 1-1.424.002l-.254-1.013a2.57 2.57 0 0 0-1.87-1.868L3.87 8.43a.734.734 0 0 1-.002-1.424l1.014-.254c.92-.23 1.638-.95 1.867-1.87l.253-1.014a.734.734 0 0 1 .711-.556M12.116 1.105c.169 0 .316.114.357.278l.127.506c.115.46.475.82.935.934l.507.127a.367.367 0 0 1 0 .712l-.506.127c-.46.115-.82.475-.934.935l-.126.507a.367.367 0 0 1-.713 0l-.127-.506a1.29 1.29 0 0 0-.935-.934l-.507-.126a.367.367 0 0 1 0-.712l.506-.127c.46-.116.82-.475.934-.936l.127-.507a.37.37 0 0 1 .355-.278" clip-rule="evenodd"/><path fill="currentColor" d="M3.786 1.074A7.7 7.7 0 0 1 8.29.022a.578.578 0 0 1-.088 1.153 6.556 6.556 0 0 0-5.1 11.196 6.554 6.554 0 0 0 11.14-5.222.578.578 0 1 1 1.152-.1A7.712 7.712 0 1 1 3.786 1.074"/><!----></svg><!----> <span>Open API Assistant</span> <span class="footer-shortcut desktop-xsmall-semibold svelte-uyy5ql">Ctrl I</span></button></div></dialog><!----> <!--[0--><noscript><p><img referrerpolicy="no-referrer-when-downgrade" src="https://analytics.brave.com/matomo.php?idsite=13&amp;rec=1" alt="" class="svelte-12qhfyh"/></p></noscript><!--]--><!--]--><!--]--> <!--[-1--><!--]--><!--]-->
+			
+			<script nonce="X8HaXugM+GoU72kUUNLBWw==">
+				{
+					__sveltekit_1f8gfnc = {
+						base: new URL("..", location).pathname.slice(0, -1),
+						assets: "https://cdn.search.brave.com/search-api/web/v1/client",
+						env: {"PUBLIC_ANALYTICS_ENABLED":"true"}
+					};
+
+					const element = document.currentScript.parentElement;
+
+					Promise.all([
+						import("https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/entry/start.cYFux3bd.js"),
+						import("https://cdn.search.brave.com/search-api/web/v1/client/_app/immutable/entry/app.DeJT0D1O.js")
+					]).then(([kit, app]) => {
+						kit.start(app, element, {
+							node_ids: [0, 13, 61],
+							data: [{type:"data",data:{theme:void 0},uses:{}},{type:"data",data:{isPublic:true,csrf:".eJwFwdsOQzAAANB_8S4h6tLHWYeJSxkpe2lm3YygbF2Hr985SvmJVjI48Dh6albfpTExutMC5fGpb3aiLUA3TcSynhKeIYYP3gpFMCfCpOW5AtptM3phcgt3M9QZK5aXP2N_HK4TaJ_ke7HjYGystI5CaXetX8SRhG8955RXD21MWsRgyIcJdOlPzuoE3K12VUvmLl49chBf8d43KvG2XBzlD6T_OrM.dFBN96bxA6GgMGM00YkCmRt3XuA",user:void 0,menu:[{label:"Getting started",pages:[{href:"/documentation/quickstart",label:"Quickstart"},{href:"/documentation/playground",label:"Playground"},{href:"/documentation/pricing",label:"Pricing"}]},{label:"AI Search",pages:[{label:"LLM Context",subtitle:"Web search for AI agents",href:"/documentation/services/llm-context"},{label:"Answers",subtitle:"AI-generated cited answers",href:"/documentation/services/answers"}]},{label:"Specialized search",pages:[{label:"Web Search",subtitle:"Results pages for humans",href:"/documentation/services/web-search"},{href:"/documentation/services/news-search",label:"News search"},{href:"/documentation/services/video-search",label:"Video search"},{href:"/documentation/services/image-search",label:"Image search"},{href:"/documentation/services/place-search",label:"Place search"},{href:"/documentation/services/suggest",label:"Autosuggest"},{href:"/documentation/services/spellcheck",label:"Spellcheck"}]},{label:"Guides",pages:[{href:"/documentation/guides/authentication",label:"Authentication"},{href:"/documentation/guides/versioning",label:"Versioning"},{href:"/documentation/guides/rate-limiting",label:"Rate limiting"}]},{label:"Resources",pages:[{href:"/documentation/resources/skills",label:"Skills"},{href:"/documentation/resources/help-feedback",label:"Help & Feedback"},{href:"/documentation/resources/goggles",label:"Goggles"},{href:"/documentation/resources/search-operators",label:"Search operators"},{href:"/documentation/resources/status-updates",label:"Status updates"},{href:"/documentation/resources/security",label:"Security"},{href:"/documentation/resources/privacy-notice",label:"Privacy notice"},{href:"/documentation/resources/terms-of-service",label:"Terms of service"}]}],section:"Documentation",pageHeadings:[],markdownContent:void 0,pageType:"narrow",skillHref:void 0,actions:[{href:"/documentation",label:"Documentation"},{href:"/api-reference/ai/llm_context/get",label:"API Reference"}],title:"Terms of service - Brave Search API",primaryAction:{href:"/login",label:"Log in"}},uses:{route:1,url:1}},{type:"data",data:{id:"44705728-a55e-4757-9e1f-e802fa5054f4",version:"2026-09-01",content:"\u003Ch1>SEARCH API TERMS OF USE\u003C/h1>\r\n\r\n\u003Cp>\r\n  \u003Cb>Last updated:\u003C/b> 1 Sep, 2026\r\n\u003C/p>\r\n\r\n\u003Cp>\r\n  These Search API Terms of Use (“\u003Cb>Agreement\u003C/b>”) are between Brave Software, Inc., a\r\n  Delaware corporation (“\u003Cb>Provider\u003C/b>”, “\u003Cb>we\u003C/b>” or “\u003Cb>our\u003C/b>”) and you or the entity\r\n  that you represent (“\u003Cb>Customer\u003C/b>”, “\u003Cb>you\u003C/b>” or “\u003Cb>your\u003C/b>”). Provider and Customer\r\n  are collectively, the “\u003Cb>Parties\u003C/b>” and each a “\u003Cb>Party\u003C/b>.” The Agreement consists of\r\n  these terms of use (“\u003Cb>Terms of Use\u003C/b>”) and any other documents incorporated herein by\r\n  reference.\r\n\u003C/p>\r\n\r\n\u003Cp>\r\n  This Agreement takes effect upon the earliest of when you click the “Subscribe” or “I Accept”\r\n  button, check a box presented with this Agreement, or access or use the API, or the Effective\r\n  Date listed in an Order Form. You represent and warrant that you are lawfully able to enter\r\n  into contract, and that have the right, power, and authority to enter into this Agreement on\r\n  behalf of yourself or the entity that you represent and bind such entity to this agreement.\r\n\u003C/p>\r\n\r\n\u003Cp>\r\n  We may amend this Agreement at any time. If you do not agree to the amended Agreement, you\r\n  must stop using the API and Documentation.\r\n\u003C/p>\r\n\r\n\u003Col>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Definitions\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>API\u003C/b>” means the Brave Search API application programming interface that\r\n          provides access to Provider’s software or services, and includes any Updates thereto.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>API Key\u003C/b>” means the security key Provider makes available for Customer to\r\n          access and use the API.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Customer Applications\u003C/b>” means any applications, products or services offered by\r\n          Customer that are designed to access the API.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Documentation\u003C/b>” means the documentation relating to the API that Provider makes\r\n          available to Customer in any form or medium from time to time including via the\r\n          Website.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>End Users\u003C/b>” means, collectively, all third party end users of the Customer\r\n          Applications.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Generated Results\u003C/b>” means outputs from calls made to the API that are generated\r\n          by a generative artificial intelligence system or model.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Marks\u003C/b>” means a Party’s proprietary trademarks, trade names, logos or other\r\n          branding made available for use in connection with this Agreement.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Order Form\u003C/b>” means an order form executed by and between Provider and Customer\r\n          which provides for the provision of the API to Customer by Provider.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Search Query Data\u003C/b>” means any queries or other information that Customer makes\r\n          available to Provider via calls to the API.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Search Results\u003C/b>” means any outputs from calls made to the API, which may\r\n          consist of (i) internet search results; (ii) Generated Results; or (iii) Third-Party\r\n          Content.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Third-Party Content\u003C/b>” means materials and information, in any form or medium,\r\n          that are not proprietary to Provider, including any third party documents, text,\r\n          images, video, audio, data, information or other materials not provided by Provider.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Updates\u003C/b>” means any updates, bug fixes, patches, or other error corrections to\r\n          the API.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          “\u003Cb>Website\u003C/b>” means the Provider’s websites used for the API, including\r\n          api.search.brave.com and any subdomains thereof.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\r\n      \u003Cu>Additional Terms\u003C/u>. Any Order Form issued pursuant to this Agreement may be executed\r\n      by electronic means and will be effective upon execution by duly authorized\r\n      representatives of both Parties. All Order Forms are incorporated into and made part of\r\n      this Agreement.\r\n    \u003C/p>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>License\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>License Grant\u003C/u>. Provider hereby grants Customer a limited, worldwide, revocable\r\n          (as provided in this Agreement), non-exclusive, non-transferable and non-assignable,\r\n          non-sublicensable license during the Term to (i) use the API and Documentation solely\r\n          to develop, test, and integrate the API with, the Customer Applications; (ii) use the\r\n          Search Results with the Customer Applications; and (iii) use and display the\r\n          Provider’s Marks solely as provided herein.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Use Restrictions\u003C/u>. Customer shall not use the API, Search Results, Documentation\r\n          or Provider’s Marks for any purposes beyond the scope of the license granted in this\r\n          Agreement and the restrictions in this Section. Customer shall not and shall not\r\n          permit End Users or others to: (i) store, cache, or create a database of Search\r\n          Results, in whole or in part, other than transient storage required for operation of\r\n          Customer Applications or related software, service or systems; (ii) create derivative\r\n          works of the API, Documentation or Search Results; (iii) rent, lease, lend, sell,\r\n          distribute, publish, sublicense, assign, transfer, or otherwise make available the API\r\n          or Documentation to any third party, in whole or in part; (iv) reverse engineer,\r\n          disassemble, decompile, decode, adapt, or otherwise attempt to derive or gain access\r\n          to any software component of, the API, in whole or in part; (v) circumvent or bypass\r\n          rate limits or service limits through any method, including by creating multiple\r\n          accounts; (vi) remove any proprietary notices from the API or Documentation; (vii) use\r\n          the API or Search Results in any manner or for any purpose that infringes,\r\n          misappropriates, or otherwise violates any intellectual property right or other right\r\n          of any person, or that violates any applicable law, rule or regulation; (viii) use the\r\n          API or Documentation in any manner that harms the Provider, including without\r\n          limitation, Provider’s products, services, systems, infrastructure, brand, or\r\n          goodwill; (ix) combine or integrate the API with any software, services, systems,\r\n          technology or materials not authorized by Provider, other than Customer Applications;\r\n          (x) use the API in Customer Applications to replicate or attempt to replace the\r\n          functionality of the API, or circumvent use of the API; (xi) attempt to obfuscate or\r\n          conceal Customer’s identity or the identity of the Customer Applications when\r\n          requesting authorization to use the API; (xii) redistribute, resell, or sublicense the\r\n          Search Results; (xiii) use the Search Results to create, evaluate, train, re-train,\r\n          fine-tune, benchmark or otherwise improve artificial intelligence models or services\r\n          offered by Customer or third parties; (xiv) upon expiration or termination of this\r\n          Agreement, continue any further use of the API or Documentation or retain\r\n          Documentation or Search Results in Customer’s possession and control; or (xv) use the\r\n          API in connection with any spyware, adware, or other malicious programs or code,\r\n          counterfeit goods, items subject to US embargo, unsolicited mass distribution of\r\n          email, multi-level marketing, hate materials, hacking, surveillance, interception, or\r\n          descrambling equipment, libelous, defamatory, obscene, abusive, or otherwise offensive\r\n          content, stolen products, and items used for theft, hazardous material, or any illegal\r\n          activities.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Customer Responsibilities\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>API Keys\u003C/u>. Customer must obtain an API Key from Provider to access and use the\r\n          API. Customer shall keep the API Key secure, may not share the API Key with any third\r\n          party other than its affiliates, contractors and agents that need to know the API.\r\n          Provider may revoke and replace an API Key at any time. Customer shall provide prompt\r\n          notice to Provider of any actual or suspected unauthorized use or disclosure of an API\r\n          Key.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Compliance Obligations\u003C/u>. Customer shall comply with (i) this Agreement; (ii) the\r\n          Documentation; and (iii) all applicable laws, rules, and regulations.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>End Users\u003C/u>. Customer shall ensure that each End User is bound by a written\r\n          agreement with Customer pursuant to which such End User agrees to be bound by\r\n          obligations substantially similar to those in section 3(b) of these Terms of Use.\r\n          Customer is solely responsible for posting any privacy notices and obtaining any\r\n          consents from End Users required under applicable laws, rules, and regulations for\r\n          their use of the Customer Applications, as used with the API. Customer is solely\r\n          responsible and liable for all acts and omissions of End Users. Customer shall (i)\r\n          monitor the use of the Customer Applications for End User use that may violate such\r\n          obligations to Customer, may be a breach of this Agreement by Customer, or if\r\n          conducted by Customer, may be a breach of this Agreement by Customer; and (ii)\r\n          promptly suspend or restrict such End Users from use of the Customer Applications.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Attribution\u003C/u>. Customer may provide attribution to Provider in the Customer\r\n          Applications. If Customer elects to provide attribution, such attribution shall (i) be\r\n          displayed in a conspicuous manner; (ii) consist of the language “POWERED BY BRAVE”\r\n          plus Provider’s logo in the description of the applicable Customer Application, or\r\n          other attribution content as approved in advance by Provider in writing; and (iii) be\r\n          in compliance with any written usage guidelines that Provider may specify from time to\r\n          time. Provider may upon prior written notice to Customer, require Customer to change\r\n          the manner of display of any such attribution or Provider’s Marks or revoke the\r\n          license to Provider’s Marks granted herein. Customer’s use of Provider’s Marks will\r\n          not create any right, title, or interest in or to Provider’s Marks in favor of\r\n          Customer and all goodwill associated with the use of Provider’s Marks will inure to\r\n          the benefit of Provider. Customer shall not make any statement regarding use of the\r\n          API, Documentation or Search Results or use Provider’s Marks in any way that would\r\n          suggest partnership with, sponsorship by, or endorsement by Provider.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\r\n      \u003Cu>Updates\u003C/u>. Provider may make Updates available to Customer, each of which are a part\r\n      of the API and are subject to this Agreement. Provider will use commercially reasonable\r\n      efforts to ensure that Updates do not materially degrade the functionality of the API.\r\n      Provider may require Customer to access and use the most recent version of the API.\r\n      Updates may require that Customer modify integrations between the API and Customer\r\n      Applications, which modifications shall be Customer’s sole responsibility and expense.\r\n      Provider will use commercially reasonable efforts to provide Customer with advance written\r\n      notice of material Updates, which notice may be provided via the Website or other means by\r\n      which general notice is provided to Provider’s other API customers.\r\n    \u003C/p>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Fees and Payment\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Fees\u003C/u>. Customer shall pay Provider the fees (“\u003Cb>Fees\u003C/b>”) set forth on the\r\n          Website or in the applicable Order Form. Customer shall make all payments hereunder in\r\n          United States dollars on or before the due date by a means specified by Provider. All\r\n          payments are non-refundable except as otherwise expressly provided in this Agreement\r\n          or as required by law. If Customer fails to pay the Fees when due, Provider may charge\r\n          interest on the past due amount at the rate of 1.5% per month, calculated daily and\r\n          compounded monthly, or if lower, the highest rate permitted under applicable law,\r\n          Customer shall reimburse Provider for all costs incurred by Provider in collecting any\r\n          late payments or interest, including attorneys’ fees, court costs, and collection\r\n          agency fees.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Service Credits\u003C/u>. Customer may purchase, or Provider may issue to Customer free\r\n          of charge, service credits redeemable for use of the API. All service credits are\r\n          subject to the \u003Ca href=\"/terms-of-service/credit-terms\">Credit Terms\u003C/a>.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Taxes\u003C/u>. All Fees and other amounts payable by Customer under this Agreement are\r\n          exclusive of Taxes. Customer is responsible for all sales, use, and excise taxes, and\r\n          any other similar taxes, duties, and charges of any kind imposed by any federal,\r\n          state, or local governmental or regulatory authority on any amounts payable by\r\n          Customer hereunder, other than any taxes imposed on Provider’s income\r\n          (“\u003Cb>Taxes\u003C/b>”). If any Taxes are to be withheld on payments Customer makes to\r\n          Provider, Customer may deduct such taxes from the amount owed to Provider and pay them\r\n          to the appropriate taxing authority; provided, however, that Customer promptly secure\r\n          and deliver an official receipt for those withholdings and other documents Provider\r\n          reasonably requests to claim a foreign tax credit or refund. Customer must ensure that\r\n          any Taxes withheld are minimized to the extent possible under applicable law.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>No Deductions or Setoffs\u003C/u>. All amounts payable to Provider under this Agreement\r\n          shall be paid by Customer to Provider in full without any setoff, recoupment,\r\n          counterclaim, deduction, debit or withholding for any reason, other than any deduction\r\n          or withholding of Tax as may be required by applicable law, rule or regulation.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Data Protection\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          Provider may process certain data and information about Customer or Customer’s\r\n          employees, contractors, or agents as part of its performance hereunder. Customer\r\n          consents to all processing activities by Provider with respect to such data and\r\n          information in accordance with the then-current version of Provider’s privacy notice\r\n          and data protection addendum available on the Website (“\u003Cb>Privacy Notice\u003C/b>”).\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          Provider shall implement and maintain reasonable and appropriate technical,\r\n          administrative, and physical safeguards designed to protect Search Query Data.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Confidentiality\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Confidential Information\u003C/u>. In connection with this Agreement, each Party (as the\r\n          “\u003Cb>Disclosing Party\u003C/b>”) may disclose or make available Confidential Information to\r\n          the other Party (as the “\u003Cb>Receiving Party\u003C/b>”). “\u003Cb>Confidential Information\u003C/b>”\r\n          means information in any form or medium (whether oral, written, electronic or other)\r\n          that (i) is marked “confidential” or “proprietary” or is identified as confidential or\r\n          proprietary when disclosed; or (ii) would reasonably be understood to be confidential\r\n          or proprietary. Without limiting the foregoing, the API, Documentation, and the terms\r\n          and existence of this Agreement are the Confidential Information of Provider.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Exclusions\u003C/u>. Confidential Information does not include information that the\r\n          Receiving Party can demonstrate by written or other documentary records: (i) was\r\n          rightfully known to the Receiving Party without restriction on use or disclosure prior\r\n          to such information being disclosed or made available to the Receiving Party in\r\n          connection with this Agreement; (ii) was or becomes generally known by the public\r\n          other than by the Receiving Party’s or any of its Representatives’ noncompliance with\r\n          this Agreement; (iii) was or is received by the Receiving Party on a non-confidential\r\n          basis from a third party that was not or is not, at the time of such receipt, under\r\n          any obligation to maintain its confidentiality; or (iv) was or is independently\r\n          developed by the Receiving Party without reference to or use of any Confidential\r\n          Information.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Protection of Confidential Information\u003C/u>. As a condition to being provided with\r\n          any disclosure of or access to Confidential Information, the Receiving Party shall\r\n          during the Term and for two years following the Term: (i) not access or use\r\n          Confidential Information other than as necessary to exercise its rights or perform its\r\n          obligations under and in accordance with this Agreement; (ii) not disclose or permit\r\n          access to Confidential Information other than to its personnel, contractors or agents\r\n          (“\u003Cb>Representatives\u003C/b>”) who need to know such Confidential Information for purposes\r\n          of the Receiving Party’s exercise of its rights or performance of its obligations\r\n          under and in accordance with this Agreement and are bound by confidentiality and\r\n          restricted use obligations at least as protective of the Confidential Information as\r\n          the terms set forth in this section; (iii) safeguard the Confidential Information from\r\n          unauthorized use, access or disclosure using at least the degree of care it uses to\r\n          protect its similarly sensitive information and in no event less than a reasonable\r\n          degree of care; and (iv) be responsible for any of its Representatives’ violations of\r\n          their obligations with respect to such Confidential Information.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Compelled Disclosure\u003C/u>. If the Receiving Party or any of its Representatives is\r\n          compelled by a court, other government body or applicable law to disclose any\r\n          Confidential Information then, to the extent permitted, the Receiving Party will: (i)\r\n          promptly, and prior to such disclosure, notify the Disclosing Party in writing of such\r\n          requirement so that the Disclosing Party can seek a protective order or other remedy\r\n          or waive its rights under section 8 of these Terms of Use; and (ii) provide reasonable\r\n          assistance to the Disclosing Party, at the Disclosing Party’s sole cost and expense,\r\n          in opposing such disclosure or seeking a protective order or other limitations on\r\n          disclosure. The Receiving Party will disclose only that portion of the Confidential\r\n          Information that the Receiving Party is legally required to disclose.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Intellectual Property\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Intellectual Property Ownership\u003C/u>. (i) Provider is the sole and exclusive owner\r\n          of all right, title, and interest, including all intellectual property rights, in and\r\n          to the API, Documentation, and Provider’s Marks, subject to the limited licenses\r\n          granted under this Agreement; and (ii) as between Provider and Customer, Provider is\r\n          the sole and exclusive owner of all right, title, and interest, including all\r\n          intellectual property rights, in and to the Search Results, subject to the rights of\r\n          third parties in any Third-Party Content referenced, linked to or included in Search\r\n          Results. Customer is the sole and exclusive owner of all right, title, and interest,\r\n          including all intellectual property rights, in and to the Search Query Data and\r\n          Customer’s Marks, subject to the limited licenses granted under this Agreement.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>License to Search Query Data\u003C/u>. Customer hereby grants Provider a worldwide,\r\n          irrevocable, non-exclusive, sublicensable through multiple levels, royalty-free and\r\n          fully paid, license during the Term to use Search Query Data for purposes of use with\r\n          the API, providing the Search Results, and otherwise performing hereunder.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Customer Cooperation and Notice of Infringement\u003C/u>. Customer will use commercially\r\n          reasonable efforts to safeguard the API, Documentation and Search Results from\r\n          infringement, misappropriation, theft, misuse, unauthorized disclosure, unauthorized\r\n          copying, or unauthorized access. Customer will promptly notify Provider when Customer\r\n          becomes aware of any activity in violation of the foregoing and will fully cooperate\r\n          with Provider in any legal action taken by Provider to maintain and enforce Provider’s\r\n          intellectual property rights in the API, Documentation and Search Results.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Third-Party Content\u003C/u>. Customer acknowledges and agrees that (i) Third-Party\r\n          Content may be referenced, linked to or included in Search Results that is proprietary\r\n          to a third party and not Provider; and (ii) Customer’s use of such Third-Party Content\r\n          in or with the Customer Applications may be subject to the intellectual property\r\n          rights of such Third-Party Content’s owner(s) or licensor(s).\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Feedback\u003C/u>. Customer may, from time to time, provide Provider with feedback,\r\n          suggestions, or comments regarding the API, Documentation, or Provider’s products,\r\n          services, or business (“\u003Cb>Feedback\u003C/b>”). Any Feedback is provided voluntarily, and\r\n          without confidentiality or other obligations. Provider may use, modify, or incorporate\r\n          such Feedback in the API, Documentation, its business, products, and services without\r\n          restriction and without any obligation to Customer.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Disclaimers\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          THE API, DOCUMENTATION AND SEARCH RESULTS ARE PROVIDED “AS IS,” AND “AS AVAILABLE.”\r\n          PROVIDER DISCLAIMS ALL WARRANTIES, WHETHER IMPLIED, STATUTORY, OR OTHERWISE, INCLUDING\r\n          ALL IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND\r\n          NON-INFRINGEMENT, AND ALL WARRANTIES ARISING FROM COURSE OF DEALING, USAGE, OR TRADE\r\n          PRACTICE. PROVIDER MAKES NO WARRANTY OF ANY KIND THAT THE API, DOCUMENTATION, SEARCH\r\n          RESULTS, OR PROVIDER MARKS, OR ANY PRODUCTS OR RESULTS OF THE USE THEREOF, WILL MEET\r\n          CUSTOMER’S OR ANY OTHER PERSON’S REQUIREMENTS, OPERATE WITHOUT INTERRUPTION, ACHIEVE\r\n          ANY INTENDED RESULT, BE COMPATIBLE OR WORK WITH ANY OF CUSTOMER’S OR ANY THIRD PARTY’S\r\n          SOFTWARE, SYSTEM, OR OTHER SERVICES, INCLUDING THE CUSTOMER APPLICATIONS, OR BE\r\n          SECURE, ACCURATE, COMPLETE, FREE OF HARMFUL CODE, OR ERROR-FREE, OR THAT ANY ERRORS OR\r\n          DEFECTS CAN OR WILL BE CORRECTED.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          TO THE EXTENT PROVIDED, GENERATED RESULTS ARE PROVIDED USING EMERGING TECHNOLOGY AND\r\n          ARE NOT INTENDED TO MEET CUSTOMER’S OR ANY OTHER PERSON’S PROFESSIONAL, LEGAL,\r\n          REGULATORY, ETHICAL OR OTHER OBLIGATIONS, OR TO BE USED TO PROVIDE PROFESSIONAL,\r\n          LEGAL, MEDICAL, HEALTH, FINANCIAL OR OTHER ADVICE. GENERATED RESULTS MAY BE THE SAME\r\n          OR SIMILAR TO THOSE PROVIDED TO OTHER API CUSTOMERS.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          TO THE EXTENT PROVIDED, ALL THIRD-PARTY CONTENT IS PROVIDED “AS IS,” IS PROVIDED\r\n          WITHOUT ANY WARRANTY BY PROVIDER, WHETHER EXPRESS, IMPLIED, STATUTORY OR OTHERWISE.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Indemnification\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>By Provider\u003C/u>. Provider agrees to indemnify, defend, and hold harmless Customer\r\n          and its officers, directors, employees, agents, affiliates, successors, and assigns\r\n          from and against any and all Losses incurred as a result of Claims, alleging\r\n          infringement, misappropriation or violation of any third party intellectual property\r\n          rights by the API or Documentation. In the event a court of competent jurisdiction\r\n          issues an injunction prohibiting the use or provision of the API or Documentation,\r\n          Provider shall, at its expense, either: (i) procure for Customer the right to continue\r\n          using the affected component of the API or Documentation; or (ii) replace or modify\r\n          the affected component so that they become non-infringing; or (iii) if neither (i) or\r\n          (ii) above is commercially reasonable, terminate the Agreement and issue a refund to\r\n          Customer of any prepaid Fees. THIS SECTION STATES CUSTOMER’S SOLE AND EXCLUSIVE\r\n          REMEDIES FOR CLAIMS ALLEGING INFRINGEMENT.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>By Customer\u003C/u>. Customer agrees to indemnify, defend, and hold harmless Provider\r\n          and its officers, directors, employees, agents, affiliates, successors, and assigns\r\n          from and against any and all losses, damages, liabilities, deficiencies, claims,\r\n          actions, judgments, settlements, interest, awards, penalties, fines, costs, or\r\n          expenses of whatever kind, including attorneys’ fees (“\u003Cb>Losses\u003C/b>”), incurred as a\r\n          result of third party claims, actions or proceedings (“\u003Cb>Claims\u003C/b>”), relating to\r\n          (i) Customer Applications, Search Query Data, or other outputs, products or services\r\n          that Customer provides using the API; (ii) acts or omissions of End Users; (iii)\r\n          infringement, misappropriation or violation of any third party intellectual property\r\n          rights by the Customer Applications or Search Query Data; or (iv) violation of any\r\n          applicable law, rule or regulation, by Customer, its affiliates or personnel, or End\r\n          Users.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Exclusions\u003C/u>. Provider’s obligations in section 11(a) shall not apply to Claims\r\n          relate to (i) Customer Applications, Search Query Data, or other outputs, products or\r\n          services that Customer provides using the API; (ii) Search Results; (iii) acts or\r\n          omissions of End Users; (iv) unauthorized modifications to, or use of, the API or\r\n          Documentation; (v) use of the API or Documentation in combination with software,\r\n          services, systems or data not provided by Provider; or (vi) use of an old version of\r\n          the API or Documentation where a newer release would avoid the applicable Claim.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Indemnification Procedures\u003C/u>. In the event either Party (the “\u003Cb>Indemnified\r\n          Party\u003C/b>”) seeks indemnification or defense from the other Party (the\r\n          “\u003Cb>Indemnifying Party\u003C/b>”) under this provision, Indemnified Party will promptly\r\n          notify Indemnifying Party in writing of the Claims brought against Indemnified Party\r\n          for which Indemnified Party seeks indemnification or defense. Indemnified Party\r\n          reserves the right, at Indemnified Party’s option and in Indemnified Party’s sole\r\n          discretion, to assume full control of the defense with legal counsel of Indemnified\r\n          Party’s choice at the Indemnified Party’s sole cost and expense. Indemnifying Party\r\n          may not enter into any third party agreement that would, in any manner whatsoever,\r\n          constitute an admission of fault by Indemnified Party or bind Indemnified Party in any\r\n          manner, without Indemnified Party’s prior written consent.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Limitations of Liability\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          IN NO EVENT WILL PROVIDER BE LIABLE TO CUSTOMER OR TO ANY THIRD PARTY UNDER ANY TORT,\r\n          CONTRACT, NEGLIGENCE, STRICT LIABILITY, OR OTHER LEGAL OR EQUITABLE THEORY FOR ANY\r\n          INDIRECT, INCIDENTAL, CONSEQUENTIAL, PUNITIVE, EXEMPLARY, SPECIAL OR ENHANCED DAMAGES\r\n          RELATED TO THIS AGREEMENT, INCLUDING DAMAGES FOR LOST PROFITS, LOST OR CORRUPTED DATA,\r\n          COMPUTER FAILURE OR MALFUNCTION, INTERRUPTION OF BUSINESS.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          IN NO EVENT SHALL PROVIDER’S LIABILITY RELATED TO THIS AGREEMENT EXCEED, IN THE\r\n          AGGREGATE, THE AMOUNT OF FEES PAID BY CUSTOMER TO THE PROVIDER IN THE 12 MONTHS\r\n          PRECEDING THE DATE OF THE APPLICABLE CLAIM.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          THE FOREGOING LIMITATIONS SHALL APPLY TO THE FULLEST EXTENT PERMITTED UNDER APPLICABLE\r\n          LAW AND EVEN IF EITHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH LOSS OR\r\n          DAMAGES AND WHETHER OR NOT SUCH LOSS OR DAMAGES ARE FORESEEABLE OR PROVIDER WAS\r\n          ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Term; Termination; and Suspension\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Term\u003C/u>. This Agreement is effective upon the earliest of the Effective Date\r\n          indicated in an Order Form and the date of your acceptance of these Terms of Use, and\r\n          expires upon the earliest of the date when all Order Forms have terminated, the date\r\n          you stop using the API, or as earlier terminated as provided herein (“\u003Cb>Term\u003C/b>”).\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Termination\u003C/u>. Provider may terminate this Agreement or any Order Form for any\r\n          reason upon 10 days prior written notice to Customer. Customer may terminate this\r\n          Agreement for any reason upon 30 days’ prior written notice to Provider. Either Party\r\n          may terminate this Agreement for a material breach of this Agreement by the other\r\n          Party which remains uncured 30 days’ following written notice describing such breach.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Effect of Termination\u003C/u>. Upon expiration or termination of this Agreement (i) all\r\n          licenses and rights granted under this Agreement shall terminate; (ii) Customer shall\r\n          cease using, destroy, and permanently erase all copies of the API, Documentation,\r\n          Search Results (except as otherwise provided in an Order Form) and Provider’s Marks\r\n          from all devices and systems Customer controls; (iii) each Party, as Receiving Party,\r\n          must return, destroy or delete all Confidential Information of the Disclosing Party,\r\n          and upon written request of the Disclosing Party, certify in writing as to such\r\n          return, destruction or deletion; and (iv) all Fees incurred prior to the effective\r\n          date of termination shall immediately and automatically become due, and Customer shall\r\n          promptly pay such Fees.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Survival\u003C/u>. Any terms that by their nature are intended to continue beyond the\r\n          termination or expiration of this Agreement will survive such expiration or\r\n          termination, including without limitation sections 1, 2, 4(c), 6, 7(b), 8, 9, 10, 11,\r\n          12, 13(c), 13(d), and 14 of these Terms of Use.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Suspension\u003C/u>. Provider may suspend Customer’s access to and use of the API: (i)\r\n          immediately upon written notice to Customer if Provider reasonably believes that (A)\r\n          Customer’s use will imminently cause material damage to Provider’s or a third party’s\r\n          systems, (B) Customer’s use of the API or Documentation creates material legal\r\n          exposure for Provider, or (C) if Provider is compelled or directed to do so by any\r\n          competent court of law or government authority with jurisdiction to do so; or (ii)\r\n          upon written notice to Customer after a five day cure period, for any suspected breach\r\n          of section 3(b) of these Terms of Use by Customer or End Users, or Customer’s failure\r\n          to timely pay undisputed Fees. Provider will reinstate Customer’s access to and use of\r\n          the API promptly when the reason for suspension has been resolved. Provider may\r\n          suspend or terminate Customer’s access to Customer’s service credit balance if\r\n          Provider reasonably believes Customer has violated the Service Credit Terms or laws,\r\n          rules or regulations applicable to service credits.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n  \u003Cli>\r\n    \u003Cp>\u003Cu>Miscellaneous\u003C/u>.\u003C/p>\r\n    \u003Col type=\"a\">\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Entire Agreement\u003C/u>. This Agreement, together with all Order Forms, and any other\r\n          documents incorporated herein by reference, constitutes the sole and entire agreement\r\n          of the Parties with respect to the subject matter of this Agreement and supersedes all\r\n          prior and contemporaneous understandings and agreements, both written and oral, with\r\n          respect to such subject matter.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Order of Precedence\u003C/u>. In the event of any conflict or ambiguity in or between\r\n          any of the following sections of the Agreement, the sections shall control in the\r\n          following, descending order of precedence: (i) Privacy Notice; (ii) Order Forms; (iii)\r\n          Service Credit Terms; (iv) Terms of Use; and (v) any other documents or terms\r\n          incorporated herein by reference.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Public Announcements\u003C/u>. Neither Party will issue any press release or public\r\n          statement in connection with this Agreement unless approved in writing by the other\r\n          Party. Notwithstanding the foregoing, following the Effective Date, Provider may (i)\r\n          create and publish a customer list, or other marketing or promotional materials, that\r\n          names Customer or announces the commercial relationship between Provider and Customer,\r\n          and which may include Customer’s Marks and the names of Customer Applications\r\n          (“\u003Cb>Public Announcements\u003C/b>”); and (ii) Provider may publish such Public\r\n          Announcement without any additional prior written consent of Customer.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Force Majeure\u003C/u>. Provider will not be in breach of this Agreement if performance\r\n          hereunder or the functionality of the API is delayed, prevented, degraded or adversely\r\n          affected for reasons beyond its reasonable control, so long as it resumes performance\r\n          as soon as practicable.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Relationship of the Parties\u003C/u>. Provider and Customer are acting as independent\r\n          contractors, and nothing in this Agreement will be construed as creating a\r\n          partnership, franchise, joint venture, employer-employee, fiduciary, or agency\r\n          relationship.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>No Third-Party Beneficiaries\u003C/u>. This Agreement is for the sole benefit of the\r\n          Parties hereto and their respective successors and permitted assigns and nothing\r\n          herein, express or implied, is intended to or will confer on any other person any\r\n          legal or equitable right, benefit, or remedy of any nature whatsoever under or by\r\n          reason of this Agreement.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Notices\u003C/u>. All notices, requests, consents, claims, demands, waivers, and other\r\n          communications hereunder (each, a “\u003Cb>Notice\u003C/b>”) from the Customer to the Provider\r\n          must be delivered to Provider at 580 Howard Street, Unit 402, San Francisco, CA 94105\r\n          by registered mail, return receipt requested. All Notices from the Provider to the\r\n          Customer will be electronically delivered to the email address associated with the\r\n          Customer’s API account. Except as otherwise provided in this Agreement, a Notice is\r\n          effective only: (i) upon receipt by the receiving Party; and (ii) if the Party giving\r\n          the Notice has complied with the requirements of this section.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Waiver\u003C/u>. No failure or delay by a Party to exercise any rights, remedies, or\r\n          privileges hereunder will operate or be construed as a waiver. No waiver by any Party\r\n          of any of the provisions hereof will be effective unless explicitly set forth in\r\n          writing and signed by the Party so waiving.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Severability\u003C/u>. If any provision of this Agreement is invalid, illegal, or\r\n          unenforceable in any jurisdiction, such invalidity, illegality, or unenforceability\r\n          will not affect any other term or provision of this Agreement or invalidate or render\r\n          unenforceable such term or provision in any other jurisdiction. Upon such\r\n          determination that any term or other provision is invalid, illegal, or unenforceable,\r\n          the Parties shall negotiate in good faith to modify this Agreement so as to affect the\r\n          original intent of the Parties as closely as possible in a mutually acceptable manner\r\n          in order that the transactions contemplated hereby be consummated as originally\r\n          contemplated to the greatest extent possible.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Governing Law and Jurisdiction\u003C/u>. This Agreement shall be governed by and\r\n          construed in accordance with the laws of the State of California without giving effect\r\n          to any choice or conflict of law provision or rule that would require or permit the\r\n          application of the laws of any jurisdiction other than those of the State of\r\n          California. The provisions of the United Nations Convention on Contracts for the\r\n          International Sales of Goods shall not apply to this Agreement. Any legal suit,\r\n          action, or proceeding arising out of or related to this Agreement or the licenses\r\n          granted hereunder will be instituted exclusively in the federal courts of the United\r\n          States of America or the courts of the State of California, in each case located in\r\n          the city and County of San Francisco, and each Party irrevocably submits to the\r\n          exclusive jurisdiction of such courts in any such suit, action, or proceeding. The\r\n          Parties waive all defenses of forum non conveniens.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Equitable Relief\u003C/u>. The Parties agree that a breach or threatened breach by\r\n          Customer of any of its obligations under sections 3(b), 8, or 9 of these Terms of Use\r\n          may cause Provider irreparable harm for which monetary damages would not be an\r\n          adequate remedy and that, in the event of such breach or threatened breach, Provider\r\n          will be entitled to equitable relief, including in a restraining order, an injunction,\r\n          specific performance, and any other relief that may be available from any court of\r\n          competent jurisdiction, without any requirement to post a bond or other security, or\r\n          to prove actual damages or that monetary damages are not an adequate remedy. Such\r\n          remedies are not exclusive and are in addition to all other remedies that may be\r\n          available at law, in equity, or otherwise.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Assignment\u003C/u>. Customer may not assign or transfer any of its rights or delegate\r\n          any of its obligations hereunder, in each case whether voluntarily, involuntarily, by\r\n          operation of law, or otherwise, without the prior written consent of Provider.\r\n          Provider may assign or transfer any rights and obligations hereunder fully or\r\n          partially without the consent of Customer. Any purported assignment, transfer, or\r\n          delegation in violation of this section is null and void. This Agreement is binding on\r\n          and inures to the benefit of the Parties and their respective permitted successors and\r\n          assigns.\r\n        \u003C/p>\r\n      \u003C/li>\r\n      \u003Cli>\r\n        \u003Cp>\r\n          \u003Cu>Counterparts\u003C/u>. This Agreement may be executed in counterparts, including by\r\n          electronic means of execution and delivery, each of which is deemed an original, but\r\n          all of which together are deemed to be one and the same agreement.\r\n        \u003C/p>\r\n      \u003C/li>\r\n    \u003C/ol>\r\n  \u003C/li>\r\n\u003C/ol>",is_latest:true,pageType:"wide"},uses:{}}],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+  </body>
+</html>

@@ -105,10 +105,11 @@ class PolicyEngine(
         if (state == SkillState.DECLINED) {
             return deny(request, DenialCode.CAPABILITY_DISABLED, "The user has turned this skill off.", userCanChange = true)
         }
-        skill.requires?.takeUnless { requirementMet(it) }?.let { requirement ->
+        skill.requires.firstOrNull { !requirementMet(it) }?.let { requirement ->
             val why = when (requirement) {
                 SkillRequirement.FILE_GRANT -> "it needs a file or folder granted in Settings, Permissions"
                 SkillRequirement.NETWORK_ALLOWED -> "the network mode in Settings is Offline"
+                SkillRequirement.SEARCH_KEY -> "it needs a Brave Search key saved in Settings"
             }
             return deny(request, DenialCode.CAPABILITY_DISABLED, "This skill is locked off: $why.", userCanChange = true)
         }

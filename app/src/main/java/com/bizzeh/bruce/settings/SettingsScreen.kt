@@ -1,5 +1,11 @@
 package com.bizzeh.bruce.settings
 
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +69,10 @@ data class SettingsState(
     val autoContext: Int? = null,
     /** Sites the user always allows in the Approved sites mode (TASK-068). */
     val approvedSites: List<String> = emptyList(),
+    /** Whether a Brave Search key is saved (TASK-070); the key itself is never shown again. */
+    val searchKeySaved: Boolean = false,
+    /** The last key entered did not look like one. */
+    val searchKeyRejected: Boolean = false,
 )
 
 interface SettingsActions {
@@ -77,6 +87,11 @@ interface SettingsActions {
     fun deleteAllConversations()
     fun setNetworkMode(mode: NetworkMode)
     fun removeSite(host: String) = Unit
+    fun saveSearchKey(key: String) = Unit
+    fun removeSearchKey() = Unit
+
+    /** Opens Brave's page for getting a search key, in the browser. */
+    fun openSearchSignUp() = Unit
     fun setPersonality(personality: Personality)
     fun setMemoryMode(mode: MemoryMode)
     fun openMemory()
@@ -256,6 +271,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                     )
                 }
             }
+            SearchKey(state, actions)
             val account = state.account
             if (account != null) {
                 ListItem(
@@ -343,6 +359,40 @@ internal fun Heading(text: Int) {
 @Composable
 private fun Label(text: Int) {
     Text(stringResource(text), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp))
+}
+
+/** The user's Brave Search key: typed once, then only ever shown as saved (TASK-070). */
+@Composable
+private fun SearchKey(state: SettingsState, actions: SettingsActions) {
+    Label(R.string.settings_web_search)
+    Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (state.searchKeySaved) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.settings_search_key_saved), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).testTag("searchKeySaved"))
+                TextButton(onClick = actions::removeSearchKey, modifier = Modifier.testTag("removeSearchKey")) { Text(stringResource(R.string.settings_site_remove)) }
+            }
+        } else {
+            var key by rememberSaveable { mutableStateOf("") }
+            Text(stringResource(R.string.settings_search_key_explained), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            OutlinedTextField(
+                value = key,
+                onValueChange = { key = it },
+                label = { Text(stringResource(R.string.settings_search_key)) },
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrectEnabled = false),
+                isError = state.searchKeyRejected,
+                supportingText = if (state.searchKeyRejected) ({ Text(stringResource(R.string.settings_search_key_rejected)) }) else null,
+                modifier = Modifier.fillMaxWidth().testTag("searchKey"),
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { actions.saveSearchKey(key); key = "" }, enabled = key.isNotBlank(), modifier = Modifier.testTag("saveSearchKey")) {
+                    Text(stringResource(R.string.settings_search_key_save))
+                }
+                TextButton(onClick = actions::openSearchSignUp, modifier = Modifier.testTag("searchSignUp")) { Text(stringResource(R.string.settings_search_key_get)) }
+            }
+        }
+    }
 }
 
 @Composable

@@ -1,6 +1,9 @@
 package com.bizzeh.bruce.settings
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -39,6 +42,9 @@ class SettingsScreenTest {
         override fun deleteAllConversations() { calls += "deleteChats" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
         override fun removeSite(host: String) { calls += "remove $host" }
+        override fun saveSearchKey(key: String) { calls += "key $key" }
+        override fun removeSearchKey() { calls += "remove key" }
+        override fun openSearchSignUp() { calls += "sign up" }
         override fun setPersonality(personality: Personality) { calls += "personality $personality" }
         override fun setSummaryEnabled(enabled: Boolean) { calls += "summarise $enabled" }
         override fun setSummaryThreshold(threshold: Int) { calls += "threshold $threshold" }
@@ -136,6 +142,22 @@ class SettingsScreenTest {
     fun noApprovedSitesListInOtherModes() {
         show(SettingsState(network = NetworkMode.GENERAL))
         compose.onNodeWithTag("sitesEmpty").assertDoesNotExist()
+    }
+
+    @Test
+    fun aSearchKeyIsTypedOnceAndThenOnlyShownAsSaved() {
+        var state by androidx.compose.runtime.mutableStateOf(SettingsState(searchKeyRejected = true))
+        compose.setContent { BruceTheme { SettingsScreen(state, actions) {} } }
+
+        compose.onNodeWithText("That does not look like a key", substring = true).performScrollTo().assertExists()
+        compose.onNodeWithTag("searchKey").performScrollTo().performTextInput("BSA-123456")
+        compose.onNodeWithTag("saveSearchKey").performClick()
+        compose.onNodeWithTag("searchSignUp").performClick()
+        state = SettingsState(searchKeySaved = true)
+        compose.onNodeWithText("BSA-123456", substring = true).assertDoesNotExist()
+        compose.onNodeWithTag("removeSearchKey").performScrollTo().performClick()
+
+        assertEquals(listOf("key BSA-123456", "sign up", "remove key"), calls)
     }
 
     @Test

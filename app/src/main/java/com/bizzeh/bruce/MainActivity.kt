@@ -155,6 +155,7 @@ class MainActivity : ComponentActivity() {
                 hubAuth = container.hubAuth,
                 dataReset = container.dataReset,
                 sites = container.sites,
+                searchKey = container.searchKey,
                 dynamicColourSupported = dynamicColourSupported(),
                 performanceCores = CpuTopology.performanceCoreCount(),
                 cores = Runtime.getRuntime().availableProcessors(),
@@ -498,6 +499,15 @@ class MainActivity : ComponentActivity() {
         override fun deleteAllConversations() = conversations.deleteAll()
         override fun setNetworkMode(mode: NetworkMode) = settings.setNetworkMode(mode)
         override fun removeSite(host: String) = settings.removeSite(host)
+        override fun saveSearchKey(key: String) = settings.saveSearchKey(key)
+        override fun removeSearchKey() = settings.removeSearchKey()
+        override fun openSearchSignUp() {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BRAVE_SIGN_UP)).addCategory(Intent.CATEGORY_BROWSABLE))
+            } catch (e: ActivityNotFoundException) {
+                Log.w("BruceLinks", "no app opens web links")
+            }
+        }
         override fun setPersonality(personality: Personality) = settings.setPersonality(personality)
         override fun setSummaryEnabled(enabled: Boolean) = settings.setSummaryEnabled(enabled)
         override fun setSummaryThreshold(threshold: Int) = settings.setSummaryThreshold(threshold)
@@ -538,5 +548,8 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val MODELS_DIR = AppContainer.MODELS_DIR
+
+        /** Where the user gets their own Brave Search key (research/sources/brave-search-api-2026-09-29). */
+        private const val BRAVE_SIGN_UP = "https://api-dashboard.search.brave.com/register"
     }
 }

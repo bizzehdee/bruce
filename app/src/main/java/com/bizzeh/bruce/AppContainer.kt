@@ -1,5 +1,7 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.skills.web.SearchKeyRepository
+import com.bizzeh.bruce.skills.web.BraveSearch
 import com.bizzeh.bruce.policy.SiteRule
 import com.bizzeh.bruce.skills.web.WebPages
 import com.bizzeh.bruce.skills.web.WebSkills
@@ -227,7 +229,11 @@ class AppContainer(private val context: Context) {
             AutomaticSkills.create(AndroidPhoneReaders(context)) +
                 FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create() +
                 settingsSkills.create() +
-                WebSkills(WebPages(transport, Dispatchers.IO, userAgent)) { host -> sites.rule(host) == SiteRule.ALLOWED }.create(),
+                WebSkills(
+                    WebPages(transport, Dispatchers.IO, userAgent),
+                    allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
+                    search = BraveSearch(transport, Dispatchers.IO, userAgent, searchKey::key),
+                ).create(),
         )
     }
 
@@ -235,14 +241,18 @@ class AppContainer(private val context: Context) {
     suspend fun requirementMet(requirement: SkillRequirement): Boolean = when (requirement) {
         SkillRequirement.FILE_GRANT -> grantNames().isNotEmpty()
         SkillRequirement.NETWORK_ALLOWED -> networkSettings.mode.first() != NetworkMode.OFFLINE
+        SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
     }
+
+    val searchKey: SearchKeyRepository by lazy { SearchKeyRepository(context.settingsDataStore, KeystoreTokenCipher(SEARCH_KEY_ALIAS)) }
 
     /** The requirements not met now, as the Skills screen shows them. */
     val unmetRequirements: Flow<Set<SkillRequirement>> by lazy {
-        combine(grants.grants, networkSettings.mode) { granted, mode ->
+        combine(grants.grants, networkSettings.mode, searchKey.saved) { granted, mode, key ->
             setOfNotNull(
                 SkillRequirement.FILE_GRANT.takeIf { granted.none { it.available } },
                 SkillRequirement.NETWORK_ALLOWED.takeIf { mode == NetworkMode.OFFLINE },
+                SkillRequirement.SEARCH_KEY.takeIf { !key },
             )
         }
     }
@@ -256,7 +266,7 @@ class AppContainer(private val context: Context) {
                 else -> grantScope.check(request)
             }
         }, requirementMet = ::requirementMet, sites = sites)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, networkAllowed = { requirementMet(SkillRequirement.NETWORK_ALLOWED) })
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet)
     }
 
     val dataReset: DataReset by lazy {
@@ -282,6 +292,9 @@ class AppContainer(private val context: Context) {
 
     companion object {
         const val MODELS_DIR = "models"
+
+        /** Its own Keystore key, apart from the Hugging Face token's. */
+        private const val SEARCH_KEY_ALIAS = "bruce.brave_search_key"
 
         /** Tool-call markup a skill result must not be able to imitate (ADR 0001 formats). */
         private val RESERVED_MARKERS = listOf("<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>", "<|tool_call_start|>", "<|tool_call_end|>")

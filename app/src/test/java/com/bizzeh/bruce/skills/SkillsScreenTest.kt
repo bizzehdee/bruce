@@ -78,7 +78,7 @@ class SkillsScreenTest {
     fun rowsAreLockedWhileTheirRequirementIsUnmet() {
         val unmet = kotlinx.coroutines.flow.MutableStateFlow(setOf(SkillRequirement.FILE_GRANT))
         val locked = skill("read_note", SkillState.ACCEPTED, scope = ResourceScope.GRANTED_FILES).let {
-            Skill(it.id, 1, it.description, InputSchema(), emptySet(), SkillState.ACCEPTED, requires = SkillRequirement.FILE_GRANT) { SkillOutcome.Done("") }
+            Skill(it.id, 1, it.description, InputSchema(), emptySet(), SkillState.ACCEPTED, requires = setOf(SkillRequirement.FILE_GRANT)) { SkillOutcome.Done("") }
         }
         val viewModel = SkillsViewModel(SkillRegistry(listOf(clock, locked)), store, unmet)
 

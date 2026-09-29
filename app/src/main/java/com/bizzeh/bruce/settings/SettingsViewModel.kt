@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.settings
 
+import com.bizzeh.bruce.skills.web.SearchKeyRepository
 import kotlinx.coroutines.flow.flowOf
 import com.bizzeh.bruce.policy.SiteAccess
 import androidx.lifecycle.ViewModel
@@ -27,6 +28,7 @@ class SettingsViewModel(
     private val hubAuth: HubAuth,
     private val dataReset: DataReset,
     private val sites: SiteAccess? = null,
+    private val searchKey: SearchKeyRepository? = null,
     dynamicColourSupported: Boolean,
     performanceCores: Int,
     cores: Int,
@@ -34,6 +36,7 @@ class SettingsViewModel(
     private val initial = SettingsState(dynamicColourSupported = dynamicColourSupported, performanceCores = performanceCores, cores = cores)
 
     private val signInError = MutableStateFlow<SignInError?>(null)
+    private val searchKeyRejected = MutableStateFlow(false)
 
     val state: StateFlow<SettingsState> = combine(
         combine(theme.settings, inference.defaults, network.mode, ::Triple),
@@ -44,7 +47,14 @@ class SettingsViewModel(
             personality = chosen, summary = summarising, memory = remembering,
         )
     }.combine(sites?.approved ?: flowOf(emptyList())) { settings, approved -> settings.copy(approvedSites = approved) }
+        .combine(combine(searchKey?.saved ?: flowOf(false), searchKeyRejected, ::Pair)) { settings, (saved, rejected) ->
+            settings.copy(searchKeySaved = saved, searchKeyRejected = rejected)
+        }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initial)
+
+    fun saveSearchKey(key: String) = launch { searchKeyRejected.value = searchKey?.save(key) == false }
+
+    fun removeSearchKey() = launch { searchKey?.remove() }
 
     fun removeSite(host: String) = launch { sites?.remove(host) }
 

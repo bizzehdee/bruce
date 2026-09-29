@@ -53,7 +53,7 @@ class AutomaticSkillsTest {
             listOf(SkillState.ACCEPTED, SkillState.ACCEPTED, SkillState.DECLINED, SkillState.DECLINED, SkillState.DECLINED, SkillState.ACCEPTED),
             registry.skills.map { it.defaultState },
         )
-        assertEquals(listOf(null, null, null, null, null, SkillRequirement.NETWORK_ALLOWED), registry.skills.map { it.requires })
+        assertEquals(listOf(emptySet(), emptySet(), emptySet(), emptySet(), emptySet(), setOf(SkillRequirement.NETWORK_ALLOWED)), registry.skills.map { it.requires })
         assertTrue(registry.skills.all { it.androidPermissions.isEmpty() && !it.highRisk })
     }
 

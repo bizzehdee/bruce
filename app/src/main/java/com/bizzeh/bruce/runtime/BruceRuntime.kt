@@ -107,8 +107,8 @@ class BruceRuntime(
     private val personality: suspend () -> String,
     /** Names of the user's file and folder grants, which file skills' paths start with. */
     private val grantNames: suspend () -> List<String> = { emptyList() },
-    /** Whether the network mode allows the network; skills that need it are locked off when not. */
-    private val networkAllowed: suspend () -> Boolean = { true },
+    /** Whether a requirement other than a file grant holds (AppContainer.requirementMet); skills needing one that does not are locked off. */
+    private val requirementMet: suspend (SkillRequirement) -> Boolean = { true },
     private val maxToolCalls: Int = MAX_TOOL_CALLS,
     private val maxDuration: Duration = MAX_DURATION,
     private val maxReplyTokens: Int = MAX_REPLY_TOKENS,
@@ -323,17 +323,12 @@ class BruceRuntime(
         // First in the prompt: placed after the guidance, Qwen3.5-0.8B used them half as often (host test, 2026-09-29).
         val remembered = if (memory.isEmpty()) "" else MEMORY_LEAD + memory.joinToString("") { "\n- " + Facts.aboutUser(it) }
         val enabled = registry.skills.filter { states.state(it) != SkillState.DECLINED }
-        val needsFiles = enabled.any { it.requires == SkillRequirement.FILE_GRANT }
+        val needsFiles = enabled.any { SkillRequirement.FILE_GRANT in it.requires }
         val names = if (needsFiles) grantNames() else emptyList()
-        val network = enabled.none { it.requires == SkillRequirement.NETWORK_ALLOWED } || networkAllowed()
+        val met = (enabled.flatMap { it.requires }.toSet() - SkillRequirement.FILE_GRANT).filter { requirementMet(it) }.toSet() +
+            setOfNotNull(SkillRequirement.FILE_GRANT.takeIf { names.isNotEmpty() })
         // Locked skills are not offered at all (owner, 2026-09-29).
-        val unlocked = enabled.filter {
-            when (it.requires) {
-                SkillRequirement.FILE_GRANT -> names.isNotEmpty()
-                SkillRequirement.NETWORK_ALLOWED -> network
-                null -> true
-            }
-        }
+        val unlocked = enabled.filter { met.containsAll(it.requires) }
         val guidance = when {
             !needsFiles -> GUIDANCE
             names.isEmpty() -> "$GUIDANCE $NO_GRANTS"

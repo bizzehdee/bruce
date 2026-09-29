@@ -57,6 +57,7 @@
     <string name="skills_accepted">Accepted</string>
     <string name="skills_high_risk">High risk</string>
     <string name="skills_locked_files">Locked off until you grant a file or folder in Permissions.</string>
+    <string name="skills_locked_search_key">Locked off until you save a Brave Search key in Settings.</string>
     <string name="skills_locked_network">Locked off while Network is set to Offline.</string>
     <string name="skills_warning_title">Always allow %1$s?</string>
     <string name="skills_warning_text">This skill can make changes that cannot be undone. When it is Accepted, Bruce uses it without asking you first. Ask is safer.</string>
@@ -89,6 +90,8 @@
     <string name="skill_get_setting_summary">Reads the current value of a phone setting, such as screen timeout or whether Bluetooth is on.</string>
     <string name="skill_set_setting">Change settings</string>
     <string name="skill_set_setting_summary">Changes brightness, adaptive brightness, screen timeout, auto-rotate, vibrate on touch and volumes. Needs Modify system settings in Permissions for all but volumes.</string>
+    <string name="skill_web_search">Search the web</string>
+    <string name="skill_web_search_summary">Searches with Brave Search, using your own key saved in Settings, and gives Bruce text from the best pages.</string>
     <string name="skill_fetch_page">Read web pages</string>
     <string name="skill_fetch_page_summary">Reads a web page\'s text, only from sites your network setting allows. In Approved sites mode it asks before reaching a new site.</string>
     <string name="skill_open_settings_page">Open settings pages</string>
@@ -214,6 +217,13 @@
     <string name="network_general">Any site</string>
     <string name="network_offline_summary">Nothing leaves this phone. Model search and downloads are off.</string>
     <string name="network_huggingface_summary">Bruce may reach Hugging Face to search, sign in and download models. Nothing else.</string>
+    <string name="settings_web_search">Web search</string>
+    <string name="settings_search_key">Brave Search key</string>
+    <string name="settings_search_key_explained">The Web search skill uses Brave Search with your own key, kept encrypted on this phone. Brave\'s plans include $5 of free searches each month.</string>
+    <string name="settings_search_key_save">Save key</string>
+    <string name="settings_search_key_get">Get a key from Brave</string>
+    <string name="settings_search_key_saved">A Brave Search key is saved.</string>
+    <string name="settings_search_key_rejected">That does not look like a key: 8 to 256 characters, no spaces.</string>
     <string name="settings_approved_sites">Approved sites</string>
     <string name="settings_approved_sites_empty">None yet. The first time a skill reaches a new site, Bruce asks, and you can always allow it.</string>
     <string name="settings_site_remove">Remove</string>
