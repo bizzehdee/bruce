@@ -149,6 +149,11 @@
     <string name="models_details">Details</string>
     <string name="limited_skills">Limited Skill Use: This model\'s chat template has no tool support and will not use skills</string>
     <string name="models_find_copies">Find a copy with skills</string>
+    <string name="models_get_template">Get a tool template</string>
+    <string name="models_template_searching">Looking for another copy with a tool template…</string>
+    <string name="models_template_not_found">No other copy of this model with a tool template was found.</string>
+    <string name="models_template_from">Tool template from %1$s</string>
+    <string name="models_remove_template">Remove</string>
     <string name="models_settings">Model settings</string>
     <string name="models_default">Default</string>
     <string name="models_temperature">Temperature</string>

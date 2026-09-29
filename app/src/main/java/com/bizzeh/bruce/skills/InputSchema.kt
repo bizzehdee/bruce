@@ -46,7 +46,9 @@ sealed interface ArgumentCheck {
 /**
  * A flat JSON object of primitive arguments: the subset of JSON Schema that Bruce's skills need.
  * The model's arguments are untrusted input, so anything not described here is refused: unknown
- * names, nesting, wrong types, missing required values and out-of-range values.
+ * names, nesting, wrong types, missing required values and out-of-range values. The exception is a
+ * skill with no parameters, which ignores whatever object it is sent: nothing in it is read, and
+ * small models often send their tools' schema back as arguments (Llama 3.2 1B, 2026-09-29).
  */
 data class InputSchema(val parameters: List<Parameter> = emptyList()) {
     init {
@@ -61,6 +63,7 @@ data class InputSchema(val parameters: List<Parameter> = emptyList()) {
         } catch (e: JSONException) {
             return ArgumentCheck.Invalid("arguments are not valid JSON")
         }
+        if (parameters.isEmpty()) return ArgumentCheck.Valid(SkillArguments(emptyMap()))
         val byName = parameters.associateBy { it.name }
         json.keys().forEach { if (it !in byName) return ArgumentCheck.Invalid("unknown argument '${safeName(it)}'") }
         val values = mutableMapOf<String, Any>()

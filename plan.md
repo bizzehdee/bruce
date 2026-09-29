@@ -427,6 +427,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Tool templates for stripped copies are fetched from another Hub copy of the same model, not shipped with Bruce (licence). |
 | 2026-09-29 | Changed | Installed models whose template has no tool support say so, with a search for a copy that has it. |
 | 2026-09-29 | Changed | The model browser marks copies whose chat template has no tool support ("Limited skill use") and lists them after the others. |
 | 2026-09-29 | Added | Context traffic lights: the context bar is green, amber or red by how full the chat is; Appearance setting, on by default. |

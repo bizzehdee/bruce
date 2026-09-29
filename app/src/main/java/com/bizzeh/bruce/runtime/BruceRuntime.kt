@@ -125,7 +125,7 @@ class BruceRuntime(
         val tools = offer.tools
         val guidance = offer.guidance
         var calls = 0
-        // Results of calls run this turn, by call. A model that repeats one is stuck. The first
+        // Results and refusals of calls made this turn, by call. A model that repeats one is stuck. The first
         // repeat gets the earlier result with a note to answer, keeping the prompt (and the reused
         // prompt cache) as it was; Qwen3.5 then answers. Llama 3.2 1B ignores the note, so a second
         // repeat takes the skills away for the rest of the turn, which leaves answering as the only move.
@@ -172,7 +172,7 @@ class BruceRuntime(
                 }
                 when (val decision = policy.decide(call.name, call.argumentsJson)) {
                     is PolicyDecision.Allowed -> result(call, policy.execute(decision).toString().also { results[key] = it }, ran = true, added)
-                    is PolicyDecision.Denied -> result(call, policy.refusal(decision).toString(), ran = false, added)
+                    is PolicyDecision.Denied -> result(call, policy.refusal(decision).toString().also { results[key] = it }, ran = false, added)
                     is PolicyDecision.NeedsConfirmation -> {
                         emit(RuntimeEvent.NeedsConfirmation(call, decision))
                         // Every call gets a result, so the conversation stays well formed when the turn resumes.

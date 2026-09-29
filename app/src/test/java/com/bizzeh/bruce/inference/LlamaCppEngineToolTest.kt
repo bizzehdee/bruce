@@ -36,6 +36,18 @@ class LlamaCppEngineToolTest {
     }
 
     @Test
+    fun aFetchedTemplateReplacesTheFilesOwn() = runTest(dispatcher) {
+        engine.loadModel(model, LoadConfig(chatTemplate = "{{ tools }}"))
+        llama.applyChatReply = applied
+        engine.formatToolChat(listOf(ToolChatMessage(ChatRole.USER, "Hi")), listOf(clock))
+        assertEquals("{{ tools }}", llama.templateOverride)
+
+        engine.loadModel(model)
+        engine.formatToolChat(listOf(ToolChatMessage(ChatRole.USER, "Hi")), listOf(clock))
+        assertEquals(null, llama.templateOverride)
+    }
+
+    @Test
     fun formatsWithTheModelsTemplateAndReturnsItsFormat() = runTest(dispatcher) {
         load()
         llama.applyChatReply = applied

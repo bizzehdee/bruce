@@ -46,6 +46,7 @@ import com.bizzeh.bruce.models.ModelOverrides
 import com.bizzeh.bruce.models.ModelsActions
 import com.bizzeh.bruce.models.ModelsScreen
 import com.bizzeh.bruce.models.ModelsViewModel
+import com.bizzeh.bruce.models.TemplateFinder
 import com.bizzeh.bruce.navigation.Destination
 import com.bizzeh.bruce.prototype.PrototypeActions
 import com.bizzeh.bruce.prototype.PrototypeScreen
@@ -106,6 +107,7 @@ class MainActivity : ComponentActivity() {
                 device = ::deviceProfile,
                 ioDispatcher = Dispatchers.IO,
                 templateSupportsTools = container.engine::templateSupportsTools,
+                findTemplate = TemplateFinder(container.hubClient, container.engine::templateSupportsTools)::find,
             )
         }
     }
@@ -226,6 +228,8 @@ class MainActivity : ComponentActivity() {
                     browser.setQuery(query)
                     browser.search()
                 }
+                override fun getTemplate(file: File) = models.getTemplate(file)
+                override fun removeTemplate(file: File) = models.removeTemplate(file)
             }
         }
         val browse by browser.state.collectAsState()

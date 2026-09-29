@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.bizzeh.bruce.gguf.GgufMetadata
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
+import com.bizzeh.bruce.huggingface.HubError
 import com.bizzeh.bruce.inference.LoadError
 import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.settings.InferenceDefaults
@@ -29,7 +30,18 @@ data class InstalledModel(
     val overrides: ModelOverrides,
     /** False when the file's chat template cannot express tool calls, null when unknown (TASK-062). */
     val skills: Boolean? = null,
+    /** A tool-capable template fetched for this model, used instead of the file's (TASK-063). */
+    val template: FetchedTemplate? = null,
 )
+
+/** Where fetching a tool template for a model stands; absent once one is saved. */
+sealed interface TemplateStatus {
+    data object Searching : TemplateStatus
+
+    data object NotFound : TemplateStatus
+
+    data class Failed(val error: HubError) : TemplateStatus
+}
 
 data class ModelsState(
     val models: List<InstalledModel> = emptyList(),
@@ -38,6 +50,8 @@ data class ModelsState(
     val loadError: LoadError? = null,
     val importing: Boolean = false,
     val importError: ImportError? = null,
+    /** By model file name. */
+    val templates: Map<String, TemplateStatus> = emptyMap(),
 )
 
 class ModelsViewModel(
@@ -50,6 +64,8 @@ class ModelsViewModel(
     private val ioDispatcher: CoroutineDispatcher,
     /** InferenceEngine.templateSupportsTools; a file holds no BOS/EOS text, only token ids, so those are not given. */
     private val templateSupportsTools: (template: String, bosToken: String?, eosToken: String?) -> Boolean? = { _, _, _ -> null },
+    /** TemplateFinder.find. */
+    private val findTemplate: suspend (InstalledModel) -> TemplateSearch = { TemplateSearch.NotFound },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ModelsState())
     val state: StateFlow<ModelsState> = mutableState.asStateFlow()
@@ -85,6 +101,40 @@ class ModelsViewModel(
         }
     }
 
+    /** Fetches a tool template from another copy of the model, and reloads the model if it is loaded. */
+    fun getTemplate(file: File) {
+        val model = mutableState.value.models.firstOrNull { it.file == file } ?: return
+        viewModelScope.launch {
+            setTemplateStatus(file, TemplateStatus.Searching)
+            when (val search = findTemplate(model)) {
+                is TemplateSearch.Found -> {
+                    modelSettings.setTemplate(file.name, search.template)
+                    setTemplateStatus(file, null)
+                    reloadIfActive(file)
+                }
+                TemplateSearch.NotFound -> setTemplateStatus(file, TemplateStatus.NotFound)
+                is TemplateSearch.Failed -> setTemplateStatus(file, TemplateStatus.Failed(search.error))
+            }
+            refresh()
+        }
+    }
+
+    fun removeTemplate(file: File) {
+        viewModelScope.launch {
+            modelSettings.setTemplate(file.name, null)
+            reloadIfActive(file)
+            refresh()
+        }
+    }
+
+    private suspend fun reloadIfActive(file: File) {
+        if (activeModel.state.value.active == file) selection.choose(file)
+    }
+
+    private fun setTemplateStatus(file: File, status: TemplateStatus?) {
+        mutableState.update { it.copy(templates = if (status == null) it.templates - file.name else it.templates + (file.name to status)) }
+    }
+
     fun setOverrides(file: File, overrides: ModelOverrides) {
         viewModelScope.launch {
             modelSettings.setOverrides(file.name, overrides)
@@ -111,8 +161,10 @@ class ModelsViewModel(
             // The same cap ActiveModel applies when loading, so the estimate matches reality.
             val requested = overrides.loadConfig(defaults).contextLength
             val contextLength = metadata?.contextLength?.takeIf { it in 1 until requested }?.toInt() ?: requested
-            val skills = metadata?.chatTemplate?.let { template -> withContext(ioDispatcher) { templateSupportsTools(template, null, null) } }
-            InstalledModel(file, candidate.sizeBytes, metadata, ModelFit.assess(candidate, profile, contextLength), overrides, skills)
+            val fetched = modelSettings.template(file.name).first()
+            // A fetched template was judged able to call tools before it was saved.
+            val skills = if (fetched != null) true else metadata?.chatTemplate?.let { template -> withContext(ioDispatcher) { templateSupportsTools(template, null, null) } }
+            InstalledModel(file, candidate.sizeBytes, metadata, ModelFit.assess(candidate, profile, contextLength), overrides, skills, fetched)
         }
         mutableState.update { it.copy(models = models) }
     }

@@ -61,7 +61,10 @@ class ModelsViewModelTest {
             activeModel, selection, settings, flowOf(InferenceDefaults()), { importResult },
             { DeviceProfile(4L shl 30, cpu) }, dispatcher,
             templateSupportsTools = { template, bos, eos -> judged += Triple(template, bos, eos); "tools" in template },
+            findTemplate = { searched += it.file.name; search },
         )
+        val searched = mutableListOf<String>()
+        var search: TemplateSearch = TemplateSearch.Found(FetchedTemplate("{{ tools }}", "b/full"))
         val judged = mutableListOf<Triple<String, String?, String?>>()
         fun stories() = File(modelsDir, "stories260K.gguf").apply { writeBytes(File("src/androidTest/assets/stories260K.gguf").readBytes()) }
     }
@@ -77,6 +80,50 @@ class ModelsViewModelTest {
 
         assertEquals(mapOf("full.gguf" to true, "none.gguf" to null, "stripped.gguf" to false), f.viewModel.state.value.models.associate { it.file.name to it.skills })
         assertEquals("a file has token ids, not BOS/EOS text", listOf(Triple("{{ tools }}", null, null), Triple("{{ messages }}", null, null)), f.judged)
+    }
+
+    @Test
+    fun aFetchedTemplateIsSavedShownAndAppliedToTheLoadedModel() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val file = File(f.modelsDir, "stripped.gguf").apply { writeBytes(com.bizzeh.bruce.gguf.GgufBuilder().string("tokenizer.chat_template", "{{ messages }}").build()) }
+        f.viewModel.refresh()
+        f.selection.choose(file)
+        advanceUntilIdle()
+        val loadsBefore = engine.loads.size
+
+        f.viewModel.getTemplate(file)
+
+        // DataStore writes on real I/O threads, so wait for the state rather than for the scheduler.
+        val model = f.viewModel.state.first { it.models.single().template != null }.models.single()
+        assertEquals(FetchedTemplate("{{ tools }}", "b/full"), model.template)
+        assertEquals(true, model.skills)
+        assertEquals("the loaded model is reloaded with it", "{{ tools }}", engine.loads.last().second.chatTemplate)
+        assertEquals(loadsBefore + 1, engine.loads.size)
+
+        f.viewModel.removeTemplate(file)
+        f.viewModel.state.first { it.models.single().template == null }
+        assertEquals(null, engine.loads.last().second.chatTemplate)
+    }
+
+    @Test
+    fun aFailedOrFruitlessSearchIsShownAndChangesNothing() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val file = File(f.modelsDir, "stripped.gguf").apply { writeBytes(com.bizzeh.bruce.gguf.GgufBuilder().string("tokenizer.chat_template", "{{ messages }}").build()) }
+        f.viewModel.refresh()
+
+        f.search = TemplateSearch.NotFound
+        f.viewModel.getTemplate(file)
+        f.viewModel.state.first { it.templates["stripped.gguf"] == TemplateStatus.NotFound }
+
+        f.search = TemplateSearch.Failed(com.bizzeh.bruce.huggingface.HubError.NETWORK_DISABLED)
+        f.viewModel.getTemplate(file)
+        f.viewModel.state.first { it.templates["stripped.gguf"] is TemplateStatus.Failed }
+        assertEquals(null, f.viewModel.state.value.models.single().template)
+        assertEquals(false, f.viewModel.state.value.models.single().skills)
+
+        f.viewModel.getTemplate(File(f.modelsDir, "not-installed.gguf"))
+        advanceUntilIdle()
+        assertEquals(listOf("stripped.gguf", "stripped.gguf"), f.searched)
     }
 
     @Test

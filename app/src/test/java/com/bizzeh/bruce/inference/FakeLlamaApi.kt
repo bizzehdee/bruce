@@ -135,7 +135,9 @@ internal class FakeLlamaApi : LlamaApi {
     var templateInits = 0
     val freedTemplates = mutableListOf<Long>()
 
-    override fun chatTemplatesInit(model: Long): Long {
+    var templateOverride: String? = null
+    override fun chatTemplatesInit(model: Long, overrideUtf8: ByteArray): Long {
+        templateOverride = String(overrideUtf8).ifEmpty { null }
         templateInits++
         return templatesHandle
     }

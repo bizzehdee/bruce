@@ -10,6 +10,7 @@ import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.R
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -33,6 +34,8 @@ class ModelsScreenTest {
         override fun delete(file: File) { calls += "delete ${file.name}" }
         override fun setOverrides(file: File, overrides: ModelOverrides) { calls += "overrides $overrides" }
         override fun findCopies(query: String) { calls += "find $query" }
+        override fun getTemplate(file: File) { calls += "template ${file.name}" }
+        override fun removeTemplate(file: File) { calls += "remove ${file.name}" }
     }
     private val fixture = File("src/androidTest/assets/stories260K.gguf")
     private val metadata = (GgufReader.read(fixture) as GgufReadResult.Read).metadata
@@ -74,10 +77,26 @@ class ModelsScreenTest {
         compose.setContent { BruceTheme { ModelsScreen(ModelsState(models = listOf(limited, stories)), actions, onBack = {}, browseActions = browse) } }
 
         compose.onNodeWithTag("limitedSkills:stories260K.gguf", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("getTemplate:stories260K.gguf").performClick()
         compose.onNodeWithTag("findCopies:stories260K.gguf").performClick()
 
-        assertEquals(listOf("find Llama-3.2-1B-Instruct"), calls)
+        assertEquals(listOf("template stories260K.gguf", "find Llama-3.2-1B-Instruct"), calls)
         compose.onNodeWithTag("browseQuery").assertIsDisplayed()
+    }
+
+    @Test
+    fun templateSearchStatusAndAFetchedTemplateAreShown() {
+        val searching = stories.copy(skills = false)
+        val fetched = stories.copy(file = File(stories.file.parentFile, "fixed.gguf"), skills = true, template = FetchedTemplate("{{ tools }}", "b/full"))
+        show(ModelsState(models = listOf(searching, fetched), templates = mapOf("stories260K.gguf" to TemplateStatus.NotFound)))
+
+        compose.onNodeWithText("No other copy of this model with a tool template was found.").assertIsDisplayed()
+        compose.onNodeWithText("Tool template from b/full").assertIsDisplayed()
+        compose.onNodeWithTag("removeTemplate:fixed.gguf").performClick()
+        assertEquals(listOf("remove fixed.gguf"), calls)
+        assertEquals(R.string.models_template_searching, ModelsText.templateStatus(TemplateStatus.Searching))
+        assertEquals(R.string.hub_error_offline, ModelsText.templateStatus(TemplateStatus.Failed(com.bizzeh.bruce.huggingface.HubError.OFFLINE)))
+        assertEquals(null, ModelsText.templateStatus(null))
     }
 
     @Test
@@ -86,7 +105,7 @@ class ModelsScreenTest {
 
         compose.onNodeWithTag("limitedSkills:stories260K.gguf", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("findCopies:stories260K.gguf").assertDoesNotExist()
-        assertEquals("stories260K", ModelsText.copySearch(stories.copy(metadata = null)))
+        assertEquals("stories260K", TemplateFinder.searchFor(stories.copy(metadata = null)))
     }
 
     @Test

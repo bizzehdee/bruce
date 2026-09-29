@@ -59,9 +59,10 @@ common_chat_msg toMessage(const json &item) {
 extern "C" {
 
 JNIEXPORT jlong JNICALL
-Java_com_bizzeh_bruce_inference_LlamaNative_chatTemplatesInit(JNIEnv *, jobject, jlong model) {
+Java_com_bizzeh_bruce_inference_LlamaNative_chatTemplatesInit(JNIEnv *env, jobject, jlong model, jbyteArray overrideUtf8) {
     try {
-        return reinterpret_cast<jlong>(common_chat_templates_init(reinterpret_cast<llama_model *>(model), "").release());
+        // An override replaces the file's template; the model still supplies the BOS and EOS tokens.
+        return reinterpret_cast<jlong>(common_chat_templates_init(reinterpret_cast<llama_model *>(model), bytesToString(env, overrideUtf8)).release());
     } catch (const std::exception &error) {
         logFailure("chat template init", error);
         return 0;
