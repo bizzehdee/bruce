@@ -152,7 +152,7 @@ class MainActivity : ComponentActivity() {
             )
         }
     }
-    private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates) } }
+    private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates, container.unmetRequirements) } }
     private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
     private val setup: SetupViewModel by viewModels {
@@ -199,7 +199,7 @@ class MainActivity : ComponentActivity() {
             modelsScreen = { onBack -> Models(onBack, startOnHuggingFace = browse) },
             settingsScreen = { onBack, open -> Settings(onBack, open) },
             diagnosticsScreen = { onBack -> Diagnostics(onBack) },
-            skillsScreen = { onBack, openPermissions -> Skills(onBack, openPermissions) },
+            skillsScreen = { onBack, openPermissions, openSettings -> Skills(onBack, openPermissions, openSettings) },
             permissionsScreen = { onBack, openNetwork -> Permissions(onBack, openNetwork) },
             memoryScreen = { onBack -> Memory(onBack) },
             startDestination = if (browse) Destination.MODELS else Destination.CHAT,
@@ -279,12 +279,13 @@ class MainActivity : ComponentActivity() {
     }
 
     @androidx.compose.runtime.Composable
-    private fun Skills(onBack: () -> Unit, toPermissions: () -> Unit) {
+    private fun Skills(onBack: () -> Unit, toPermissions: () -> Unit, toSettings: () -> Unit) {
         val rows by skills.rows.collectAsState()
-        val actions = remember(toPermissions) {
+        val actions = remember(toPermissions, toSettings) {
             object : SkillsActions {
                 override fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean) = skills.set(skill, state, highRiskWarningAccepted)
                 override fun openPermissions() = toPermissions()
+                override fun openNetworkSettings() = toSettings()
             }
         }
         SkillsScreen(rows, actions, onBack)

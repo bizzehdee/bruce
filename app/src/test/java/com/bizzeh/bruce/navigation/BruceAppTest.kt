@@ -70,9 +70,12 @@ class BruceAppTest {
                 permissionsScreen = { onBack, openNetwork ->
                     com.bizzeh.bruce.settings.PermissionsScreen(emptyList(), false, noGrantActions, openNetwork, onBack)
                 },
-                skillsScreen = { onBack, openPermissions ->
+                skillsScreen = { onBack, openPermissions, openSettings ->
                     SubScreen("Skills screen", onBack) {
-                        androidx.compose.material3.TextButton(onClick = openPermissions, modifier = androidx.compose.ui.Modifier.testTag("skills:permissions")) { Text("To permissions") }
+                        androidx.compose.foundation.layout.Column {
+                            androidx.compose.material3.TextButton(onClick = openPermissions, modifier = androidx.compose.ui.Modifier.testTag("skills:permissions")) { Text("To permissions") }
+                            androidx.compose.material3.TextButton(onClick = openSettings, modifier = androidx.compose.ui.Modifier.testTag("skills:settings")) { Text("To settings") }
+                        }
                     }
                 },
                 startDestination = start,
@@ -191,6 +194,10 @@ class BruceAppTest {
         compose.onNodeWithTag("skills:permissions").performClick()
         compose.onNodeWithTag("grantsEmpty").assertIsDisplayed()
         compose.activity.onBackPressedDispatcher.onBackPressed()
+        compose.onNodeWithText("Settings screen").assertIsDisplayed()
+
+        compose.onNodeWithTag("settings:skills").performClick()
+        compose.onNodeWithTag("skills:settings").performClick()
         compose.onNodeWithText("Settings screen").assertIsDisplayed()
     }
 

@@ -16,6 +16,7 @@ import com.bizzeh.bruce.skills.ResourceScope
 import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillArguments
 import com.bizzeh.bruce.skills.SkillOutcome
+import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -47,6 +48,7 @@ class FileSkills(
         capabilities = setOf(Capability.FILE_READ),
         defaultState = SkillState.DECLINED,
         scope = ResourceScope.GRANTED_FILES,
+        requires = SkillRequirement.FILE_GRANT,
     ) { arguments -> withContext(io) { list(arguments) } }
 
     private fun readFile() = Skill(
@@ -57,6 +59,7 @@ class FileSkills(
         capabilities = setOf(Capability.FILE_READ),
         defaultState = SkillState.DECLINED,
         scope = ResourceScope.GRANTED_FILES,
+        requires = SkillRequirement.FILE_GRANT,
     ) { arguments -> withContext(io) { read(arguments) } }
 
     private fun contentParameter() = Parameter(CONTENT_ARGUMENT, ParameterType.STRING, "The complete text the file will hold", maxLength = MAX_WRITE_CHARS)
@@ -69,6 +72,7 @@ class FileSkills(
         capabilities = setOf(Capability.FILE_CREATE),
         defaultState = SkillState.ASK,
         scope = ResourceScope.GRANTED_FILES,
+        requires = SkillRequirement.FILE_GRANT,
     ) { arguments -> withContext(io) { createNew(arguments) } }
 
     private fun writeFile() = Skill(
@@ -79,6 +83,7 @@ class FileSkills(
         capabilities = setOf(Capability.FILE_WRITE),
         defaultState = SkillState.ASK,
         scope = ResourceScope.GRANTED_FILES,
+        requires = SkillRequirement.FILE_GRANT,
     ) { arguments -> withContext(io) { replace(arguments) } }
 
     private fun deleteFile() = Skill(
@@ -90,6 +95,7 @@ class FileSkills(
         defaultState = SkillState.ASK,
         highRisk = true,
         scope = ResourceScope.GRANTED_FILES,
+        requires = SkillRequirement.FILE_GRANT,
     ) { arguments -> withContext(io) { remove(arguments) } }
 
     private suspend fun remove(arguments: SkillArguments): SkillOutcome {

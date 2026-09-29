@@ -7,6 +7,7 @@ import com.bizzeh.bruce.skills.Resolution
 import com.bizzeh.bruce.skills.SkillOutcome
 import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.SkillRequest
+import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.ToolOutput
 import kotlinx.coroutines.CancellationException
@@ -49,6 +50,8 @@ class PolicyEngine(
     private val permissionGranted: (String) -> Boolean,
     /** Checks a file skill's target against the user's grants (GrantScope.check). */
     private val scope: suspend (SkillRequest) -> ScopeCheck,
+    /** Whether a skill's requirement holds; a skill whose requirement does not is locked off. */
+    private val requirementMet: suspend (SkillRequirement) -> Boolean = { true },
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     suspend fun decide(tool: String, rawArguments: String): PolicyDecision = when (val resolution = registry.resolve(tool, rawArguments)) {
@@ -89,6 +92,13 @@ class PolicyEngine(
         val state = states.state(skill)
         if (state == SkillState.DECLINED) {
             return deny(request, DenialCode.CAPABILITY_DISABLED, "The user has turned this skill off.", userCanChange = true)
+        }
+        skill.requires?.takeUnless { requirementMet(it) }?.let { requirement ->
+            val why = when (requirement) {
+                SkillRequirement.FILE_GRANT -> "it needs a file or folder granted in Settings, Permissions"
+                SkillRequirement.NETWORK_ALLOWED -> "the network mode in Settings is Offline"
+            }
+            return deny(request, DenialCode.CAPABILITY_DISABLED, "This skill is locked off: $why.", userCanChange = true)
         }
         if (!skill.androidPermissions.all(permissionGranted)) {
             return deny(request, DenialCode.ANDROID_PERMISSION_DENIED, "Android has not granted a permission this skill needs.", userCanChange = true)

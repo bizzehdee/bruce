@@ -7,6 +7,7 @@ import com.bizzeh.bruce.skills.Parameter
 import com.bizzeh.bruce.skills.ParameterType
 import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillOutcome
+import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.ui.Format
 import java.time.ZonedDateTime
@@ -42,8 +43,9 @@ interface PhoneReaders {
 }
 
 /**
- * The six automatic skills (product spec §29): read-only, no Android runtime permissions, Accepted
- * on a fresh install. Their ids are those measured in TASK-033; the time and battery descriptions
+ * The six automatic skills (product spec §29): read-only, no Android runtime permissions. Time and
+ * the calculator are Accepted on a fresh install; battery, device and storage start Declined, and
+ * network status is locked off while the network mode is Offline (owner, 2026-09-29). Their ids are those measured in TASK-033; the time and battery descriptions
  * are the owner's shorter wording (2026-09-29).
  */
 object AutomaticSkills {
@@ -62,14 +64,14 @@ object AutomaticSkills {
                 is Calculation.Error -> SkillOutcome.Failed(DenialCode.TOOL_FAILED, "Cannot calculate that: ${result.reason}.", retryable = true)
             }
         },
-        skill("get_battery_status", "get the devices battery level, temperature and charge state", Capability.BATTERY) { battery(phone.battery()) },
-        skill("get_device_info", "Get the phone's manufacturer, model, Android version, processor and total memory.", Capability.DEVICE) { device(phone.device()) },
-        skill("get_storage_status", "Get the phone's total, used and free storage space.", Capability.STORAGE_STATUS) { storage(phone.storage()) },
-        skill("get_network_status", "Get whether the phone is online and whether it uses Wi-Fi or mobile data.", Capability.NETWORK_STATUS) { network(phone.network()) },
+        skill("get_battery_status", "get the devices battery level, temperature and charge state", Capability.BATTERY, SkillState.DECLINED) { battery(phone.battery()) },
+        skill("get_device_info", "Get the phone's manufacturer, model, Android version, processor and total memory.", Capability.DEVICE, SkillState.DECLINED) { device(phone.device()) },
+        skill("get_storage_status", "Get the phone's total, used and free storage space.", Capability.STORAGE_STATUS, SkillState.DECLINED) { storage(phone.storage()) },
+        skill("get_network_status", "Get whether the phone is online and whether it uses Wi-Fi or mobile data.", Capability.NETWORK_STATUS, requires = SkillRequirement.NETWORK_ALLOWED) { network(phone.network()) },
     )
 
-    private fun skill(id: String, description: String, capability: Capability, read: () -> String) =
-        Skill(id, 1, description, InputSchema(), setOf(capability), SkillState.ACCEPTED) { SkillOutcome.Done(read()) }
+    private fun skill(id: String, description: String, capability: Capability, default: SkillState = SkillState.ACCEPTED, requires: SkillRequirement? = null, read: () -> String) =
+        Skill(id, 1, description, InputSchema(), setOf(capability), default, requires = requires) { SkillOutcome.Done(read()) }
 
     private val DATE_TIME = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy, HH:mm:ss", Locale.ENGLISH)
 

@@ -20,9 +20,9 @@ import com.bizzeh.bruce.policy.PolicyEngine
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.skills.Denial
 import com.bizzeh.bruce.skills.DenialCode
-import com.bizzeh.bruce.skills.ResourceScope
 import com.bizzeh.bruce.skills.Skill
 import com.bizzeh.bruce.skills.SkillRegistry
+import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.ToolOutput
 import kotlinx.coroutines.TimeoutCancellationException
@@ -107,6 +107,8 @@ class BruceRuntime(
     private val personality: suspend () -> String,
     /** Names of the user's file and folder grants, which file skills' paths start with. */
     private val grantNames: suspend () -> List<String> = { emptyList() },
+    /** Whether the network mode allows the network; skills that need it are locked off when not. */
+    private val networkAllowed: suspend () -> Boolean = { true },
     private val maxToolCalls: Int = MAX_TOOL_CALLS,
     private val maxDuration: Duration = MAX_DURATION,
     private val maxReplyTokens: Int = MAX_REPLY_TOKENS,
@@ -321,10 +323,23 @@ class BruceRuntime(
         // First in the prompt: placed after the guidance, Qwen3.5-0.8B used them half as often (host test, 2026-09-29).
         val remembered = if (memory.isEmpty()) "" else MEMORY_LEAD + memory.joinToString("") { "\n- " + Facts.aboutUser(it) }
         val enabled = registry.skills.filter { states.state(it) != SkillState.DECLINED }
-        if (enabled.none { it.scope == ResourceScope.GRANTED_FILES }) return Offer(enabled, GUIDANCE, remembered)
-        val names = grantNames()
-        if (names.isEmpty()) return Offer(enabled.filter { it.scope != ResourceScope.GRANTED_FILES }, "$GUIDANCE $NO_GRANTS", remembered)
-        return Offer(enabled, "$GUIDANCE Files and folders the user has granted (every path starts with one of these names): ${names.joinToString(", ")}.", remembered)
+        val needsFiles = enabled.any { it.requires == SkillRequirement.FILE_GRANT }
+        val names = if (needsFiles) grantNames() else emptyList()
+        val network = enabled.none { it.requires == SkillRequirement.NETWORK_ALLOWED } || networkAllowed()
+        // Locked skills are not offered at all (owner, 2026-09-29).
+        val unlocked = enabled.filter {
+            when (it.requires) {
+                SkillRequirement.FILE_GRANT -> names.isNotEmpty()
+                SkillRequirement.NETWORK_ALLOWED -> network
+                null -> true
+            }
+        }
+        val guidance = when {
+            !needsFiles -> GUIDANCE
+            names.isEmpty() -> "$GUIDANCE $NO_GRANTS"
+            else -> "$GUIDANCE Files and folders the user has granted (every path starts with one of these names): ${names.joinToString(", ")}."
+        }
+        return Offer(unlocked, guidance, remembered)
     }
 
     /**

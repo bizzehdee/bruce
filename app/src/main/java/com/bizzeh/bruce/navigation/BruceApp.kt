@@ -93,7 +93,7 @@ fun BruceApp(
     modelsScreen: @Composable (onBack: () -> Unit) -> Unit,
     settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
-    skillsScreen: @Composable (onBack: () -> Unit, openPermissions: () -> Unit) -> Unit,
+    skillsScreen: @Composable (onBack: () -> Unit, openPermissions: () -> Unit, openSettings: () -> Unit) -> Unit,
     permissionsScreen: @Composable (onBack: () -> Unit, openNetworkSettings: () -> Unit) -> Unit,
     memoryScreen: @Composable (onBack: () -> Unit) -> Unit,
     startDestination: Destination = Destination.CHAT,
@@ -182,7 +182,7 @@ fun BruceApp(
             Destination.DIAGNOSTICS -> diagnosticsScreen { goBack() }
             Destination.LICENCES -> LicencesScreen { goBack() }
             Destination.MEMORY -> memoryScreen { goBack() }
-            Destination.SKILLS -> skillsScreen({ goBack() }, { destination = Destination.PERMISSIONS })
+            Destination.SKILLS -> skillsScreen({ goBack() }, { destination = Destination.PERMISSIONS }, { destination = Destination.SETTINGS })
             Destination.PERMISSIONS -> permissionsScreen({ goBack() }, { destination = Destination.SETTINGS })
             Destination.ARCHIVED -> SubScreen(stringResource(R.string.nav_archived), { goBack() }) {
                 if (conversationActions != null) {

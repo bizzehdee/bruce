@@ -45,6 +45,15 @@ enum class SkillState {
 }
 
 /** Which resources a skill acts on, for the scope check. */
+/** A condition outside the skill's own state that locks it off while unmet (owner, 2026-09-29). */
+enum class SkillRequirement {
+    /** At least one file or folder granted in Permissions. */
+    FILE_GRANT,
+
+    /** A network mode other than Offline. */
+    NETWORK_ALLOWED,
+}
+
 enum class ResourceScope {
     /** Nothing outside the phone's own status. */
     NONE,
@@ -81,6 +90,8 @@ class Skill(
     val highRisk: Boolean = false,
     val scope: ResourceScope = ResourceScope.NONE,
     val androidPermissions: List<String> = emptyList(),
+    /** What must hold before the skill can be used at all; while it does not, the skill is locked off. */
+    val requires: SkillRequirement? = null,
     val execute: suspend (SkillArguments) -> SkillOutcome,
 ) {
     init {
