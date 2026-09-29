@@ -13,4 +13,7 @@ Bruce rewrites only `tojson(indent=N)` in a model's own or fetched template (`on
 `template_one_line.cpp`, applied in `chatTemplatesInit`). A model with a separate `tool_use`
 template is left alone, since an override would drop it.
 
+String `maxLength` is not shown to the model either: Llama 3.2 1B copied it into calls as an
+argument, which Bruce then refused. Limits live only in `InputSchema.check`.
+
 Read before changing how templates or tool definitions are printed.

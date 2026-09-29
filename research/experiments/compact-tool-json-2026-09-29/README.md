@@ -23,3 +23,20 @@ a call. "Tell me a joke" never got a plain answer in any layout: Llama 3.2 1B ca
 whenever tools are offered.
 
 Decision: Bruce prints template JSON on one line (`template_one_line.cpp`), not compact.
+
+## Follow-up: `maxLength` in the tool schemas (same day)
+
+On the Pixel 11, Llama 3.2 1B answered "James smells of pickles" with six tool calls; four were
+refused only because the model copied `"maxLength"` from the schema into its arguments. Rerun with
+the one-line layout and the Pixel's tools at the time (12 tools, `prompt-dump-4`; settings skills
+other than `get_setting` were off, so the two settings-change questions had no matching tool), 15
+questions, 8 runs each, a call counting only if its argument names are all in the schema
+(`results-maxlength.jsonl`, `STRIP_MAXLENGTH=1` for the second run):
+
+| Schema | Prompt tokens | Correct with valid arguments | Calls naming maxLength | Unparsed |
+|---|---|---|---|---|
+| With `maxLength` | 1,327 | 82/120 | 2 | 2 |
+| Without | 1,273 | 83/120 | 0 | 4 |
+
+Decision: the schema the model sees has no `maxLength`; Bruce's argument check still enforces
+every limit. Small talk ("James smells of pickles", a joke) got a tool call in every run either way.

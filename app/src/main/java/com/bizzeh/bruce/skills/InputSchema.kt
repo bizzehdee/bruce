@@ -78,7 +78,10 @@ data class InputSchema(val parameters: List<Parameter> = emptyList()) {
         return ArgumentCheck.Valid(SkillArguments(values))
     }
 
-    /** JSON Schema for the full skill description sent to the model. */
+    /**
+     * JSON Schema for the full skill description sent to the model. String lengths are left out:
+     * Llama 3.2 1B copied `maxLength` into its calls as an argument, and [check] enforces them anyway.
+     */
     fun toJson(): JSONObject = JSONObject()
         .put("type", "object")
         .put(
@@ -91,7 +94,6 @@ data class InputSchema(val parameters: List<Parameter> = emptyList()) {
                             p.allowed?.let { put("enum", JSONArray(it)) }
                             p.minimum?.let { put("minimum", it) }
                             p.maximum?.let { put("maximum", it) }
-                            if (p.type == ParameterType.STRING) put("maxLength", p.maxLength)
                         },
                     )
                 }

@@ -1,0 +1,240 @@
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": false, "content": "{\"}}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": false, "content": "{\"}}"}
+{"label": "with-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"(17.5 * 23)\"}"}
+{"label": "with-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": false, "content": "{\"id\": \"0x12345678\"}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": false, "content": "{\"id\": \"storage\"}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": false, "content": "{\"id\": \" wifi\"}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_battery_status", "ok": false, "content": "{}"}
+{"label": "with-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\", \"maxLength\": \"40\"}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\", \"maxLength\": \"40\"}"}
+{"label": "with-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_setting", "ok": false, "content": "{\"id\": \"bluetooth\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_network_status", "ok": false, "content": "{\"id\": \"bluetooth\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "list_files", "ok": false, "content": "{\"path\": \"/bluetooth\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "read_file", "ok": false, "content": "{\"path\": \"Bluetooth settings\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "read_file", "ok": false, "content": "{\"path\": \"/system/bluetooth\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "read_file", "ok": false, "content": "{\"path\": \"/system/bluetooth\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_setting", "ok": false, "content": "{\"id\": \"bluetooth_settings\"}"}
+{"label": "with-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "read_file", "ok": false, "content": "{\"path\": \"/user/settings/Bluetooth\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"Dogs are like pizza, even though they're a little ruff\"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"get_battery_status().battery_level * 2 + get_battery_status().temperature + get_battery_status().charge_state\"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"(12 + 5) ^ 2 - 2\"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"dogs are man's best friend, unless they\"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"(get_battery_status()['temperature'] + get_battery_status()['charge'] / 100 + (get_battery_status()['temperature'] * get_battery_status()['charge'] / 100 * 0.5)\"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"(get_setting \"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"If (1 + (12 * 0.01)) / 100 == 1.2 then 0.01\"}"}
+{"label": "with-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"if (1 + 1) * 2 >= 4 then 1 * 2 else 1 / 0\"}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_battery_status", "ok": false, "content": "{}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_battery_status", "ok": false, "content": "{}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_device_info", "ok": false, "content": "{}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_datetime", "ok": false, "content": "{}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_device_info", "ok": false, "content": "{}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_battery_status", "ok": false, "content": "{}"}
+{"label": "with-maxlength", "question": "James smells of pickles", "expected": null, "called": "create_file", "ok": false, "content": "{\"path\": \"Camera/notes/pickles\", \"content\": \"James smells of pickles\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "with-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": false, "content": "{\"}}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What time is it?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What day is it today?", "expected": "get_datetime", "called": "get_datetime", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much battery have I got left?", "expected": "get_battery_status", "called": "get_battery_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"(17.5 * 23)\"}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"17.5 * 23\"}"}
+{"label": "without-maxlength", "question": "What is 17.5 times 23?", "expected": "calculate", "called": "calculate", "ok": true, "content": "{\"expression\": \"(17.5 * 23)\"}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What phone is this?", "expected": "get_device_info", "called": "get_device_info", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_setting", "ok": false, "content": "{\"id\": \"storage_space\"}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "How much free storage do I have?", "expected": "get_storage_status", "called": "get_storage_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": false, "content": "{\"id\": \"Wi-Fi\"}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": false, "content": "{\"id\": \"get_network_status\"}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": false, "content": "{\"id\": \"network\"}"}
+{"label": "without-maxlength", "question": "Am I on wifi?", "expected": "get_network_status", "called": "get_network_status", "ok": true, "content": "{}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "What is my screen timeout set to?", "expected": "get_setting", "called": "get_setting", "ok": true, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\", \"u\": \"60\"}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "get_setting", "ok": false, "content": "{\"id\": \"screen_timeout\"}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "without-maxlength", "question": "Set my screen timeout to 60 seconds", "expected": "set_setting", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": "{\"s\": \"Bluetooth\"}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": "{\"id\": \"bluetooth_settings\"}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_setting", "ok": false, "content": "{\"id\": \"bluetooth\"}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": "{\"id\": \"Bluetooth\"}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_network_status", "ok": false, "content": "{}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "get_device_info", "ok": false, "content": "{\"id\": \"Bluetooth\"}"}
+{"label": "without-maxlength", "question": "Open my Bluetooth settings", "expected": "open_settings_page", "called": "<unparsed>", "ok": false, "content": "{\"error\":{\"code\":500,\"message\":\"The model produced output that does not match the expected peg-native format\",\"type\":\"server_error\"}}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "What files are in Documents?", "expected": "list_files", "called": "list_files", "ok": true, "content": "{\"path\": \"Documents\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"(12 * 2) + 5\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"(12 + 5) * 3 / 2\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"(1 + 2 * 3^2 * 4^3) / (5 - 3^2)\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"(12.5 * 4) / 3\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"1 + 1\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"1 1\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"1+1\"}"}
+{"label": "without-maxlength", "question": "Tell me a joke about dogs.", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"1 - (2 * 3 - 1) ^ 2 + 2 * 3\"}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_setting", "ok": false, "content": "{\"id\": \"com.android.systemUI.name\"}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_datetime", "ok": false, "content": "{}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"calculate(get_battery_status(), 'get_battery_status().get_battery_percentage() * 100')\"}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "calculate", "ok": false, "content": "{\"expression\": \"James smells of pickles\"}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_device_info", "ok": false, "content": "{}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_device_info", "ok": false, "content": "{}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "get_battery_status", "ok": false, "content": "{}"}
+{"label": "without-maxlength", "question": "James smells of pickles", "expected": null, "called": "create_file", "ok": false, "content": "{\"path\": \"Camera/James\", \"content\": \"James smells of pickles\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Read the file Documents/notes/todo.txt", "expected": "read_file", "called": "read_file", "ok": true, "content": "{\"path\": \"Documents/notes/todo.txt\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}
+{"label": "without-maxlength", "question": "Create a file Documents/ideas.txt that says hello", "expected": "create_file", "called": "create_file", "ok": true, "content": "{\"path\": \"Documents/ideas.txt\", \"content\": \"hello\"}"}

@@ -100,7 +100,7 @@ class SkillFrameworkTest {
         assertEquals("name", json.getJSONArray("required").getString(0))
         assertEquals(1, json.getJSONArray("required").length())
         val properties = json.getJSONObject("properties")
-        assertEquals(5, properties.getJSONObject("name").getInt("maxLength"))
+        assertFalse("lengths are checked, not shown", properties.getJSONObject("name").has("maxLength"))
         assertEquals("f", properties.getJSONObject("unit").getJSONArray("enum").getString(1))
         assertEquals(10.0, properties.getJSONObject("count").getDouble("maximum"), 0.0)
         assertFalse(properties.getJSONObject("loud").has("maxLength"))

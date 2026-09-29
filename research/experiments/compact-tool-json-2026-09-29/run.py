@@ -8,6 +8,7 @@ any) is recorded, parsed by llama-server with the model's own tool format. Outpu
 call llama-server cannot parse is recorded as "<unparsed>".
 """
 import json
+import os
 import re
 import sys
 import urllib.error
@@ -24,6 +25,12 @@ system = system.split("\n\n", 1)[1] if system.startswith("Environment:") else sy
 system = re.sub(r"^Cutting Knowledge Date:.*\nToday Date:.*\n\n", "", system)
 section = text.split("Do not use variables.\n\n", 1)[1].split("<|eot_id|>", 1)[0]
 tools = [json.loads(block) for block in section.strip().split("\n\n")]
+if os.environ.get("STRIP_MAXLENGTH"):
+    # The follow-up run (2026-09-29): what the model sees without maxLength, which it copied as an argument.
+    for tool in tools:
+        for parameter in tool["function"]["parameters"]["properties"].values():
+            parameter.pop("maxLength", None)
+PROPERTIES = {tool["function"]["name"]: set(tool["function"]["parameters"]["properties"]) for tool in tools}
 
 CASES = [
     ("What time is it?", "get_datetime"),
@@ -38,6 +45,9 @@ CASES = [
     ("Open my Bluetooth settings", "open_settings_page"),
     ("What files are in Documents?", "list_files"),
     ("Tell me a joke about dogs.", None),
+    ("James smells of pickles", None),
+    ("Read the file Documents/notes/todo.txt", "read_file"),
+    ("Create a file Documents/ideas.txt that says hello", "create_file"),
 ]
 
 
@@ -49,15 +59,24 @@ def ask(question):
         reply = json.load(urllib.request.urlopen(request, timeout=300))["choices"][0]["message"]
     except urllib.error.HTTPError as error:
         # llama-server answers 500 when the output starts a tool call it cannot parse.
-        return "<unparsed>", error.read().decode()[:200]
+        return "<unparsed>", error.read().decode()[:200], False
     calls = reply.get("tool_calls") or []
-    return (calls[0]["function"]["name"] if calls else None), (reply.get("content") or "")[:200]
+    if not calls:
+        return None, (reply.get("content") or "")[:200], True
+    name = calls[0]["function"]["name"]
+    try:
+        arguments = json.loads(calls[0]["function"]["arguments"] or "{}")
+    except json.JSONDecodeError:
+        return name, calls[0]["function"]["arguments"][:200], False
+    # Bruce refuses any argument its schema does not name.
+    valid = isinstance(arguments, dict) and set(arguments) <= PROPERTIES.get(name, set())
+    return name, json.dumps(arguments)[:200], valid
 
 
 with open(out, "a") as sink:
     for question, expected in CASES:
         for attempt in range(repeats):
-            called, content = ask(question)
-            sink.write(json.dumps({"label": label, "question": question, "expected": expected, "called": called, "ok": called == expected, "content": content}) + "\n")
+            called, content, valid = ask(question)
+            sink.write(json.dumps({"label": label, "question": question, "expected": expected, "called": called, "ok": called == expected and valid, "content": content}) + "\n")
             sink.flush()
 print("tools", len(tools))
