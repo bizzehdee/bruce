@@ -427,6 +427,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Added | Context traffic lights: the context bar is green, amber or red by how full the chat is; Appearance setting, on by default. |
+| 2026-09-29 | Removed | Short skill list: measured, saves about 10% of skill tokens and loses accuracy; full skill definitions stay. |
 | 2026-09-29 | Changed | Settings and Models warn when a context length leaves the chat less than a quarter of it. |
 | 2026-09-29 | Changed | File skills are offered only once a file or folder is granted: 364 fewer prompt tokens by default. |
 | 2026-09-29 | Added | Model files whose chat template cannot do tool calls are marked in the browser and on installed models; official tool templates for known families (licence permitting). |

@@ -11,6 +11,10 @@ prompt  - one Bruce-defined format described in the system prompt, no grammar.
 grammar - the Bruce format plus a GBNF grammar that switches on at "<tool_call>".
 index   - as grammar, but each tool is one line (name, argument names, description) instead of
           its JSON schema: the short skill index Bruce would load up front.
+short   - (added 2026-09-29, TASK-054) the model's own format with each tool given by name and
+          description only, no argument schema. If it picks a tool that takes arguments, a tool
+          result gives the full definition and asks it to call again; the prompt before that
+          stays unchanged, so a prompt cache still applies. Scored on the final call.
 """
 import ast
 import json
@@ -122,6 +126,43 @@ def run_native(server, prompt):
     return parsed, message.get("content") or "", result.get("timings", {})
 
 
+SHORT_TOOLS = [{"type": "function", "function": {"name": t["name"], "description": t["description"],
+                                                 "parameters": {"type": "object", "properties": {}}}} for t in TOOLS]
+BY_NAME = {t["name"]: t for t in TOOLS}
+
+
+def native_call(message):
+    calls = message.get("tool_calls") or []
+    if not calls:
+        return None, None
+    function = calls[0]["function"]
+    arguments = function.get("arguments") or "{}"
+    return calls[0], (function["name"], json.loads(arguments) if isinstance(arguments, str) else arguments)
+
+
+def run_short(server, prompt):
+    messages = [{"role": "system", "content": PERSONA}, {"role": "user", "content": prompt}]
+    body = {"messages": messages, "tools": SHORT_TOOLS, "max_tokens": MAX_TOKENS, **COMMON, **NO_THINKING}
+    result = post(f"{server}/v1/chat/completions", body)
+    message = result["choices"][0]["message"]
+    timings = dict(result.get("timings", {}))
+    call, parsed = native_call(message)
+    tool = BY_NAME.get(parsed[0]) if parsed else None
+    if tool is None or not tool["parameters"]["properties"]:
+        return parsed, message.get("content") or "", timings
+    definition = {"status": "needs_arguments", "tool": tool["name"], "definition": tool,
+                  "note": "Call this tool again, now with its arguments."}
+    call = dict(call, id=call.get("id") or "call_1")
+    follow = messages + [{"role": "assistant", "content": "", "tool_calls": [call]},
+                         {"role": "tool", "tool_call_id": call["id"], "name": tool["name"], "content": json.dumps(definition)}]
+    second = post(f"{server}/v1/chat/completions", {**body, "messages": follow})
+    message = second["choices"][0]["message"]
+    for key in ("prompt_n", "prompt_ms", "predicted_n", "predicted_ms"):
+        timings[key] = timings.get(key, 0) + second.get("timings", {}).get(key, 0)
+    _, parsed = native_call(message)
+    return parsed, message.get("content") or "", timings
+
+
 def run_bruce(server, prompt, system, grammar):
     messages = [{"role": "system", "content": system}, {"role": "user", "content": prompt}]
     templated = post(f"{server}/apply-template", {"messages": messages, **NO_THINKING})["prompt"]
@@ -178,7 +219,7 @@ def score(case, parsed):
 
 def main():
     server, label, out = sys.argv[1:4]
-    variants = sys.argv[4:] or ["native", "prompt", "grammar", "index"]
+    variants = sys.argv[4:] or ["native", "prompt", "grammar", "index", "short"]
     with open(out, "a") as sink:
         for variant in variants:
             for case in CASES:
@@ -186,6 +227,8 @@ def main():
                 try:
                     if variant == "native":
                         parsed, text, timings = run_native(server, case["prompt"])
+                    elif variant == "short":
+                        parsed, text, timings = run_short(server, case["prompt"])
                     else:
                         system = INDEX_SYSTEM if variant == "index" else BRUCE_SYSTEM
                         parsed, text, timings = run_bruce(server, case["prompt"], system, variant != "prompt")
