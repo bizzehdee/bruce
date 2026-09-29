@@ -427,6 +427,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Skill use is no longer shown in the chat (owner: people want the answer); approval cards still show. It is still saved with the chat. |
+| 2026-09-29 | Changed | TASK-056 (reuse the evaluated prompt) moved ahead of TASK-059, TASK-060 and TASK-054: replies with skills were very slow. |
 | 2026-09-28 | Added | File skills offered only once a file or folder is granted; a warning when a context length leaves little room for the chat. |
 | 2026-09-28 | Changed | Memory decided: facts found by an extra model pass after replies; up to 10 relevant facts per prompt. Short skill list moved ahead of memory. |
 | 2026-09-28 | Changed | Auto-summarise done: off by default, threshold 85-100% (default 90%), summary shown as a marked note. |

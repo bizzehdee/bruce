@@ -86,13 +86,6 @@ class ChatScreenTest {
     }
 
     @Test
-    fun declinedToolsSaySo() {
-        show(ChatState(modelName = "m", entries = listOf(ChatEntry(ChatRole.TOOL, "{}", tool = ToolUse("c1", "write_note", "{}", ToolStatus.DECLINED)))))
-
-        compose.onNodeWithText("You declined: write_note").assertIsDisplayed()
-    }
-
-    @Test
     fun withoutModelAskForOneAndDisableSend() {
         show(ChatState(input = "hi"))
 
@@ -161,7 +154,7 @@ class ChatScreenTest {
     }
 
     @Test
-    fun skillUsesShowAsRowsThatOpenToWhatTheModelWasGiven() {
+    fun skillUseIsNotShownOnlyTheAnswer() {
         val call = com.bizzeh.bruce.inference.ToolCall("get_datetime", "{}", "c1")
         show(
             ChatState(
@@ -177,14 +170,8 @@ class ChatScreenTest {
         )
 
         compose.onNodeWithTag("reply:1").assertDoesNotExist()
-        compose.onNodeWithText("Used get_datetime").assertIsDisplayed()
-        compose.onNodeWithText("Not allowed: read_file").assertIsDisplayed()
-        compose.onNodeWithTag("toolToggle:2").performClick()
-        compose.onNodeWithText("Monday, 14:37").assertIsDisplayed()
-        compose.onNodeWithTag("toolToggle:3").performClick()
-        compose.onNodeWithText("The user has turned this skill off.").assertIsDisplayed()
+        compose.onNodeWithText("Monday, 14:37", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("read_file", substring = true).assertDoesNotExist()
         compose.onNodeWithTag("answer:4").assertIsDisplayed()
-        assertEquals("not JSON: shown as is", "raw", ChatText.toolDetail("raw"))
-        assertEquals("{}", ChatText.toolDetail("{}"))
     }
 }
