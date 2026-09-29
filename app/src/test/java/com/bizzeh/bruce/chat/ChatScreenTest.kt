@@ -12,6 +12,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.ui.theme.BruceTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -207,5 +209,24 @@ class ChatScreenTest {
         compose.onNodeWithTag("imageNotAllowed").assertIsDisplayed()
         compose.onNodeWithTag("loadImage").assertDoesNotExist()
         assertEquals(listOf("https://example.com/d.png"), loads)
+    }
+
+    @Test
+    fun theMicrophoneShowsOnlyWithAnOnDeviceRecogniser() {
+        var state by androidx.compose.runtime.mutableStateOf(ChatState(modelName = "m"))
+        val voiceActions = object : ChatActions by actions {
+            override fun startVoice() { calls += "voice" }
+            override fun stopVoice() { calls += "stop voice" }
+        }
+        compose.setContent { BruceTheme { ChatScreen(state, voiceActions) } }
+
+        compose.onNodeWithTag("voice").assertDoesNotExist()
+        state = state.copy(voice = VoiceState.IDLE)
+        compose.onNodeWithTag("voice").performClick()
+        state = state.copy(voice = VoiceState.LISTENING)
+        compose.onNodeWithText("Listening…").assertExists()
+        compose.onNodeWithTag("voice").performClick()
+
+        assertEquals(listOf("voice", "stop voice"), calls)
     }
 }

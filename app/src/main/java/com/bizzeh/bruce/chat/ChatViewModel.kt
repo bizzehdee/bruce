@@ -69,6 +69,8 @@ data class ChatState(
     /** Older messages are being summarised before the reply starts. */
     val summarising: Boolean = false,
     val error: ChatError? = null,
+    /** Voice input's state; set by the activity, which owns the recogniser and the microphone permission. */
+    val voice: VoiceState = VoiceState.UNAVAILABLE,
 )
 
 enum class ChatError {
