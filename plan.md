@@ -450,6 +450,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Voice input done, on-device only (TASK-074). |
 | 2026-09-29 | Changed | The default context size is Auto: the biggest that leaves the phone room for other apps, within what the model was trained for (TASK-073 done). |
 | 2026-09-29 | Changed | Models show their expected RAM against the phone's (TASK-072 done). |
 | 2026-09-29 | Added | Voice input through Android's on-device recogniser only; RAM use per model with a bar against the phone's RAM; context sizes up to 64K; a default context picked from the phone and the model. |

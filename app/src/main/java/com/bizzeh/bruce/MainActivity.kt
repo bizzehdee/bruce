@@ -1,5 +1,9 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.chat.VoiceText
+import com.bizzeh.bruce.chat.VoiceState
+import com.bizzeh.bruce.chat.VoiceRecogniser
+import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
@@ -191,13 +195,14 @@ class MainActivity : ComponentActivity() {
     @androidx.compose.runtime.Composable
     private fun Main(exit: SetupExit) {
         val chatState by chat.state.collectAsState()
+        val voice by voiceState.collectAsState()
         val activeModel by container.activeModel.state.collectAsState()
         LaunchedEffect(Unit) { container.modelSelection.restore() }
         val browse = exit == SetupExit.BROWSE_MODELS
         val active by conversations.active.collectAsState()
         val archived by conversations.archived.collectAsState()
         BruceApp(
-            chat = chatState,
+            chat = chatState.copy(voice = voice),
             chatActions = remember { chatActions() },
             activeModel = activeModel,
             actions = remember { appActions() },
@@ -375,11 +380,35 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         container.onScreen = true
+        voiceState.value = if (voice.available) VoiceState.IDLE else VoiceState.UNAVAILABLE
     }
 
     override fun onStop() {
         container.onScreen = false
+        // The microphone is only for while the user is here.
+        stopVoice()
         super.onStop()
+    }
+
+    private val voice: VoiceRecogniser by lazy { AndroidVoiceRecogniser(applicationContext) }
+    private val voiceState = MutableStateFlow(VoiceState.UNAVAILABLE)
+    private val microphonePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) listen() }
+
+    private fun startVoice() {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) listen() else microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+    }
+
+    private fun listen() {
+        voiceState.value = VoiceState.LISTENING
+        voice.start { text ->
+            voiceState.value = VoiceState.IDLE
+            text?.let { chat.setInput(VoiceText.append(chat.state.value.input, it)) }
+        }
+    }
+
+    private fun stopVoice() {
+        voice.stop()
+        if (voiceState.value == VoiceState.LISTENING) voiceState.value = VoiceState.IDLE
     }
 
     /** A reply notification's tap: shows the chat it belongs to. */
@@ -435,6 +464,8 @@ class MainActivity : ComponentActivity() {
             }
         }
         override suspend fun loadImage(url: String) = container.remoteImages.load(url)
+        override fun startVoice() = this@MainActivity.startVoice()
+        override fun stopVoice() = this@MainActivity.stopVoice()
     }
 
     private fun conversationActions() = object : ConversationActions {

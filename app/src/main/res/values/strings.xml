@@ -4,6 +4,9 @@
     <string name="chat_empty">Load a model to start chatting.</string>
     <string name="chat_empty_ready">I\'m %1$s. What can I help with?</string>
     <string name="chat_input_hint">Message %1$s</string>
+    <string name="chat_listening">Listening…</string>
+    <string name="chat_voice">Speak a message</string>
+    <string name="chat_voice_stop">Stop listening</string>
     <string name="chat_send">Send</string>
     <string name="chat_stop">Stop</string>
     <string name="chat_reasoning_show">Show reasoning</string>
@@ -166,6 +169,8 @@
     <string name="permission_notifications_summary">Lets Bruce tell you when a long reply finishes while you are using another app.</string>
     <string name="permission_write_settings">Modify system settings</string>
     <string name="permission_write_settings_summary">Lets the Change settings skill change brightness, screen timeout, auto-rotate and vibrate on touch. Nothing else uses it.</string>
+    <string name="permission_microphone">Microphone</string>
+    <string name="permission_microphone_summary">Used only while you speak a message after tapping the microphone. Speech is turned into text on the phone; the audio is not kept or sent anywhere.</string>
     <string name="permission_internet">Internet</string>
     <string name="permission_internet_summary">Used only as far as the Network mode setting allows. In Offline mode Bruce reaches nothing.</string>
     <string name="permission_local_network">Local network devices</string>

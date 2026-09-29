@@ -8,8 +8,17 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Network status skill: whether the phone is online and how; granted at install. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Voice input (TASK-074), through Android's on-device recogniser only; asked on first use. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- Only for the set_setting skill (TASK-067); the user grants it in Android's settings. -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
+
+    <!-- Package visibility for Android's speech recogniser service. -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
 
     <application
         android:name=".BruceApplication"

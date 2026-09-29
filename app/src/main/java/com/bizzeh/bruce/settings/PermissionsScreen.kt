@@ -214,6 +214,7 @@ private const val LOCAL_NETWORK = "android.permission.ACCESS_LOCAL_NETWORK"
 private val PERMISSION_TEXT = mapOf(
     Manifest.permission.POST_NOTIFICATIONS to (R.string.permission_notifications to R.string.permission_notifications_summary),
     Manifest.permission.WRITE_SETTINGS to (R.string.permission_write_settings to R.string.permission_write_settings_summary),
+    Manifest.permission.RECORD_AUDIO to (R.string.permission_microphone to R.string.permission_microphone_summary),
     Manifest.permission.INTERNET to (R.string.permission_internet to R.string.permission_internet_summary),
     LOCAL_NETWORK to (R.string.permission_local_network to R.string.permission_local_network_summary),
     Manifest.permission.ACCESS_NETWORK_STATE to (R.string.permission_network_state to R.string.permission_network_state_summary),

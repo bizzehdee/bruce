@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.chat
 
+import androidx.compose.material3.IconButton
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +64,10 @@ interface ChatActions {
     fun openLink(url: String) = Unit
 
     suspend fun loadImage(url: String): ImageResult = ImageResult.NotAllowed
+
+    /** Starts listening, asking for the microphone first if needed (TASK-074). */
+    fun startVoice() = Unit
+    fun stopVoice() = Unit
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -335,7 +340,21 @@ private fun Composer(state: ChatState, actions: ChatActions) {
         OutlinedTextField(
             value = state.input,
             onValueChange = actions::setInput,
-            placeholder = { Text(stringResource(R.string.chat_input_hint, state.sidekick)) },
+            placeholder = {
+                Text(if (state.voice == VoiceState.LISTENING) stringResource(R.string.chat_listening) else stringResource(R.string.chat_input_hint, state.sidekick))
+            },
+            trailingIcon = if (state.voice == VoiceState.UNAVAILABLE) null else {
+                {
+                    val listening = state.voice == VoiceState.LISTENING
+                    IconButton(onClick = if (listening) actions::stopVoice else actions::startVoice, modifier = Modifier.testTag("voice")) {
+                        Icon(
+                            painterResource(R.drawable.ic_mic),
+                            contentDescription = stringResource(if (listening) R.string.chat_voice_stop else R.string.chat_voice),
+                            tint = if (listening) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            },
             shape = RoundedCornerShape(24.dp),
             maxLines = 5,
             modifier = Modifier.weight(1f).testTag("composer"),

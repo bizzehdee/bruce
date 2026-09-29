@@ -514,7 +514,9 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`models/AutoContext.kt`): the default context setting is now optional; unset means Auto (a size someone chose before is kept). Free memory counts the loaded model's own estimate back in (`ActiveModelState.memoryBytes`, `AppContainer.memoryForModels`), so Auto does not shrink each time a model is reloaded. The Models screen's RAM figure and the loader use the same pick; the model browser still judges downloads at 4K when the setting is Auto. Files that do not declare their attention shape get 4K.
   - Seen on the Pixel 11 (11.37 GB): with Auto, Llama 3.2 1B was picked and loaded at 64K (1,303 of 65,536 tokens); Settings named "64K for the loaded model". Its earlier settings (default 8K, the model at 32K) were restored afterwards.
   - Depends on: TASK-071
-- [ ] TASK-074: Voice input
+- [x] TASK-074: Voice input
   - Owner (2026-09-29): a microphone button in the chat's message box starts Android's on-device speech recogniser (`SpeechRecognizer.createOnDeviceSpeechRecognizer`, Android 12 and later); audio never leaves the phone. The recognised text goes into the message box for the user to check and send.
   - Where the phone has no on-device recogniser, the button is not shown. The microphone permission is asked on first use and listed in Permissions.
+  - Done (`chat/VoiceInput.kt`): the microphone sits at the end of the message box; while listening the box says "Listening…" and the button stops it. Recognised text joins what is already typed. Listening stops when Bruce leaves the screen. Only error codes are logged, never what was said.
+  - Device-tested on the Pixel 11 (Android 17): the first tap asked for the microphone ("Only this time" chosen), the box showed "Listening…", and speech in the room came out as text in the message box, not sent. Not checked on the Xperias, which likely have no on-device recogniser.
 
