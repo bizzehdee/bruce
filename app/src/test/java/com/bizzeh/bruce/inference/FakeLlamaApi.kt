@@ -90,8 +90,11 @@ internal class FakeLlamaApi : LlamaApi {
         return 30L
     }
 
-    override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray): Int {
+    var lastReuse: Boolean? = null
+
+    override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean): Int {
         lastPrompt = promptUtf8
+        lastReuse = reuse
         return promptResult
     }
 

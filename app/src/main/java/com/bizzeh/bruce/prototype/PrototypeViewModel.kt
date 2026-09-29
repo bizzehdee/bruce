@@ -108,7 +108,7 @@ class PrototypeViewModel(
             it.copy(output = "", generating = true, stats = null, stopReason = null, generationError = null)
         }
         generation = viewModelScope.launch {
-            engine.generate(GenerationRequest(current.prompt)).collect { event -> apply(event) }
+            engine.generate(GenerationRequest(current.prompt, reusePrompt = false)).collect { event -> apply(event) }
             mutableState.update { it.copy(generating = false) }
         }
     }

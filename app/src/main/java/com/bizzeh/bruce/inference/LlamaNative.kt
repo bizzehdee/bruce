@@ -69,8 +69,12 @@ internal interface LlamaApi {
     /** How many tokens [textUtf8] is for [model], as a prompt: special tokens parsed, BOS added. */
     fun countTokens(model: Long, textUtf8: ByteArray): Int
 
-    /** Returns the prompt token count, or [PROMPT_TOO_LONG] or [DECODE_FAILED]. */
-    fun evaluatePrompt(generation: Long, promptUtf8: ByteArray): Int
+    /**
+     * Evaluates the prompt and returns how many of its tokens were decoded, or [PROMPT_TOO_LONG] or
+     * [DECODE_FAILED]. With [reuse], the part it shares with what the context already holds (the
+     * last prompt and reply) is kept rather than decoded again.
+     */
+    fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean): Int
 
     /** Returns [TOKEN], [END_OF_GENERATION], [CONTEXT_FULL] or [DECODE_FAILED]. */
     fun nextToken(generation: Long): Int
@@ -149,7 +153,7 @@ internal object LlamaNative : LlamaApi {
 
     external override fun toolCallGrammar(request: ByteArray): ByteArray?
 
-    external override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray): Int
+    external override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean): Int
 
     external override fun nextToken(generation: Long): Int
 

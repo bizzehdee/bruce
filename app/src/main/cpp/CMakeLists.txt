@@ -103,7 +103,7 @@ target_include_directories(bruce_chat PUBLIC ${LLAMA_COMMON_DIR})
 target_compile_features(bruce_chat PUBLIC cxx_std_17)
 target_link_libraries(bruce_chat PUBLIC llama vendor::nlohmann vendor::sheredom)
 
-add_library(bruce SHARED llama_jni.cpp chat_tools.cpp cpu_features.cpp vulkan_devices.cpp)
+add_library(bruce SHARED llama_jni.cpp chat_tools.cpp cpu_features.cpp prompt_cache.cpp vulkan_devices.cpp)
 target_include_directories(bruce PRIVATE ${EXTERNAL_DIR}/Vulkan-Headers/include)
 target_link_libraries(bruce PRIVATE llama ggml log vulkan bruce_chat)
 add_custom_command(TARGET bruce POST_BUILD

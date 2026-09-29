@@ -73,6 +73,8 @@ data class GenerationRequest(
     val grammar: ToolGrammar? = null,
     /** Generation ends once the reply ends with one of these (some templates end turns with text). */
     val stops: List<String> = emptyList(),
+    /** Keep what the prompt shares with the previous one instead of decoding it again; off for benchmarks. */
+    val reusePrompt: Boolean = true,
 ) {
     init {
         require(maxTokens > 0) { "maxTokens must be positive, was $maxTokens" }
