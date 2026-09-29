@@ -50,6 +50,9 @@ enum class ResourceScope {
     NONE,
     /** Only files and folders the user granted through the Storage Access Framework. */
     GRANTED_FILES,
+
+    /** Phone settings Bruce may change (TASK-067): one exact change to one catalog setting. */
+    PHONE_SETTINGS,
 }
 
 /** What a skill's execution produced, before sanitising. */

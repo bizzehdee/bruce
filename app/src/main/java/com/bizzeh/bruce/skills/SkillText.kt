@@ -20,6 +20,8 @@ object SkillText {
         "delete_file" to (R.string.skill_delete_file to R.string.skill_delete_file_summary),
         "find_settings" to (R.string.skill_find_settings to R.string.skill_find_settings_summary),
         "get_setting" to (R.string.skill_get_setting to R.string.skill_get_setting_summary),
+        "set_setting" to (R.string.skill_set_setting to R.string.skill_set_setting_summary),
+        "open_settings_page" to (R.string.skill_open_settings_page to R.string.skill_open_settings_page_summary),
     )
 
     fun state(state: SkillState): Int = when (state) {

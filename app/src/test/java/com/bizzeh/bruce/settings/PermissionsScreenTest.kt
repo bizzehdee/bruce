@@ -205,4 +205,17 @@ class PermissionsScreenTest {
         val started = shadowOf(context as Application).nextStartedActivity
         assertEquals(Settings.ACTION_APP_NOTIFICATION_SETTINGS, started.action)
     }
+
+    @Test
+    fun modifySystemSettingsIsShownAndChangedOnItsOwnAndroidPage() {
+        request(Manifest.permission.WRITE_SETTINGS to false)
+        compose.setContent { BruceTheme { PermissionsScreen(emptyList(), false, noGrantActions, {}, {}) } }
+
+        compose.onNodeWithText("Modify system settings").assertIsDisplayed()
+        compose.onNodeWithTag("change:${Manifest.permission.WRITE_SETTINGS}").performClick()
+
+        val started = shadowOf(context as Application).nextStartedActivity
+        assertEquals(Settings.ACTION_MANAGE_WRITE_SETTINGS, started.action)
+        assertEquals("package:${context.packageName}", started.dataString)
+    }
 }

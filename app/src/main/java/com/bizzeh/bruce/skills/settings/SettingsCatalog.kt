@@ -37,6 +37,8 @@ data class SettingEntry(
     /** Other words people use for it, for search. */
     val words: List<String>,
     val page: String,
+    /** How Bruce may change it, or null when only the user can (TASK-067). */
+    val change: SettingChange? = null,
     val read: (SettingsReader) -> String?,
 )
 
@@ -51,14 +53,14 @@ object SettingsCatalog {
     private const val STREAM_NOTIFICATION = 5
 
     val entries: List<SettingEntry> = listOf(
-        SettingEntry("brightness", "Screen brightness", SettingArea.DISPLAY, listOf("bright", "dim", "light"), "android.settings.DISPLAY_SETTINGS") { r ->
+        SettingEntry("brightness", "Screen brightness", SettingArea.DISPLAY, listOf("bright", "dim", "light"), "android.settings.DISPLAY_SETTINGS", SettingChange.Brightness) { r ->
             r.system("screen_brightness")?.toIntOrNull()?.let { "about ${(it * 100 / 255.0).roundToInt()}%" }
         },
-        onOff("auto_brightness", "Adaptive brightness", SettingArea.DISPLAY, listOf("automatic brightness"), "android.settings.DISPLAY_SETTINGS") { it.system("screen_brightness_mode") },
-        SettingEntry("screen_timeout", "Screen timeout", SettingArea.DISPLAY, listOf("sleep", "screen off", "lock"), "android.settings.DISPLAY_SETTINGS") { r ->
+        onOff("auto_brightness", "Adaptive brightness", SettingArea.DISPLAY, listOf("automatic brightness"), "android.settings.DISPLAY_SETTINGS", SettingChange.Switch("screen_brightness_mode")) { it.system("screen_brightness_mode") },
+        SettingEntry("screen_timeout", "Screen timeout", SettingArea.DISPLAY, listOf("sleep", "screen off", "lock"), "android.settings.DISPLAY_SETTINGS", SettingChange.Timeout) { r ->
             r.system("screen_off_timeout")?.toLongOrNull()?.let(::duration)
         },
-        onOff("auto_rotate", "Auto-rotate screen", SettingArea.DISPLAY, listOf("rotation", "orientation", "landscape", "portrait"), "android.settings.DISPLAY_SETTINGS") { it.system("accelerometer_rotation") },
+        onOff("auto_rotate", "Auto-rotate screen", SettingArea.DISPLAY, listOf("rotation", "orientation", "landscape", "portrait"), "android.settings.DISPLAY_SETTINGS", SettingChange.Switch("accelerometer_rotation")) { it.system("accelerometer_rotation") },
         SettingEntry("dark_theme", "Dark theme", SettingArea.DISPLAY, listOf("dark mode", "night mode"), "android.settings.DISPLAY_SETTINGS") { r ->
             when (r.nightMode()) {
                 1 -> "off"
@@ -92,7 +94,7 @@ object SettingsCatalog {
                 else -> null
             }
         },
-        onOff("touch_vibration", "Vibrate on touch", SettingArea.SOUND, listOf("haptic", "haptics", "feedback"), "android.settings.SOUND_SETTINGS") { it.system("haptic_feedback_enabled") },
+        onOff("touch_vibration", "Vibrate on touch", SettingArea.SOUND, listOf("haptic", "haptics", "feedback"), "android.settings.SOUND_SETTINGS", SettingChange.Switch("haptic_feedback_enabled")) { it.system("haptic_feedback_enabled") },
         onOff("wifi", "Wi-Fi", SettingArea.CONNECTIONS, listOf("wifi", "wireless", "internet"), "android.settings.WIFI_SETTINGS") { it.global("wifi_on") },
         onOff("bluetooth", "Bluetooth", SettingArea.CONNECTIONS, listOf("headphones", "pairing"), "android.settings.BLUETOOTH_SETTINGS") { it.global("bluetooth_on") },
         onOff("airplane_mode", "Airplane mode", SettingArea.CONNECTIONS, listOf("flight mode", "aeroplane"), "android.settings.AIRPLANE_MODE_SETTINGS") { it.global("airplane_mode_on") },
@@ -132,7 +134,7 @@ object SettingsCatalog {
             .take(MAX_FOUND)
     }
 
-    fun describe(entry: SettingEntry): String = "${entry.id}: ${entry.name} (${entry.area.title})"
+    fun describe(entry: SettingEntry): String = "${entry.id}: ${entry.name} (${entry.area.title}${if (entry.change != null) ", Bruce can change it" else ""})"
 
     fun value(entry: SettingEntry, reader: SettingsReader): String? = try {
         entry.read(reader)
@@ -152,8 +154,8 @@ object SettingsCatalog {
         else -> "${millis / 1000} seconds"
     }
 
-    private fun onOff(id: String, name: String, area: SettingArea, words: List<String>, page: String, raw: (SettingsReader) -> String?) =
-        SettingEntry(id, name, area, words, page) { r ->
+    private fun onOff(id: String, name: String, area: SettingArea, words: List<String>, page: String, change: SettingChange? = null, raw: (SettingsReader) -> String?) =
+        SettingEntry(id, name, area, words, page, change) { r ->
             when (raw(r)?.trim()) {
                 "1" -> "on"
                 "0" -> "off"
@@ -165,7 +167,7 @@ object SettingsCatalog {
         SettingEntry(id, name, area, words, page) { r -> raw(r)?.let { if (it) "on" else "off" } }
 
     private fun volume(id: String, name: String, words: List<String>, stream: Int) =
-        SettingEntry(id, name, SettingArea.SOUND, words + "volume", "android.settings.SOUND_SETTINGS") { r ->
+        SettingEntry(id, name, SettingArea.SOUND, words + "volume", "android.settings.SOUND_SETTINGS", SettingChange.Volume(stream)) { r ->
             r.volume(stream)?.let { (current, max) -> "$current of $max" }
         }
 

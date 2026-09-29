@@ -1,5 +1,7 @@
 package com.bizzeh.bruce
 
+import com.bizzeh.bruce.skills.ResourceScope
+import com.bizzeh.bruce.skills.settings.AndroidSettingsWriter
 import com.bizzeh.bruce.skills.settings.SettingsSkills
 import com.bizzeh.bruce.skills.settings.AndroidSettingsReader
 import com.bizzeh.bruce.settings.NetworkMode
@@ -209,18 +211,25 @@ class AppContainer(private val context: Context) {
     /** The names the model starts file paths with. */
     suspend fun grantNames(): List<String> = grantScope.names()
 
+    private val settingsSkills by lazy { SettingsSkills(AndroidSettingsReader(context), AndroidSettingsWriter(context)) }
+
     val skills: SkillRegistry by lazy {
         SkillRegistry(
             AutomaticSkills.create(AndroidPhoneReaders(context)) +
                 FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create() +
-                SettingsSkills(AndroidSettingsReader(context)).create(),
+                settingsSkills.create(),
         )
     }
 
     val runtime: BruceRuntime by lazy {
         val policy = PolicyEngine(skills, skillStates, ToolOutput(reservedMarkers = RESERVED_MARKERS), permissionGranted = { permission ->
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-        }, scope = grantScope::check)
+        }, scope = { request ->
+            when (request.skill.scope) {
+                ResourceScope.PHONE_SETTINGS -> settingsSkills.check(request)
+                else -> grantScope.check(request)
+            }
+        })
         BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames)
     }
 
