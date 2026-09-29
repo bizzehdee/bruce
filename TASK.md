@@ -466,10 +466,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: `LlamaCppEngine.getCapabilities` asks the device's vendor ID (`vulkanDeviceVendorId`, read with the API version from `vkGetPhysicalDeviceProperties`) along with the 1.2 rule. `BackendSelection.choices` lists Auto only beside a GPU choice; `BackendSelection.shown` maps a saved Auto to CPU in Settings and in a model's settings.
   - Seen on the Pixel 11: Settings, Backend shows only CPU, selected.
   - Depends on: TASK-050
-- [ ] TASK-066: Android settings: search, list and read
-  - Skills `search_settings` (by words, over a catalog of the settings Bruce knows: name, description, where it lives), `list_settings` (by area: display, sound, network, and so on) and `get_setting` (current value, readable form). Values come from `Settings.System`, `Settings.Global` and `Settings.Secure` where Android lets an app read them, and from platform APIs where it does not (for example Wi-Fi and Bluetooth state).
+- [x] TASK-066: Android settings: search, list and read
+  - Skills `find_settings` (by words, over a catalog of the settings Bruce knows; with no words, every setting by area: display, sound, connections, system) and `get_setting` (current value, readable form). Search and list are one skill so the prompt carries one tool fewer. Values come from `Settings.System`, `Settings.Global` and `Settings.Secure` where Android lets an app read them, and from platform APIs where it does not (for example Wi-Fi and Bluetooth state).
   - Catalog: a fixed list in Bruce, not free-form keys from the model; each entry names its store and key, how to show its value, whether Bruce can change it (TASK-067), and the Android settings page for it.
-  - Default state: Accepted for search and list (they read nothing from the phone), Declined for get_setting until the user turns it on (it reads device state). Capability `SETTINGS_READ`.
+  - Default state: Accepted for find_settings (it reads nothing from the phone), Declined for get_setting until the user turns it on (it reads device state). Capability `SETTINGS_READ`.
+  - Done (`skills/settings/`): 27 settings across Display, Sound, Connections and System, read from `Settings.System`/`Settings.Global` keys Android lets apps read, and from AudioManager, NotificationManager, UiModeManager, LocationManager, NfcAdapter and PowerManager. No `Settings.Secure` key was needed. A read Android refuses (SecurityException) says Bruce cannot read it. Mobile data cannot be read without the phone permission, so it says so (its page still exists for TASK-067).
+  - Device-tested on the Pixel 11 with Read settings accepted: Llama 3.2 1B called `get_setting` with `screen_timeout` for "What is my screen timeout set to?" and got "30 seconds" (the phone's value, 30000 ms). Its final answer repeated the raw tool result instead of a sentence, a limit of that model.
   - Depends on: TASK-035, TASK-052
   - Required by: TASK-067
 - [ ] TASK-067: Android settings: change the few Android allows, open the page for the rest

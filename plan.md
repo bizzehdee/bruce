@@ -444,6 +444,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Changed | Finding and reading Android settings done. |
 | 2026-09-29 | Added | Android settings skills (search, list, read; change the few Android allows, asking first; otherwise open the settings page), approved sites with in-chat approval, web pages (GET only) and web search (Brave Search API, user's own key). Search provider decided. |
 | 2026-09-29 | Changed | Vulkan is not offered on PowerVR GPUs (owner, for now): their driver gives wrong output and can crash the GPU on the Pixel 11. With the CPU as the only backend, Auto is not offered. |
 | 2026-09-29 | Changed | Formatted replies done. Images in replies load only when tapped, even in Any site mode: an image address written by the model could carry chat text to any server. |

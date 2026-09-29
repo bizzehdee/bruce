@@ -78,6 +78,10 @@
     <string name="skill_write_file_summary">Replaces the whole text of a plain-text file you have granted.</string>
     <string name="skill_delete_file">Delete files</string>
     <string name="skill_delete_file_summary">Deletes single files inside folders you have granted. Deleted files cannot be recovered.</string>
+    <string name="skill_find_settings">Find settings</string>
+    <string name="skill_find_settings_summary">Looks up which phone settings Bruce knows about, such as brightness or Wi-Fi. Reads nothing from the phone.</string>
+    <string name="skill_get_setting">Read settings</string>
+    <string name="skill_get_setting_summary">Reads the current value of a phone setting, such as screen timeout or whether Bluetooth is on.</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
