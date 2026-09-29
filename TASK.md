@@ -322,7 +322,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The chat shows a bar with tokens used and free, a line above the first message the model still sees, a "Nearly full" note from 85% of the prompt limit or once anything is dropped, and an explanation on tap.
   - Device-tested on the Pixel 11 with Qwen3.5-0.8B at a 2K context: an empty chat used 1,382 tokens of 4,096 (system prompt and nine skills); at 2K, three story requests dropped the oldest exchanges, the marker appeared and replies continued. First try showed no bar: measuring an empty chat failed in the template, found in the log and fixed.
   - Depends on: TASK-024, TASK-032
-  - Required by: TASK-046, TASK-060
+  - Required by: TASK-046, TASK-060, TASK-064
 - [x] TASK-046: Auto-summarise option
   - Setting, off by default: auto-summarise older messages. When on, a threshold of 85, 90, 95 or 100% context use triggers a summary of the oldest messages, which replaces them in what is sent to the model.
   - When off, TASK-045's drop-oldest behaviour applies.
@@ -379,11 +379,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Migration test on the Pixel builds a version 1 database from the exported schema with plain SQLite (Room's MigrationTestHelper needs a newer kotlinx-serialization than the app ships, so `room-testing` was dropped). In the real app on the Pixel 11, Qwen3.5-0.8B answered "What time is it?" through the date-and-time skill.
   - Depends on: TASK-032, TASK-052
   - Required by: TASK-041
-- [ ] TASK-054: Short skill list past a prompt budget
+- [x] TASK-054: Short skill list past a prompt budget
   - Measure on both Sony phones and the Pixel 11 the TASK-033 cases with each model's own tool format when skills are given as one-line descriptions, against full descriptions: accuracy, prompt tokens and prompt time.
   - Set a prompt budget for skill descriptions from those timings; past it, give the model the one-line list and add a skill's full description when the model picks it (a second step in the agent loop).
   - Needed before the skills outgrow the budget: at the latest with the file skills (TASK-042 to TASK-044).
   - Prioritised (2026-09-28): done after TASK-059 and TASK-060 and before TASK-047; the nine skills take about 1,100 of the 1,382 fixed tokens with Qwen3.5-0.8B.
+  - Closed without building (owner, 2026-09-29) after measuring (research/experiments/tool-calling-2026-09-28, addendum): the template's fixed tool header is most of the cost (about 250 tokens for Qwen3.5, 130 for Llama 3.2) and each skill adds 55–70, of which the argument schema is about 10. The short list saved 7–13% of skill tokens and scored 29/36 against 33/36 for Qwen3.5. With prompt reuse (TASK-056) only a chat's first message pays for the skills. Revisit if the skills grow well past nine.
   - Depends on: TASK-052
 - [x] TASK-056: Reuse the evaluated prompt between turns
   - Every turn re-evaluates the whole conversation (TASK-024), and with tools the fixed part alone is 300–600 tokens: about a minute on the XZ Premium (TASK-033). Keep the KV cache between generations and evaluate only the tokens after the longest shared prefix with the previous prompt; clear it when the model, context or template changes.
@@ -432,4 +433,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Open before starting: the licence of each template Bruce would ship (Meta's may count as Llama Materials under the Llama 3.2 licence) and how a family is recognised reliably (architecture, tokenizer's special tokens).
   - Measure with the TASK-033 cases: Llama 3.2 1B scored 15/36 in Bruce's format and 18/36 in its own on the host.
   - Depends on: TASK-036
-
+- [ ] TASK-064: Context traffic lights
+  - The chat's context bar is green below 65%, amber from 65% to below 85% and red from 85%, measured against what the prompt may use (the context less the reply reserve, as "Nearly full" is), so red means old messages are about to be dropped at any context size.
+  - Appearance setting "Context traffic lights", on by default; off, the bar looks as it does now.
+  - Depends on: TASK-045

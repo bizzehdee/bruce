@@ -115,3 +115,26 @@ as `{}` (bad JSON there broke every later turn, reported as "Load a model first"
 gets its earlier result and the rest of the turn offers no skills. On the Xperia 1 II the
 calculator and battery questions were then answered; malformed calls remain the model's.
 
+## Addendum 2026-09-29: short skill list (TASK-054)
+
+New variant `short` in `run.py`: the model's own format with tools given by name and description
+only; a tool that takes arguments gets its full definition in a tool result and is called again.
+Host, Qwen3.5-0.8B Q8_0, 36 cases (`results/host-short-qwen35-2026-09-29.jsonl`):
+
+| Variant | Correct | bad_args | Mean prompt tokens (both steps) |
+|---|---|---|---|
+| native (full definitions) | 33 | 1 | 607 |
+| short | 29 | 6 | 691 |
+
+Prompt tokens for a one-word message, by number of tools (the six in `cases.json`):
+
+| Model | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 6, short |
+|---|---|---|---|---|---|---|---|---|
+| Qwen3.5-0.8B | 36 | 290 | 379 | 435 | 491 | 543 | 599 | 547 |
+| Llama-3.2-1B (bartowski) | 54 | 181 | 295 | 365 | 435 | 501 | 571 | 496 |
+| gemma-4-E2B | 34 | – | – | – | – | – | 304 | 265 |
+
+Most of the cost is the template's fixed tool header (about 250 tokens for Qwen3.5, 130 for
+Llama); each further tool adds 55–70, of which the argument schema is about 10. Dropping schemas
+saves 7–13% of the tool tokens and lost four cases, all on the second step's arguments.
+
