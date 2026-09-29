@@ -519,4 +519,21 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Where the phone has no on-device recogniser, the button is not shown. The microphone permission is asked on first use and listed in Permissions.
   - Done (`chat/VoiceInput.kt`): the microphone sits at the end of the message box; while listening the box says "Listening…" and the button stops it. Recognised text joins what is already typed. Listening stops when Bruce leaves the screen. Only error codes are logged, never what was said.
   - Device-tested on the Pixel 11 (Android 17): the first tap asked for the microphone ("Only this time" chosen), the box showed "Listening…", and speech in the room came out as text in the message box, not sent. Not checked on the Xperias, which likely have no on-device recogniser.
+- [ ] TASK-075: Remote model servers: adding and checking a server
+  - Owner (2026-09-29): the user can connect Bruce to their own (or any) llama.cpp server, so the model need not run on the phone.
+  - Settings, Models: add a server with a name, its address and an optional API key (llama-server `--api-key`), stored encrypted with the Android Keystore like the Hugging Face token. Bruce checks it with the OpenAI-compatible `GET /v1/models` and lists the models it offers.
+  - Connections: HTTPS anywhere; plain HTTP only to private-network addresses (10.x, 172.16–31.x, 192.168.x, link-local, `.local` names, localhost), with a warning that others on that network could read the chat. Nothing else is allowed.
+  - Network rule: adding a server is the permission for that one address; Offline mode blocks it, and every other mode allows it. It is not an approved site and grants nothing else.
+  - Android 17 treats local-network access as a permission (ACCESS_LOCAL_NETWORK, .learnings/android-17-local-network-permission.md): check what a LAN server needs before building, and ask for it only when one is added.
+  - Required by: TASK-076, TASK-077
+- [ ] TASK-076: Remote model servers: chatting through one
+  - A second inference engine that sends the conversation and the skills' definitions to the server's `POST /v1/chat/completions` (streamed), with the server applying the model's own chat template and returning tool calls. Skills still run on the phone, through the same policy engine and confirmations; only the replies come from the server.
+  - Bruce's runtime today formats prompts itself (templates, prompt reuse, token counts); a remote engine takes messages instead. The runtime gains that path without changing the on-phone one. This is an architectural change: its design is shown to the owner before it is built.
+  - Context use: the server's context size from `/props` where llama-server offers it; token counts from the server's usage reports.
+  - Errors map to the chat's existing ones (no model, too long, failed), plus "server unreachable".
+  - Depends on: TASK-075
+- [ ] TASK-077: Remote model servers: choosing one
+  - Owner (2026-09-29): the Models screen gains a Servers section; each server's models appear alongside installed models and in the chat title's model switcher. One model, on the phone or on a server, is active at a time; the choice survives restarts.
+  - A server model shows where it runs and no RAM figure.
+  - Depends on: TASK-075, TASK-076
 

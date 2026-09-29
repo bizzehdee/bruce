@@ -97,6 +97,12 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   Context sizes run from 2K to 64K; by default Bruce picks the biggest that
   leaves the phone room for other apps, within what the model was trained for.
   `planned`
+- **Remote model servers** — Connect to the user's own (or any) llama.cpp server,
+  or another OpenAI-compatible one, so the model runs there instead of on the
+  phone. HTTPS anywhere, plain HTTP only on the local network with a warning; an
+  optional API key stored encrypted. Adding a server is the permission for that
+  address alone, and Offline mode blocks it. Skills still run on the phone under
+  the same policy. Servers' models are listed with installed ones. `planned`
 - **Hugging Face discovery** — Search public GGUF repositories through the
   anonymous Hub API. Search results already carry architecture, parameter count,
   context length, licence and gated status, so incompatible or gated models can be
@@ -377,12 +383,13 @@ device-to-device transfer.
 |---|---|---|
 | Hugging Face Hub API | Model search, metadata, GGUF download, optional sign-in | No. Bruce works offline once a model is installed. |
 | Android platform APIs | Battery, device, storage, network, SAF, calendar, settings, and other skills | Yes, per skill and per user grant. |
+| Remote model servers | Replies from a model on the user's llama.cpp (or other OpenAI-compatible) server | No. Only if the user adds one. |
 | Brave Search API | The web search skill, with the user's own key | No. Only if the user adds a key and allows the network. |
 | Web sites | The web page skill, GET only | No. Only where the network mode allows the site. |
 
 ## Constraints
 
-- Inference must work with no network connection.
+- Inference must work with no network connection; a remote server is an optional alternative, never required.
 - No network request is made unless the current network mode allows it.
 - The model must not be able to change permissions, grants or policy.
 - An approved confirmation must match the executed operation exactly.
@@ -450,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-29 | Added | Remote model servers (owner): OpenAI-compatible API, HTTPS or plain HTTP on the local network, a server is its own permission, listed with installed models (TASK-075 to TASK-077). |
 | 2026-09-29 | Changed | Downloads are no longer blocked by the size-only fit (owner): Download reads the file's header first and stops only if the model really cannot fit. Gemma 4's memory is estimated as llama.cpp uses it. |
 | 2026-09-29 | Changed | Voice input done, on-device only (TASK-074). |
 | 2026-09-29 | Changed | The default context size is Auto: the biggest that leaves the phone room for other apps, within what the model was trained for (TASK-073 done). |
