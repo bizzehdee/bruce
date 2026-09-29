@@ -229,4 +229,19 @@ class ChatScreenTest {
 
         assertEquals(listOf("voice", "stop voice"), calls)
     }
+
+    @Test
+    fun aNewSiteCanBeAlwaysAllowedFromTheCard() {
+        val tool = ToolUse("c1", "fetch_page", "", ToolStatus.AWAITING_APPROVAL)
+        val siteActions = object : ChatActions by actions {
+            override fun alwaysAllowSites(callId: String) { calls += "always $callId" }
+        }
+        val confirmation = Confirmation("c1", "fetch_page", listOf("url" to "https://example.com"), listOf("example.com"), newSites = listOf("example.com"))
+        compose.setContent {
+            BruceTheme { ChatScreen(ChatState(modelName = "m", entries = listOf(ChatEntry(ChatRole.USER, "Hi"), ChatEntry(ChatRole.TOOL, "", tool = tool)), confirmations = mapOf("c1" to confirmation)), siteActions) }
+        }
+
+        compose.onNodeWithText("Always allow example.com").performClick()
+        assertEquals(listOf("always c1"), calls)
+    }
 }

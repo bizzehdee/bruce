@@ -38,6 +38,7 @@ class SettingsScreenTest {
         override fun clearAllData() { calls += "clear" }
         override fun deleteAllConversations() { calls += "deleteChats" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
+        override fun removeSite(host: String) { calls += "remove $host" }
         override fun setPersonality(personality: Personality) { calls += "personality $personality" }
         override fun setSummaryEnabled(enabled: Boolean) { calls += "summarise $enabled" }
         override fun setSummaryThreshold(threshold: Int) { calls += "threshold $threshold" }
@@ -116,6 +117,25 @@ class SettingsScreenTest {
         compose.onNodeWithTag("contextAuto").assertDoesNotExist()
         compose.onNodeWithTag("context:auto").performScrollTo().performClick()
         assertEquals(listOf("context null"), calls)
+    }
+
+    @Test
+    fun approvedSitesAreListedAndCanBeRemoved() {
+        show(SettingsState(network = NetworkMode.APPROVED_DOMAINS, approvedSites = listOf("example.com")))
+        compose.onNodeWithTag("removeSite:example.com").performScrollTo().performClick()
+        assertEquals(listOf("remove example.com"), calls)
+    }
+
+    @Test
+    fun theApprovedSitesListExplainsItselfWhenEmptyAndHidesInOtherModes() {
+        show(SettingsState(network = NetworkMode.APPROVED_DOMAINS))
+        compose.onNodeWithTag("sitesEmpty").performScrollTo().assertExists()
+    }
+
+    @Test
+    fun noApprovedSitesListInOtherModes() {
+        show(SettingsState(network = NetworkMode.GENERAL))
+        compose.onNodeWithTag("sitesEmpty").assertDoesNotExist()
     }
 
     @Test

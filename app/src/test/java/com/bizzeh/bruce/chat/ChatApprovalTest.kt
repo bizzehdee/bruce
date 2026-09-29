@@ -58,6 +58,7 @@ class ChatApprovalTest {
         val call = ToolCall("write_note", """{"path":"Notes/todo.txt","text":"milk"}""", "c1")
         val histories = mutableListOf<List<ToolChatMessage>>()
         val answers = mutableListOf<Boolean>()
+        val remembered = mutableListOf<Boolean>()
         val saved = mutableListOf<List<ChatEntry>>()
 
         fun respond(history: List<ToolChatMessage>, @Suppress("UNUSED_PARAMETER") memory: List<String>) = flow {
@@ -73,6 +74,7 @@ class ChatApprovalTest {
 
         suspend fun answer(call: ToolCall, decision: PolicyDecision.NeedsConfirmation, approved: Boolean): RuntimeEvent.ToolResult {
             answers += approved
+            remembered += decision.rememberSites
             return RuntimeEvent.ToolResult(call, if (approved) """{"status":"ok"}""" else """{"code":"USER_DENIED"}""", ran = approved)
         }
 
@@ -96,6 +98,18 @@ class ChatApprovalTest {
         assertEquals("write_note", confirmation.skillId)
         assertEquals(listOf("Notes/todo.txt"), confirmation.targets)
         assertEquals(listOf("path" to "Notes/todo.txt", "text" to "milk"), confirmation.arguments)
+    }
+
+    @Test
+    fun alwaysAllowingASiteTellsThePolicyToRememberIt() = runTest(dispatcher) {
+        val script = Script()
+        ask(script)
+
+        script.vm.decide("c1", approved = true, alwaysAllowSites = true)
+        advanceUntilIdle()
+
+        assertEquals(listOf(true), script.answers)
+        assertEquals(listOf(true), script.remembered)
     }
 
     @Test

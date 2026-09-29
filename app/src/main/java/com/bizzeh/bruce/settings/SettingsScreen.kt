@@ -61,6 +61,8 @@ data class SettingsState(
     val fixedPromptTokens: Int? = null,
     /** The size Auto gave the loaded model; null with none loaded or when the model has its own size. */
     val autoContext: Int? = null,
+    /** Sites the user always allows in the Approved sites mode (TASK-068). */
+    val approvedSites: List<String> = emptyList(),
 )
 
 interface SettingsActions {
@@ -74,6 +76,7 @@ interface SettingsActions {
     fun clearAllData()
     fun deleteAllConversations()
     fun setNetworkMode(mode: NetworkMode)
+    fun removeSite(host: String) = Unit
     fun setPersonality(personality: Personality)
     fun setMemoryMode(mode: MemoryMode)
     fun openMemory()
@@ -234,6 +237,24 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                         .selectable(selected = mode == state.network, role = Role.RadioButton) { actions.setNetworkMode(mode) }
                         .testTag("network:$mode"),
                 )
+            }
+            if (state.network == NetworkMode.APPROVED_DOMAINS || state.approvedSites.isNotEmpty()) {
+                Label(R.string.settings_approved_sites)
+                if (state.approvedSites.isEmpty()) {
+                    Text(
+                        stringResource(R.string.settings_approved_sites_empty),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 16.dp).testTag("sitesEmpty"),
+                    )
+                }
+                state.approvedSites.forEach { host ->
+                    ListItem(
+                        headlineContent = { Text(host) },
+                        trailingContent = { TextButton(onClick = { actions.removeSite(host) }, modifier = Modifier.testTag("removeSite:$host")) { Text(stringResource(R.string.settings_site_remove)) } },
+                        modifier = Modifier.testTag("site:$host"),
+                    )
+                }
             }
             val account = state.account
             if (account != null) {

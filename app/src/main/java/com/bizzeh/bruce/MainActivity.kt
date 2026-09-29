@@ -154,6 +154,7 @@ class MainActivity : ComponentActivity() {
                 memory = container.memorySettings,
                 hubAuth = container.hubAuth,
                 dataReset = container.dataReset,
+                sites = container.sites,
                 dynamicColourSupported = dynamicColourSupported(),
                 performanceCores = CpuTopology.performanceCoreCount(),
                 cores = Runtime.getRuntime().availableProcessors(),
@@ -454,6 +455,7 @@ class MainActivity : ComponentActivity() {
         }
         override fun stop() = chat.stop()
         override fun decide(callId: String, approved: Boolean) = chat.decide(callId, approved)
+        override fun alwaysAllowSites(callId: String) = chat.decide(callId, approved = true, alwaysAllowSites = true)
         override fun openLink(url: String) {
             val address = Markdown.openable(url) ?: return
             try {
@@ -495,6 +497,7 @@ class MainActivity : ComponentActivity() {
         }
         override fun deleteAllConversations() = conversations.deleteAll()
         override fun setNetworkMode(mode: NetworkMode) = settings.setNetworkMode(mode)
+        override fun removeSite(host: String) = settings.removeSite(host)
         override fun setPersonality(personality: Personality) = settings.setPersonality(personality)
         override fun setSummaryEnabled(enabled: Boolean) = settings.setSummaryEnabled(enabled)
         override fun setSummaryThreshold(threshold: Int) = settings.setSummaryThreshold(threshold)

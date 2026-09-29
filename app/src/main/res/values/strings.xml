@@ -32,6 +32,7 @@
     <string name="chat_confirm_title">Allow %1$s?</string>
     <string name="chat_confirm_target">On: %1$s</string>
     <string name="chat_confirm_allow">Allow once</string>
+    <string name="chat_confirm_always_site">Always allow %1$s</string>
     <string name="chat_confirm_deny">Don\'t allow</string>
     <string name="chat_confirm_expired">No longer waiting. Ask again if you still want this.</string>
     <string name="nav_open_drawer">Open menu</string>
@@ -211,6 +212,9 @@
     <string name="network_general">Any site</string>
     <string name="network_offline_summary">Nothing leaves this phone. Model search and downloads are off.</string>
     <string name="network_huggingface_summary">Bruce may reach Hugging Face to search, sign in and download models. Nothing else.</string>
+    <string name="settings_approved_sites">Approved sites</string>
+    <string name="settings_approved_sites_empty">None yet. The first time a skill reaches a new site, Bruce asks, and you can always allow it.</string>
+    <string name="settings_site_remove">Remove</string>
     <string name="network_approved_summary">Hugging Face, plus sites you approve once Bruce has skills that use the web.</string>
     <string name="network_general_summary">Any site, once Bruce has skills that use the web.</string>
     <string name="account_sign_in">Sign in to Hugging Face</string>

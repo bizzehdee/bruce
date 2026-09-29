@@ -51,7 +51,7 @@ class PolicyMigrationTest {
         create(1, "INSERT INTO skill_states (skillId, state, updatedAt) VALUES ('get_datetime', 'DECLINED', 10)", "INSERT INTO policy_version (id, version) VALUES (0, 7)")
 
         val database = Room.databaseBuilder(instrumentation.targetContext, PolicyDatabase::class.java, file.name)
-            .addMigrations(PolicyDatabase.MIGRATION_1_2, PolicyDatabase.MIGRATION_2_3)
+            .addMigrations(PolicyDatabase.MIGRATION_1_2, PolicyDatabase.MIGRATION_2_3, PolicyDatabase.MIGRATION_3_4)
             .build()
         val clock = Skill("get_datetime", 1, "Time.", InputSchema(), emptySet(), SkillState.ACCEPTED) { SkillOutcome.Done("") }
 
@@ -66,7 +66,7 @@ class PolicyMigrationTest {
         create(2, "INSERT INTO grants (id, uri, name, kind, grantedAt) VALUES (4, 'content://docs/tree/a', 'Documents', 'FOLDER', 10)")
 
         val database = Room.databaseBuilder(instrumentation.targetContext, PolicyDatabase::class.java, file.name)
-            .addMigrations(PolicyDatabase.MIGRATION_2_3)
+            .addMigrations(PolicyDatabase.MIGRATION_2_3, PolicyDatabase.MIGRATION_3_4)
             .build()
 
         assertEquals(listOf("Documents"), database.policy().allGrants().map { it.name })
@@ -74,6 +74,21 @@ class PolicyMigrationTest {
         database.policy().setInstructionChoice(FolderInstructionsEntity(4, "h", follow = true))
         database.policy().removeGrant(4)
         assertEquals(null, database.policy().instructionChoice(4))
+        database.close()
+    }
+
+    @Test
+    fun version3ChoicesSurviveAndNoSiteIsApprovedYet() = runBlocking {
+        create(3, "INSERT INTO folder_instructions (grantId, hash, follow) VALUES (4, 'h', 1)")
+
+        val database = Room.databaseBuilder(instrumentation.targetContext, PolicyDatabase::class.java, file.name)
+            .addMigrations(PolicyDatabase.MIGRATION_3_4)
+            .build()
+
+        assertEquals("h", database.policy().instructionChoice(4)?.hash)
+        assertEquals(false, database.policy().isApprovedSite("example.com"))
+        database.policy().approveSite(ApprovedSiteEntity("example.com", 1))
+        assertEquals(true, database.policy().isApprovedSite("example.com"))
         database.close()
     }
 }
