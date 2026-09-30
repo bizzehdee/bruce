@@ -89,3 +89,44 @@ the same file as the Xperia 1 II for every candidate.
 - **"fp16" in file names was not recognised** (Qwen's own repositories use it), so those float
   files counted as quantised and outranked Q8_0 on the 8 GB phone. Fixed in `ModelFit` with a
   regression test before these picks were made.
+
+## Cases and harnesses (TASK-104, 2026-09-30)
+
+- `cases.json`: 41 cases in eight groups (instructions, knowledge, reasoning, text, grounding,
+  conversation, skill, no-skill), each run with skills on and off, plus the long-chat "needle"
+  for the context sweep. The Wi-Fi case was dropped: a fresh install is offline, so the network
+  skill is locked.
+- **Skills on** means a fresh install (offline, nothing granted) with the battery, device and
+  storage skills turned on, since cases ask for them. That offers exactly the six automatic skills
+  less network: `get_datetime`, `calculate`, `get_battery_status`, `get_device_info`,
+  `get_storage_status`; every other skill is declined by default. 583 fixed prompt tokens with
+  LFM2.5-230M (235 with skills off).
+- `bruce-prompt.json`: the system prompt and skill definitions the app sends, captured on the
+  Xperia 1 II; the host screen sends the same.
+- **Phone:** `ModelBinDeviceTest` (manual-only device test) drives `BruceRuntime` with the model
+  in `files/bins`, greedy, at context 4096 (`mode=cases`), or per context length (`mode=sweep`:
+  load time, resident memory, first-token time cold and with the prompt reused, and the long chat
+  filled to 70% of the window, below the runtime's prompt limit so nothing is dropped). It waits
+  while the battery is above 40 °C. App data is kept.
+- **Host:** `host.py` against `llama-server` from the pinned llama.cpp (7fe450e19), the model's
+  own tool format, thinking off, greedy; fixed skill results in Bruce's envelope; the calculator
+  evaluates for real; Bruce's repeated-call handling copied.
+- **Grading:** `grade.py summary|report` (tests: `python3 -m unittest test_grade`). A reply fails
+  if it declines a task it could do ("I don't have access to a tool…"), calls a skill where none
+  is needed, misses or misuses a needed one, or fails the case's checks. With skills off, a case
+  that needs a skill must say it cannot check and must not invent a value.
+
+### Harness check: LFM2.5-230M Q8_0 (`results/harness-check/`)
+
+| Platform | General, skills on | General, skills off | Skill cases | Honest, skills off | Unwanted calls | Missed calls |
+|---|---|---|---|---|---|---|
+| Xperia 1 II | 0.17 | 0.70 | 0.64 | 1.00 | 4 | 2 |
+| Host | 0.17 | 0.70 | 0.64 | 1.00 | 4 | 2 |
+
+- **Host and phone agree** on every rate, although only 46 of 82 replies are word-for-word the
+  same (different skill values, and small numeric differences between x86 and ARM kernels).
+- **Offering skills can wreck a small model.** With the five skills offered, LFM2.5-230M declined
+  most ordinary questions ("I don't have access to a tool that can…", even for the capital of
+  Australia); without them it answered 70% correctly. This is the effect the bins must capture.
+- Context sweep on the Xperia 1 II: loads at every length up to 16384 in about 0.4 s; the long
+  chat's answer was wrong at every length (this model does not recall the fact).

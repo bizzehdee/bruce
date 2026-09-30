@@ -1,0 +1,65 @@
+{
+  "about": "Cases for binning small models (TASK-104). Every case runs with skills on and skills off. 'tool' is the skill a case needs with skills on (null: none; 'optional': either). 'checks' grade the final reply; 'off' says what counts as right with skills off: 'same' (the checks), 'honest' (says it cannot know or check, and does not invent), or 'value' (the checks, as the model can work it out itself). 'rubric' cases are also read by a person.",
+  "cases": [
+    {"id": "if-three-words", "category": "instructions", "turns": ["Reply with exactly three words describing the sea."], "tool": null, "checks": [{"words": [3, 3]}], "off": "same"},
+    {"id": "if-bullets", "category": "instructions", "turns": ["List three fruits as a bulleted list and nothing else."], "tool": null, "checks": [{"bullets": 3}], "off": "same"},
+    {"id": "if-yes-no", "category": "instructions", "turns": ["Answer only yes or no: is Paris the capital of France?"], "tool": null, "checks": [{"regex": "^\\W*yes\\W*$"}], "off": "same"},
+    {"id": "if-french", "category": "instructions", "turns": ["Translate into French: \"Good morning, how are you?\""], "tool": null, "checks": [{"any": ["bonjour"]}, {"any": ["comment", "ça va", "ca va", "allez-vous"]}], "off": "same"},
+    {"id": "if-capitals", "category": "instructions", "turns": ["Write one sentence about cats, in capital letters only."], "tool": null, "checks": [{"uppercase": 0.9}, {"any": ["CAT"]}], "off": "same"},
+    {"id": "if-json", "category": "instructions", "turns": ["Give me a JSON object with the keys name and age for a person called Sam who is 30. Reply with only the JSON."], "tool": null, "checks": [{"json": {"name": "Sam", "age": 30}}], "off": "same"},
+    {"id": "if-brief", "category": "instructions", "turns": ["In one sentence, what is photosynthesis?"], "tool": null, "checks": [{"words": [5, 45]}, {"any": ["light", "sun"]}], "off": "same"},
+
+    {"id": "fact-canberra", "category": "knowledge", "turns": ["What is the capital of Australia?"], "tool": null, "checks": [{"any": ["Canberra"]}], "off": "same"},
+    {"id": "fact-spider", "category": "knowledge", "turns": ["How many legs does a spider have?"], "tool": null, "checks": [{"any": ["8", "eight"]}], "off": "same"},
+    {"id": "fact-shakespeare", "category": "knowledge", "turns": ["Who wrote Romeo and Juliet?"], "tool": null, "checks": [{"any": ["Shakespeare"]}], "off": "same"},
+    {"id": "fact-boiling", "category": "knowledge", "turns": ["At sea level, what temperature does water boil at, in Celsius?"], "tool": null, "checks": [{"any": ["100"]}], "off": "same"},
+    {"id": "fact-jupiter", "category": "knowledge", "turns": ["Which is the largest planet in our solar system?"], "tool": null, "checks": [{"any": ["Jupiter"]}], "off": "same"},
+
+    {"id": "reason-feathers", "category": "reasoning", "turns": ["Which is heavier, a kilogram of feathers or a kilogram of steel?"], "tool": null, "checks": [{"any": ["same", "neither", "equal", "both weigh", "both are", "both have"]}], "off": "same"},
+    {"id": "reason-apples", "category": "reasoning", "turns": ["I have 3 apples, eat one, then buy 5 more. How many apples do I have now?"], "tool": "optional", "checks": [{"number": 7}], "off": "value"},
+    {"id": "reason-shortest", "category": "reasoning", "turns": ["Tom is taller than Ann. Ann is taller than Joe. Who is the shortest?"], "tool": null, "checks": [{"any": ["Joe"]}, {"none": ["Tom is the shortest", "Ann is the shortest"]}], "off": "same"},
+    {"id": "reason-days", "category": "reasoning", "turns": ["If today is Monday, what day will it be in three days?"], "tool": "optional", "checks": [{"any": ["Thursday"]}], "off": "value"},
+
+    {"id": "text-summary", "category": "text", "turns": ["Summarise this in one sentence:\n\nThe town council met on Tuesday to discuss the new library. Construction will start in March and should take eighteen months. The building will have a children's wing, a cafe and space for community events. Funding comes mostly from a national grant, with the rest raised locally."], "tool": null, "checks": [{"words": [8, 45]}, {"any": ["library"]}], "rubric": "One sentence that keeps the library, the start or duration, and at least one feature or the funding; nothing invented.", "off": "same"},
+    {"id": "text-formal", "category": "text", "turns": ["Rewrite this to sound polite and formal: \"hey, send me the report by friday or we're in trouble\""], "tool": null, "checks": [{"any": ["Friday"]}, {"none": ["hey"]}], "rubric": "Polite and formal, keeps the report and the Friday deadline.", "off": "same"},
+    {"id": "text-extract", "category": "text", "turns": ["From this message, when is the meeting? \"The team meeting has moved from Tuesday to Thursday at 3pm, in room 4.\""], "tool": null, "checks": [{"any": ["Thursday"]}, {"any": ["3pm", "3 pm", "3 p.m", "15:00", "three"]}], "off": "same"},
+    {"id": "ground-colour", "category": "grounding", "turns": ["Using only this text, what colour is Sam's car? \"Sam parked his bike by the red door and went inside.\""], "tool": null, "checks": [{"any": ["not", "no mention", "doesn't", "does not", "isn't", "unknown", "no information", "only"]}, {"none": ["car is red", "red car"]}], "rubric": "Says the text does not say (it mentions a bike, not a car).", "off": "same"},
+    {"id": "ground-price", "category": "grounding", "turns": ["According to this note, how much did the tickets cost? \"We bought two tickets for the concert on Friday.\""], "tool": null, "checks": [{"any": ["not", "no mention", "doesn't", "does not", "isn't", "unknown", "no information"]}, {"no_money": true}], "rubric": "Says the note does not give a price.", "off": "same"},
+
+    {"id": "chat-name", "category": "conversation", "turns": ["Hi, my name is Priya.", "I live in Leeds.", "What's my name, and where do I live?"], "tool": null, "checks": [{"any": ["Priya"]}, {"any": ["Leeds"]}], "off": "same"},
+    {"id": "chat-number", "category": "conversation", "turns": ["Please remember the number 42 for me.", "What is that number plus 8?", "What was the number I asked you to remember?"], "tool": "optional", "checks": [{"any": ["42"]}], "off": "same"},
+    {"id": "chat-picnic", "category": "conversation", "turns": ["Suggest two foods for a picnic. Just name them.", "Replace the second one with something vegetarian.", "Now list the final two foods."], "tool": null, "checks": [{"bullets_or_lines": 2}], "rubric": "The final list keeps the first food and has a vegetarian second one.", "off": "same"},
+
+    {"id": "skill-time", "category": "skill", "turns": ["What time is it?"], "tool": "get_datetime", "checks": [{"uses_result": "time"}], "off": "honest"},
+    {"id": "skill-date", "category": "skill", "turns": ["What's today's date?"], "tool": "get_datetime", "checks": [{"uses_result": "date"}], "off": "honest"},
+    {"id": "skill-weekday", "category": "skill", "turns": ["Which day of the week is it today?"], "tool": "get_datetime", "checks": [{"uses_result": "weekday"}], "off": "honest"},
+    {"id": "skill-multiply", "category": "skill", "turns": ["What is 1234 multiplied by 5678?"], "tool": "calculate", "value": 7006652, "checks": [{"number": 7006652}], "off": "value"},
+    {"id": "skill-percent", "category": "skill", "turns": ["What's 17.5% of 240?"], "tool": "calculate", "value": 42, "checks": [{"number": 42}], "off": "value"},
+    {"id": "skill-brackets", "category": "skill", "turns": ["Work out (45 + 55) / 4 - 3."], "tool": "calculate", "value": 22, "checks": [{"number": 22}], "off": "value"},
+    {"id": "skill-divide", "category": "skill", "turns": ["Split a bill of 187.60 between 4 people. How much each?"], "tool": "calculate", "value": 46.9, "checks": [{"number": 46.9}], "off": "value"},
+    {"id": "skill-battery", "category": "skill", "turns": ["How much battery do I have left?"], "tool": "get_battery_status", "checks": [{"uses_result": true}], "off": "honest"},
+    {"id": "skill-charging", "category": "skill", "turns": ["Is my phone charging right now?"], "tool": "get_battery_status", "checks": [{"uses_result": "charging"}], "off": "honest"},
+    {"id": "skill-storage", "category": "skill", "turns": ["How much free storage space is there on my phone?"], "tool": "get_storage_status", "checks": [{"uses_result": true}], "off": "honest"},
+    {"id": "skill-model", "category": "skill", "turns": ["What phone model is this?"], "tool": "get_device_info", "checks": [{"uses_result": true}], "off": "honest"},
+
+    {"id": "none-greeting", "category": "no-skill", "turns": ["Hi! How are you today?"], "tool": null, "checks": [{"words": [1, 60]}], "off": "same"},
+    {"id": "none-joke", "category": "no-skill", "turns": ["Tell me a short joke."], "tool": null, "checks": [{"words": [4, 80]}], "off": "same"},
+    {"id": "none-battery-word", "category": "no-skill", "turns": ["In one sentence, how does a battery store energy?"], "tool": null, "checks": [{"any": ["chemical", "chemistry", "electro", "ions", "charge"]}], "off": "same"},
+    {"id": "none-time-word", "category": "no-skill", "turns": ["What does the saying \"time flies\" mean?"], "tool": null, "checks": [{"any": ["quick", "fast", "pass", "rapid"]}], "off": "same"},
+    {"id": "none-storage-word", "category": "no-skill", "turns": ["Write a two-line poem about storage boxes."], "tool": null, "checks": [{"lines": [2, 4]}], "off": "same"},
+    {"id": "none-goldfish", "category": "no-skill", "turns": ["Suggest a name for a pet goldfish."], "tool": null, "checks": [{"words": [1, 120]}], "off": "same"}
+  ],
+  "needle": {
+    "about": "Context sweep: the fact goes first, filler paragraphs follow until the chat fills about three quarters of the window, then the question.",
+    "fact": "Before we start: the code for my locker at the gym is 4812. Please keep it in mind.",
+    "question": "What is the code for my locker at the gym?",
+    "answer": "4812",
+    "filler": [
+      "Here is some background for a report I am writing about community gardens. Many towns have turned unused plots into shared gardens, where neighbours grow vegetables, herbs and flowers side by side. The gardens are usually run by volunteers, who set the rules for watering, composting and sharing tools.",
+      "Most gardens split the land into small beds, one for each household, with a few shared beds for fruit bushes and herbs. Waiting lists are common in cities, and some gardens give priority to people without a garden of their own.",
+      "Funding tends to come from small grants, plot fees and plant sales. The biggest costs are water, fencing and tools, and in some places insurance. A few gardens run workshops on pruning, seed saving and pest control to raise money.",
+      "Volunteers say the social side matters as much as the food. Older members pass on skills to newer ones, children learn where food comes from, and people who would not otherwise meet end up sharing seedlings and recipes.",
+      "The main problems reported are theft, vandalism and disputes over neglected beds. Most gardens deal with these through clear written rules, a small committee and regular work days when everyone tidies the shared areas together."
+    ]
+  }
+}

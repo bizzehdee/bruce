@@ -740,7 +740,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Owner (2026-09-30): drop JiRackUltra_1b for Qwen3-VL-2B-Instruct; 2- and 3-bit files on low-memory phones are fine. The 30 files downloaded to `build/scratch/bins/models` (disk) and matched their SHA-256.
   - Depends on: TASK-020, TASK-022
   - Required by: TASK-104, TASK-105, TASK-108
-- [ ] TASK-104: Evaluation cases and phone harness for model binning
+- [x] TASK-104: Evaluation cases and phone harness for model binning
   - Harness: a manual-only device test that drives `BruceRuntime` (Bruce's real system prompt, skill descriptions, tool-call handling and prompt reuse), not llama-server, so results match the app. It reads a model path, context length, skills on or off and the case list from instrumentation arguments and writes one JSON line per case to the app's files directory. It keeps app data.
   - Skills on: the skill states of a fresh install. The automatic skills (date and time, calculator, battery, device, storage, network) run for real; every other skill is answered by a fixed stub, so no contact, calendar entry, location, photo or file of the owner is read and nothing is written to the phone. Skills off: no skills offered.
   - Cases (about 40, in `cases.json`), each with an automatic check where one is possible: instructions followed (format, length, language); facts and reasoning with a known answer; arithmetic; summarising and rewriting a given text; a three-turn chat that needs the earlier turns; questions that need a skill (right skill, valid arguments, answer uses the result); questions that need no skill (none called); questions that need a skill, asked with skills off (must say it cannot, not invent an answer); refusing to invent when the answer is not in the given text.
@@ -749,6 +749,8 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Recorded per case: the full reply, skill calls, outcome, prompt and reply tokens, prompt and generation speed, time to first token, battery temperature. A run waits while the battery is above a set temperature.
   - A host script runs the three phones side by side, one model at a time per phone, and checks the loaded model's name before measuring. Scratch files in `build/scratch`.
   - Tests: unit tests for the case checks and the outcome grading; the harness itself checked with the smallest model on one phone.
+  - Done (2026-09-30): `ModelBinDeviceTest`, and `cases.json`, `host.py`, `grade.py` with `test_grade.py` in `research/experiments/model-bins-2026-09-30/`. Checked with LFM2.5-230M on the Xperia 1 II and the host: identical rates.
+  - Decision: "skills on" is a fresh install plus the battery, device and storage skills, which a fresh install declines but the cases ask for; that is the automatic skills less network (offline). Every non-automatic skill is declined by default, so none is offered; the stubs stay so a change of defaults cannot read the owner's data. The Wi-Fi case was dropped (network is locked offline). The grader also fails replies that decline a task the model could do.
   - Depends on: TASK-012, TASK-033, TASK-103
   - Required by: TASK-105, TASK-108
 - [ ] TASK-105: Run the model evaluation on the three phones
