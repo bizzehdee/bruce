@@ -55,6 +55,8 @@ import com.bizzeh.bruce.policy.PolicyDatabase
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.ToolOutput
+import com.bizzeh.bruce.skills.apps.AndroidPhoneActions
+import com.bizzeh.bruce.skills.apps.AppSkills
 import com.bizzeh.bruce.skills.calendar.AndroidCalendarStore
 import com.bizzeh.bruce.skills.calendar.CalendarSkills
 import com.bizzeh.bruce.policy.PolicyEngine
@@ -244,6 +246,7 @@ class AppContainer(private val context: Context) {
                 FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create() +
                 settingsSkills.create() +
                 calendarSkills.create() +
+                AppSkills(AndroidPhoneActions(context), onScreen = { onScreen }).create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
