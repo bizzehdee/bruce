@@ -215,6 +215,7 @@ private val PERMISSION_TEXT = mapOf(
     Manifest.permission.POST_NOTIFICATIONS to (R.string.permission_notifications to R.string.permission_notifications_summary),
     Manifest.permission.WRITE_SETTINGS to (R.string.permission_write_settings to R.string.permission_write_settings_summary),
     Manifest.permission.RECORD_AUDIO to (R.string.permission_microphone to R.string.permission_microphone_summary),
+    Manifest.permission.READ_CONTACTS to (R.string.permission_contacts to R.string.permission_contacts_summary),
     Manifest.permission.ACCESS_COARSE_LOCATION to (R.string.permission_coarse_location to R.string.permission_coarse_location_summary),
     Manifest.permission.ACCESS_FINE_LOCATION to (R.string.permission_fine_location to R.string.permission_fine_location_summary),
     Manifest.permission.READ_CALENDAR to (R.string.permission_read_calendar to R.string.permission_read_calendar_summary),

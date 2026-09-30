@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Voice input (TASK-074), through Android's on-device recogniser only; asked on first use. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- The contacts skill (TASK-092), off by default; asked for when it is turned on. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- The location skill (TASK-091), off by default; approximate unless the user allows precise. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

@@ -123,6 +123,10 @@
     <string name="skill_message_summary">Opens your messaging app with a message written. You send it; Bruce never sends messages.</string>
     <string name="skill_dial">Dial numbers</string>
     <string name="skill_dial_summary">Opens your phone app with a number ready. You place the call; Bruce never calls.</string>
+    <string name="skill_contact">Contacts</string>
+    <string name="skill_contact_summary">Finds a contact by name and gives only the phone number or email address asked for.</string>
+    <string name="permission_contacts">Contacts</string>
+    <string name="permission_contacts_summary">Used only by the contacts skill, to find a person by name when asked.</string>
     <string name="skill_location">Location</string>
     <string name="skill_location_summary">Finds where the phone is, once, when a question needs it. Approximate unless you allow precise location. Never tracks you.</string>
     <string name="permission_coarse_location">Approximate location</string>

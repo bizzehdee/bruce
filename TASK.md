@@ -647,8 +647,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/location/`): `get_location`, off by default, requires approximate location; precise is asked for alongside (a new optional-permission list) so Android's dialog lets the user choose. With approximate only, the answer is rounded to about a kilometre. One reading per call through Android's own providers (fused where present, no Play services); if no fresh fix comes in 30 s, the last known position up to 15 minutes old is used and its age said. Works only while Bruce is on screen, as Android grants location to foreground apps only. The Permissions screen names both permissions.
   - Device-tested on the Xperia 1 II by `LocationDeviceTest` (manual; permission granted by adb and revoked after; the position was never printed): a reading was obtained with Bruce on screen. Getting there: requests from a test with no screen were refused (app-op "foreground"); with the screen open no fresh fix came indoors; a mistaken conclusion that LocationManagerCompat was at fault was withdrawn after a same-run comparison, and the change reverted (`.learnings/location-on-android.md`).
   - Depends on: TASK-039
-- [ ] TASK-092: Contacts skill
+- [x] TASK-092: Contacts skill
   - `find_contact` by name, returning only the fields asked for (number, email); off by default; the contacts permission is asked when first enabled; results passed as untrusted data.
+  - Done (`skills/contacts/`): `find_contact` (name of at least two letters; detail phone or email) lists up to 5 matches with only that detail, labelled with Android's own type names; READ_CONTACTS asked for when turned on; off by default. Only the numbers and addresses of the contacts found are read.
+  - Device-tested on the Xperia 1 II by `ContactsDeviceTest` (manual): a contact added by adb ("Bruce Zzqtest") was found by that unusual name with its mobile number and home email, then deleted; no real contact was searched. The first run found a bug (Android's label lookup needs the app's resources), fixed.
   - Depends on: TASK-039
 - [ ] TASK-093: Camera and microphone skills
   - `take_photo` opens the camera for the user to take the picture (an explicit action each time, as the plan requires); `record_audio` records only while the user holds a button. The result is attached to the chat.
