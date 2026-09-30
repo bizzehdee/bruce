@@ -683,8 +683,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Xperia 1 II: set up from Settings, which downloaded the model and indexed the Documents grant (4 files, 4 passages) within 2.5 minutes of the tap; `FileSearchDeviceTest` (manual) found kestrel.pdf for "What is the launch code for the project?" and kestrel-notes.txt for "Qui dirige le projet ?"; the first search, with the model load, took about 1 s.
   - Depends on: TASK-040, TASK-084
   - Required by: TASK-097
-- [ ] TASK-097: Local RAG: search skill
+- [x] TASK-097: Local RAG: search skill
   - `search_my_files` returns the best-matching chunks with their file path; results are untrusted data; offered only when something is indexed.
+  - Done (`search/SearchSkills.kt`): `search_my_files` (query) returns up to 3 passages, each with its file's path, scoring 0.25 or more; nothing above that says no file matches. The cut-off comes from measurement: right notes scored 0.35 and up, questions no note answers 0.18 at most (`research/experiments/embedding-models-2026-09-30`). Off by default and locked until file search is set up and has indexed something (a new FILE_INDEX requirement, shown on the Skills screen with a link to Settings); results pass through the untrusted-data envelope.
+  - Device-tested on the Xperia 1 II (`FileSearchDeviceTest`, manual): the requirement was met; "launch code" returned the kestrel.pdf passage; "Who won the 1966 World Cup?" returned that nothing matches.
   - Depends on: TASK-059, TASK-096
 - [ ] TASK-098: Model profiles and routing
   - Owner (2026-09-30): profiles chosen per chat; no automatic routing yet.

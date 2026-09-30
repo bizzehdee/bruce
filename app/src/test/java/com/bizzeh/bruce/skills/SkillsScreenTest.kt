@@ -163,6 +163,16 @@ class SkillsScreenTest {
     }
 
     @Test
+    fun fileSearchIsLockedUntilSetUp() {
+        val search = skill("search_my_files", SkillState.DECLINED)
+        compose.setContent { BruceTheme { SkillsScreen(listOf(SkillRow(search, SkillState.DECLINED, SkillRequirement.FILE_INDEX)), actions) {} } }
+
+        compose.onNodeWithText("Locked off until Search my files is set up in Settings and has indexed something.").assertExists()
+        compose.onNodeWithTag("fileIndex:search_my_files").performClick()
+        assertEquals(listOf("network"), calls)
+    }
+
+    @Test
     fun acceptingAHighRiskSkillNeedsTheWarningAccepted() {
         show()
 

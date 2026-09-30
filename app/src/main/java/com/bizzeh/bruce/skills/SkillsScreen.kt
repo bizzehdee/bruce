@@ -84,6 +84,7 @@ private fun SkillItem(row: SkillRow, actions: SkillsActions, onSelect: (SkillSta
             SkillRequirement.FILE_GRANT -> Locked(R.string.skills_locked_files, R.string.settings_permissions, "permissions:${skill.id}", actions::openPermissions)
             SkillRequirement.NETWORK_ALLOWED -> Locked(R.string.skills_locked_network, R.string.settings_network, "network:${skill.id}", actions::openNetworkSettings)
             SkillRequirement.SEARCH_KEY -> Locked(R.string.skills_locked_search_key, R.string.settings_web_search, "searchKey:${skill.id}", actions::openNetworkSettings)
+            SkillRequirement.FILE_INDEX -> Locked(R.string.skills_locked_file_index, R.string.search_title, "fileIndex:${skill.id}", actions::openNetworkSettings)
             null -> Unit
         }
         val states = if (skill.confirmEveryUse) listOf(SkillState.DECLINED, SkillState.ASK) else SkillState.entries

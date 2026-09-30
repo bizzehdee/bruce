@@ -79,6 +79,7 @@
     <string name="skills_accepted">Accepted</string>
     <string name="skills_high_risk">High risk</string>
     <string name="skills_locked_files">Locked off until you grant a file or folder in Permissions.</string>
+    <string name="skills_locked_file_index">Locked off until Search my files is set up in Settings and has indexed something.</string>
     <string name="skills_locked_search_key">Locked off until you save a Brave Search key in Settings.</string>
     <string name="skills_locked_network">Locked off while Network is set to Offline.</string>
     <string name="skills_warning_title">Always allow %1$s?</string>
@@ -123,6 +124,8 @@
     <string name="skill_message_summary">Opens your messaging app with a message written. You send it; Bruce never sends messages.</string>
     <string name="skill_dial">Dial numbers</string>
     <string name="skill_dial_summary">Opens your phone app with a number ready. You place the call; Bruce never calls.</string>
+    <string name="skill_search_files">Search my files</string>
+    <string name="skill_search_files_summary">Finds the passages of your granted files that answer a question, from the index on the phone.</string>
     <string name="skill_reminder">Reminders</string>
     <string name="skill_reminder_summary">Sets a reminder that appears as a notification at the time you give. See and cancel them in Settings, Reminders.</string>
     <string name="skill_schedule_task">Scheduled tasks</string>

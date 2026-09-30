@@ -31,3 +31,12 @@ cross-language questions; about 25 passages a second on the Xperia is enough to 
 notes in minutes. Its 0.8 GB is loaded only while indexing or searching, and unloaded after. It is
 under Google's Gemma Terms of Use, which Bruce shows before the user downloads it; Bruce ships no
 model. A small set, so the ranking between the English-only models is not meaningful.
+
+## Score cut-off for search results (TASK-097)
+
+`threshold.py` on the host with EmbeddingGemma: the right note scored 0.348 at least (mean 0.508);
+the best wrong note for a query scored 0.331 at most; five questions no note answers scored 0.045
+to 0.176 against their best note (`threshold-results.json`). The search skill keeps passages from
+0.25: every right note passes, unanswered questions return nothing, and a wrong note close to a
+right one may still come along, marked with its path.
+

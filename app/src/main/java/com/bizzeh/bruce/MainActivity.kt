@@ -221,6 +221,8 @@ class MainActivity : ComponentActivity() {
             lifecycleScope.launch(Dispatchers.IO) {
                 container.reminders.rescheduleAll()
                 container.scheduledTasks.rescheduleAll()
+                // Skills needing the file index read its counts; they are known once read.
+                container.fileSearch.refreshCounts()
             }
         }
         watchPhotoRequests()

@@ -55,6 +55,9 @@ enum class SkillRequirement {
 
     /** A Brave Search key saved in Settings (TASK-070). */
     SEARCH_KEY,
+
+    /** File search set up in Settings with something indexed (TASK-097). */
+    FILE_INDEX,
 }
 
 enum class ResourceScope {

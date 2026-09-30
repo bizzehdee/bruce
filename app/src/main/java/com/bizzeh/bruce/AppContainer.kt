@@ -37,6 +37,7 @@ import com.bizzeh.bruce.search.IndexWork
 import com.bizzeh.bruce.search.LlamaEmbedder
 import com.bizzeh.bruce.search.SearchDatabase
 import com.bizzeh.bruce.search.SearchSetup
+import com.bizzeh.bruce.search.SearchSkills
 import com.bizzeh.bruce.chat.DocumentText
 import com.bizzeh.bruce.chat.ChatMemory
 import com.bizzeh.bruce.chat.TurnObserver
@@ -312,6 +313,7 @@ class AppContainer(private val context: Context) {
                 ContactSkills(AndroidContacts(context.contentResolver, context.resources), Dispatchers.IO).create() +
                 CameraSkills(photoRequests, onScreen = { onScreen }).create() +
                 ReminderSkills(reminders, scheduledTasks, inexact = { offerExactReminders.value = true }).create() +
+                SearchSkills(fileSearch).create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
@@ -325,6 +327,7 @@ class AppContainer(private val context: Context) {
         SkillRequirement.FILE_GRANT -> grantNames().isNotEmpty()
         SkillRequirement.NETWORK_ALLOWED -> networkSettings.mode.first() != NetworkMode.OFFLINE
         SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
+        SkillRequirement.FILE_INDEX -> searchModelInstalled() && fileSearch.status.value.passages > 0
     }
 
     private val reminderDatabase: ReminderDatabase by lazy { Room.databaseBuilder(context, ReminderDatabase::class.java, ReminderDatabase.NAME).addMigrations(ReminderDatabase.MIGRATION_1_2).build() }
@@ -423,11 +426,12 @@ class AppContainer(private val context: Context) {
 
     /** The requirements not met now, as the Skills screen shows them. */
     val unmetRequirements: Flow<Set<SkillRequirement>> by lazy {
-        combine(grants.grants, networkSettings.mode, searchKey.saved) { granted, mode, key ->
+        combine(grants.grants, networkSettings.mode, searchKey.saved, fileSearch.status) { granted, mode, key, index ->
             setOfNotNull(
                 SkillRequirement.FILE_GRANT.takeIf { granted.none { it.available } },
                 SkillRequirement.NETWORK_ALLOWED.takeIf { mode == NetworkMode.OFFLINE },
                 SkillRequirement.SEARCH_KEY.takeIf { !key },
+                SkillRequirement.FILE_INDEX.takeIf { index.passages == 0 || !searchModelInstalled() },
             )
         }
     }

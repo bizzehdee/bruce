@@ -114,6 +114,7 @@ class PolicyEngine(
                 SkillRequirement.FILE_GRANT -> "it needs a file or folder granted in Settings, Permissions"
                 SkillRequirement.NETWORK_ALLOWED -> "the network mode in Settings is Offline"
                 SkillRequirement.SEARCH_KEY -> "it needs a Brave Search key saved in Settings"
+                SkillRequirement.FILE_INDEX -> "file search is not set up in Settings, or nothing is indexed yet"
             }
             return deny(request, DenialCode.CAPABILITY_DISABLED, "This skill is locked off: $why.", userCanChange = true)
         }

@@ -33,6 +33,7 @@ object SkillText {
         "find_contact" to (R.string.skill_contact to R.string.skill_contact_summary),
         "take_photo" to (R.string.skill_take_photo to R.string.skill_take_photo_summary),
         "set_reminder" to (R.string.skill_reminder to R.string.skill_reminder_summary),
+        "search_my_files" to (R.string.skill_search_files to R.string.skill_search_files_summary),
         "schedule_task" to (R.string.skill_schedule_task to R.string.skill_schedule_task_summary),
         "move_file" to (R.string.skill_move_file to R.string.skill_move_file_summary),
         "delete_file" to (R.string.skill_delete_file to R.string.skill_delete_file_summary),

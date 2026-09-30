@@ -30,4 +30,16 @@ class FileSearchDeviceTest {
         assertEquals("Documents/kestrel-notes.txt", container.fileSearch.search("Qui dirige le projet ?", 1).single().path)
         container.fileSearch.update()
     }
+
+    @Test
+    fun theSkillAnswersFromTheIndex() = runBlocking {
+        assumeTrue("set up file search first", container.searchModelInstalled())
+        container.fileSearch.refreshCounts()
+        org.junit.Assert.assertTrue(container.requirementMet(com.bizzeh.bruce.skills.SkillRequirement.FILE_INDEX))
+        val outcome = container.skills["search_my_files"]!!.execute(com.bizzeh.bruce.skills.SkillArguments(mapOf("query" to "launch code"))) as com.bizzeh.bruce.skills.SkillOutcome.Done
+        org.junit.Assert.assertTrue(outcome.content, outcome.content.startsWith("From Documents/kestrel.pdf:"))
+        val none = container.skills["search_my_files"]!!.execute(com.bizzeh.bruce.skills.SkillArguments(mapOf("query" to "Who won the 1966 World Cup?"))) as com.bizzeh.bruce.skills.SkillOutcome.Done
+        Log.i("BruceSearchTest", "unrelated: ${none.content.take(40)}")
+        Unit
+    }
 }
