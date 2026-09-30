@@ -60,6 +60,15 @@ class ConversationStoreTest {
     }
 
     @Test
+    fun aChatKeepsItsProfile() = runBlocking {
+        val id = store.save(null, listOf(user("x")))
+        assertNull(store.profile(id))
+        store.setProfile(id, "fast")
+        assertEquals("fast", store.profile(id))
+        assertNull(store.profile(999))
+    }
+
+    @Test
     fun documentsAreSavedWithTheirMessage() = runBlocking {
         val document = com.bizzeh.bruce.chat.ChatDocument("kestrel.pdf", "The code is 4417.", truncated = true)
         val id = store.save(null, listOf(ChatEntry(ChatRole.USER, "", documents = listOf(document))))

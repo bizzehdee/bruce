@@ -21,6 +21,8 @@ data class ConversationEntity(
     val createdAt: Long,
     val updatedAt: Long,
     val archived: Boolean = false,
+    /** The model profile chosen for this chat (version 5, TASK-098). */
+    val profileId: String? = null,
 )
 
 @Entity(
@@ -81,6 +83,9 @@ interface ConversationDao {
         return true
     }
 
+    @Query("UPDATE conversations SET profileId = :profileId WHERE id = :id")
+    suspend fun setProfile(id: Long, profileId: String?)
+
     @Query("UPDATE conversations SET title = :title WHERE id = :id")
     suspend fun rename(id: Long, title: String)
 
@@ -97,7 +102,7 @@ interface ConversationDao {
     suspend fun deleteAll()
 }
 
-@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 4)
+@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 5)
 abstract class ConversationDatabase : RoomDatabase() {
     abstract fun conversations(): ConversationDao
 
@@ -122,6 +127,13 @@ abstract class ConversationDatabase : RoomDatabase() {
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE messages ADD COLUMN documentsJson TEXT")
+            }
+        }
+
+        /** Version 5 (TASK-098): a chat's model profile. */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE conversations ADD COLUMN profileId TEXT")
             }
         }
     }

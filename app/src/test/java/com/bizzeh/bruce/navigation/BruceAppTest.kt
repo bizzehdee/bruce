@@ -38,6 +38,9 @@ class BruceAppTest {
         override fun newChat() { calls += "newChat" }
         override fun selectModel(file: File) { calls += "select ${file.name}" }
         override fun selectRemote(choice: com.bizzeh.bruce.models.RemoteChoice) { calls += "remote ${choice.label}" }
+        override fun chooseProfile(id: String?) { calls += "profile $id" }
+        override fun saveProfile(name: String) { calls += "save profile $name" }
+        override fun removeProfile(id: String) { calls += "remove profile $id" }
     }
     private val qwen = File("Qwen3-0.6B-Q4_0.gguf")
     private val models = ActiveModelState(installed = listOf(qwen, File("stories.gguf")), active = qwen)
@@ -48,10 +51,11 @@ class BruceAppTest {
         override fun revoke(grant: com.bizzeh.bruce.policy.Grant) = Unit
     }
 
-    private fun show(start: Destination = Destination.CHAT) = compose.setContent {
+    private fun show(start: Destination = Destination.CHAT, profiles: List<com.bizzeh.bruce.models.Profile> = emptyList()) = compose.setContent {
         BruceTheme {
             BruceApp(
-                chat = ChatState(modelName = "Qwen3-0.6B-Q4_0"),
+                chat = ChatState(modelName = "Qwen3-0.6B-Q4_0", profileId = profiles.firstOrNull()?.id),
+                profiles = profiles,
                 chatActions = chatActions,
                 activeModel = models,
                 actions = appActions,
@@ -162,6 +166,21 @@ class BruceAppTest {
         compose.onNodeWithTag("switchRemote:s:qwen3-8b").performClick()
 
         assertEquals(listOf("select stories.gguf", "remote qwen3-8b (Home)"), calls)
+    }
+
+    @Test
+    fun profilesArePickedSavedAndRemovedInTheSwitcher() {
+        show(profiles = listOf(com.bizzeh.bruce.models.Profile("p1", "Fast", com.bizzeh.bruce.models.ProfileModel.Local("stories.gguf"))))
+
+        compose.onNodeWithTag("chatTitle").performClick()
+        compose.onNodeWithTag("profile:Fast").performClick()
+        compose.onNodeWithTag("chatTitle").performClick()
+        compose.onNodeWithTag("removeProfile:Fast").performClick()
+        compose.onNodeWithTag("saveProfile").performClick()
+        compose.onNodeWithText("Coding").performClick()
+        compose.onNodeWithTag("confirmProfile").performClick()
+
+        assertEquals(listOf("profile p1", "remove profile p1", "save profile Coding"), calls)
     }
 
     @Test

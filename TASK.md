@@ -688,10 +688,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`search/SearchSkills.kt`): `search_my_files` (query) returns up to 3 passages, each with its file's path, scoring 0.25 or more; nothing above that says no file matches. The cut-off comes from measurement: right notes scored 0.35 and up, questions no note answers 0.18 at most (`research/experiments/embedding-models-2026-09-30`). Off by default and locked until file search is set up and has indexed something (a new FILE_INDEX requirement, shown on the Skills screen with a link to Settings); results pass through the untrusted-data envelope.
   - Device-tested on the Xperia 1 II (`FileSearchDeviceTest`, manual): the requirement was met; "launch code" returned the kestrel.pdf passage; "Who won the 1966 World Cup?" returned that nothing matches.
   - Depends on: TASK-059, TASK-096
-- [ ] TASK-098: Model profiles and routing
+- [x] TASK-098: Model profiles and routing
   - Owner (2026-09-30): profiles chosen per chat; no automatic routing yet.
   - Named profiles (Main, Fast, Coding, Vision), each a model with its settings; the user picks one per chat. Automatic routing (choosing a profile per request) follows only after the profiles are used.
   - Open question: switching models on the phone costs a reload (seconds and RAM); whether routing is limited to remote servers and a single phone model.
+  - Done (`models/Profiles.kt`): a profile is a name and a model (a file on the phone or a server's model), kept in settings. The chat title's switcher lists profiles above the models, saves the model in use as one (suggested names Main, Fast, Coding, Vision) and removes one. Choosing a profile uses it for the chat and saves it with the chat (`conversations.db` version 5); opening that chat later switches to the profile's model if another is in use, or says the model is no longer here. New chats start without a profile.
+  - Device-tested on the Xperia 1 II: saved Qwen3.5-0.8B as "Fast", used it in a new chat, switched to Llama 3.2 1B, then opened the chat again: the model switched back to Qwen3.5-0.8B. `ConversationMigrationTest` (to version 5) passed. The test profile "Fast" is left on that phone.
   - Depends on: TASK-077
 - [ ] TASK-099: Default assistant
   - Owner (2026-09-30): build it now, after researching the Android requirements.

@@ -56,7 +56,7 @@ class ConversationMigrationTest {
     )
 
     private fun open() = Room.databaseBuilder(instrumentation.targetContext, ConversationDatabase::class.java, file.name)
-        .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3, ConversationDatabase.MIGRATION_3_4)
+        .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3, ConversationDatabase.MIGRATION_3_4, ConversationDatabase.MIGRATION_4_5)
         .build()
 
     @Test
@@ -96,6 +96,18 @@ class ConversationMigrationTest {
 
         assertEquals(listOf(image), messages.last().images)
         assertEquals(emptyList<Any>(), messages.flatMap { it.documents })
+        database.close()
+    }
+
+    @Test
+    fun version4ChatsHaveNoProfile() = runBlocking {
+        create(4, version1Rows)
+
+        val database = open()
+        val store = ConversationStore(database.conversations())
+        assertEquals(null, store.profile(1))
+        store.setProfile(1, "fast")
+        assertEquals("fast", store.profile(1))
         database.close()
     }
 }

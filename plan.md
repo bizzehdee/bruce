@@ -122,8 +122,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   its architecture, and an expected speed band from measured benchmarks. Shows a
   fit label on each result; the user can always override. `done`
 - **Multiple model profiles and routing** — Named profiles (Main, Fast, Coding,
-  Vision) and automatic model selection per task. Basic in Free, advanced and
-  routing in `planned`
+  Vision) and automatic model selection per task. `in progress` (profiles chosen per chat
+  done, TASK-098; automatic routing not planned yet, owner)
 
 ### Assistant
 
@@ -457,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Model profiles done: named models picked per chat, restored when the chat opens; no automatic routing (owner) (TASK-098). |
 | 2026-09-30 | Changed | Search my files skill done: the best passages of granted files, offered once something is indexed (TASK-097). |
 | 2026-09-30 | Changed | Local file index done: EmbeddingGemma-300M chosen from measurements (research/experiments/embedding-models-2026-09-30), downloaded on request, updated with grants and daily while charging (TASK-096). |
 | 2026-09-30 | Changed | Scheduled tasks done with WorkManager (owner): once, daily or weekly; phone models only while charging; unattended runs never use skills that need approval (TASK-095). |

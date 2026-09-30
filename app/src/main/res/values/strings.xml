@@ -149,6 +149,11 @@
     <string name="search_remove">Remove</string>
     <string name="search_remove_title">Remove file search?</string>
     <string name="search_remove_text">Deletes the search model and the index of your files from this phone. Your files are not touched.</string>
+    <string name="profiles_title">Profiles</string>
+    <string name="profiles_save">Save this model as a profile</string>
+    <string name="profiles_name">Profile name</string>
+    <string name="profiles_remove">Remove</string>
+    <string name="profiles_unavailable">This chat\'s profile uses a model that is no longer here. Choose another from the title.</string>
     <string name="reminders_title">Reminders</string>
     <string name="reminders_summary">What Bruce will remind you of, and scheduled tasks</string>
     <string name="reminders_empty">No reminders or scheduled tasks. Ask Bruce to remind you of something, or to do something later, with those skills turned on.</string>

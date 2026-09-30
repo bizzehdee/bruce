@@ -116,6 +116,10 @@ class ConversationStore(
         if (cleaned.isNotEmpty()) dao.rename(id, cleaned)
     }
 
+    suspend fun setProfile(id: Long, profileId: String?) = dao.setProfile(id, profileId)
+
+    suspend fun profile(id: Long): String? = dao.conversation(id)?.profileId
+
     suspend fun archive(ids: Collection<Long>) = dao.setArchived(ids.toList(), archived = true)
 
     suspend fun restore(ids: Collection<Long>) = dao.setArchived(ids.toList(), archived = false)

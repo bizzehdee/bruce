@@ -10,6 +10,7 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import com.bizzeh.bruce.models.ProfileModel
 import com.bizzeh.bruce.search.EmbeddingModel
 import com.bizzeh.bruce.settings.FileSearchState
 import com.bizzeh.bruce.reminders.AndroidReminderScheduler
@@ -143,6 +144,9 @@ class MainActivity : ComponentActivity() {
                 container::stopModel,
                 container.runtime::acceptsImages,
                 container.neutralise,
+                container.conversations::profile,
+                container.conversations::setProfile,
+                container::applyProfile,
             )
         }
     }
@@ -266,10 +270,12 @@ class MainActivity : ComponentActivity() {
             conversations.exportOutcomeShown()
         }
         ExactRemindersOffer()
+        val profiles by container.profiles.profiles.collectAsState(initial = emptyList())
         BruceApp(
             chat = chatState.copy(voice = voice, speech = speech, conversation = conversation),
             chatActions = remember { chatActions() },
             activeModel = activeModel,
+            profiles = profiles,
             remoteModels = serverModels.choices(),
             actions = remember { appActions() },
             modelsScreen = { onBack -> Models(onBack, startOnHuggingFace = browse) },
@@ -749,6 +755,18 @@ class MainActivity : ComponentActivity() {
             lifecycleScope.launch { container.modelSelection.choose(file) }
         }
         override fun selectRemote(choice: RemoteChoice) = servers.use(choice)
+        override fun chooseProfile(id: String?) = chat.chooseProfile(id)
+        override fun saveProfile(name: String) {
+            val state = container.activeModel.state.value
+            val model = state.remote?.let { ProfileModel.Remote(it.serverId, it.model) } ?: state.active?.let { ProfileModel.Local(it.name) } ?: return
+            lifecycleScope.launch { chat.chooseProfile(container.profiles.add(name, model).id) }
+        }
+        override fun removeProfile(id: String) {
+            lifecycleScope.launch {
+                container.profiles.remove(id)
+                if (chat.state.value.profileId == id) chat.chooseProfile(null)
+            }
+        }
     }
 
     private fun settingsActions(open: (Destination) -> Unit) = object : SettingsActions {

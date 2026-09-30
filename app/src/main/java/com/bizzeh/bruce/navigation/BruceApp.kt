@@ -27,6 +27,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.AlertDialog
+import com.bizzeh.bruce.models.ProfileStore
+import com.bizzeh.bruce.models.Profile
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -79,6 +85,11 @@ interface AppActions {
     fun newChat()
     fun selectModel(file: File)
     fun selectRemote(choice: RemoteChoice) = Unit
+
+    /** Model profiles (TASK-098): use one for this chat, save the model in use as one, or remove one. */
+    fun chooseProfile(id: String?) = Unit
+    fun saveProfile(name: String) = Unit
+    fun removeProfile(id: String) = Unit
 }
 
 /**
@@ -95,6 +106,7 @@ fun BruceApp(
     actions: AppActions,
     /** Server models the user can switch to (TASK-077). */
     remoteModels: List<RemoteChoice> = emptyList(),
+    profiles: List<Profile> = emptyList(),
     modelsScreen: @Composable (onBack: () -> Unit) -> Unit,
     settingsScreen: @Composable (onBack: () -> Unit, open: (Destination) -> Unit) -> Unit,
     diagnosticsScreen: @Composable (onBack: () -> Unit) -> Unit,
@@ -210,6 +222,11 @@ fun BruceApp(
             ModelSwitcher(
                 state = activeModel,
                 remoteModels = remoteModels,
+                profiles = profiles,
+                chatProfile = chat.profileId,
+                onProfile = { id -> actions.chooseProfile(id); switcherOpen = false },
+                onSaveProfile = actions::saveProfile,
+                onRemoveProfile = actions::removeProfile,
                 onSelect = { file -> actions.selectModel(file); switcherOpen = false },
                 onSelectRemote = { choice -> actions.selectRemote(choice); switcherOpen = false },
                 onManage = { switcherOpen = false; destination = Destination.MODELS },
@@ -222,11 +239,31 @@ fun BruceApp(
 private fun ModelSwitcher(
     state: ActiveModelState,
     remoteModels: List<RemoteChoice>,
+    profiles: List<Profile>,
+    chatProfile: String?,
+    onProfile: (String?) -> Unit,
+    onSaveProfile: (String) -> Unit,
+    onRemoveProfile: (String) -> Unit,
     onSelect: (File) -> Unit,
     onSelectRemote: (RemoteChoice) -> Unit,
     onManage: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
+        var naming by rememberSaveable { mutableStateOf(false) }
+        if (profiles.isNotEmpty()) {
+            Text(stringResource(R.string.profiles_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
+            profiles.forEach { profile ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().clickable(enabled = !state.loading) { onProfile(profile.id) }
+                        .padding(horizontal = 12.dp).testTag("profile:${profile.name}"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(selected = profile.id == chatProfile, onClick = null, modifier = Modifier.padding(12.dp))
+                    Text(profile.name, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { onRemoveProfile(profile.id) }, modifier = Modifier.testTag("removeProfile:${profile.name}")) { Text(stringResource(R.string.profiles_remove)) }
+                }
+            }
+        }
         Text(stringResource(R.string.switcher_title), style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
         if (state.installed.isEmpty() && remoteModels.isEmpty()) {
             Text(stringResource(R.string.switcher_empty), modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
@@ -252,6 +289,28 @@ private fun ModelSwitcher(
             }
         }
         if (state.loading) Text(stringResource(R.string.switcher_loading), modifier = Modifier.padding(horizontal = 24.dp))
+        if (state.active != null || state.remote != null) {
+            TextButton(onClick = { naming = true }, modifier = Modifier.padding(horizontal = 12.dp).testTag("saveProfile")) { Text(stringResource(R.string.profiles_save)) }
+        }
+        if (naming) {
+            var name by rememberSaveable { mutableStateOf("") }
+            AlertDialog(
+                onDismissRequest = { naming = false },
+                title = { Text(stringResource(R.string.profiles_save)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(name, { name = it.take(ProfileStore.MAX_NAME) }, singleLine = true, label = { Text(stringResource(R.string.profiles_name)) }, modifier = Modifier.testTag("profileName"))
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            ProfileStore.SUGGESTED.forEach { suggestion -> SuggestionChip(onClick = { name = suggestion }, label = { Text(suggestion) }) }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { onSaveProfile(name); naming = false }, enabled = name.isNotBlank(), modifier = Modifier.testTag("confirmProfile")) { Text(stringResource(R.string.conversations_save)) }
+                },
+                dismissButton = { TextButton(onClick = { naming = false }) { Text(stringResource(R.string.settings_cancel)) } },
+            )
+        }
         TextButton(onClick = onManage, modifier = Modifier.padding(horizontal = 12.dp).testTag("manageModels")) {
             Text(stringResource(R.string.switcher_manage))
         }

@@ -126,6 +126,38 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun aChatKeepsItsProfileAndSwitchesToItWhenOpened() = runTest(dispatcher) {
+        val profiles = mutableMapOf<Long, String?>()
+        val applied = mutableListOf<String>()
+        var available = true
+        val vm = ChatViewModel(
+            engine, activeModel, save, load, respond, noAnswer,
+            profileOf = { profiles[it] }, setChatProfile = { id, p -> profiles[id] = p }, applyProfile = { applied += it; available },
+        )
+        advanceUntilIdle()
+
+        vm.chooseProfile("fast")
+        advanceUntilIdle()
+        turns += reply("Hi.")
+        chat("Hello", vm)
+        assertEquals(mapOf(1L to "fast"), profiles)
+
+        vm.newChat()
+        assertNull(vm.state.value.profileId)
+        available = false
+        vm.open(1)
+        advanceUntilIdle()
+        assertEquals("fast", vm.state.value.profileId)
+        assertTrue(vm.state.value.profileUnavailable)
+        assertEquals(listOf("fast", "fast"), applied)
+
+        vm.chooseProfile(null)
+        advanceUntilIdle()
+        assertEquals(mapOf<Long, String?>(1L to null), profiles)
+        assertFalse(vm.state.value.profileUnavailable)
+    }
+
+    @Test
     fun nothingIsSentWithoutTextOrImages() = runTest(dispatcher) {
         val vm = viewModel()
         vm.send()

@@ -86,6 +86,10 @@ data class ChatState(
     val documents: List<ChatDocument> = emptyList(),
     /** The chosen model can be given images. */
     val canAttach: Boolean = false,
+    /** The model profile chosen for this chat (TASK-098); null uses whichever model is chosen. */
+    val profileId: String? = null,
+    /** The profile's model could not be used (deleted, or its server removed). */
+    val profileUnavailable: Boolean = false,
 )
 
 enum class ChatError {
@@ -127,6 +131,11 @@ class ChatViewModel(
     private val acceptsImages: suspend () -> Boolean = { false },
     /** Disarms the prompt format's markers in a document's text (ToolOutput.clean). */
     private val neutralise: (String) -> String = { it },
+    /** A saved chat's profile, and saving one (ConversationStore.profile, setProfile). */
+    private val profileOf: suspend (Long) -> String? = { null },
+    private val setChatProfile: suspend (Long, String?) -> Unit = { _, _ -> },
+    /** Switches to a profile's model (AppContainer.applyProfile); false if it cannot. */
+    private val applyProfile: suspend (String) -> Boolean = { true },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -166,6 +175,22 @@ class ChatViewModel(
         mutableState.update { it.copy(attachments = it.attachments - name) }
     }
 
+    /** Uses [id]'s model for this chat, now and whenever the chat is opened again. */
+    fun chooseProfile(id: String?) {
+        mutableState.update { it.copy(profileId = id, profileUnavailable = false) }
+        viewModelScope.launch {
+            mutableState.value.conversationId?.let { setChatProfile(it, id) }
+            if (id != null && !applyProfile(id)) mutableState.update { it.copy(profileUnavailable = true) }
+        }
+    }
+
+    /** Saves the chat, with its profile once it has an id. */
+    private suspend fun store(id: Long?, entries: List<ChatEntry>): Long {
+        val saved = save(id, entries)
+        mutableState.value.profileId?.let { if (id == null) setChatProfile(saved, it) }
+        return saved
+    }
+
     fun attachDocument(document: ChatDocument) {
         mutableState.update { it.copy(documents = it.documents + document) }
     }
@@ -188,7 +213,7 @@ class ChatViewModel(
             } catch (e: CancellationException) {
                 // Stopped while summarising: the request is kept, unanswered and without a summary.
                 withContext(NonCancellable) {
-                    val saved = save(current.conversationId, history)
+                    val saved = store(current.conversationId, history)
                     turns.turnFinished(saved, null, completed = false)
                     if (session == turnSession) mutableState.update { it.copy(generating = false, summarising = false, conversationId = saved) }
                 }
@@ -248,7 +273,7 @@ class ChatViewModel(
                 if (entry.tool?.callId == callId && entry.tool.status == ToolStatus.AWAITING_APPROVAL) toolEntry(call, result.resultJson, status) else entry
             }
             // Moved on while the skill ran: its outcome is still saved to the chat it belongs to.
-            if (session == decidingSession) runTurn(entries) else withContext(NonCancellable) { save(current.conversationId, entries) }
+            if (session == decidingSession) runTurn(entries) else withContext(NonCancellable) { store(current.conversationId, entries) }
         }
     }
 
@@ -293,7 +318,7 @@ class ChatViewModel(
                 withContext(NonCancellable) {
                     if (streaming.text.isNotEmpty()) added += streaming
                     val entries = history + added.filterNot { it.role == ChatRole.ASSISTANT && it.text.isEmpty() && it.toolCalls.isEmpty() }
-                    val saved = save(current.conversationId, entries)
+                    val saved = store(current.conversationId, entries)
                     val answer = entries.lastOrNull { it.role == ChatRole.ASSISTANT && it.text.isNotBlank() }?.let { ThinkingText.split(it.text).answer.trim() }
                     turns.turnFinished(saved, answer, completed = finished)
                     if (onScreen()) mutableState.update { it.copy(entries = entries, generating = false, error = error, conversationId = saved) }
@@ -312,7 +337,9 @@ class ChatViewModel(
             session++
             pending.clear()
             recalled = null
-            mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries, canAttach = it.canAttach) }
+            val profile = profileOf(id)
+            mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries, canAttach = it.canAttach, profileId = profile) }
+            if (profile != null && !applyProfile(profile)) mutableState.update { it.copy(profileUnavailable = true) }
             remeasure()
         }
     }

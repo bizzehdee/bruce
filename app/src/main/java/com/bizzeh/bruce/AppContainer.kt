@@ -32,6 +32,9 @@ import com.bizzeh.bruce.chat.DocumentReader
 import com.bizzeh.bruce.chat.DocumentResult
 import com.bizzeh.bruce.inference.LlamaNative
 import com.bizzeh.bruce.search.EmbeddingModel
+import com.bizzeh.bruce.models.ProfileModel
+import com.bizzeh.bruce.models.ProfileStore
+import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.search.FileSearch
 import com.bizzeh.bruce.search.IndexWork
 import com.bizzeh.bruce.search.LlamaEmbedder
@@ -240,7 +243,7 @@ class AppContainer(private val context: Context) {
 
     private val conversationDatabase: ConversationDatabase by lazy {
         Room.databaseBuilder(context, ConversationDatabase::class.java, ConversationDatabase.NAME)
-            .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3, ConversationDatabase.MIGRATION_3_4)
+            .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3, ConversationDatabase.MIGRATION_3_4, ConversationDatabase.MIGRATION_4_5)
             .build()
     }
 
@@ -334,6 +337,31 @@ class AppContainer(private val context: Context) {
 
     /** Reminders set by the reminders skill (TASK-094). */
     val reminders: ReminderStore by lazy { ReminderStore(reminderDatabase.reminders(), AndroidReminderScheduler(context)) }
+
+    /** Named model choices picked per chat (TASK-098). */
+    val profiles: ProfileStore by lazy { ProfileStore(context.settingsDataStore) }
+
+    /** Switches to a profile's model unless it is in use already; false if its model or server has gone. */
+    suspend fun applyProfile(id: String): Boolean {
+        val profile = profiles.profile(id) ?: return false
+        val state = activeModel.state.value
+        return when (val model = profile.model) {
+            is ProfileModel.Local -> {
+                val file = File(modelsDir, model.fileName)
+                when {
+                    state.active == file && state.remote == null -> true
+                    !file.isFile -> false
+                    else -> modelSelection.choose(file) is LoadResult.Loaded
+                }
+            }
+            is ProfileModel.Remote -> {
+                if (state.remote?.serverId == model.serverId && state.remote.model == model.model) return true
+                val server = remoteServers.servers.first().firstOrNull { it.id == model.serverId } ?: return false
+                modelSelection.chooseRemote(server, model.model)
+                true
+            }
+        }
+    }
 
     /** Prompts Bruce runs later (TASK-095); a phone model runs them only while charging. */
     val scheduledTasks: ScheduledTasks by lazy {

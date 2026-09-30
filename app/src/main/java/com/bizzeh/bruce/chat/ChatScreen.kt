@@ -134,6 +134,9 @@ fun ChatScreen(
         Column(modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding()) {
             state.context?.let { ContextBar(it) }
             Messages(state, actions, modifier = Modifier.weight(1f))
+            if (state.profileUnavailable) {
+                Text(stringResource(R.string.profiles_unavailable), color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = 16.dp).testTag("profileUnavailable"))
+            }
             ChatText.error(state.error)?.let {
                 Text(
                     stringResource(it),
