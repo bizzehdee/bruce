@@ -77,7 +77,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Results: `.learnings/phase0-cpu-benchmarks.md`. Harness: `InferenceBenchmark`, annotated `@ManualOnly` and excluded from normal device test runs.
   - Pixel 11 run still to do when the phone is available.
   - Depends on: TASK-011
-  - Required by: TASK-018, TASK-019
+  - Required by: TASK-018, TASK-019, TASK-104
 - [x] TASK-013: Theme setting
   - Setting with System (default), Light and Dark; persisted with Jetpack DataStore Preferences.
   - Dynamic colour toggle, shown only on Android 12 and later, off by default.
@@ -124,7 +124,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Adds the `INTERNET` permission. Requests only when networking is allowed.
   - The network check is injected; TASK-028 connects it to the network mode setting. Verified against the real Hub from a phone with the manual-only `HubClientOnlineTest`.
   - Uses Android's `HttpURLConnection` and `org.json`; no new dependencies.
-  - Required by: TASK-021, TASK-022, TASK-023, TASK-028, TASK-029, TASK-102
+  - Required by: TASK-021, TASK-022, TASK-023, TASK-028, TASK-029, TASK-102, TASK-103
 - [x] TASK-021: Read a remote GGUF header
   - Fetch only the start of a model file with range requests, growing the range until the header parses, with a fixed upper limit.
   - Refactor `GgufReader` to read from a bounded stream so local and remote files share one parser.
@@ -137,7 +137,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Speed model: tokens/s ≈ constant ÷ weights in GB (24 with DOTPROD, 5.8 without), fitted to TASK-012; within 5–12% of every measurement, slightly pessimistic. "Tight" means over 80% of usable memory, a judgement rather than a measurement.
   - Architecture support comes from llama.cpp's own table, with a test that fails if a llama.cpp upgrade changes it.
   - Depends on: TASK-010, TASK-012, TASK-019, TASK-021
-  - Required by: TASK-029, TASK-102
+  - Required by: TASK-029, TASK-102, TASK-103
 - [x] TASK-023: Resumable, verified model download
   - Download into app storage through a partial file; resume with range requests; check free space first; verify the SHA-256 before the file becomes a model.
   - Files without a published SHA-256 are refused. The partial file is named after the SHA-256, so resuming only continues the same content. Verified on a phone with a real Hub download (`ModelDownloaderOnlineTest`).
@@ -210,7 +210,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Vision projectors, split-model parts and speculative-decoding draft architectures (eagle3, dflash) are never recommended.
   - Checked on the Pixel 11 against the real Hub (`HubClientOnlineTest`) and on screen.
   - Depends on: TASK-029
-  - Required by: TASK-061
+  - Required by: TASK-061, TASK-107
 - [x] TASK-032: Saved conversations
   - Every chat is saved locally (Room) and listed in the drawer, newest first, replacing the placeholder. New chat, resume, rename, archive and delete.
   - Bulk selection: archive or delete several chats at once. Archived chats leave the main list and are reachable from an Archived view, where they can be restored or deleted. Delete asks for confirmation.
@@ -228,7 +228,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Output: a decision recorded as an ADR and in `.learnings/`, closing the plan.md open question on tool-calling format.
   - Decided 2026-09-28 from the development-machine run (7 models, 36 cases, 4 formats): each model's own format via a narrow build of llama.cpp's chat code, Bruce's format with a grammar as fallback; full skill descriptions until a prompt budget (`docs/adr/0001-tool-calling-format.md`). Phone runs (12-case subset, both Sony phones) confirm it: own format 87% (Xperia 1 II) and 79% (XZ Premium); prompt evaluation dominates a turn (about 10 tokens/s on the XZ Premium), which TASK-056 addresses.
   - Depends on: TASK-024
-  - Required by: TASK-036
+  - Required by: TASK-036, TASK-104
 - [x] TASK-034: Skill framework and capability model
   - Skill definition per the spec: ID, version, description, input schema, required capabilities, default state, high-risk flag, resource scope, Android permissions, execute function.
   - Capability classes and capabilities from the spec (INFORMATION, FILES, PERSONAL_DATA, SENSORS, COMMUNICATION, SYSTEM, NETWORK); only those used by current skills are wired.
@@ -729,3 +729,42 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Owner (2026-09-30, after the task): the Task filter gains "Image and text" (the Hub's image-text-to-text tag) and defaults to Any, for recommendations and searches. With Any the Hub also returns speech, image and embedding models; those are dropped on the phone as before, and embedding architectures (the BERT family, `t5encoder`, `wavtokenizer-dec`) now count as not chat models. Device-tested on the Xperia 1 II: recommendations opened on Any with vision models listed; Image and text listed only vision models.
   - Device-tested on the Xperia 1 II: searching for `https://huggingface.co/Qwen/Qwen3.5-0.8B` showed the message and the copies (unsloth and bartowski first, both "Fits"). The no-copies message and its button are tested in unit tests only.
   - Depends on: TASK-020, TASK-022
+- [ ] TASK-103: Choose the small models to evaluate
+  - Owner (2026-09-30): test the most popular instruction-capable models under 1B and under 3B parameters on all three phones, so models can be binned as "recommended" per device type, by memory size at first.
+  - From the Hub, most downloaded first: GGUF repositories in two parameter buckets, under 1B and 1B to under 3B. Kept only if the repository has a chat template, llama.cpp supports the architecture as a chat model, and it is not gated. One repository per base model (its most downloaded copy), the first 10 base models per bucket.
+  - For each model and phone, the file tested is the one Bruce itself picks for that phone at the default context length, so a tier's result is what a user on that phone would get.
+  - Output: the list with repository, revision, file, SHA-256, licence and parameter count, in `research/experiments/model-bins-<date>/models.json`; the Hub answers archived under `research/sources` and indexed.
+  - Owner to confirm the list before anything is downloaded (about 20 models, up to three files each).
+  - Depends on: TASK-020, TASK-022
+  - Required by: TASK-104, TASK-105
+- [ ] TASK-104: Evaluation cases and phone harness for model binning
+  - Harness: a manual-only device test that drives `BruceRuntime` (Bruce's real system prompt, skill descriptions, tool-call handling and prompt reuse), not llama-server, so results match the app. It reads a model path, context length, skills on or off and the case list from instrumentation arguments and writes one JSON line per case to the app's files directory. It keeps app data.
+  - Skills on: the skill states of a fresh install. The automatic skills (date and time, calculator, battery, device, storage, network) run for real; every other skill is answered by a fixed stub, so no contact, calendar entry, location, photo or file of the owner is read and nothing is written to the phone. Skills off: no skills offered.
+  - Cases (about 40, in `cases.json`), each with an automatic check where one is possible: instructions followed (format, length, language); facts and reasoning with a known answer; arithmetic; summarising and rewriting a given text; a three-turn chat that needs the earlier turns; questions that need a skill (right skill, valid arguments, answer uses the result); questions that need no skill (none called); questions that need a skill, asked with skills off (must say it cannot, not invent an answer); refusing to invent when the answer is not in the given text.
+  - Every case runs with skills on and with skills off, at context 4096, greedy (temperature 0, fixed seed), Bruce's default thinking setting and reply limit.
+  - Context sweep per model and phone, at 2048, 4096, 8192 and 16384: whether the model loads, resident memory against the estimate, prompt and generation speed, time to first token with the skills prompt cold and reused, and one long chat that fills about three quarters of the window and asks for a fact from its start. A length that the fit label says does not fit is recorded as such and not loaded.
+  - Recorded per case: the full reply, skill calls, outcome, prompt and reply tokens, prompt and generation speed, time to first token, battery temperature. A run waits while the battery is above a set temperature.
+  - A host script runs the three phones side by side, one model at a time per phone, and checks the loaded model's name before measuring. Scratch files in `build/scratch`.
+  - Tests: unit tests for the case checks and the outcome grading; the harness itself checked with the smallest model on one phone.
+  - Depends on: TASK-012, TASK-033, TASK-103
+  - Required by: TASK-105
+- [ ] TASK-105: Run the model evaluation on the three phones
+  - Phones and memory tiers: Xperia XZ Premium (4 GB), Xperia 1 II (8 GB), Pixel 11 (12 GB). All on USB power, screen on, nothing else running.
+  - Every model from TASK-103 on every phone where Bruce's fit label allows it; a model that does not fit a phone is recorded as "does not fit" for that tier.
+  - Output in `research/experiments/model-bins-<date>/`: raw results per phone, and a report per model with every reply side by side (skills on and off, per phone) for the owner to read.
+  - A run that crashes, stalls or serves the wrong model is discarded and rerun, and the discard is noted.
+  - Depends on: TASK-103, TASK-104
+  - Required by: TASK-106
+- [ ] TASK-106: Bin the models per memory tier
+  - Bins per tier (4 GB, 8 GB, 12 GB): Recommended, Usable, Not recommended. A tier's bin comes from that tier's phone only.
+  - Proposed rule, for the owner to confirm before TASK-105 is read: Recommended needs no crash or failed load at the default context; at least 80% of the no-skill cases and 80% of the skill cases correct; no invented answer in the skills-off cases that need a skill; generation of at least 8 tokens a second; and a follow-up turn's first token within 10 seconds. Usable is at least 60% on both and 4 tokens a second. Anything else is Not recommended.
+  - Replies with no automatic check (summaries, rewrites) are graded against a written rubric in the experiment folder; the owner reviews the replies of every model near a bin boundary.
+  - Also reported per model: the largest context length that fits each tier, and whether skills should be left on.
+  - Output: the bins table and analysis in the experiment README, a `.learnings/` entry, and the plan's open question on recommended models closed.
+  - Depends on: TASK-105
+  - Required by: TASK-107
+- [ ] TASK-107: Show recommended models in the model browser
+  - Ship the bins from TASK-106 with the app, keyed by base model and memory tier; a phone uses the tier of its own memory.
+  - How it shows (a "Recommended" label, ranking first, the setup wizard's first-model offer) is agreed with the owner once the bins exist.
+  - Nothing new leaves the phone: the list is in the app, matched against Hub results on the phone.
+  - Depends on: TASK-031, TASK-106
