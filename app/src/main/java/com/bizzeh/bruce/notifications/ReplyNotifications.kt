@@ -24,13 +24,21 @@ class ReplyNotifications(private val context: Context) : NotePoster {
         system.createNotificationChannel(NotificationChannel(REPLIES, context.getString(R.string.notification_channel_replies), NotificationManager.IMPORTANCE_DEFAULT))
         system.createNotificationChannel(NotificationChannel(WORKING, context.getString(R.string.notification_channel_working), NotificationManager.IMPORTANCE_LOW))
         system.createNotificationChannel(NotificationChannel(NOTES, context.getString(R.string.notification_channel_notes), NotificationManager.IMPORTANCE_DEFAULT))
+        system.createNotificationChannel(NotificationChannel(REMINDERS, context.getString(R.string.notification_channel_reminders), NotificationManager.IMPORTANCE_HIGH))
+    }
+
+    /** A reminder coming due (TASK-094); nothing if Android does not let Bruce notify. */
+    fun reminder(text: String) {
+        post(REMINDERS, context.getString(R.string.notification_reminder), text)
     }
 
     /** A note the user asked for; false if Android does not let Bruce notify. Tapping it opens Bruce. */
-    override fun post(title: String, text: String): Boolean {
+    override fun post(title: String, text: String): Boolean = post(NOTES, title, text)
+
+    private fun post(channel: String, title: String, text: String): Boolean {
         if (!manager.areNotificationsEnabled()) return false
         val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val notification = NotificationCompat.Builder(context, NOTES)
+        val notification = NotificationCompat.Builder(context, channel)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)
@@ -87,6 +95,7 @@ class ReplyNotifications(private val context: Context) : NotePoster {
         private const val WORKING = "working"
         private const val PREVIEW_CHARS = 300
         private const val NOTES = "notes"
+        private const val REMINDERS = "reminders"
         private const val NOTE_ID_BASE = 100_000
         /** Notes reuse ids after this many, so old ones are replaced rather than piling up without end. */
         private const val NOTE_IDS = 50

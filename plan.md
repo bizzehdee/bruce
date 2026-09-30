@@ -304,7 +304,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Vision** — Local multimodal models for images, documents, screenshots.
   `done` (images, TASK-082 and TASK-083; PDF and text documents, TASK-084; screenshots come through the photo picker)
 - **Advanced automation and background workflows** — Multi-step and multi-file tasks,
-  scheduled tasks, reminders, within Android background limits. `planned`
+  scheduled tasks, reminders, within Android background limits. `in progress`
+  (reminders done, TASK-094)
 - **Bruce Plus purchase** — One-time Google Play purchase unlocking a paid
   tier. Dropped: every feature is free. `dropped`
 - **Data ownership controls** — Export and delete conversations, delete memories
@@ -456,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Reminders done: exact alarms where allowed (offered once), otherwise inexact and said so; listed and cancelled in Settings, Reminders; restored after restarts (TASK-094). |
 | 2026-09-30 | Changed | Camera skill done: opens the camera, the user takes the photo, it goes with their next message; no microphone skill (owner) (TASK-093). |
 | 2026-09-30 | Changed | Contacts skill done: find by name, only the detail asked for (TASK-092). |
 | 2026-09-30 | Changed | Location skill done: one reading while Bruce is on screen, approximate unless precise is allowed, never tracking (TASK-091). |

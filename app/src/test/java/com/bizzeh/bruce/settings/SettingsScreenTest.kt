@@ -210,8 +210,8 @@ class SettingsScreenTest {
     fun aTokenAccountHasNoExpiryAndErrorsAreExplained() {
         show(SettingsState(network = NetworkMode.HUGGING_FACE, account = HubAccount("bruce-owner", null), signInError = SignInError.WRITE_TOKEN))
 
-        compose.onNodeWithText("With an access token").assertIsDisplayed()
-        compose.onNodeWithText("That token can change your repositories. Bruce only downloads: create a Read token instead.").assertIsDisplayed()
+        compose.onNodeWithText("With an access token").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("That token can change your repositories. Bruce only downloads: create a Read token instead.").performScrollTo().assertIsDisplayed()
         SignInError.entries.forEach { assertTrue(SettingsText.signInError(it) != 0) }
     }
 
@@ -219,7 +219,7 @@ class SettingsScreenTest {
     fun signInErrorAndModeSummaries() {
         show(SettingsState(network = NetworkMode.GENERAL, signInError = SignInError.DENIED))
 
-        compose.onNodeWithTag("signInError").assertIsDisplayed()
+        compose.onNodeWithTag("signInError").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Hugging Face, and any web site that skills reach.").assertIsDisplayed()
         assertEquals(com.bizzeh.bruce.R.string.network_approved_summary, SettingsText.networkSummary(NetworkMode.APPROVED_DOMAINS))
         assertEquals(com.bizzeh.bruce.R.string.network_approved, SettingsText.networkLabel(NetworkMode.APPROVED_DOMAINS))

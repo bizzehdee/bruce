@@ -658,10 +658,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/camera/`): `take_photo`, off by default, only while Bruce is on screen. The skill asks the screen (a `PhotoRequests` bridge) to open the camera app through `TakePicture`, into Bruce's cache via a non-exported FileProvider; the user takes the photo (an explicit action every time), Bruce stores a copy as a chat image and adds it to the next message, and the camera's file is deleted. It waits at most 2 minutes, inside the runtime's 3-minute turn. No camera permission is declared: the camera app takes the picture.
   - Device-tested on the Xperia 1 II by `CameraDeviceTest` (manual): with Bruce on screen the Sony camera opened; Back closed it without a photo and the skill said so. No photo was taken (it would show the owner's surroundings), so the stored-photo path is covered by the image code of TASK-082 and unit tests only. In a chat, Qwen3.5-0.8B answered in words instead of calling the skill.
   - Depends on: TASK-082
-- [ ] TASK-094: Reminders
+- [x] TASK-094: Reminders
   - Owner (2026-09-30): ask for exact alarms on the first reminder; if refused, deliver inexactly and say so.
   - `set_reminder` schedules a notification at a time the user gave (exact alarms where allowed, otherwise inexact with a note); listed and cancelled in a Reminders list; survive a restart.
   - Open question: exact alarm permission (`SCHEDULE_EXACT_ALARM` needs the user to allow it on Android 14+), or accept inexact timing.
+  - Done (`reminders/`): `set_reminder` (text; `at` as YYYY-MM-DDTHH:MM or `in_minutes`; up to a year ahead), off by default, needing the notification permission from Android 13. Reminders live in `reminders.db` and AlarmManager: exact-while-idle when Android allows exact alarms, otherwise inexact and the reply says it may be late, and the app then offers once to open Android's exact-alarm page. A receiver posts each on a Reminders channel and removes it; another sets the alarms again after a reboot or an update, and the app does at start. Settings, Reminders lists them with Cancel and the exact-timing note. Clear all data removes them. Model-facing dates now use a fixed locale ("Sep", not the UK's "Sept"), in the calendar skill too.
+  - Device-tested on the Xperia 1 II (`ReminderDeviceTest`, manual): a reminder set a minute ahead, with Bruce stopped when the test ended, was scheduled as an exact RTC_WAKEUP alarm and posted at 13:19:27 for 13:19:21. The exact-alarm offer and the Reminders screen were not seen on a phone (unit and screen tests only).
   - Depends on: TASK-041, TASK-048
   - Required by: TASK-095
 - [ ] TASK-095: Scheduled tasks

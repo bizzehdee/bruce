@@ -10,6 +10,12 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import com.bizzeh.bruce.reminders.AndroidReminderScheduler
+import com.bizzeh.bruce.reminders.Reminder
+import com.bizzeh.bruce.reminders.RemindersActions
+import com.bizzeh.bruce.reminders.RemindersScreen
+import com.bizzeh.bruce.reminders.RemindersViewModel
+import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
 import androidx.lifecycle.repeatOnLifecycle
 import com.bizzeh.bruce.chat.DocumentError
@@ -195,6 +201,7 @@ class MainActivity : ComponentActivity() {
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates, container.unmetRequirements) } }
     private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
+    private val reminders: RemindersViewModel by viewModels { factory { RemindersViewModel(container.reminders) } }
     private val setup: SetupViewModel by viewModels {
         factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
     }
@@ -206,7 +213,11 @@ class MainActivity : ComponentActivity() {
             handleOpenChat(intent)
         }
         container.stopTurn = { chat.stop() }
-        if (savedInstanceState == null) removeUnusedImages()
+        if (savedInstanceState == null) {
+            removeUnusedImages()
+            // Alarms are cleared when Bruce is force-stopped; setting them again is harmless.
+            lifecycleScope.launch(Dispatchers.IO) { container.reminders.rescheduleAll() }
+        }
         watchPhotoRequests()
         lifecycleScope.launch(Dispatchers.IO) { capabilities.value = container.engine.getCapabilities() }
         enableEdgeToEdge()
@@ -247,6 +258,7 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this@MainActivity, text, Toast.LENGTH_SHORT).show()
             conversations.exportOutcomeShown()
         }
+        ExactRemindersOffer()
         BruceApp(
             chat = chatState.copy(voice = voice, speech = speech, conversation = conversation),
             chatActions = remember { chatActions() },
@@ -259,6 +271,7 @@ class MainActivity : ComponentActivity() {
             skillsScreen = { onBack, openPermissions, openSettings -> Skills(onBack, openPermissions, openSettings) },
             permissionsScreen = { onBack, openNetwork -> Permissions(onBack, openNetwork) },
             memoryScreen = { onBack -> Memory(onBack) },
+            remindersScreen = { onBack -> Reminders(onBack) },
             startDestination = if (browse) Destination.MODELS else Destination.CHAT,
             conversations = active,
             archived = archived,
@@ -389,6 +402,56 @@ class MainActivity : ComponentActivity() {
             }
         }
         MemoryScreen(facts, actions, onBack)
+    }
+
+    @androidx.compose.runtime.Composable
+    private fun Reminders(onBack: () -> Unit) {
+        val upcoming by reminders.reminders.collectAsState()
+        // Read again each time the screen shows, as the user may have just allowed exact alarms.
+        var exact by remember { mutableStateOf(true) }
+        androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+            exact = AndroidReminderScheduler(this@MainActivity).exactAllowed()
+            onPauseOrDispose { }
+        }
+        val actions = remember {
+            object : RemindersActions {
+                override fun cancel(reminder: Reminder) = reminders.cancel(reminder)
+                override fun allowExact() = openExactAlarmSettings()
+            }
+        }
+        RemindersScreen(upcoming, exact, actions, onBack)
+    }
+
+    /** Android 12+'s page for letting Bruce set exact alarms. */
+    private fun openExactAlarmSettings() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        try {
+            startActivity(Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:$packageName")))
+        } catch (e: ActivityNotFoundException) {
+            Log.w("BruceReminders", "no exact alarm settings page")
+        }
+    }
+
+    /** Offered once, the first time a reminder had to be inexact (owner, 2026-09-30). */
+    @androidx.compose.runtime.Composable
+    private fun ExactRemindersOffer() {
+        val offer by container.offerExactReminders.collectAsState()
+        val asked by container.exactRemindersAsked.collectAsState(initial = true)
+        if (!offer || asked) return
+        val dismiss = {
+            container.offerExactReminders.value = false
+            lifecycleScope.launch { container.markExactRemindersAsked() }
+            Unit
+        }
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = dismiss,
+            title = { androidx.compose.material3.Text(stringResource(R.string.reminders_exact_title)) },
+            text = { androidx.compose.material3.Text(stringResource(R.string.reminders_exact_text)) },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { dismiss(); openExactAlarmSettings() }) { androidx.compose.material3.Text(stringResource(R.string.reminders_exact_open)) }
+            },
+            dismissButton = { androidx.compose.material3.TextButton(onClick = dismiss) { androidx.compose.material3.Text(stringResource(R.string.reminders_exact_later)) } },
+        )
     }
 
     /** The size Auto picks for the loaded model, as loading would; null when none is loaded or the model has its own size. */
@@ -706,6 +769,7 @@ class MainActivity : ComponentActivity() {
         override fun signOut() = settings.signOut()
         override fun openSkills() = open(Destination.SKILLS)
         override fun openMemory() = open(Destination.MEMORY)
+        override fun openReminders() = open(Destination.REMINDERS)
         override fun setMemoryMode(mode: MemoryMode) = settings.setMemoryMode(mode)
         override fun openPermissions() = open(Destination.PERMISSIONS)
         override fun openLicences() = open(Destination.LICENCES)

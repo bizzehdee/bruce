@@ -98,6 +98,7 @@ interface SettingsActions {
     fun setPersonality(personality: Personality)
     fun setMemoryMode(mode: MemoryMode)
     fun openMemory()
+    fun openReminders() = Unit
     fun setSummaryEnabled(enabled: Boolean)
     fun setSummaryThreshold(threshold: Int)
     fun signIn()
@@ -131,6 +132,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
 
             Heading(R.string.settings_skills)
             Link(R.string.settings_skills, R.string.settings_skills_summary, "settings:skills", actions::openSkills)
+            Link(R.string.reminders_title, R.string.reminders_summary, "settings:reminders", actions::openReminders)
 
             Heading(R.string.settings_appearance)
             Choice(

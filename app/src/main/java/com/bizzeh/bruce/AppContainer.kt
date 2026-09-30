@@ -12,6 +12,8 @@ import com.bizzeh.bruce.skills.web.WebSkills
 import com.bizzeh.bruce.policy.SiteAccess
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.Flow
+import androidx.datastore.preferences.core.edit
+import kotlinx.coroutines.flow.map
 import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.ResourceScope
 import com.bizzeh.bruce.skills.settings.AndroidSettingsWriter
@@ -59,6 +61,10 @@ import com.bizzeh.bruce.skills.ToolOutput
 import com.bizzeh.bruce.skills.apps.AndroidPhoneActions
 import com.bizzeh.bruce.skills.apps.AppSkills
 import com.bizzeh.bruce.skills.calendar.AndroidCalendarStore
+import com.bizzeh.bruce.reminders.AndroidReminderScheduler
+import com.bizzeh.bruce.reminders.ReminderDatabase
+import com.bizzeh.bruce.reminders.ReminderSkills
+import com.bizzeh.bruce.reminders.ReminderStore
 import com.bizzeh.bruce.skills.camera.CameraSkills
 import com.bizzeh.bruce.skills.camera.PhotoRequests
 import com.bizzeh.bruce.skills.contacts.AndroidContacts
@@ -73,6 +79,7 @@ import com.bizzeh.bruce.skills.automatic.AndroidPhoneReaders
 import com.bizzeh.bruce.skills.automatic.AutomaticSkills
 import com.bizzeh.bruce.skills.files.FileSkills
 import androidx.room.Room
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.bizzeh.bruce.setup.SetupSettingsRepository
 import com.bizzeh.bruce.huggingface.HttpTransport
 import com.bizzeh.bruce.huggingface.HubAuth
@@ -258,6 +265,7 @@ class AppContainer(private val context: Context) {
                 LocationSkills(AndroidLocationSource(context), onScreen = { onScreen }).create() +
                 ContactSkills(AndroidContacts(context.contentResolver, context.resources), Dispatchers.IO).create() +
                 CameraSkills(photoRequests, onScreen = { onScreen }).create() +
+                ReminderSkills(reminders, inexact = { offerExactReminders.value = true }).create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
@@ -271,6 +279,21 @@ class AppContainer(private val context: Context) {
         SkillRequirement.FILE_GRANT -> grantNames().isNotEmpty()
         SkillRequirement.NETWORK_ALLOWED -> networkSettings.mode.first() != NetworkMode.OFFLINE
         SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
+    }
+
+    private val reminderDatabase: ReminderDatabase by lazy { Room.databaseBuilder(context, ReminderDatabase::class.java, ReminderDatabase.NAME).build() }
+
+    /** Reminders set by the reminders skill (TASK-094). */
+    val reminders: ReminderStore by lazy { ReminderStore(reminderDatabase.reminders(), AndroidReminderScheduler(context)) }
+
+    /** Set when a reminder had to be inexact, so the screen can offer exact timing once. */
+    val offerExactReminders = MutableStateFlow(false)
+
+    /** Whether the exact timing offer was shown already; it is made once only. */
+    val exactRemindersAsked: Flow<Boolean> by lazy { context.settingsDataStore.data.map { it[EXACT_REMINDERS_ASKED] == true } }
+
+    suspend fun markExactRemindersAsked() {
+        context.settingsDataStore.edit { it[EXACT_REMINDERS_ASKED] = true }
     }
 
     /** The camera skill's requests to the screen (TASK-093). */
@@ -337,6 +360,7 @@ class AppContainer(private val context: Context) {
         DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO) {
             conversations.deleteAll()
             chatImages.keepOnly(emptySet())
+            reminders.deleteAll()
             skillStates.reset()
             grants.clear()
             sites.clear()
@@ -363,6 +387,7 @@ class AppContainer(private val context: Context) {
         private const val SERVER_KEY_ALIAS = "bruce.server_keys"
 
         /** Tool-call markup a skill result must not be able to imitate (ADR 0001 formats). */
+        private val EXACT_REMINDERS_ASKED = androidx.datastore.preferences.core.booleanPreferencesKey("exact_reminders_asked")
         private val RESERVED_MARKERS = listOf("<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>", "<|tool_call_start|>", "<|tool_call_end|>")
     }
 }

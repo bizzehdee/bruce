@@ -237,8 +237,8 @@ class CalendarSkills(
         val zone = if (fields.allDay) ZoneOffset.UTC else zone()
         val start = Instant.ofEpochMilli(fields.start).atZone(zone)
         val end = Instant.ofEpochMilli(fields.end).atZone(zone)
-        val date = DateTimeFormatter.ofPattern("EEE d MMM yyyy", Locale.UK)
-        val time = DateTimeFormatter.ofPattern("HH:mm", Locale.UK)
+        val date = DateTimeFormatter.ofPattern("EEE d MMM yyyy", Locale.ROOT)
+        val time = DateTimeFormatter.ofPattern("HH:mm", Locale.ROOT)
         val lastDay = end.minusNanos(1).toLocalDate()
         val span = when {
             fields.allDay && lastDay == start.toLocalDate() -> "${date.format(start)}, all day"

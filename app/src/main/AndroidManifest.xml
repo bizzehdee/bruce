@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Voice input (TASK-074), through Android's on-device recogniser only; asked on first use. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Reminders (TASK-094): exact alarms only if the user allows them; alarms restored after a restart. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- The contacts skill (TASK-092), off by default; asked for when it is turned on. -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- The location skill (TASK-091), off by default; approximate unless the user allows precise. -->
@@ -95,7 +98,18 @@
         <uses-native-library
             android:name="libOpenCL.so"
             android:required="false" />
-            <!-- Lets the camera app write take_photo's picture into Bruce's cache (TASK-093); not exported. -->
+            <receiver
+            android:name=".reminders.ReminderReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".reminders.RemindersRestorer"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+        <!-- Lets the camera app write take_photo's picture into Bruce's cache (TASK-093); not exported. -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.camera"
