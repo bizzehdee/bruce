@@ -41,6 +41,7 @@ import com.bizzeh.bruce.models.ActiveModel
 import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.models.ModelSelection
 import com.bizzeh.bruce.models.ModelSettingsRepository
+import com.bizzeh.bruce.notifications.NoteSkills
 import com.bizzeh.bruce.notifications.ReplyNotifications
 import com.bizzeh.bruce.notifications.ReplyService
 import com.bizzeh.bruce.policy.FolderInstructionsStore
@@ -247,6 +248,7 @@ class AppContainer(private val context: Context) {
                 settingsSkills.create() +
                 calendarSkills.create() +
                 AppSkills(AndroidPhoneActions(context), onScreen = { onScreen }).create() +
+                NoteSkills(replyNotifications).create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },

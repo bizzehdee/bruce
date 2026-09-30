@@ -123,6 +123,9 @@
     <string name="skill_message_summary">Opens your messaging app with a message written. You send it; Bruce never sends messages.</string>
     <string name="skill_dial">Dial numbers</string>
     <string name="skill_dial_summary">Opens your phone app with a number ready. You place the call; Bruce never calls.</string>
+    <string name="skill_post_note">Post notes</string>
+    <string name="skill_post_note_summary">Posts a notification with a note you asked for. Bruce never reads other apps\' notifications.</string>
+    <string name="notification_channel_notes">Notes</string>
     <string name="skill_copy">Copy to clipboard</string>
     <string name="skill_copy_summary">Puts text Bruce wrote on the clipboard for you to paste. Bruce never reads the clipboard.</string>
     <string name="skill_rename_file">Rename files</string>

@@ -13,16 +13,40 @@ import com.bizzeh.bruce.R
 
 /**
  * The notifications Bruce posts (TASK-048): the quiet one a foreground service needs while a reply
- * is being written, and one when a reply finished while Bruce was not on screen.
+ * is being written, one when a reply finished while Bruce was not on screen, and notes the user
+ * asked Bruce to post (TASK-090).
  */
-class ReplyNotifications(private val context: Context) {
+class ReplyNotifications(private val context: Context) : NotePoster {
     private val manager = NotificationManagerCompat.from(context)
 
     fun createChannels() {
         val system = context.getSystemService(NotificationManager::class.java)
         system.createNotificationChannel(NotificationChannel(REPLIES, context.getString(R.string.notification_channel_replies), NotificationManager.IMPORTANCE_DEFAULT))
         system.createNotificationChannel(NotificationChannel(WORKING, context.getString(R.string.notification_channel_working), NotificationManager.IMPORTANCE_LOW))
+        system.createNotificationChannel(NotificationChannel(NOTES, context.getString(R.string.notification_channel_notes), NotificationManager.IMPORTANCE_DEFAULT))
     }
+
+    /** A note the user asked for; false if Android does not let Bruce notify. Tapping it opens Bruce. */
+    override fun post(title: String, text: String): Boolean {
+        if (!manager.areNotificationsEnabled()) return false
+        val open = PendingIntent.getActivity(context, 0, Intent(context, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
+        val notification = NotificationCompat.Builder(context, NOTES)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .build()
+        return try {
+            manager.notify(NOTE_ID_BASE + (nextNote++ % NOTE_IDS), notification)
+            true
+        } catch (e: SecurityException) {
+            false
+        }
+    }
+
+    private var nextNote = 0
 
     fun working(): Notification = NotificationCompat.Builder(context, WORKING)
         .setSmallIcon(R.drawable.ic_notification)
@@ -62,5 +86,9 @@ class ReplyNotifications(private val context: Context) {
         private const val REPLIES = "replies"
         private const val WORKING = "working"
         private const val PREVIEW_CHARS = 300
+        private const val NOTES = "notes"
+        private const val NOTE_ID_BASE = 100_000
+        /** Notes reuse ids after this many, so old ones are replaced rather than piling up without end. */
+        private const val NOTE_IDS = 50
     }
 }

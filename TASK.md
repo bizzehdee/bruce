@@ -636,9 +636,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/apps/`): `write_text_message` (text, optional number; opens the messaging app with the message written) and `dial_number` (opens the dialler with the number), off by default, only while Bruce is on screen. Numbers must be digits with + ( ) - and spaces; codes such as `*#06#` are refused, as the dialler runs them. No SMS or call permission is declared.
   - Device-tested on the Xperia 1 II (`PhoneActionsDeviceTest`, manual): the dialler opened with +44 7700 900123 ready and nothing was called; for messages only the handler was checked (a messaging app takes `smsto:`), so no draft was left in the owner's messages.
   - Depends on: TASK-041
-- [ ] TASK-090: Notifications skill
+- [x] TASK-090: Notifications skill
   - Owner (2026-09-30): option A, Bruce posts a notification the user asked for.
   - Open question before building: which one the plan means. A: Bruce posts a notification the user asked for (a note to self). B: Bruce reads the phone's notifications (a notification-listener service the user enables in system settings; high risk, other apps' private data).
+  - Done (`notifications/NoteSkills.kt`): `post_note` (title, text) posts on a new Notes channel; tapping opens Bruce; the last 50 notes are kept, older ones replaced. Off by default; needs the notification permission from Android 13 (asked when turned on, TASK-086's mechanism). Capability SHARE, as the spec's list has no notification capability.
+  - Device-tested on the Xperia 1 II (`NotesDeviceTest`, manual): the note appeared among Bruce's active notifications on the Notes channel and was cleared.
   - Depends on: TASK-041
 - [ ] TASK-091: Location skill
   - `get_location`: approximate by default, precise only if the user grants it; off by default and listed with the privacy-sensitive skills; asked when first enabled. One reading per call, no tracking.

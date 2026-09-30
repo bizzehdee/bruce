@@ -33,6 +33,19 @@ class ReplyNotificationsTest {
     }
 
     @Test
+    fun notesArePostedOnTheirOwnChannelAndKeptToFifty() {
+        assertTrue(notifications.post("Milk", "Buy milk"))
+
+        val posted = shadowOf(system).allNotifications.single()
+        assertEquals("Milk", posted.extras.getCharSequence("android.title").toString())
+        assertEquals("notes", posted.channelId)
+        repeat(60) { notifications.post("n$it", "t") }
+        assertEquals(50, shadowOf(system).allNotifications.size)
+        shadowOf(system).setNotificationsEnabled(false)
+        assertEquals(false, notifications.post("x", "y"))
+    }
+
+    @Test
     fun nothingIsPostedWhenAndroidDoesNotLetBruceNotify() {
         shadowOf(system).setNotificationsEnabled(false)
 
