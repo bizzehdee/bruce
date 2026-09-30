@@ -73,8 +73,11 @@ object ModelFit {
     private const val USABLE_TOKENS_PER_SECOND = 5.0
     private const val BYTES_PER_GB = 1_000_000_000.0
 
+    /** Spellings publishers use for float files (Qwen's own repositories name them "fp16"). */
+    private val NAME_ALIASES = mapOf("FP16" to "F16", "FP32" to "F32")
+
     private val QUANTISATION_IN_NAME = Regex(
-        "(?:^|[-_.])(" + (LlamaFileTypes.names + listOf("Q4_K", "Q5_K", "Q3_K", "IQ4_NL")).sortedByDescending { it.length }
+        "(?:^|[-_.])(" + (LlamaFileTypes.names + NAME_ALIASES.keys + listOf("Q4_K", "Q5_K", "Q3_K", "IQ4_NL")).sortedByDescending { it.length }
             .joinToString("|") { Regex.escape(it) } + ")(?:[-_.]|$)",
         RegexOption.IGNORE_CASE,
     )
@@ -122,7 +125,7 @@ object ModelFit {
         )
 
     internal fun quantisationFromName(path: String): String? =
-        QUANTISATION_IN_NAME.find(path.substringAfterLast('/').removeSuffix(".gguf"))?.groupValues?.get(1)?.uppercase()
+        QUANTISATION_IN_NAME.find(path.substringAfterLast('/').removeSuffix(".gguf"))?.groupValues?.get(1)?.uppercase()?.let { NAME_ALIASES[it] ?: it }
 
     private fun fit(required: Long, usable: Long): Fit = when {
         required > usable -> Fit.DOES_NOT_FIT

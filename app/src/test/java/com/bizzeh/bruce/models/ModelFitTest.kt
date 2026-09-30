@@ -101,6 +101,8 @@ class ModelFitTest {
         "sub/Model-IQ4_XS.gguf, IQ4_XS",
         "Model-BF16.gguf, BF16",
         "Model-f16.gguf, F16",
+        "qwen2.5-0.5b-instruct-fp16.gguf, F16",
+        "Model-FP32.gguf, F32",
         "gemma-Q4_K.gguf, Q4_K",
     )
     fun quantisationFromFileName(path: String, expected: String) {
