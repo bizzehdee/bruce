@@ -19,6 +19,7 @@ class AppSkillsTest {
         override fun openUrl(url: String) = works.also { done += "url $url" }
         override fun launchable() = apps
         override fun launch(packageName: String) = works.also { done += "launch $packageName" }
+        override fun copy(text: String) { done += "copy $text" }
     }
 
     private val actions = FakeActions()
@@ -31,10 +32,17 @@ class AppSkillsTest {
 
     @Test
     fun allAreOffByDefaultAndPagesFollowTheSiteRules() {
-        assertEquals(listOf("share_text", "open_url", "open_app"), skills.keys.toList())
+        assertEquals(listOf("share_text", "open_url", "open_app", "copy_to_clipboard"), skills.keys.toList())
         assertTrue(skills.values.all { it.defaultState == SkillState.DECLINED })
         assertEquals(ResourceScope.WEB, skills.getValue("open_url").scope)
         assertEquals("example.com", skills.getValue("open_url").site!!(SkillArguments(mapOf("url" to "https://Example.com/a"))))
+    }
+
+    @Test
+    fun copyingWorksEvenOffScreen() {
+        onScreen = false
+        assertEquals(SkillOutcome.Done("Copied to the clipboard."), run("copy_to_clipboard", "text" to "4417"))
+        assertEquals(listOf("copy 4417"), actions.done)
     }
 
     @Test

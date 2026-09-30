@@ -25,6 +25,7 @@ object SkillText {
         "share_text" to (R.string.skill_share_text to R.string.skill_share_text_summary),
         "open_url" to (R.string.skill_open_url to R.string.skill_open_url_summary),
         "open_app" to (R.string.skill_open_app to R.string.skill_open_app_summary),
+        "copy_to_clipboard" to (R.string.skill_copy to R.string.skill_copy_summary),
         "move_file" to (R.string.skill_move_file to R.string.skill_move_file_summary),
         "delete_file" to (R.string.skill_delete_file to R.string.skill_delete_file_summary),
         "find_settings" to (R.string.skill_find_settings to R.string.skill_find_settings_summary),

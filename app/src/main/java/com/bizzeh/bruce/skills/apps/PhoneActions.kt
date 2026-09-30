@@ -1,6 +1,10 @@
 package com.bizzeh.bruce.skills.apps
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipDescription
+import android.content.ClipboardManager
+import android.os.PersistableBundle
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -19,6 +23,9 @@ interface PhoneActions {
     fun launchable(): List<LaunchableApp>
 
     fun launch(packageName: String): Boolean
+
+    /** Puts [text] on the clipboard, marked sensitive so Android does not preview it (TASK-088). */
+    fun copy(text: String)
 }
 
 /**
@@ -45,6 +52,12 @@ class AndroidPhoneActions(private val context: Context) : PhoneActions {
     override fun launch(packageName: String): Boolean =
         context.packageManager.getLaunchIntentForPackage(packageName)?.let(::start) ?: false
 
+    override fun copy(text: String) {
+        val clip = ClipData.newPlainText(CLIP_LABEL, text)
+        clip.description.extras = PersistableBundle().apply { putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true) }
+        context.getSystemService(ClipboardManager::class.java).setPrimaryClip(clip)
+    }
+
     private fun start(intent: Intent): Boolean = try {
         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         true
@@ -52,3 +65,6 @@ class AndroidPhoneActions(private val context: Context) : PhoneActions {
         false
     }
 }
+
+/** The clip's label, which the keyboard and clipboard tools show. */
+private const val CLIP_LABEL = "Bruce"

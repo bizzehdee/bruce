@@ -19,7 +19,7 @@ import com.bizzeh.bruce.skills.SkillState
  * skill offered adds to each prompt. They work only while Bruce is on screen, as Android allows.
  */
 class AppSkills(private val actions: PhoneActions, private val onScreen: () -> Boolean) {
-    fun create(): List<Skill> = listOf(share(), openUrl(), openApp())
+    fun create(): List<Skill> = listOf(share(), openUrl(), openApp(), copy())
 
     private fun share() = Skill(
         id = "share_text",
@@ -80,6 +80,20 @@ class AppSkills(private val actions: PhoneActions, private val onScreen: () -> B
                 else -> nothing("open that app")
             }
         }
+    }
+
+    /** Writing only: reading the clipboard would expose what other apps put there (TASK-088). */
+    private fun copy() = Skill(
+        id = "copy_to_clipboard",
+        version = 1,
+        description = "Copy text to the phone's clipboard, for the user to paste somewhere.",
+        input = InputSchema(listOf(Parameter(TEXT, ParameterType.STRING, "The text to copy", maxLength = MAX_SHARE))),
+        // The spec's capability list has no clipboard; copying hands text to other apps, as sharing does.
+        capabilities = setOf(Capability.SHARE),
+        defaultState = SkillState.DECLINED,
+    ) { arguments ->
+        actions.copy(arguments.string(TEXT).orEmpty())
+        SkillOutcome.Done("Copied to the clipboard.")
     }
 
     private inline fun whenOnScreen(act: () -> SkillOutcome): SkillOutcome =

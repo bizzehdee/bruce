@@ -624,9 +624,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/apps/`): `share_text` (the share sheet; the user picks the target), `open_url` (the browser; http and https only, under the WEB scope, so the network mode's site rules and approvals apply) and `open_app` (by launcher name: exact, else one unique partial match; several matches are named back). All off by default (chosen here: each offered skill lengthens every prompt, TASK-054). They act only while Bruce is on screen, as Android allows activity starts; otherwise the model is told to tell the user instead. The manifest declares the launcher and browser queries Android 11+ needs; Bruce is never offered to itself.
   - Device-tested on the Xperia 1 II by `PhoneActionsDeviceTest` (manual): the launcher list held Settings and not Bruce, Settings opened, then example.com opened in Chrome. The share sheet call reported success but was not seen on screen (the later browser covered it).
   - Depends on: TASK-068
-- [ ] TASK-088: Clipboard write skill
-  - `copy_to_clipboard` puts text on the clipboard, Ask by default, marked sensitive where Android 13+ allows so it is not previewed.
+- [x] TASK-088: Clipboard write skill
+  - `copy_to_clipboard` puts text on the clipboard, marked sensitive where Android 13+ allows so it is not previewed. Off by default rather than Ask (changed 2026-09-30, as TASK-087: every offered skill lengthens each prompt).
   - Clipboard reading is not included: Android limits it to the app in focus, and it would expose other apps' data.
+  - Done: in `skills/apps/`, capability SHARE (the spec's list has no clipboard capability, and a test pins it). Works whether or not Bruce is on screen. Unit-tested with a fake.
+  - Device test on the Xperia 1 II (`PhoneActionsDeviceTest`, manual) ran the copy without error and the keyboard's clipboard handler picked up a new clip; reading it back was refused by Android (only the app in focus may read), so the text itself was not confirmed.
   - Depends on: TASK-041
 - [ ] TASK-089: Messages and calls
   - Owner (2026-09-30): option A, open the messaging or phone app prefilled; the user sends or calls.

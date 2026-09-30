@@ -119,6 +119,8 @@
     <string name="skill_open_url_summary">Opens a page in your browser, where the network mode allows the site.</string>
     <string name="skill_open_app">Open apps</string>
     <string name="skill_open_app_summary">Opens an app on the phone by its name.</string>
+    <string name="skill_copy">Copy to clipboard</string>
+    <string name="skill_copy_summary">Puts text Bruce wrote on the clipboard for you to paste. Bruce never reads the clipboard.</string>
     <string name="skill_rename_file">Rename files</string>
     <string name="skill_rename_file_summary">Renames single files inside folders you have granted, in the same folder.</string>
     <string name="skill_move_file">Move files</string>

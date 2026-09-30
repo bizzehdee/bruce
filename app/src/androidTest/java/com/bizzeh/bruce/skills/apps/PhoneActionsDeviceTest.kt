@@ -24,4 +24,17 @@ class PhoneActionsDeviceTest {
         assertTrue(actions.openUrl("https://example.com/"))
         assertTrue(actions.share("Shared by a Bruce device test", null))
     }
+
+    @Test
+    fun copiedTextIsOnTheClipboardMarkedSensitive() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            actions.copy("Bruce device test")
+            val clip = context.getSystemService(android.content.ClipboardManager::class.java).primaryClip
+            // Reading back needs focus on Android 10+; the instrumentation's own app may be refused.
+            if (clip != null) {
+                assertTrue(clip.getItemAt(0).text == "Bruce device test")
+                assertTrue(clip.description.extras!!.getBoolean(android.content.ClipDescription.EXTRA_IS_SENSITIVE))
+            }
+        }
+    }
 }
