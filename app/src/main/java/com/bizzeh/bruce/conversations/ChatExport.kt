@@ -53,7 +53,7 @@ class ChatExport(private val zone: ZoneId) {
     }
 
     private fun markdownEntry(entry: ChatEntry): String = when (entry.role) {
-        ChatRole.USER -> "\n**You:**\n\n" + images(entry.images.size) + "${entry.text}\n"
+        ChatRole.USER -> "\n**You:**\n\n" + images(entry.images.size) + entry.documents.joinToString("") { "*(Document: ${it.name})*\n\n" } + "${entry.text}\n"
         ChatRole.SYSTEM -> "\n**Summary of earlier messages:**\n\n${entry.text}\n"
         ChatRole.ASSISTANT -> buildString {
             val answer = ThinkingText.split(entry.text).answer.trim()
@@ -88,6 +88,9 @@ class ChatExport(private val zone: ZoneId) {
         val message = JSONObject().put("role", entry.role.wireName).put("text", entry.text)
         // The images themselves stay on the phone; the export says how many there were.
         if (entry.images.isNotEmpty()) message.put("imageCount", entry.images.size)
+        if (entry.documents.isNotEmpty()) {
+            message.put("documents", JSONArray(entry.documents.map { JSONObject().put("name", it.name).put("text", it.text).put("truncated", it.truncated) }))
+        }
         if (entry.toolCalls.isNotEmpty()) {
             message.put("toolCalls", JSONArray(entry.toolCalls.map { JSONObject().put("id", it.id).put("name", it.name).put("arguments", it.argumentsJson) }))
         }

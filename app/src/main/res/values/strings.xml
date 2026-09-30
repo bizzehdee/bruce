@@ -14,6 +14,15 @@
     <string name="chat_conversation_end">End</string>
     <string name="chat_image">Attached image</string>
     <string name="chat_image_attach">Add an image</string>
+    <string name="chat_attach">Attach</string>
+    <string name="chat_document_attach">Add a document (PDF or text)</string>
+    <string name="chat_document_remove">Remove document</string>
+    <string name="chat_document_cut">(start only)</string>
+    <string name="chat_document_too_large">That document is too large. Bruce reads files up to 20 MB.</string>
+    <string name="chat_document_encrypted">That PDF is password-protected, so Bruce cannot read it.</string>
+    <string name="chat_document_not_text">Bruce can read PDFs and plain text files only.</string>
+    <string name="chat_document_empty">That document has no text Bruce can read. A scanned PDF holds only images.</string>
+    <string name="chat_document_unreadable">That document could not be read.</string>
     <string name="chat_image_remove">Remove image</string>
     <string name="chat_image_unreadable">That image could not be read.</string>
     <string name="chat_read_aloud">Read aloud</string>

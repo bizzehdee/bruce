@@ -26,6 +26,8 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.bizzeh.bruce.chat.ChatImages
+import com.bizzeh.bruce.chat.DocumentReader
+import com.bizzeh.bruce.chat.DocumentText
 import com.bizzeh.bruce.chat.ChatMemory
 import com.bizzeh.bruce.chat.TurnObserver
 import com.bizzeh.bruce.hardware.CpuFeatures
@@ -203,7 +205,7 @@ class AppContainer(private val context: Context) {
 
     private val conversationDatabase: ConversationDatabase by lazy {
         Room.databaseBuilder(context, ConversationDatabase::class.java, ConversationDatabase.NAME)
-            .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3)
+            .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3, ConversationDatabase.MIGRATION_3_4)
             .build()
     }
 
@@ -251,6 +253,12 @@ class AppContainer(private val context: Context) {
         SkillRequirement.NETWORK_ALLOWED -> networkSettings.mode.first() != NetworkMode.OFFLINE
         SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
     }
+
+    /** Documents attached to chats (TASK-084); PDF parsing may spill to the cache folder on disk. */
+    val documentReader: DocumentReader by lazy { DocumentReader(context, context.contentResolver, context.cacheDir) }
+
+    /** Disarms prompt-format markers, and the document tags around it, in text the user attaches, without cutting it. */
+    val neutralise: (String) -> String = ToolOutput(reservedMarkers = RESERVED_MARKERS + DocumentText.TAGS, maxLength = Int.MAX_VALUE)::clean
 
     /** Images attached to chats (TASK-082). */
     val chatImages: ChatImages by lazy { ChatImages(File(context.filesDir, ChatImages.DIR), context.contentResolver) }

@@ -60,6 +60,17 @@ class ConversationStoreTest {
     }
 
     @Test
+    fun documentsAreSavedWithTheirMessage() = runBlocking {
+        val document = com.bizzeh.bruce.chat.ChatDocument("kestrel.pdf", "The code is 4417.", truncated = true)
+        val id = store.save(null, listOf(ChatEntry(ChatRole.USER, "", documents = listOf(document))))
+
+        assertEquals("kestrel.pdf", store.active.first().single().title)
+        assertEquals(listOf(document), store.load(id)!!.single().documents)
+        database.conversations().replaceMessages(id, listOf(MessageEntity(conversationId = id, position = 0, role = "USER", text = "x", documentsJson = "[{}]")), 3)
+        assertEquals(emptyList<Any>(), store.load(id)!!.single().documents)
+    }
+
+    @Test
     fun storedImageNamesThatAreNotBrucesAreDropped() = runBlocking {
         val id = store.save(null, listOf(user("x")))
         database.conversations().replaceMessages(id, listOf(MessageEntity(conversationId = id, position = 0, role = "USER", text = "x", imagesJson = "[\"../../secret\",\"0d49eb73-53a0-464b-9e5a-3eca3d64eb9d.jpg\"]")), 2)

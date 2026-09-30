@@ -4,6 +4,11 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.IconButton
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.InputChip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.runtime.produceState
@@ -93,6 +98,10 @@ interface ChatActions {
     fun attachImage() = Unit
     fun removeAttachment(name: String) = Unit
 
+    /** Opens the document picker for a PDF or text file (TASK-084). */
+    fun attachDocument() = Unit
+    fun removeDocument(index: Int) = Unit
+
     /** A small copy of a stored chat image, for showing it; null when it has gone. */
     suspend fun thumbnail(name: String): ImageBitmap? = null
 
@@ -133,7 +142,7 @@ fun ChatScreen(
                 )
             }
             state.conversation?.let { ConversationBar(it, state.sidekick, actions) }
-            if (state.attachments.isNotEmpty()) Attachments(state, actions)
+            if (state.attachments.isNotEmpty() || state.documents.isNotEmpty()) Attachments(state, actions)
             Composer(state, actions)
         }
     }
@@ -193,7 +202,7 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
                 )
             }
             when {
-                entry.role == ChatRole.USER -> UserMessage(entry.text, entry.images, actions)
+                entry.role == ChatRole.USER -> UserMessage(entry, actions)
                 entry.role == ChatRole.SYSTEM -> SummaryNote(index, entry.text)
                 entry.tool?.status == ToolStatus.AWAITING_APPROVAL -> ConfirmationCard(entry.tool, state.confirmations[entry.tool.callId], !state.generating, actions)
                 // Skill use is not shown: people want the answer (owner, 2026-09-29). It is still saved.
@@ -326,9 +335,11 @@ private fun SummaryNote(index: Int, text: String) {
 }
 
 @Composable
-private fun UserMessage(text: String, images: List<String>, actions: ChatActions) {
+private fun UserMessage(entry: ChatEntry, actions: ChatActions) {
+    val text = entry.text
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        images.forEach { Thumbnail(it, actions, size = 160.dp) }
+        entry.images.forEach { Thumbnail(it, actions, size = 160.dp) }
+        entry.documents.forEach { DocumentChip(it, onRemove = null) }
         if (text.isNotEmpty()) {
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,
@@ -358,9 +369,25 @@ private fun Thumbnail(name: String, actions: ChatActions, size: androidx.compose
     }
 }
 
+/** A document by name; its text is sent, never shown, as it may be long. */
+@Composable
+private fun DocumentChip(document: ChatDocument, onRemove: (() -> Unit)?) {
+    InputChip(
+        selected = false,
+        onClick = { onRemove?.invoke() },
+        enabled = true,
+        label = { Text(document.name + if (document.truncated) " " + stringResource(R.string.chat_document_cut) else "", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        leadingIcon = { Icon(painterResource(R.drawable.ic_attach), contentDescription = null, modifier = Modifier.size(18.dp)) },
+        trailingIcon = onRemove?.let { { Icon(painterResource(R.drawable.ic_close), contentDescription = stringResource(R.string.chat_document_remove), modifier = Modifier.size(18.dp)) } },
+        modifier = Modifier.widthIn(max = 280.dp).testTag("document:${document.name}"),
+    )
+}
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Attachments(state: ChatState, actions: ChatActions) {
-    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("attachments"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    FlowRow(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("attachments"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        state.documents.forEachIndexed { index, document -> DocumentChip(document) { actions.removeDocument(index) } }
         state.attachments.forEach { name ->
             Box {
                 Thumbnail(name, actions, size = 64.dp)
@@ -433,6 +460,35 @@ private fun ReadAloudButton(index: Int, speech: SpeechState, actions: ChatAction
     }
 }
 
+/** Images for models that can see (TASK-082), documents for any (TASK-084). */
+@Composable
+private fun AttachMenu(state: ChatState, actions: ChatActions) {
+    var open by remember { mutableStateOf(false) }
+    Box {
+        IconButton(onClick = { open = true }, modifier = Modifier.testTag("attach")) {
+            Icon(painterResource(R.drawable.ic_attach), contentDescription = stringResource(R.string.chat_attach), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
+            if (state.canAttach) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.chat_image_attach)) },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_image), contentDescription = null) },
+                    enabled = state.attachments.size < MAX_ATTACHMENTS,
+                    onClick = { open = false; actions.attachImage() },
+                    modifier = Modifier.testTag("attachImage"),
+                )
+            }
+            DropdownMenuItem(
+                text = { Text(stringResource(R.string.chat_document_attach)) },
+                leadingIcon = { Icon(painterResource(R.drawable.ic_attach), contentDescription = null) },
+                enabled = state.documents.size < MAX_ATTACHMENTS,
+                onClick = { open = false; actions.attachDocument() },
+                modifier = Modifier.testTag("attachDocument"),
+            )
+        }
+    }
+}
+
 /** A tap speaks one message; a long press starts a voice conversation; either stops what is running. */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -488,11 +544,7 @@ private fun Composer(state: ChatState, actions: ChatActions) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        if (state.canAttach) {
-            IconButton(onClick = actions::attachImage, enabled = state.attachments.size < MAX_ATTACHMENTS, modifier = Modifier.testTag("attachImage")) {
-                Icon(painterResource(R.drawable.ic_image), contentDescription = stringResource(R.string.chat_image_attach), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
+        if (state.modelName != null) AttachMenu(state, actions)
         OutlinedTextField(
             value = state.input,
             onValueChange = actions::setInput,
@@ -513,7 +565,7 @@ private fun Composer(state: ChatState, actions: ChatActions) {
         } else {
             FilledIconButton(
                 onClick = actions::send,
-                enabled = (state.input.isNotBlank() || state.attachments.isNotEmpty()) && state.modelName != null,
+                enabled = (state.input.isNotBlank() || state.attachments.isNotEmpty() || state.documents.isNotEmpty()) && state.modelName != null,
                 modifier = Modifier.testTag("send"),
             ) {
                 Icon(painterResource(R.drawable.ic_send), contentDescription = stringResource(R.string.chat_send))

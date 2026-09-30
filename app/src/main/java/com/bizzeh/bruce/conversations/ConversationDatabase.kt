@@ -43,6 +43,8 @@ data class MessageEntity(
     val toolStatus: String? = null,
     /** JSON array of the stored names of images the user attached (version 3). */
     val imagesJson: String? = null,
+    /** JSON array of documents' names and text the user attached (version 4). */
+    val documentsJson: String? = null,
 )
 
 @Dao
@@ -95,7 +97,7 @@ interface ConversationDao {
     suspend fun deleteAll()
 }
 
-@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 3)
+@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 4)
 abstract class ConversationDatabase : RoomDatabase() {
     abstract fun conversations(): ConversationDao
 
@@ -113,6 +115,13 @@ abstract class ConversationDatabase : RoomDatabase() {
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE messages ADD COLUMN imagesJson TEXT")
+            }
+        }
+
+        /** Version 4 (TASK-084): documents attached to messages. */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE messages ADD COLUMN documentsJson TEXT")
             }
         }
     }

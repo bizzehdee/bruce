@@ -56,7 +56,7 @@ class ConversationMigrationTest {
     )
 
     private fun open() = Room.databaseBuilder(instrumentation.targetContext, ConversationDatabase::class.java, file.name)
-        .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3)
+        .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3, ConversationDatabase.MIGRATION_3_4)
         .build()
 
     @Test
@@ -83,6 +83,19 @@ class ConversationMigrationTest {
 
         assertEquals("get_datetime", messages.last().tool?.name)
         assertEquals(emptyList<String>(), messages.flatMap { it.images })
+        database.close()
+    }
+
+    @Test
+    fun version3ImagesSurviveAndHaveNoDocuments() = runBlocking {
+        val image = "0d49eb73-53a0-464b-9e5a-3eca3d64eb9d.jpg"
+        create(3, version1Rows + "INSERT INTO messages (id, conversationId, position, role, text, imagesJson) VALUES (3, 1, 2, 'USER', 'Look', '[\"$image\"]')")
+
+        val database = open()
+        val messages = ConversationStore(database.conversations()).load(1)!!
+
+        assertEquals(listOf(image), messages.last().images)
+        assertEquals(emptyList<Any>(), messages.flatMap { it.documents })
         database.close()
     }
 }

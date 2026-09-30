@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.conversations
 
+import com.bizzeh.bruce.chat.ChatDocument
 import com.bizzeh.bruce.chat.ChatEntry
 import com.bizzeh.bruce.chat.ChatImages
 import com.bizzeh.bruce.chat.ToolStatus
@@ -62,6 +63,9 @@ class ConversationStore(
         toolName = entry.tool?.name,
         toolStatus = entry.tool?.status?.name,
         imagesJson = entry.images.takeIf { it.isNotEmpty() }?.let { JSONArray(it).toString() },
+        documentsJson = entry.documents.takeIf { it.isNotEmpty() }?.let { documents ->
+            JSONArray(documents.map { JSONObject().put("name", it.name).put("text", it.text).put("truncated", it.truncated) }).toString()
+        },
     )
 
     private fun toEntry(message: MessageEntity): ChatEntry? {
@@ -81,8 +85,17 @@ class ConversationStore(
         } else {
             null
         }
-        return ChatEntry(role, message.text, toolCalls = calls, tool = tool, images = images(message.imagesJson))
+        return ChatEntry(role, message.text, toolCalls = calls, tool = tool, images = images(message.imagesJson), documents = documents(message.documentsJson))
     }
+
+    private fun documents(json: String?): List<ChatDocument> = json?.let {
+        try {
+            val array = JSONArray(it)
+            (0 until array.length()).map(array::getJSONObject).map { d -> ChatDocument(d.getString("name"), d.getString("text"), d.optBoolean("truncated")) }
+        } catch (e: JSONException) {
+            emptyList()
+        }
+    }.orEmpty()
 
     /** Stored names only: anything else in the column is dropped, never used as a path. */
     private fun images(json: String?): List<String> = json?.let {
@@ -125,6 +138,7 @@ class ConversationStore(
             val request = entries.firstOrNull { it.role == ChatRole.USER }
             val first = request?.text?.replace(Regex("\\s+"), " ")?.trim().orEmpty()
             if (first.isEmpty() && request?.images?.isNotEmpty() == true) return IMAGE_TITLE
+            if (first.isEmpty()) request?.documents?.firstOrNull()?.let { return it.name.take(AUTO_TITLE_LENGTH) }
             if (first.length <= AUTO_TITLE_LENGTH) return first
             val cut = first.take(AUTO_TITLE_LENGTH)
             val space = cut.lastIndexOf(' ')

@@ -10,6 +10,11 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import com.bizzeh.bruce.chat.DocumentError
+import com.bizzeh.bruce.chat.DocumentReader
+import com.bizzeh.bruce.chat.DocumentResult
+import com.bizzeh.bruce.chat.DocumentText
+import com.bizzeh.bruce.settings.InferenceDefaults
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.compose.ui.graphics.asImageBitmap
 import com.bizzeh.bruce.chat.VoiceConversation
@@ -127,6 +132,7 @@ class MainActivity : ComponentActivity() {
                 container.turnObserver,
                 container::stopModel,
                 container.runtime::acceptsImages,
+                container.neutralise,
             )
         }
     }
@@ -462,6 +468,26 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val documentPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) {
+            val budget = DocumentText.budget(chat.state.value.context?.total ?: InferenceDefaults.FALLBACK_CONTEXT)
+            lifecycleScope.launch {
+                when (val result = withContext(Dispatchers.IO) { container.documentReader.read(uri, budget) }) {
+                    is DocumentResult.Read -> chat.attachDocument(result.document)
+                    is DocumentResult.Failed -> Toast.makeText(this@MainActivity, documentError(result.reason), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    private fun documentError(reason: DocumentError) = when (reason) {
+        DocumentError.TOO_LARGE -> R.string.chat_document_too_large
+        DocumentError.ENCRYPTED -> R.string.chat_document_encrypted
+        DocumentError.NOT_TEXT -> R.string.chat_document_not_text
+        DocumentError.EMPTY -> R.string.chat_document_empty
+        DocumentError.UNREADABLE -> R.string.chat_document_unreadable
+    }
+
     /** Deletes stored images no saved chat shows, keeping those waiting to be sent. */
     private fun removeUnusedImages() {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -568,6 +594,8 @@ class MainActivity : ComponentActivity() {
         override fun startConversation() = withMicrophone(voiceConversation::start)
         override fun attachImage() = imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         override fun removeAttachment(name: String) = chat.removeAttachment(name)
+        override fun attachDocument() = documentPicker.launch(DocumentReader.PICKER_TYPES)
+        override fun removeDocument(index: Int) = chat.removeDocument(index)
         override suspend fun thumbnail(name: String) = withContext(Dispatchers.IO) { container.chatImages.thumbnail(name, THUMBNAIL_SIDE)?.asImageBitmap() }
         override fun endConversation() = voiceConversation.stop()
     }

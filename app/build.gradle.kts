@@ -127,6 +127,11 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.commonmark)
     implementation(libs.commonmark.ext.gfm.tables)
+    // PDF text (TASK-084). BouncyCastle 1.72, which it brings for encrypted PDFs only, has known
+    // advisories (research/sources/pdfbox-android-2026-09-30); it is left out and encrypted PDFs refused.
+    implementation(libs.pdfbox.android) {
+        exclude(group = "org.bouncycastle")
+    }
     ksp(libs.room.compiler)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

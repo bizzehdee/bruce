@@ -599,10 +599,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Xperia 1 II: ggml-org/SmolVLM-256M-Instruct-GGUF showed "Sees images" and "Downloads with image support (mmproj-SmolVLM-256M-Instruct-f16.gguf, 181.2 MB)"; Download fetched the Q8_0 model and then the projector into `projectors/`; the Installed card read "Model 166.9 MB + image projector 181.2 MB + 8K context 180.0 MB" and "Sees images".
   - Depends on: TASK-023, TASK-029
   - Required by: TASK-082
-- [ ] TASK-084: Documents as input (PDF and text)
+- [x] TASK-084: Documents as input (PDF and text)
   - Owner (2026-09-30): extract PDF text with a library (PdfBox-Android, Apache-2.0).
   - Attach a PDF or text file to a message; its text is extracted on the phone and passed as untrusted data, within the context budget.
   - Open question: PDF text extraction library (Android's `PdfRenderer` gives images only), or render pages to images for vision models (TASK-082).
+  - Owner (2026-09-30, after the dependency check in `research/sources/pdfbox-android-2026-09-30`): PdfBox-Android 2.0.27.0 is unmaintained since January 2023 and brings BouncyCastle 1.72 with 12 advisories; it is used with BouncyCastle excluded, and encrypted PDFs are refused.
+  - Done (`chat/Documents.kt`): Attach (paperclip) offers "Add an image" (vision models) and "Add a document (PDF or text)" (any model), up to 4 each. The picked file is read once on the phone: at most 20 MB, PDFs to 200 pages (PdfBox, spilling to the cache folder on disk), text as UTF-8 through the file skills' checks. Its text, without control characters, is kept to about half the context and saved with the message (`conversations.db` version 4); the file is not kept. The model gets it after the user's words as an untrusted-data block whose tags, and the prompt format's markers, cannot be written inside it. Refusals say why (too large, password-protected, not text, no text such as a scan, unreadable). Chips show documents in the box and in sent messages; exports name them (JSON keeps their text). Licences now list PdfBox-Android (with its NOTICE and Adobe resources) and the libraries llama.cpp's image library compiles in (stb_image, xxHash, rotate-bits), missed in TASK-082.
+  - Device-tested on the Xperia 1 II with Qwen3.5-0.8B: a one-page PDF and a text file (with a planted `</document>` and "Ignore all previous instructions") attached together; "What is the launch code, and who leads the project?" was answered 4417 and Ada; the planted line was treated as text. `ConversationMigrationTest` (to version 4) passed. APK grew by about 2.9 MB.
   - Depends on: TASK-042
 - [ ] TASK-085: File move and rename skill
   - `move_file` and `rename_file` inside granted folders only (source and destination both in a grant); Ask by default; confirmed per operation.

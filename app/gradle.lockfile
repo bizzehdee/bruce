@@ -206,6 +206,7 @@ com.squareup:kotlinpoet-jvm:2.0.0=_agp_internal_debug_kspClasspath,_agp_internal
 com.squareup:kotlinpoet:2.0.0=_agp_internal_debug_kspClasspath,_agp_internal_release_kspClasspath,kspDebugKotlinProcessorClasspath,kspReleaseKotlinProcessorClasspath
 com.sun.istack:istack-commons-runtime:3.0.8=androidLintTool
 com.sun.xml.fastinfoset:FastInfoset:1.2.16=androidLintTool
+com.tom-roush:pdfbox-android:2.0.27.0=debugAndroidTestCompileClasspath,debugAndroidTestLintChecksClasspath,debugCompileClasspath,debugLintChecksClasspath,debugRuntimeClasspath,debugUnitTestCompileClasspath,debugUnitTestLintChecksClasspath,debugUnitTestRuntimeClasspath,releaseCompileClasspath,releaseLintChecksClasspath,releaseRuntimeClasspath
 commons-codec:commons-codec:1.15=_agp_internal_debug_kspClasspath,_agp_internal_release_kspClasspath,kspDebugKotlinProcessorClasspath,kspReleaseKotlinProcessorClasspath
 commons-codec:commons-codec:1.17.1=androidLintTool
 commons-io:commons-io:2.16.1=androidLintTool

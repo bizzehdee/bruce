@@ -8,6 +8,7 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 - **Your permissions.** Bruce can only use the phone features and folders you allow. Sensitive actions, such as deleting a file, always ask you first. Settings → Permissions shows everything Bruce holds on the phone. If a folder you grant has an `AGENTS.md` file for AI helpers, Bruce shows it to you and follows it only if you say so.
 - **Talk to it.** Tap the microphone to speak a message. Speech is turned into text on the phone itself; the audio never leaves it. Tap the speaker under a reply to hear it read aloud, or long-press the microphone for a hands-free conversation.
 - **Show it a picture.** With a model that can see (Bruce downloads its image support with it), add a photo or screenshot to a message. Images stay on the phone unless you use your own server's model.
+- **Share a document.** Attach a PDF or text file to a message and ask about it. Bruce reads its text on the phone; password-protected PDFs and scans without text cannot be read.
 - **Readable replies.** Headings, lists, tables and code show formatted. Links ask before opening, and images from the web load only when you tap them.
 - **Your sidekick.** Pick a personality: Bruce, quick and eager, or Milo, calm and thoughtful.
 - **Your memory, if you want it.** Off unless you turn it on: Bruce then keeps short facts from your chats on the phone, uses them in later chats, and shows you every one to delete.

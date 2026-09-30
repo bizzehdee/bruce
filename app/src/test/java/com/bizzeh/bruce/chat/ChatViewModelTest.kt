@@ -108,6 +108,24 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun documentsGoWithTheNextMessageAsData() = runTest(dispatcher) {
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, neutralise = { it.uppercase() })
+        advanceUntilIdle()
+        vm.attachDocument(ChatDocument("a.txt", "alpha"))
+        vm.attachDocument(ChatDocument("b.txt", "beta"))
+        vm.removeDocument(0)
+        turns += reply("Read it.")
+        vm.send()
+        advanceUntilIdle()
+
+        val sent = histories.single().single().content
+        assertTrue(sent.contains("<document>\nBETA\n</document>"), sent)
+        assertFalse(sent.contains("alpha"))
+        assertEquals(listOf(ChatDocument("b.txt", "beta")), saved.getValue(1).single { it.role == ChatRole.USER }.documents)
+        assertTrue(vm.state.value.documents.isEmpty())
+    }
+
+    @Test
     fun nothingIsSentWithoutTextOrImages() = runTest(dispatcher) {
         val vm = viewModel()
         vm.send()

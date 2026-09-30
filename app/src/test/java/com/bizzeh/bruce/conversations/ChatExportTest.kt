@@ -151,6 +151,16 @@ class ChatExportTest {
     }
 
     @Test
+    fun documentsAreNamedInMarkdownAndKeptInJson() {
+        val withDocument = chat.copy(entries = listOf(ChatEntry(ChatRole.USER, "Summarise", documents = listOf(com.bizzeh.bruce.chat.ChatDocument("k.pdf", "code 4417")))))
+
+        assertTrue(write(ExportFormat.MARKDOWN, withDocument).second.contains("*(Document: k.pdf)*\n\nSummarise"))
+        val document = JSONObject(write(ExportFormat.JSON, withDocument).second).getJSONArray("conversations").getJSONObject(0)
+            .getJSONArray("messages").getJSONObject(0).getJSONArray("documents").getJSONObject(0)
+        assertEquals("code 4417", document.getString("text"))
+    }
+
+    @Test
     fun anEmptyExportIsStillValidJson() {
         val (count, text) = write(ExportFormat.JSON)
 

@@ -221,25 +221,33 @@ class ChatScreenTest {
         val imageActions = object : ChatActions by actions {
             override fun attachImage() { calls += "attach" }
             override fun removeAttachment(name: String) { calls += "remove $name" }
+            override fun attachDocument() { calls += "document" }
+            override fun removeDocument(index: Int) { calls += "remove document $index" }
             override suspend fun thumbnail(name: String) = if (name == "a.jpg") android.graphics.Bitmap.createBitmap(4, 4, android.graphics.Bitmap.Config.ARGB_8888).asImageBitmap() else null
         }
         compose.setContent { BruceTheme { ChatScreen(state, imageActions) } }
 
+        compose.onNodeWithTag("attach").performClick()
         compose.onNodeWithTag("attachImage").assertDoesNotExist()
+        compose.onNodeWithTag("attachDocument").performClick()
         state = state.copy(canAttach = true)
+        compose.onNodeWithTag("attach").performClick()
         compose.onNodeWithTag("attachImage").performClick()
         state = state.copy(attachments = listOf("a.jpg", "b.jpg"))
         compose.onNodeWithTag("image:a.jpg", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("image:b.jpg", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("send").assertIsEnabled()
         compose.onNodeWithTag("removeAttachment:b.jpg").performClick()
-        state = state.copy(attachments = List(MAX_ATTACHMENTS) { "x$it.jpg" })
+        state = state.copy(attachments = List(MAX_ATTACHMENTS) { "x$it.jpg" }, documents = listOf(ChatDocument("kestrel.pdf", "t", truncated = true)))
+        compose.onNodeWithTag("attach").performClick()
         compose.onNodeWithTag("attachImage").assertIsNotEnabled()
-        state = state.copy(attachments = emptyList(), entries = listOf(ChatEntry(ChatRole.USER, "", images = listOf("a.jpg"))))
+        compose.onNodeWithText("kestrel.pdf (start only)").performClick()
+        state = state.copy(attachments = emptyList(), documents = emptyList(), entries = listOf(ChatEntry(ChatRole.USER, "", images = listOf("a.jpg"), documents = listOf(ChatDocument("notes.txt", "t")))))
+        compose.onNodeWithTag("document:notes.txt").assertExists()
         compose.onNodeWithTag("attachments").assertDoesNotExist()
         compose.onNodeWithTag("image:a.jpg", useUnmergedTree = true).assertExists()
 
-        assertEquals(listOf("attach", "remove b.jpg"), calls)
+        assertEquals(listOf("document", "attach", "remove b.jpg", "remove document 0"), calls)
     }
 
     @Test

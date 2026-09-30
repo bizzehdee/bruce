@@ -43,6 +43,8 @@ data class ChatEntry(
     val tool: ToolUse? = null,
     /** Images the user attached to a message, by stored name (TASK-082). */
     val images: List<String> = emptyList(),
+    /** Documents' text the user attached to a message (TASK-084). */
+    val documents: List<ChatDocument> = emptyList(),
 )
 
 enum class ToolStatus { RAN, REFUSED, AWAITING_APPROVAL, DECLINED }
@@ -80,6 +82,8 @@ data class ChatState(
     val conversation: ConversationPhase? = null,
     /** Images waiting to go with the next message, by stored name (TASK-082). */
     val attachments: List<String> = emptyList(),
+    /** Documents waiting to go with the next message (TASK-084). */
+    val documents: List<ChatDocument> = emptyList(),
     /** The chosen model can be given images. */
     val canAttach: Boolean = false,
 )
@@ -121,6 +125,8 @@ class ChatViewModel(
     private val stopModel: () -> Unit = engine::stop,
     /** Whether the chosen model can be given images (BruceRuntime.acceptsImages). */
     private val acceptsImages: suspend () -> Boolean = { false },
+    /** Disarms the prompt format's markers in a document's text (ToolOutput.clean). */
+    private val neutralise: (String) -> String = { it },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -160,13 +166,21 @@ class ChatViewModel(
         mutableState.update { it.copy(attachments = it.attachments - name) }
     }
 
+    fun attachDocument(document: ChatDocument) {
+        mutableState.update { it.copy(documents = it.documents + document) }
+    }
+
+    fun removeDocument(index: Int) {
+        mutableState.update { it.copy(documents = it.documents.filterIndexed { i, _ -> i != index }) }
+    }
+
     fun send() {
         val current = mutableState.value
         val text = current.input.trim()
-        if ((text.isEmpty() && current.attachments.isEmpty()) || current.generating) return
-        val history = current.entries + ChatEntry(ChatRole.USER, text, images = current.attachments)
+        if ((text.isEmpty() && current.attachments.isEmpty() && current.documents.isEmpty()) || current.generating) return
+        val history = current.entries + ChatEntry(ChatRole.USER, text, images = current.attachments, documents = current.documents)
         val turnSession = session
-        mutableState.update { it.copy(input = "", attachments = emptyList(), entries = history, generating = true, error = null) }
+        mutableState.update { it.copy(input = "", attachments = emptyList(), documents = emptyList(), entries = history, generating = true, error = null) }
         turns.turnStarted()
         turn = viewModelScope.launch {
             val summarised = try {
@@ -364,7 +378,7 @@ class ChatViewModel(
         ChatRole.TOOL -> ToolChatMessage(ChatRole.TOOL, entry.text, toolCallId = entry.tool?.callId.orEmpty(), toolName = entry.tool?.name.orEmpty())
         // A summary note: the runtime puts it in the system prompt in place of the messages before it.
         ChatRole.SYSTEM -> ToolChatMessage(ChatRole.SYSTEM, entry.text)
-        else -> ToolChatMessage(entry.role, entry.text, images = entry.images)
+        else -> ToolChatMessage(entry.role, DocumentText.message(entry.text, entry.documents, neutralise), images = entry.images)
     }
 
     private fun chatError(error: RuntimeError) = when (error) {
