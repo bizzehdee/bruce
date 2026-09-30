@@ -104,6 +104,15 @@
     <string name="skill_create_file_summary">Creates new plain-text files in folders you have granted.</string>
     <string name="skill_write_file">Change files</string>
     <string name="skill_write_file_summary">Replaces the whole text of a plain-text file you have granted.</string>
+    <string name="skill_list_events">Read calendar</string>
+    <string name="skill_list_events_summary">Lists your calendar events for the days asked about.</string>
+    <string name="skill_create_event">Add calendar events</string>
+    <string name="skill_create_event_summary">Adds events to your calendar. You approve each one.</string>
+    <string name="skill_update_event">Change calendar events</string>
+    <string name="skill_update_event_summary">Changes an event\'s title, time, place or notes. You approve each change. Repeating events are left alone.</string>
+    <string name="skill_delete_event">Delete calendar events</string>
+    <string name="skill_delete_event_summary">Deletes an event from your calendar. You approve each one. Repeating events are left alone.</string>
+    <string name="skills_permission_refused">Android did not allow it, so the skill stays off.</string>
     <string name="skill_rename_file">Rename files</string>
     <string name="skill_rename_file_summary">Renames single files inside folders you have granted, in the same folder.</string>
     <string name="skill_move_file">Move files</string>
@@ -201,6 +210,10 @@
     <string name="permission_notifications_summary">Lets Bruce tell you when a long reply finishes while you are using another app.</string>
     <string name="permission_write_settings">Modify system settings</string>
     <string name="permission_write_settings_summary">Lets the Change settings skill change brightness, screen timeout, auto-rotate and vibrate on touch. Nothing else uses it.</string>
+    <string name="permission_read_calendar">Read calendar</string>
+    <string name="permission_read_calendar_summary">Used only by the calendar skills, when you turn one on and it lists or changes events.</string>
+    <string name="permission_write_calendar">Change calendar</string>
+    <string name="permission_write_calendar_summary">Used only by the calendar skills to add, change or delete an event you approved.</string>
     <string name="permission_microphone">Microphone</string>
     <string name="permission_microphone_summary">Used only while you speak a message after tapping the microphone. Speech is turned into text on the phone; the audio is not kept or sent anywhere.</string>
     <string name="permission_internet">Internet</string>

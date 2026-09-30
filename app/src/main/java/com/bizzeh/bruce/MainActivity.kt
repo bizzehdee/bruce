@@ -347,7 +347,7 @@ class MainActivity : ComponentActivity() {
         val rows by skills.rows.collectAsState()
         val actions = remember(toPermissions, toSettings) {
             object : SkillsActions {
-                override fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean) = skills.set(skill, state, highRiskWarningAccepted)
+                override fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean) = setSkill(skill, state, highRiskWarningAccepted)
                 override fun openPermissions() = toPermissions()
                 override fun openNetworkSettings() = toSettings()
             }
@@ -504,6 +504,22 @@ class MainActivity : ComponentActivity() {
             chat.setInput(VoiceText.append(chat.state.value.input, words))
             chat.send()
         }, lifecycleScope, SystemClock::elapsedRealtime)
+    }
+
+    /** A skill being turned on, waiting for the Android permissions it needs. */
+    private var pendingSkill: (() -> Unit)? = null
+    private val skillPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+        val turnOn = pendingSkill
+        pendingSkill = null
+        if (turnOn != null && results.values.all { it }) turnOn() else if (turnOn != null) Toast.makeText(this, R.string.skills_permission_refused, Toast.LENGTH_LONG).show()
+    }
+
+    /** A skill needing Android permissions asks for them when it is turned on, and stays off if refused. */
+    private fun setSkill(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean) {
+        val missing = skill.androidPermissions.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
+        if (state == SkillState.DECLINED || missing.isEmpty()) return skills.set(skill, state, highRiskWarningAccepted)
+        pendingSkill = { skills.set(skill, state, highRiskWarningAccepted) }
+        skillPermissions.launch(missing.toTypedArray())
     }
 
     /** What to start once the microphone permission is granted. */

@@ -37,6 +37,7 @@ class PolicyEngineTest {
         highRisk: Boolean = false,
         scope: ResourceScope = ResourceScope.NONE,
         permissions: List<String> = emptyList(),
+        confirmEveryUse: Boolean = false,
         run: () -> SkillOutcome = { SkillOutcome.Done("result of $id") },
     ) = Skill(
         id = id,
@@ -48,6 +49,7 @@ class PolicyEngineTest {
         highRisk = highRisk,
         scope = scope,
         androidPermissions = permissions,
+        confirmEveryUse = confirmEveryUse,
     ) {
         runs += id
         run()
@@ -59,7 +61,8 @@ class PolicyEngineTest {
     private val deleter = skill("delete_file", SkillState.ASK, highRisk = true, scope = ResourceScope.GRANTED_FILES)
     private val contacts = skill("find_contact", SkillState.ACCEPTED, permissions = listOf("android.permission.READ_CONTACTS"))
     private val broken = skill("broken", SkillState.ACCEPTED) { error("secret path /sdcard/private.txt") }
-    private val registry = SkillRegistry(listOf(clock, reader, writer, deleter, contacts, broken))
+    private val event = skill("create_event", SkillState.ASK, scope = ResourceScope.CALENDAR, confirmEveryUse = true)
+    private val registry = SkillRegistry(listOf(clock, reader, writer, deleter, contacts, broken, event))
 
     private var granted = setOf<String>()
     private var inScope = true
@@ -107,6 +110,14 @@ class PolicyEngineTest {
         assertTrue(declined.userCanChange)
         assertFalse(declined.retryable)
         assertTrue(decide("write_file") is PolicyDecision.Allowed)
+    }
+
+    @Test
+    fun aSkillThatConfirmsEveryUseIsAskedEvenWhenAccepted() = runBlocking {
+        states.set(event, SkillState.ACCEPTED)
+
+        val asked = decide("create_event") as PolicyDecision.NeedsConfirmation
+        assertEquals(listOf("Documents/a.txt"), asked.targets.map { it.display })
     }
 
     @Test

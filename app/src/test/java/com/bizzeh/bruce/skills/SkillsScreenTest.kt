@@ -131,6 +131,17 @@ class SkillsScreenTest {
     }
 
     @Test
+    fun aSkillAskedEveryTimeCannotBeAccepted() {
+        val event = Skill("create_event", 1, "d", InputSchema(), emptySet(), SkillState.DECLINED, confirmEveryUse = true) { SkillOutcome.Done("") }
+        compose.setContent { BruceTheme { SkillsScreen(listOf(SkillRow(event, SkillState.DECLINED)), actions) {} } }
+
+        compose.onNodeWithTag("state:create_event:ACCEPTED").assertDoesNotExist()
+        compose.onNodeWithTag("state:create_event:ASK").performClick()
+
+        assertEquals(listOf("create_event ASK false"), calls)
+    }
+
+    @Test
     fun lockedSkillsShowWhyAndCannotBeChanged() {
         val network = skill("get_network_status", SkillState.ACCEPTED)
         compose.setContent {

@@ -225,7 +225,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   the phone. Bruce ships no key. Only where the network mode allows it. `done`
 - **Advanced skills** — Move/rename files, calendar create/modify/delete,
   sharing, opening apps and URLs, clipboard write, SMS, calls, notifications.
-  `in progress` (move and rename done, TASK-085)
+  `in progress` (move and rename, TASK-085; calendar, TASK-086)
 - **Privacy-sensitive skills** — Location, contacts, camera, microphone; disabled
   by default; camera and microphone need an explicit user action each time.
   `planned`
@@ -456,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Calendar skills: list events, and create, change or delete one with an approval that shows the exact change every time (TASK-086). Skills needing an Android permission ask for it when turned on. |
 | 2026-09-30 | Changed | Rename and move file skills done; an approval binds both the file and where it goes (TASK-085). |
 | 2026-09-30 | Changed | Documents in chat: PDF and text files read on the phone (PdfBox-Android without BouncyCastle; encrypted PDFs refused, owner's choice after its advisories) (TASK-084). |
 | 2026-09-30 | Changed | Images in chat: photos and screenshots go to vision models on the phone (llama.cpp mtmd) or to a server that can see them (TASK-082). |

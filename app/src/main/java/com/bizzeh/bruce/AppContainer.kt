@@ -55,6 +55,8 @@ import com.bizzeh.bruce.policy.PolicyDatabase
 import com.bizzeh.bruce.policy.SkillStateStore
 import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.ToolOutput
+import com.bizzeh.bruce.skills.calendar.AndroidCalendarStore
+import com.bizzeh.bruce.skills.calendar.CalendarSkills
 import com.bizzeh.bruce.policy.PolicyEngine
 import com.bizzeh.bruce.runtime.BruceRuntime
 import android.content.pm.PackageManager
@@ -230,6 +232,8 @@ class AppContainer(private val context: Context) {
     /** The names the model starts file paths with. */
     suspend fun grantNames(): List<String> = grantScope.names()
 
+    private val calendarSkills by lazy { CalendarSkills(AndroidCalendarStore(context.contentResolver), Dispatchers.IO) }
+
     private val settingsSkills by lazy { SettingsSkills(AndroidSettingsReader(context), AndroidSettingsWriter(context)) }
 
     val sites: SiteAccess by lazy { SiteAccess(policyDatabase.policy(), { networkSettings.mode.first() }) }
@@ -239,6 +243,7 @@ class AppContainer(private val context: Context) {
             AutomaticSkills.create(AndroidPhoneReaders(context)) +
                 FileSkills(grantScope, documentAccess, Dispatchers.IO, folderInstructions::guidance).create() +
                 settingsSkills.create() +
+                calendarSkills.create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
@@ -304,6 +309,7 @@ class AppContainer(private val context: Context) {
         }, scope = { request ->
             when (request.skill.scope) {
                 ResourceScope.PHONE_SETTINGS -> settingsSkills.check(request)
+                ResourceScope.CALENDAR -> calendarSkills.check(request)
                 else -> grantScope.check(request)
             }
         }, requirementMet = ::requirementMet, sites = sites)

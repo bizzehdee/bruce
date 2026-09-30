@@ -86,14 +86,15 @@ private fun SkillItem(row: SkillRow, actions: SkillsActions, onSelect: (SkillSta
             SkillRequirement.SEARCH_KEY -> Locked(R.string.skills_locked_search_key, R.string.settings_web_search, "searchKey:${skill.id}", actions::openNetworkSettings)
             null -> Unit
         }
+        val states = if (skill.confirmEveryUse) listOf(SkillState.DECLINED, SkillState.ASK) else SkillState.entries
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth().padding(top = 4.dp)) {
-            SkillState.entries.forEachIndexed { index, state ->
+            states.forEachIndexed { index, state ->
                 SegmentedButton(
                     // A locked skill is off, and cannot be changed until its requirement is met; the user's choice returns then.
                     selected = if (row.locked != null) state == SkillState.DECLINED else state == row.state,
                     enabled = row.locked == null,
                     onClick = { if (state != row.state) onSelect(state) },
-                    shape = SegmentedButtonDefaults.itemShape(index, SkillState.entries.size),
+                    shape = SegmentedButtonDefaults.itemShape(index, states.size),
                     modifier = Modifier.testTag("state:${skill.id}:$state"),
                 ) { Text(stringResource(SkillText.state(state))) }
             }

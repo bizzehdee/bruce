@@ -136,7 +136,7 @@ class PolicyEngine(
         }
         val version = states.policyVersion()
         // A site the user has not approved is asked about even when the skill itself is Accepted.
-        return if (state == SkillState.ASK || newSites.isNotEmpty()) {
+        return if (state == SkillState.ASK || skill.confirmEveryUse || newSites.isNotEmpty()) {
             PolicyDecision.NeedsConfirmation(request, version, targets, clock(), newSites)
         } else {
             PolicyDecision.Allowed(request, version)

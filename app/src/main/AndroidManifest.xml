@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Voice input (TASK-074), through Android's on-device recogniser only; asked on first use. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Calendar skills (TASK-086), off by default; asked for when one is turned on. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <!-- Only for the set_setting skill (TASK-067); the user grants it in Android's settings. -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" tools:ignore="ProtectedPermissions" />
 

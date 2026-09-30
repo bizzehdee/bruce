@@ -68,6 +68,9 @@ enum class ResourceScope {
 
     /** One web site, which the network mode allows, blocks or asks about (TASK-068). */
     WEB,
+
+    /** One calendar event, as it will be made, changed or deleted (TASK-086). */
+    CALENDAR,
 }
 
 /** What a skill's execution produced, before sanitising. */
@@ -100,6 +103,8 @@ class Skill(
     val requires: Set<SkillRequirement> = emptySet(),
     /** For [ResourceScope.WEB]: the host a call reaches, from its arguments (WebAddress.host), or null if it names none. */
     val site: ((SkillArguments) -> String?)? = null,
+    /** Every use is asked about, even if Accepted were chosen; the Skills screen does not offer Accepted. */
+    val confirmEveryUse: Boolean = false,
     val execute: suspend (SkillArguments) -> SkillOutcome,
 ) {
     init {
