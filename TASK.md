@@ -703,8 +703,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Requirements (2026-09-30, `research/sources/android-assistant-role-2026-09-30`): the assistant role needs a voice-interaction service or an activity handling ACTION_ASSIST; it is not requestable, so the user picks the app in Android's default apps; the permissions it grants (SMS, call log) reach only apps that declare them, and Bruce declares none.
   - Done: MainActivity handles ACTION_ASSIST and opens a new chat. Settings has "Phone's assistant", saying whether Bruce is the assistant (RoleManager, read each time Settings shows) and opening Android's default apps page. No wake word.
   - Device-tested on the Xperia 1 II: with Bruce given the role through `cmd role`, Android recorded `com.bizzeh.bruce/.MainActivity` as the assistant; an ACTION_ASSIST sent to Bruce opened a fresh chat. The assist gesture itself was not triggered: injected assist and long-press-Home key events did nothing on this phone. The role was then given back to the Google app (the previous holder could not be read first, as Android 12's `cmd role` has no get command; Google was restored, with its voice service).
-- [ ] TASK-100: Share to Bruce
+- [x] TASK-100: Share to Bruce
   - Bruce appears in the share sheet for text, links and (with TASK-082) images; shared content starts a new chat as untrusted data with the user's request still to type.
+  - Done (`chat/Shared.kt`): Bruce takes ACTION_SEND for text, images and PDFs, and ACTION_SEND_MULTIPLE for images. A share starts a new chat: shared text (and links) becomes a document attachment named by its subject, so it reaches the model as untrusted data (TASK-084); images are stored as chat images (up to 4); a PDF or text file goes through the document reader. The message box stays empty for the user's request.
+  - Device-tested on the Xperia 1 II: sharing text from the shell opened a new chat with "Kestrel update" attached and an empty box; Android lists Bruce as a share target for text, JPEG, PDF and several images. Sharing a photo from another app was not tried (the same code as picked images).
   - Depends on: TASK-032
 - [ ] TASK-101: Quick Settings tile, widget and shortcuts
   - Owner (2026-09-30): the widget is buttons only (New chat, Voice); no chat content on the home screen.

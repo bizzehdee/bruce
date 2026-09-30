@@ -332,7 +332,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   handling, required by Google Play. Published on the owner's website; the
   contact email is the one given in `docs/store/`. `planned`
 - **Future surfaces** — Widget, Quick Settings tile, share-sheet actions,
-  shortcuts. `planned`
+  shortcuts. `in progress` (share to Bruce done, TASK-100)
 
 ## Stack
 
@@ -456,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Share to Bruce done: text, links, images and PDFs start a new chat as attachments (TASK-100). |
 | 2026-09-30 | Changed | Default assistant done through an ACTION_ASSIST activity; Android's requirements recorded (research/sources/android-assistant-role-2026-09-30) (TASK-099). |
 | 2026-09-30 | Changed | Model profiles done: named models picked per chat, restored when the chat opens; no automatic routing (owner) (TASK-098). |
 | 2026-09-30 | Changed | Search my files skill done: the best passages of granted files, offered once something is indexed (TASK-097). |

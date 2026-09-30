@@ -10,6 +10,7 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import com.bizzeh.bruce.chat.ShareIntents
 import com.bizzeh.bruce.models.ProfileModel
 import com.bizzeh.bruce.search.EmbeddingModel
 import com.bizzeh.bruce.settings.FileSearchState
@@ -218,6 +219,7 @@ class MainActivity : ComponentActivity() {
             handleSignInRedirect(intent)
             handleOpenChat(intent)
             handleAssist(intent)
+            handleShare(intent)
         }
         container.stopTurn = { chat.stop() }
         if (savedInstanceState == null) {
@@ -524,6 +526,7 @@ class MainActivity : ComponentActivity() {
         handleSignInRedirect(intent)
         handleOpenChat(intent)
         handleAssist(intent)
+        handleShare(intent)
     }
 
     override fun onStart() {
@@ -677,6 +680,23 @@ class MainActivity : ComponentActivity() {
     private fun stopVoice() {
         voice.stop()
         if (voiceState.value == VoiceState.LISTENING) voiceState.value = VoiceState.IDLE
+    }
+
+    /** Something shared from another app (TASK-100): a new chat with it attached, the request still to type. */
+    private fun handleShare(intent: Intent?) {
+        val shared = ShareIntents.read(intent) ?: return
+        chat.newChat()
+        shared.text?.let(chat::attachDocument)
+        lifecycleScope.launch {
+            shared.images.forEach { uri -> withContext(Dispatchers.IO) { container.chatImages.save(uri) }?.let(chat::attach) }
+            val budget = DocumentText.budget(chat.state.value.context?.total ?: InferenceDefaults.FALLBACK_CONTEXT)
+            shared.files.forEach { uri ->
+                when (val result = withContext(Dispatchers.IO) { container.documentReader.read(uri, budget) }) {
+                    is DocumentResult.Read -> chat.attachDocument(result.document)
+                    is DocumentResult.Failed -> Toast.makeText(this@MainActivity, documentError(result.reason), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
     }
 
     /** The assist gesture, with Bruce as the phone's assistant (TASK-099): a fresh chat. */
