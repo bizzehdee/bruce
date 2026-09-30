@@ -17,6 +17,7 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 - **Search your files.** Optional: after a one-time 334 MB download, Bruce indexes the text of the folders and files you granted, on the phone, so it can find what you mean, in other languages too, and answer from your files with the Search my files skill.
 - **Your phone's assistant, if you like.** Pick Bruce as the digital assistant app in Android's default apps, and the assistant gesture opens a new chat. There is no wake word.
 - **Share to Bruce.** Share text, a link, photos or a PDF from any app to start a new chat with it attached, then ask your question.
+- **Quick ways in.** Long-press Bruce's icon for New chat or Speak to Bruce, add the New chat tile to Quick Settings, or put the Bruce widget on your home screen. None of them shows your chats.
 - **Talk to it.** Tap the microphone to speak a message. Speech is turned into text on the phone itself; the audio never leaves it. Tap the speaker under a reply to hear it read aloud, or long-press the microphone for a hands-free conversation.
 - **Show it a picture.** With a model that can see (Bruce downloads its image support with it), add a photo or screenshot to a message. Images stay on the phone unless you use your own server's model.
 - **Share a document.** Attach a PDF or text file to a message and ask about it. Bruce reads its text on the phone; password-protected PDFs and scans without text cannot be read.

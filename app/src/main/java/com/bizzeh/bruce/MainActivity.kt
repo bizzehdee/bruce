@@ -10,6 +10,7 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import com.bizzeh.bruce.surfaces.Surfaces
 import com.bizzeh.bruce.chat.ShareIntents
 import com.bizzeh.bruce.models.ProfileModel
 import com.bizzeh.bruce.search.EmbeddingModel
@@ -699,9 +700,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** The assist gesture, with Bruce as the phone's assistant (TASK-099): a fresh chat. */
+    /** The assist gesture (TASK-099), a shortcut, the tile or the widget (TASK-101): a fresh chat, listening for Voice. */
     private fun handleAssist(intent: Intent?) {
-        if (intent?.action == Intent.ACTION_ASSIST) chat.newChat()
+        when (intent?.action) {
+            Intent.ACTION_ASSIST, Surfaces.ACTION_NEW_CHAT -> chat.newChat()
+            Surfaces.ACTION_VOICE -> {
+                chat.newChat()
+                if (voice.available) startVoice()
+            }
+        }
     }
 
     /** Whether the user picked Bruce as the digital assistant app. */

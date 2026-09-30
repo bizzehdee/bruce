@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher shortcuts (TASK-101). -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="new_chat"
+        android:enabled="true"
+        android:icon="@drawable/ic_add_chat"
+        android:shortcutShortLabel="@string/surface_new_chat">
+        <intent
+            android:action="com.bizzeh.bruce.NEW_CHAT"
+            android:targetPackage="com.bizzeh.bruce"
+            android:targetClass="com.bizzeh.bruce.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="voice"
+        android:enabled="true"
+        android:icon="@drawable/ic_mic"
+        android:shortcutShortLabel="@string/surface_voice">
+        <intent
+            android:action="com.bizzeh.bruce.VOICE"
+            android:targetPackage="com.bizzeh.bruce"
+            android:targetClass="com.bizzeh.bruce.MainActivity" />
+    </shortcut>
+</shortcuts>

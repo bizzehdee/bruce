@@ -138,6 +138,9 @@
     <string name="tasks_repeat_weekly">Every week</string>
     <string name="notification_channel_reminders">Reminders</string>
     <string name="notification_reminder">Reminder</string>
+    <string name="surface_new_chat">New chat</string>
+    <string name="surface_voice">Speak to Bruce</string>
+    <string name="surface_widget_description">Start a new chat, or speak to Bruce.</string>
     <string name="assistant_title">Phone\'s assistant</string>
     <string name="assistant_off">Make Bruce the app the assistant gesture opens: pick it under Digital assistant app in Android\'s default apps. No wake word; Bruce never listens in the background.</string>
     <string name="assistant_on">Bruce opens a new chat from the assistant gesture. Change it in Android\'s default apps.</string>

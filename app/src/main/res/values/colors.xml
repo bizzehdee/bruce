@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget's colours: the theme's primary container (ui/theme/Color.kt). -->
+<resources>
+    <color name="widget_background">#FFFFDCBD</color>
+    <color name="widget_icon">#FF2C1600</color>
+</resources>

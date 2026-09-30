@@ -708,8 +708,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`chat/Shared.kt`): Bruce takes ACTION_SEND for text, images and PDFs, and ACTION_SEND_MULTIPLE for images. A share starts a new chat: shared text (and links) becomes a document attachment named by its subject, so it reaches the model as untrusted data (TASK-084); images are stored as chat images (up to 4); a PDF or text file goes through the document reader. The message box stays empty for the user's request.
   - Device-tested on the Xperia 1 II: sharing text from the shell opened a new chat with "Kestrel update" attached and an empty box; Android lists Bruce as a share target for text, JPEG, PDF and several images. Sharing a photo from another app was not tried (the same code as picked images).
   - Depends on: TASK-032
-- [ ] TASK-101: Quick Settings tile, widget and shortcuts
+- [x] TASK-101: Quick Settings tile, widget and shortcuts
   - Owner (2026-09-30): the widget is buttons only (New chat, Voice); no chat content on the home screen.
   - A Quick Settings tile and launcher shortcuts for New chat and Voice; a home-screen widget that opens a new chat.
   - Open question: whether the widget shows anything (last reply) or is only a button.
+  - Done (`surfaces/`): launcher shortcuts New chat and Speak to Bruce (static, `res/xml/shortcuts.xml`); a New chat Quick Settings tile; a 2×1 home-screen widget with New chat and Speak to Bruce buttons in the theme's colours, showing no chat content. Each opens Bruce on a new chat; Speak also starts listening where the phone has an on-device recogniser.
+  - Device-tested on the Xperia 1 II: both shortcuts registered; the tile, added with `cmd statusbar`, opened Bruce when clicked, and was removed again; the Voice action opened a new chat (no listening: this phone has no on-device recogniser). The widget was not placed on a home screen (that needs the launcher); its buttons are unit-tested.
   - Depends on: TASK-074
