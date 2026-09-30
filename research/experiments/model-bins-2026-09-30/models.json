@@ -1,0 +1,860 @@
+[
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen3-0.6B",
+  "downloads_all_copies": 916772,
+  "publishers": 13,
+  "repository": "Qwen/Qwen3-0.6B-GGUF",
+  "revision": "23749fefcc72300e3a2ad315e1317431b06b590a",
+  "architecture": "qwen3",
+  "parameters": 596049920,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Qwen3-0.6B-Q8_0.gguf",
+    "size": 639446688,
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Qwen3-0.6B-Q8_0.gguf",
+    "size": 639446688,
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Qwen3-0.6B-Q8_0.gguf",
+    "size": 639446688,
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen3.5-0.8B",
+  "downloads_all_copies": 565136,
+  "publishers": 26,
+  "repository": "unsloth/Qwen3.5-0.8B-GGUF",
+  "revision": "6ab461498e2023f6e3c1baea90a8f0fe38ab64d0",
+  "architecture": "qwen35",
+  "parameters": 752393024,
+  "licence": "apache-2.0",
+  "pipeline_tag": "image-text-to-text",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Qwen3.5-0.8B-UD-IQ2_M.gguf",
+    "size": 371933440,
+    "sha256": "e31519c0ffb8e5bec09f34d7783731c39f9eaee13c0ec5a0f14b191761bb5134",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Qwen3.5-0.8B-UD-Q8_K_XL.gguf",
+    "size": 1186443520,
+    "sha256": "167183aecc0735359970e977c21a88c7d69112be06aa5d2df27c0d2a23662805",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Qwen3.5-0.8B-UD-Q8_K_XL.gguf",
+    "size": 1186443520,
+    "sha256": "167183aecc0735359970e977c21a88c7d69112be06aa5d2df27c0d2a23662805",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "LiquidAI/LFM2.5-230M",
+  "downloads_all_copies": 552551,
+  "publishers": 2,
+  "repository": "LiquidAI/LFM2.5-230M-GGUF",
+  "revision": "03502067c64ce32ac4fe87b0cec0310a1a13d3e9",
+  "architecture": "lfm2",
+  "parameters": 229693184,
+  "licence": "other",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "LFM2.5-230M-Q8_0.gguf",
+    "size": 246598496,
+    "sha256": "855be85429300602eda72958547614703541b7d6dd965a8f8f6052b85a7aa935",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "LFM2.5-230M-Q8_0.gguf",
+    "size": 246598496,
+    "sha256": "855be85429300602eda72958547614703541b7d6dd965a8f8f6052b85a7aa935",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "LFM2.5-230M-Q8_0.gguf",
+    "size": 246598496,
+    "sha256": "855be85429300602eda72958547614703541b7d6dd965a8f8f6052b85a7aa935",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "google/gemma-3-1b-it",
+  "downloads_all_copies": 532185,
+  "publishers": 13,
+  "repository": "ggml-org/gemma-3-1b-it-GGUF",
+  "revision": "f9c28bcd85737ffc5aef028638d3341d49869c27",
+  "architecture": "gemma3",
+  "parameters": 999885952,
+  "licence": "gemma",
+  "pipeline_tag": null,
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "gemma-3-1b-it-Q4_K_M.gguf",
+    "size": 806058240,
+    "sha256": "8ccc5cd1f1b3602548715ae25a66ed73fd5dc68a210412eea643eb20eb75a135",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "gemma-3-1b-it-Q8_0.gguf",
+    "size": 1069306368,
+    "sha256": "b205840c5dcef55078e37d344677869a714ffd42a4ae448c48dcfb52e4bb10d5",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "gemma-3-1b-it-Q8_0.gguf",
+    "size": 1069306368,
+    "sha256": "b205840c5dcef55078e37d344677869a714ffd42a4ae448c48dcfb52e4bb10d5",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "downloads_all_copies": 329263,
+  "publishers": 12,
+  "repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+  "revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+  "architecture": "qwen2",
+  "parameters": 630167424,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "qwen2.5-0.5b-instruct-q8_0.gguf",
+    "size": 675710816,
+    "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "qwen2.5-0.5b-instruct-q8_0.gguf",
+    "size": 675710816,
+    "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "qwen2.5-0.5b-instruct-q8_0.gguf",
+    "size": 675710816,
+    "sha256": "ca59ca7f13d0e15a8cfa77bd17e65d24f6844b554a7b6c12e07a5f89ff76844e",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "HuggingFaceTB/SmolLM2-135M-Instruct",
+  "downloads_all_copies": 104274,
+  "publishers": 6,
+  "repository": "unsloth/SmolLM2-135M-Instruct-GGUF",
+  "revision": "9e6855bc4be717fca1ef21360a1db4b29d5c559a",
+  "architecture": "llama",
+  "parameters": 134515008,
+  "licence": "apache-2.0",
+  "pipeline_tag": null,
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "SmolLM2-135M-Instruct-Q8_0.gguf",
+    "size": 144811072,
+    "sha256": "c4a3dd037301b6ecea31d6da37f5cd793ead920dd5ddfe6d589294628d6ce66a",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "SmolLM2-135M-Instruct-Q8_0.gguf",
+    "size": 144811072,
+    "sha256": "c4a3dd037301b6ecea31d6da37f5cd793ead920dd5ddfe6d589294628d6ce66a",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "SmolLM2-135M-Instruct-Q8_0.gguf",
+    "size": 144811072,
+    "sha256": "c4a3dd037301b6ecea31d6da37f5cd793ead920dd5ddfe6d589294628d6ce66a",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "LiquidAI/LFM2.5-350M",
+  "downloads_all_copies": 78085,
+  "publishers": 4,
+  "repository": "LiquidAI/LFM2.5-350M-GGUF",
+  "revision": "657e078c94084481950a2d555a941481f715536b",
+  "architecture": "lfm2",
+  "parameters": 354483968,
+  "licence": "other",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "LFM2.5-350M-Q8_0.gguf",
+    "size": 379217632,
+    "sha256": "be036a757295e550098b85e13f6af2735d0fa73b41e1156a40c7d8e8e32a5766",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "LFM2.5-350M-Q8_0.gguf",
+    "size": 379217632,
+    "sha256": "be036a757295e550098b85e13f6af2735d0fa73b41e1156a40c7d8e8e32a5766",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "LFM2.5-350M-Q8_0.gguf",
+    "size": 379217632,
+    "sha256": "be036a757295e550098b85e13f6af2735d0fa73b41e1156a40c7d8e8e32a5766",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "google/gemma-3-270m-it",
+  "downloads_all_copies": 76278,
+  "publishers": 4,
+  "repository": "unsloth/gemma-3-270m-it-GGUF",
+  "revision": "c90975dbd40c0c7b275fefaae758c3415c906238",
+  "architecture": "gemma3",
+  "parameters": 268098176,
+  "licence": "gemma",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "gemma-3-270m-it-Q8_0.gguf",
+    "size": 291546144,
+    "sha256": "d156a5159f2f79c1b1d53c7c1cc20f1ff28ab8d00f17a292620aad13399b9698",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "gemma-3-270m-it-UD-Q8_K_XL.gguf",
+    "size": 471104544,
+    "sha256": "0c19ebe95a4835428f928fc839c1a56e9ba3fda615c35b4bef702c03cd9edd35",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "gemma-3-270m-it-UD-Q8_K_XL.gguf",
+    "size": 471104544,
+    "sha256": "0c19ebe95a4835428f928fc839c1a56e9ba3fda615c35b4bef702c03cd9edd35",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "HuggingFaceTB/SmolLM2-360M-Instruct",
+  "downloads_all_copies": 67356,
+  "publishers": 5,
+  "repository": "HuggingFaceTB/SmolLM2-360M-Instruct-GGUF",
+  "revision": "593b5a2e04c8f3e4ee880263f93e0bd2901ad47f",
+  "architecture": "llama",
+  "parameters": 361821120,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "smollm2-360m-instruct-q8_0.gguf",
+    "size": 386404992,
+    "sha256": "48ab3034d0dd401fbc721eb1df3217902fee7dab9078992d66431f09b7750201",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "smollm2-360m-instruct-q8_0.gguf",
+    "size": 386404992,
+    "sha256": "48ab3034d0dd401fbc721eb1df3217902fee7dab9078992d66431f09b7750201",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "smollm2-360m-instruct-q8_0.gguf",
+    "size": 386404992,
+    "sha256": "48ab3034d0dd401fbc721eb1df3217902fee7dab9078992d66431f09b7750201",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen2.5-Coder-0.5B-Instruct",
+  "downloads_all_copies": 28018,
+  "publishers": 5,
+  "repository": "Qwen/Qwen2.5-Coder-0.5B-Instruct-GGUF",
+  "revision": "ebb2015119c907b064c512bf053e945850b5875f",
+  "architecture": "qwen2",
+  "parameters": 630167424,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "qwen2.5-coder-0.5b-instruct-q8_0.gguf",
+    "size": 675710848,
+    "sha256": "e1a77721fa97d412f121878223eec81fb4ae6f271e18f922d746711f67b344d1",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "qwen2.5-coder-0.5b-instruct-q8_0.gguf",
+    "size": 675710848,
+    "sha256": "e1a77721fa97d412f121878223eec81fb4ae6f271e18f922d746711f67b344d1",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "qwen2.5-coder-0.5b-instruct-q8_0.gguf",
+    "size": 675710848,
+    "sha256": "e1a77721fa97d412f121878223eec81fb4ae6f271e18f922d746711f67b344d1",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "reserve",
+  "base_model": "openbmb/MiniCPM-V-4.6",
+  "downloads_all_copies": 27290,
+  "publishers": 4,
+  "repository": "openbmb/MiniCPM-V-4.6-gguf",
+  "revision": "afe9accb78d2995d214cd912920c9c92f4015faa",
+  "architecture": "qwen35",
+  "parameters": 752161600,
+  "licence": "apache-2.0",
+  "pipeline_tag": "image-text-to-text",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "MiniCPM-V-4_6-Q8_0.gguf",
+    "size": 811591616,
+    "sha256": "5cc8be0b5fb0c5bd3ad4e017000a9055a4e7dd09ca41a068dfb245e43d7422e4",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "MiniCPM-V-4_6-Q8_0.gguf",
+    "size": 811591616,
+    "sha256": "5cc8be0b5fb0c5bd3ad4e017000a9055a4e7dd09ca41a068dfb245e43d7422e4",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "MiniCPM-V-4_6-Q8_0.gguf",
+    "size": 811591616,
+    "sha256": "5cc8be0b5fb0c5bd3ad4e017000a9055a4e7dd09ca41a068dfb245e43d7422e4",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "reserve",
+  "base_model": "Qwen/Qwen2-0.5B-Instruct",
+  "downloads_all_copies": 19070,
+  "publishers": 4,
+  "repository": "Qwen/Qwen2-0.5B-Instruct-GGUF",
+  "revision": "198f08841147e5196a6a69bd0053690fb1fd3857",
+  "architecture": "qwen2",
+  "parameters": 494032768,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "qwen2-0_5b-instruct-q3_k_m.gguf",
+    "size": 355463872,
+    "sha256": "fd2d897ea4af94d2b4fdbd09be67dc079ebd02162c80fa54cdfb2b278f4e1e92",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "qwen2-0_5b-instruct-q8_0.gguf",
+    "size": 531065536,
+    "sha256": "834f4115ad5a836c9f17716b1577290fda96de3deb881ba45a4d5476fd202e96",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "qwen2-0_5b-instruct-q8_0.gguf",
+    "size": 531065536,
+    "sha256": "834f4115ad5a836c9f17716b1577290fda96de3deb881ba45a4d5476fd202e96",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "under-1B",
+  "role": "reserve",
+  "base_model": "DavidAU/Qwen3-Zero-Coder-Reasoning-V2-0.8B",
+  "downloads_all_copies": 15704,
+  "publishers": 2,
+  "repository": "DavidAU/Qwen3-Zero-Coder-Reasoning-V2-0.8B-NEO-EX-GGUF",
+  "revision": "471bc1d467ebf2616d54b867b6f93146f183e3ae",
+  "architecture": "qwen3",
+  "parameters": 816283136,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Qwen3-Zro-Cdr-Reason-V2-0.8B-NEO-EX-D_AU-Q2_K-imat.gguf",
+    "size": 377575424,
+    "sha256": "8bdf1bc74566bf83b5a423421496c966cfddeb989ed6e39d2d187f125ca0689a",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Qwen3-Zro-Cdr-Reason-V2-0.8B-NEO-EX-D_AU-Q8_0.gguf",
+    "size": 873548800,
+    "sha256": "f35bab53bce6e2d21b71a03e40c912db237fc85b5168aa0f51dc52a15c23440b",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Qwen3-Zro-Cdr-Reason-V2-0.8B-NEO-EX-D_AU-Q8_0.gguf",
+    "size": 873548800,
+    "sha256": "f35bab53bce6e2d21b71a03e40c912db237fc85b5168aa0f51dc52a15c23440b",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "CMSManhattan/JiRackUltra_1b",
+  "downloads_all_copies": 2531258,
+  "publishers": 2,
+  "repository": "CMSManhattan/JiRackUltra_1b",
+  "revision": "b7bed2f9342f28519bd5312dc3bb2e0c0698fd35",
+  "architecture": "qwen2",
+  "parameters": 1777088000,
+  "licence": "mit",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "JiRackUltra_1b_Q3_K_M.gguf",
+    "size": 924455840,
+    "sha256": "73cc639081a63a3793448991c1c1ca05ea82e5a9f65736b9e571f32aca10f31d",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "JiRackUltra_1b.Q6_K.gguf",
+    "size": 1464178592,
+    "sha256": "8a7a9a4052ded2800d95b37a0bfc8b00630dc417b0e3410785203bab58238463",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "JiRackUltra_1b.Q6_K.gguf",
+    "size": 1464178592,
+    "sha256": "8a7a9a4052ded2800d95b37a0bfc8b00630dc417b0e3410785203bab58238463",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "LiquidAI/LFM2.5-2.6B",
+  "downloads_all_copies": 1123697,
+  "publishers": 11,
+  "repository": "LiquidAI/LFM2.5-2.6B-GGUF",
+  "revision": "e7caca5d835a3901a8e0d63e94009429bafafdfc",
+  "architecture": "lfm2",
+  "parameters": 2697198592,
+  "licence": "other",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "LFM2.5-2.6B-Q8_0.gguf",
+    "size": 2874779648,
+    "sha256": "1e22128dfa128bdfb684da167e74e072d0a056baa7d06d9f280291e2839b0fc9",
+    "fits": false
+   },
+   "xperia-1-ii-8gb": {
+    "path": "LFM2.5-2.6B-QAD-Q4_0.gguf",
+    "size": 1593894944,
+    "sha256": "a247afd6414918eac8e520a9e6137dc271235461ecbe1180462221d5b8d40b03",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "LFM2.5-2.6B-QAD-Q4_0.gguf",
+    "size": 1593894944,
+    "sha256": "a247afd6414918eac8e520a9e6137dc271235461ecbe1180462221d5b8d40b03",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen3-1.7B",
+  "downloads_all_copies": 694732,
+  "publishers": 16,
+  "repository": "MaziyarPanahi/Qwen3-1.7B-GGUF",
+  "revision": "57a69d3bba4c7254d3466a3bb96d909b988f8fbd",
+  "architecture": "qwen3",
+  "parameters": 2031739904,
+  "licence": null,
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Qwen3-1.7B.Q2_K.gguf",
+    "size": 879896704,
+    "sha256": "af4f7b9a02f1212c974abd179c2c7083ff8351964ec224f3b4adaba37fca3416",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Qwen3-1.7B.Q5_K_M.gguf",
+    "size": 1471805568,
+    "sha256": "99d6379819c997cc82185107e33d6c254b8041351b0b1de4b12b9342478d2f46",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Qwen3-1.7B.Q5_K_M.gguf",
+    "size": 1471805568,
+    "sha256": "99d6379819c997cc82185107e33d6c254b8041351b0b1de4b12b9342478d2f46",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen3.5-2B",
+  "downloads_all_copies": 578320,
+  "publishers": 13,
+  "repository": "unsloth/Qwen3.5-2B-GGUF",
+  "revision": "f6d5376be1edb4d416d56da11e5397a961aca8ae",
+  "architecture": "qwen35",
+  "parameters": 1881825088,
+  "licence": "apache-2.0",
+  "pipeline_tag": "image-text-to-text",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Qwen3.5-2B-Q3_K_S.gguf",
+    "size": 1030947072,
+    "sha256": "21026bce70a757887bce861047c26966109206ebe2adeb7b662de9a179952d28",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Qwen3.5-2B-Q6_K.gguf",
+    "size": 1574961408,
+    "sha256": "fc90339420b4298887aafb307a4291c55440b730133bbffe6ba9630503dcb548",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Qwen3.5-2B-Q6_K.gguf",
+    "size": 1574961408,
+    "sha256": "fc90339420b4298887aafb307a4291c55440b730133bbffe6ba9630503dcb548",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "downloads_all_copies": 521903,
+  "publishers": 12,
+  "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+  "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+  "architecture": "qwen2",
+  "parameters": 1777088000,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "qwen2.5-1.5b-instruct-q3_k_m.gguf",
+    "size": 924455968,
+    "sha256": "58cb5c05ecef48e82961f1a2be6544145ea26136f69dddda4bbbd092f0e4b993",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "qwen2.5-1.5b-instruct-q6_k.gguf",
+    "size": 1464178720,
+    "sha256": "e16d94f3b1eb243f6f6be9eee51090ef5dfd741324394fd5b6e0e425c33df5c7",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "qwen2.5-1.5b-instruct-q6_k.gguf",
+    "size": 1464178720,
+    "sha256": "e16d94f3b1eb243f6f6be9eee51090ef5dfd741324394fd5b6e0e425c33df5c7",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "downloads_all_copies": 411196,
+  "publishers": 6,
+  "repository": "LiquidAI/LFM2.5-1.2B-Instruct-GGUF",
+  "revision": "8ed288026e23958ad9dfa92d53ed773a8eee7125",
+  "architecture": "lfm2",
+  "parameters": 1170340608,
+  "licence": "other",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "LFM2.5-1.2B-Instruct-Q6_K.gguf",
+    "size": 962843456,
+    "sha256": "c5e895c191a066f6b26a8f09f10e94cdb799e579216f87df61a7e27beacd9a2b",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "LFM2.5-1.2B-Instruct-Q8_0.gguf",
+    "size": 1246253888,
+    "sha256": "f6b981dcb86917fa463f78a362320bd5e2dc45445df147287eedb85e5a30d26a",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "LFM2.5-1.2B-Instruct-Q8_0.gguf",
+    "size": 1246253888,
+    "sha256": "f6b981dcb86917fa463f78a362320bd5e2dc45445df147287eedb85e5a30d26a",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "meta-llama/Llama-3.2-1B-Instruct",
+  "downloads_all_copies": 409524,
+  "publishers": 9,
+  "repository": "MaziyarPanahi/Llama-3.2-1B-Instruct-GGUF",
+  "revision": "b64ae94264258a3d7516a34a8c54928d32b19869",
+  "architecture": "llama",
+  "parameters": 1235814432,
+  "licence": null,
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Llama-3.2-1B-Instruct.Q6_K.gguf",
+    "size": 1021800544,
+    "sha256": "83039fe58dbbd4b1c1553d517d7193d1d979d43beec1e86fb60ba2da449813af",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Llama-3.2-1B-Instruct.Q8_0.gguf",
+    "size": 1321082976,
+    "sha256": "ea2a2509570cbe2bdf9911746bce71fb25422dd4496e5d77c948c43583eb2f41",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Llama-3.2-1B-Instruct.Q8_0.gguf",
+    "size": 1321082976,
+    "sha256": "ea2a2509570cbe2bdf9911746bce71fb25422dd4496e5d77c948c43583eb2f41",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "openbmb/MiniCPM5-2B-GGUF",
+  "downloads_all_copies": 353930,
+  "publishers": 14,
+  "repository": "openbmb/MiniCPM5-2B-GGUF",
+  "revision": "2079a22f3beaa4e306449978533478fe0522f4b3",
+  "architecture": "llama",
+  "parameters": 2516756480,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "MiniCPM5-2B-Q8_0.gguf",
+    "size": 2679710688,
+    "sha256": "c5415f8989bf88a8288f1b55a3cc371af53c07b0faa220a63bd7a990cfaba078",
+    "fits": false
+   },
+   "xperia-1-ii-8gb": {
+    "path": "MiniCPM5-2B-Q4_K_M.gguf",
+    "size": 1561318368,
+    "sha256": "ec2d5801640099e97d8d7e8003ad4d81f336e757811f03a26173dddf386602fd",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "MiniCPM5-2B-Q4_K_M.gguf",
+    "size": 1561318368,
+    "sha256": "ec2d5801640099e97d8d7e8003ad4d81f336e757811f03a26173dddf386602fd",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+  "downloads_all_copies": 276461,
+  "publishers": 13,
+  "repository": "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF",
+  "revision": "f86cb2c1fa58255f8052cc32aeede1b7482d4361",
+  "architecture": "qwen2",
+  "parameters": 1543714304,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "qwen2.5-coder-1.5b-instruct-q3_k_m.gguf",
+    "size": 924456000,
+    "sha256": "d281a3a0010df03c8a0e3ffebd7f9444a95244fb518f132c5475e4b48d9adb5e",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "qwen2.5-coder-1.5b-instruct-q6_k.gguf",
+    "size": 1464178752,
+    "sha256": "9b05dce8089197c866b9f76e1db45de8617cda98d9d06059958cb8ad32c56dfa",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "qwen2.5-coder-1.5b-instruct-q6_k.gguf",
+    "size": 1464178752,
+    "sha256": "9b05dce8089197c866b9f76e1db45de8617cda98d9d06059958cb8ad32c56dfa",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "candidate",
+  "base_model": "google/gemma-2-2b-it",
+  "downloads_all_copies": 252987,
+  "publishers": 6,
+  "repository": "MaziyarPanahi/gemma-2-2b-it-GGUF",
+  "revision": "bd652eddf75b473fe86639b6b927e06972277d1a",
+  "architecture": "gemma2",
+  "parameters": 2614341888,
+  "licence": null,
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "gemma-2-2b-it.IQ2_XS.gguf",
+    "size": 1002544992,
+    "sha256": "306ff7579b44c076431207a7ab1de450d613e40eac2dd86a2d070ba997541272",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "gemma-2-2b-it.IQ4_XS.gguf",
+    "size": 1566250848,
+    "sha256": "8c98c9ef365ea21deae4c6b4e5eee0935fa0631c2705759dc40c577cd993807f",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "gemma-2-2b-it.IQ4_XS.gguf",
+    "size": 1566250848,
+    "sha256": "8c98c9ef365ea21deae4c6b4e5eee0935fa0631c2705759dc40c577cd993807f",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "reserve",
+  "base_model": "Qwen/Qwen3-VL-2B-Instruct",
+  "downloads_all_copies": 227782,
+  "publishers": 8,
+  "repository": "Qwen/Qwen3-VL-2B-Instruct-GGUF",
+  "revision": "52d6c8ffea26cc873ac5ad116f8631268d7eb503",
+  "architecture": "qwen3vl",
+  "parameters": 1720574976,
+  "licence": "apache-2.0",
+  "pipeline_tag": "image-text-to-text",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Qwen3VL-2B-Instruct-Q4_K_M.gguf",
+    "size": 1107409952,
+    "sha256": "089d75c52f4b7ffc56ba998ffc50aae89fcafc755f9e7208aacca281dca6c2ae",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Qwen3VL-2B-Instruct-Q4_K_M.gguf",
+    "size": 1107409952,
+    "sha256": "089d75c52f4b7ffc56ba998ffc50aae89fcafc755f9e7208aacca281dca6c2ae",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Qwen3VL-2B-Instruct-Q4_K_M.gguf",
+    "size": 1107409952,
+    "sha256": "089d75c52f4b7ffc56ba998ffc50aae89fcafc755f9e7208aacca281dca6c2ae",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "reserve",
+  "base_model": "01-ai/Yi-Coder-1.5B-Chat",
+  "downloads_all_copies": 195992,
+  "publishers": 3,
+  "repository": "MaziyarPanahi/Yi-Coder-1.5B-Chat-GGUF",
+  "revision": "cc8525f15600e412829215092967f636b654913a",
+  "architecture": "llama",
+  "parameters": 1476495360,
+  "licence": null,
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Yi-Coder-1.5B-Chat.Q4_K_M.gguf",
+    "size": 963674304,
+    "sha256": "e2e8fa659cd75c828d7783b5c2fb60d220e08836065901fad8edb48e537c1cec",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Yi-Coder-1.5B-Chat.Q5_K_M.gguf",
+    "size": 1100185792,
+    "sha256": "0fad1688ebd76354bed003546354909b3e4991f8cba9506402f8daf062d998d1",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Yi-Coder-1.5B-Chat.Q5_K_M.gguf",
+    "size": 1100185792,
+    "sha256": "0fad1688ebd76354bed003546354909b3e4991f8cba9506402f8daf062d998d1",
+    "fits": true
+   }
+  }
+ },
+ {
+  "bucket": "1B-to-3B",
+  "role": "reserve",
+  "base_model": "XHToken/Spark-X2.5-1.7B",
+  "downloads_all_copies": 195972,
+  "publishers": 7,
+  "repository": "XHToken/Spark-X2.5-1.7B-GGUF",
+  "revision": "1f7fa33b1245c14730da39e125714ad3a327901b",
+  "architecture": "spark2_5",
+  "parameters": 1707657216,
+  "licence": "apache-2.0",
+  "pipeline_tag": "text-generation",
+  "files_by_phone": {
+   "xz-premium-4gb": {
+    "path": "Spark-X2.5-1.7B-Q4_K_M.gguf",
+    "size": 1107457856,
+    "sha256": "902bde2522394954ac17821b3e5fd0df02defbc6944f122253f2580acf0503f4",
+    "fits": true
+   },
+   "xperia-1-ii-8gb": {
+    "path": "Spark-X2.5-1.7B-Q4_K_M.gguf",
+    "size": 1107457856,
+    "sha256": "902bde2522394954ac17821b3e5fd0df02defbc6944f122253f2580acf0503f4",
+    "fits": true
+   },
+   "pixel-11-12gb": {
+    "path": "Spark-X2.5-1.7B-Q4_K_M.gguf",
+    "size": 1107457856,
+    "sha256": "902bde2522394954ac17821b3e5fd0df02defbc6944f122253f2580acf0503f4",
+    "fits": true
+   }
+  }
+ }
+]
