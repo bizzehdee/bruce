@@ -2,6 +2,7 @@ package com.bizzeh.bruce.models
 
 import com.bizzeh.bruce.huggingface.HubModel
 import com.bizzeh.bruce.huggingface.HubSearchFilter
+import com.bizzeh.bruce.huggingface.HubTask
 
 private const val B = 1_000_000_000L
 
@@ -35,8 +36,8 @@ data class BrowseFilters(
     val parameters: ParameterBucket? = null,
     val size: SizeBucket? = null,
     val runs: RunsFilter = RunsFilter.FITS_OR_TIGHT,
-    /** The only task type Bruce can run today. Off shows repositories without the tag too. */
-    val textGeneration: Boolean = true,
+    /** Null shows every task, and repositories with no task tag; what Bruce cannot chat with is then dropped on the phone. */
+    val task: HubTask? = null,
 )
 
 /** A repository in the list, with the file Bruce would pick for this phone, sized by estimate. */
@@ -61,7 +62,7 @@ object Recommendations {
         val deviceMax = (device.usableMemoryBytes * 8 / MIN_BITS_PER_WEIGHT).toLong().takeIf { filters.runs != RunsFilter.ANY }
         val bucketMax = filters.parameters?.max
         return HubSearchFilter(
-            textGeneration = filters.textGeneration,
+            task = filters.task,
             minParameters = filters.parameters?.min,
             maxParameters = listOfNotNull(bucketMax, deviceMax).minOrNull(),
         )

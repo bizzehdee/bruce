@@ -20,6 +20,7 @@ import com.bizzeh.bruce.huggingface.HttpTransport
 import com.bizzeh.bruce.huggingface.HubClient
 import com.bizzeh.bruce.huggingface.HubError
 import com.bizzeh.bruce.huggingface.HubModel
+import com.bizzeh.bruce.huggingface.HubTask
 import com.bizzeh.bruce.huggingface.ModelDownloader
 import com.bizzeh.bruce.huggingface.StreamingResponse
 import com.bizzeh.bruce.ui.theme.BruceTheme
@@ -115,6 +116,9 @@ class ModelBrowserTest {
         hub.modelBody = """{"id":"Qwen/Qwen3.5-0.8B","siblings":[{"rfilename":"model.safetensors"}]}"""
         hub.searchBody = copies
         val vm = viewModel()
+        vm.setFilters(BrowseFilters(task = HubTask.TEXT_GENERATION))
+        advanceUntilIdle()
+        hub.urls.clear()
         vm.setQuery("https://huggingface.co/qwen/qwen3.5-0.8b/tree/main")
         vm.search()
         advanceUntilIdle()
@@ -123,7 +127,7 @@ class ModelBrowserTest {
         assertEquals(listOf("unsloth/Qwen3.5-0.8B-GGUF"), vm.state.value.listings.map { it.model.id })
         assertTrue(hub.urls[0], hub.urls[0].startsWith("https://huggingface.co/api/models/qwen/qwen3.5-0.8b?"))
         assertTrue(hub.urls[1], "filter=base_model%3Aquantized%3AQwen%2FQwen3.5-0.8B" in hub.urls[1])
-        assertFalse("copies of a vision model are not text-generation", "pipeline_tag" in hub.urls[1])
+        assertFalse("copies are listed whatever their task", "pipeline_tag" in hub.urls[1])
         assertFalse("&search=" in hub.urls[1])
 
         vm.setQuery("qwen3")
@@ -265,7 +269,8 @@ class ModelBrowserTest {
         assertEquals(1, hub.urls.size)
         val url = hub.urls.single()
         assertFalse(url.contains("search="))
-        assertTrue(url.contains("&pipeline_tag=text-generation&num_parameters=max%3A${(4L shl 30) * 4}&"))
+        assertFalse("every task by default", url.contains("pipeline_tag"))
+        assertTrue(url.contains("&num_parameters=max%3A${(4L shl 30) * 4}&"))
         val state = vm.state.value
         assertTrue(state.recommended)
         assertEquals(listOf("a/small"), state.listings.map { it.model.id })
@@ -302,13 +307,13 @@ class ModelBrowserTest {
         vm.setQuery("qwen")
         vm.search()
         advanceUntilIdle()
-        vm.setFilters(BrowseFilters(parameters = ParameterBucket.UNDER_1B, runs = RunsFilter.ANY, textGeneration = false))
+        vm.setFilters(BrowseFilters(parameters = ParameterBucket.UNDER_1B, runs = RunsFilter.ANY, task = HubTask.IMAGE_TEXT_TO_TEXT))
         advanceUntilIdle()
 
         assertEquals(4, hub.urls.size)
-        assertTrue(hub.urls[1].contains("&pipeline_tag=text-generation&num_parameters=max%3A999999999&"))
+        assertTrue(hub.urls[1].contains("&limit=100&num_parameters=max%3A999999999&"))
         assertFalse(hub.urls[1].contains("search="))
-        assertTrue(hub.urls[3].contains("&search=qwen&num_parameters=max%3A999999999&"))
+        assertTrue(hub.urls[3].contains("&search=qwen&pipeline_tag=image-text-to-text&num_parameters=max%3A999999999&"))
         assertFalse(vm.state.value.recommended)
     }
 
@@ -770,7 +775,9 @@ class ModelBrowserTest {
         compose.onNodeWithTag("parameters:FROM_1B_TO_3B").performClick()
         compose.onNodeWithTag("size:UNDER_1GB").performClick()
         compose.onNodeWithTag("runs:FITS").performClick()
-        compose.onNodeWithTag("task:false").performClick()
+        compose.onNodeWithTag("task:TEXT_GENERATION").performClick()
+        compose.onNodeWithTag("task:IMAGE_TEXT_TO_TEXT").performClick()
+        compose.onNodeWithText("Image and text").assertIsDisplayed()
         compose.onNodeWithTag("parameters:any").performClick()
 
         assertEquals(
@@ -779,7 +786,8 @@ class ModelBrowserTest {
                 "${BrowseFilters(parameters = ParameterBucket.FROM_1B_TO_3B)}",
                 "${BrowseFilters(size = SizeBucket.UNDER_1GB)}",
                 "${BrowseFilters(runs = RunsFilter.FITS)}",
-                "${BrowseFilters(textGeneration = false)}",
+                "${BrowseFilters(task = HubTask.TEXT_GENERATION)}",
+                "${BrowseFilters(task = HubTask.IMAGE_TEXT_TO_TEXT)}",
                 "${BrowseFilters()}",
             ),
             calls,

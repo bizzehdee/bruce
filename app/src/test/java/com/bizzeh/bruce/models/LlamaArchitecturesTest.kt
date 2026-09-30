@@ -23,6 +23,9 @@ class LlamaArchitecturesTest {
         assertFalse(LlamaArchitectures.supportsChat("clip"))
         assertFalse(LlamaArchitectures.supportsChat("eagle3"))
         assertFalse(LlamaArchitectures.supportsChat("dflash"))
+        assertFalse(LlamaArchitectures.supportsChat("bert"))
+        assertFalse(LlamaArchitectures.supportsChat("nomic-bert"))
+        assertFalse(LlamaArchitectures.supportsChat("t5encoder"))
         assertFalse(LlamaArchitectures.supportsChat("not-a-real-architecture"))
     }
 }

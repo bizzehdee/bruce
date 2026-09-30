@@ -64,14 +64,14 @@ class HubClientTest {
     }
 
     @Test
-    fun searchRequestsTextGenerationGgufSortedByDownloadsWithExpansions() = runTest(dispatcher) {
+    fun searchRequestsGgufOfAnyTaskSortedByDownloadsWithExpansions() = runTest(dispatcher) {
         transport.respond(200, "[]")
 
         client.search("  qwen3 coder & more ", limit = 5)
 
         assertEquals(
             "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=5&search=qwen3+coder+%26+more" +
-                "&pipeline_tag=text-generation" + EXPANSIONS,
+                EXPANSIONS,
             transport.urls.single(),
         )
         assertEquals("Bruce/test", transport.headers.single()["User-Agent"])
@@ -81,16 +81,16 @@ class HubClientTest {
     fun blankSearchListsWithoutANameAndAppliesParameterBounds() = runTest(dispatcher) {
         transport.respond(200, "[]")
 
-        client.search(" ", limit = 100, HubSearchFilter(minParameters = 1_000_000_000, maxParameters = 3_000_000_000))
-        client.search("", filter = HubSearchFilter(textGeneration = false, maxParameters = 500))
-        client.search("", filter = HubSearchFilter(textGeneration = false))
+        client.search(" ", limit = 100, HubSearchFilter(task = HubTask.TEXT_GENERATION, minParameters = 1_000_000_000, maxParameters = 3_000_000_000))
+        client.search("", filter = HubSearchFilter(maxParameters = 500))
+        client.search("", filter = HubSearchFilter(task = HubTask.IMAGE_TEXT_TO_TEXT))
 
         assertEquals(
             listOf(
                 "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=100&pipeline_tag=text-generation" +
                     "&num_parameters=min%3A1000000000%2Cmax%3A3000000000" + EXPANSIONS,
                 "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=20&num_parameters=max%3A500" + EXPANSIONS,
-                "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=20" + EXPANSIONS,
+                "https://huggingface.co/api/models?filter=gguf&sort=downloads&direction=-1&limit=20&pipeline_tag=image-text-to-text" + EXPANSIONS,
             ),
             transport.urls,
         )
@@ -323,7 +323,7 @@ class HubClientTest {
     fun searchForCopiesFiltersOnTheQuantisedBaseModel() = runTest(dispatcher) {
         transport.respond(200, "[]")
 
-        client.search("", limit = 5, filter = HubSearchFilter(textGeneration = false, quantisedFrom = "Qwen/Qwen3.5-0.8B"))
+        client.search("", limit = 5, filter = HubSearchFilter(quantisedFrom = "Qwen/Qwen3.5-0.8B"))
 
         assertEquals(
             "https://huggingface.co/api/models?filter=gguf&filter=base_model%3Aquantized%3AQwen%2FQwen3.5-0.8B" +

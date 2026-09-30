@@ -29,10 +29,18 @@ data class HubModel(
     val eosToken: String? = null,
 )
 
+/** A task the Hub tags repositories with; Bruce offers the two its chat models carry. */
+enum class HubTask(val tag: String) {
+    TEXT_GENERATION("text-generation"),
+
+    /** Chat models that also take images. */
+    IMAGE_TEXT_TO_TEXT("image-text-to-text"),
+}
+
 /** Filters Hugging Face applies to a search. */
 data class HubSearchFilter(
-    /** Only repositories tagged text-generation. */
-    val textGeneration: Boolean = true,
+    /** Only repositories tagged with this task; null for any. */
+    val task: HubTask? = null,
     /** Inclusive parameter-count bounds; null for no bound. The Hub filters on one parsed file's count, so treat it as a hint. */
     val minParameters: Long? = null,
     val maxParameters: Long? = null,
@@ -87,7 +95,7 @@ class HubClient(
         val url = "$baseUrl/api/models?filter=gguf" + filter.quantisedFrom?.let { "&filter=${encode("base_model:quantized:$it")}" }.orEmpty() +
             "&sort=downloads&direction=-1&limit=$limit" +
             query.trim().takeIf { it.isNotEmpty() }?.let { "&search=${encode(it)}" }.orEmpty() +
-            (if (filter.textGeneration) "&pipeline_tag=text-generation" else "") +
+            filter.task?.let { "&pipeline_tag=${it.tag}" }.orEmpty() +
             parameters.takeIf { it.isNotEmpty() }?.let { "&num_parameters=${encode(it.joinToString(","))}" }.orEmpty() +
             SEARCH_EXPANSIONS.joinToString("") { "&expand[]=$it" }
         return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray(body)) }

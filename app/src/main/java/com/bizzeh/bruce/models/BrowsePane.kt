@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.huggingface.HubError
 import com.bizzeh.bruce.huggingface.HubModel
+import com.bizzeh.bruce.huggingface.HubTask
 import com.bizzeh.bruce.ui.Format
 
 interface BrowseActions {
@@ -212,8 +213,8 @@ private fun Filters(filters: BrowseFilters, onChange: (BrowseFilters) -> Unit) {
     FilterRow(R.string.browse_filter_runs, RunsFilter.entries, filters.runs, "runs", { stringResource(BrowseText.runsLabel(it)) }) {
         onChange(filters.copy(runs = it))
     }
-    FilterRow(R.string.browse_filter_task, listOf(true, false), filters.textGeneration, "task", { stringResource(if (it) R.string.browse_task_text else R.string.browse_any) }) {
-        onChange(filters.copy(textGeneration = it))
+    FilterRow(R.string.browse_filter_task, listOf(null) + HubTask.entries, filters.task, "task", { task -> task?.let { stringResource(BrowseText.taskLabel(it)) } }) {
+        onChange(filters.copy(task = it))
     }
 }
 
@@ -256,6 +257,12 @@ internal object BrowseText {
         SizeBucket.FROM_2GB_TO_4GB -> "2–4 GB"
         SizeBucket.FROM_4GB_TO_8GB -> "4–8 GB"
         SizeBucket.FROM_8GB -> "8 GB+"
+    }
+
+    @StringRes
+    fun taskLabel(task: HubTask): Int = when (task) {
+        HubTask.TEXT_GENERATION -> R.string.browse_task_text
+        HubTask.IMAGE_TEXT_TO_TEXT -> R.string.browse_task_image_text
     }
 
     @StringRes

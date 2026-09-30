@@ -370,6 +370,7 @@
     <string name="browse_filter_runs">Runs on this phone</string>
     <string name="browse_filter_task">Task</string>
     <string name="browse_task_text">Text generation</string>
+    <string name="browse_task_image_text">Image and text</string>
     <string name="browse_runs_fits">Fits well</string>
     <string name="browse_runs_tight">Fits, may be tight</string>
     <string name="browse_any">Any</string>

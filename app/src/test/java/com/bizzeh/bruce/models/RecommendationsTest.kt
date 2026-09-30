@@ -3,6 +3,7 @@ package com.bizzeh.bruce.models
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.huggingface.HubModel
 import com.bizzeh.bruce.huggingface.HubSearchFilter
+import com.bizzeh.bruce.huggingface.HubTask
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
@@ -58,8 +59,8 @@ class RecommendationsTest {
             Recommendations.hubFilter(BrowseFilters(parameters = ParameterBucket.FROM_14B), phone),
         )
         assertEquals(
-            HubSearchFilter(textGeneration = false),
-            Recommendations.hubFilter(BrowseFilters(runs = RunsFilter.ANY, textGeneration = false), phone),
+            HubSearchFilter(task = HubTask.IMAGE_TEXT_TO_TEXT),
+            Recommendations.hubFilter(BrowseFilters(runs = RunsFilter.ANY, task = HubTask.IMAGE_TEXT_TO_TEXT), phone),
         )
     }
 

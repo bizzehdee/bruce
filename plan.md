@@ -460,6 +460,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Model browser's Task filter: Any (now the default), Text generation, Image and text (owner). |
 | 2026-09-30 | Changed | A model without GGUF files now points to its GGUF copies; a repository's name or address shows that repository (TASK-102). |
 | 2026-09-30 | Added | Hugging Face discovery: a model without GGUF files points to its GGUF copies (owner; TASK-102). |
 | 2026-09-30 | Changed | Quick Settings tile, home-screen widget (buttons only, owner) and launcher shortcuts done (TASK-101). |

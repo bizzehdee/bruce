@@ -101,7 +101,7 @@ class ModelBrowserViewModel(
     fun setFilters(filters: BrowseFilters) {
         val before = mutableState.value.filters
         mutableState.update { it.copy(filters = filters) }
-        if (filters.textGeneration != before.textGeneration || filters.parameters != before.parameters) {
+        if (filters.task != before.task || filters.parameters != before.parameters) {
             if (!mutableState.value.searching) fetch(if (mutableState.value.recommended) "" else mutableState.value.query.trim())
         } else {
             viewModelScope.launch { relist() }
@@ -119,8 +119,8 @@ class ModelBrowserViewModel(
             val result = when {
                 named == null -> hub.search(query, limit = if (recommended) RECOMMENDATION_LIMIT else SEARCH_LIMIT, filter = filter)
                 copiesOf == null -> HubResult.Success(listOf(named))
-                // Copies of a model that also takes images are not tagged text-generation, and the user named the model.
-                else -> hub.search("", limit = SEARCH_LIMIT, filter = filter.copy(textGeneration = false, quantisedFrom = copiesOf))
+                // The user named the model, so its copies are listed whatever task they are tagged with.
+                else -> hub.search("", limit = SEARCH_LIMIT, filter = filter.copy(task = null, quantisedFrom = copiesOf))
             }
             mutableState.update {
                 when (result) {
