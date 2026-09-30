@@ -81,6 +81,8 @@ data class SettingsState(
     val searchKeyRejected: Boolean = false,
     /** File search over granted files (TASK-096); null where the screen is shown without it. */
     val fileSearch: FileSearchState? = null,
+    /** Bruce is the phone's digital assistant app (TASK-099). */
+    val assistant: Boolean = false,
 )
 
 data class FileSearchState(val setup: SetupState, val index: IndexStatus)
@@ -111,6 +113,7 @@ interface SettingsActions {
     fun updateIndex() = Unit
     fun removeSearch() = Unit
     fun openSearchModelTerms() = Unit
+    fun openAssistantSettings() = Unit
     fun setSummaryEnabled(enabled: Boolean)
     fun setSummaryThreshold(threshold: Int)
     fun signIn()
@@ -321,6 +324,12 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             }
 
             state.fileSearch?.let { FileSearchSection(it, state.network.allowsHuggingFace, actions) }
+
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.assistant_title)) },
+                supportingContent = { Text(stringResource(if (state.assistant) R.string.assistant_on else R.string.assistant_off)) },
+                modifier = Modifier.clickable(onClick = actions::openAssistantSettings).testTag("settings:assistant"),
+            )
 
             Heading(R.string.settings_privacy)
             Link(R.string.settings_permissions, R.string.settings_permissions_summary, "settings:permissions", actions::openPermissions)

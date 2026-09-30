@@ -46,6 +46,7 @@ class SettingsScreenTest {
         override fun updateIndex() { calls += "search update" }
         override fun removeSearch() { calls += "search remove" }
         override fun openSearchModelTerms() { calls += "search terms" }
+        override fun openAssistantSettings() { calls += "assistant" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
         override fun removeSite(host: String) { calls += "remove $host" }
         override fun saveSearchKey(key: String) { calls += "key $key" }
@@ -329,6 +330,18 @@ class SettingsScreenTest {
     fun fileSearchNeedsTheNetworkToDownload() {
         show(SettingsState(network = NetworkMode.OFFLINE, fileSearch = FileSearchState(com.bizzeh.bruce.search.SetupState(installed = false, error = com.bizzeh.bruce.huggingface.DownloadError.NETWORK_DISABLED), com.bizzeh.bruce.search.IndexStatus())))
         compose.onNodeWithTag("searchDownload").performScrollTo().assertIsNotEnabled()
+    }
+
+    @Test
+    fun theAssistantEntrySaysWhetherBruceIsTheAssistant() {
+        var state by androidx.compose.runtime.mutableStateOf(SettingsState())
+        compose.setContent { BruceTheme { SettingsScreen(state, actions) {} } }
+
+        compose.onNodeWithText("Make Bruce the app the assistant gesture opens", substring = true).performScrollTo().assertIsDisplayed()
+        state = SettingsState(assistant = true)
+        compose.onNodeWithText("Bruce opens a new chat from the assistant gesture", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("settings:assistant").performScrollTo().performClick()
+        assertEquals(listOf("assistant"), calls)
     }
 
     @Test

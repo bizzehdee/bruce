@@ -695,11 +695,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`models/Profiles.kt`): a profile is a name and a model (a file on the phone or a server's model), kept in settings. The chat title's switcher lists profiles above the models, saves the model in use as one (suggested names Main, Fast, Coding, Vision) and removes one. Choosing a profile uses it for the chat and saves it with the chat (`conversations.db` version 5); opening that chat later switches to the profile's model if another is in use, or says the model is no longer here. New chats start without a profile.
   - Device-tested on the Xperia 1 II: saved Qwen3.5-0.8B as "Fast", used it in a new chat, switched to Llama 3.2 1B, then opened the chat again: the model switched back to Qwen3.5-0.8B. `ConversationMigrationTest` (to version 5) passed. The test profile "Fast" is left on that phone.
   - Depends on: TASK-077
-- [ ] TASK-099: Default assistant
+- [x] TASK-099: Default assistant
   - Owner (2026-09-30): build it now, after researching the Android requirements.
   - Before building: confirm the Android requirements (voice-interaction service, assistant role) against current documentation, as the plan requires, and record them.
   - Bruce can be chosen as the digital assistant app and opens a new chat from the assistant gesture; no wake word.
   - Open question (plan): milestone.
+  - Requirements (2026-09-30, `research/sources/android-assistant-role-2026-09-30`): the assistant role needs a voice-interaction service or an activity handling ACTION_ASSIST; it is not requestable, so the user picks the app in Android's default apps; the permissions it grants (SMS, call log) reach only apps that declare them, and Bruce declares none.
+  - Done: MainActivity handles ACTION_ASSIST and opens a new chat. Settings has "Phone's assistant", saying whether Bruce is the assistant (RoleManager, read each time Settings shows) and opening Android's default apps page. No wake word.
+  - Device-tested on the Xperia 1 II: with Bruce given the role through `cmd role`, Android recorded `com.bizzeh.bruce/.MainActivity` as the assistant; an ACTION_ASSIST sent to Bruce opened a fresh chat. The assist gesture itself was not triggered: injected assist and long-press-Home key events did nothing on this phone. The role was then given back to the Google app (the previous holder could not be read first, as Android 12's `cmd role` has no get command; Google was restored, with its voice service).
 - [ ] TASK-100: Share to Bruce
   - Bruce appears in the share sheet for text, links and (with TASK-082) images; shared content starts a new chat as untrusted data with the user's request still to type.
   - Depends on: TASK-032

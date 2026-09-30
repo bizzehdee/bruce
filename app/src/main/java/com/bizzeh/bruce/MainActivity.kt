@@ -217,6 +217,7 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) {
             handleSignInRedirect(intent)
             handleOpenChat(intent)
+            handleAssist(intent)
         }
         container.stopTurn = { chat.stop() }
         if (savedInstanceState == null) {
@@ -369,10 +370,16 @@ class MainActivity : ComponentActivity() {
         val fixed = fixedPromptTokens()
         val auto = autoContext()
         val searchSetup by container.searchSetup.setup.collectAsState()
+        // Read again whenever Settings shows, as the user may have just picked Bruce in Android's settings.
+        var assistant by remember { mutableStateOf(false) }
+        androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
+            assistant = isAssistant()
+            onPauseOrDispose { }
+        }
         val index by container.fileSearch.status.collectAsState()
         LaunchedEffect(Unit) { withContext(Dispatchers.IO) { container.fileSearch.refreshCounts() } }
         SettingsScreen(
-            state.copy(backends = backendChoices(known, state.inference.backend), fixedPromptTokens = fixed, autoContext = auto, fileSearch = FileSearchState(searchSetup, index)),
+            state.copy(backends = backendChoices(known, state.inference.backend), fixedPromptTokens = fixed, autoContext = auto, fileSearch = FileSearchState(searchSetup, index), assistant = assistant),
             actions,
             onBack,
         )
@@ -516,6 +523,7 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         handleSignInRedirect(intent)
         handleOpenChat(intent)
+        handleAssist(intent)
     }
 
     override fun onStart() {
@@ -671,6 +679,15 @@ class MainActivity : ComponentActivity() {
         if (voiceState.value == VoiceState.LISTENING) voiceState.value = VoiceState.IDLE
     }
 
+    /** The assist gesture, with Bruce as the phone's assistant (TASK-099): a fresh chat. */
+    private fun handleAssist(intent: Intent?) {
+        if (intent?.action == Intent.ACTION_ASSIST) chat.newChat()
+    }
+
+    /** Whether the user picked Bruce as the digital assistant app. */
+    private fun isAssistant(): Boolean =
+        getSystemService(android.app.role.RoleManager::class.java).let { it.isRoleAvailable(android.app.role.RoleManager.ROLE_ASSISTANT) && it.isRoleHeld(android.app.role.RoleManager.ROLE_ASSISTANT) }
+
     /** A reply notification's tap: shows the chat it belongs to. */
     private fun handleOpenChat(intent: Intent?) {
         if (intent?.action != ReplyNotifications.ACTION_OPEN_CHAT) return
@@ -803,6 +820,14 @@ class MainActivity : ComponentActivity() {
         override fun signOut() = settings.signOut()
         override fun openSkills() = open(Destination.SKILLS)
         override fun openMemory() = open(Destination.MEMORY)
+        override fun openAssistantSettings() {
+            // The role cannot be requested (research/sources/android-assistant-role-2026-09-30); the user picks it here.
+            try {
+                startActivity(Intent(android.provider.Settings.ACTION_MANAGE_DEFAULT_APPS_SETTINGS))
+            } catch (e: ActivityNotFoundException) {
+                startActivity(Intent(android.provider.Settings.ACTION_SETTINGS))
+            }
+        }
         override fun downloadSearchModel() {
             lifecycleScope.launch { container.searchSetup.download() }
         }

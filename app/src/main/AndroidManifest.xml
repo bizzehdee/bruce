@@ -85,6 +85,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Default assistant (TASK-099): the assist gesture opens a new chat once the user picks Bruce. -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <!-- Hugging Face sign-in redirect; anything else arriving here is rejected by its state check. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

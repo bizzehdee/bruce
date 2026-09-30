@@ -138,6 +138,9 @@
     <string name="tasks_repeat_weekly">Every week</string>
     <string name="notification_channel_reminders">Reminders</string>
     <string name="notification_reminder">Reminder</string>
+    <string name="assistant_title">Phone\'s assistant</string>
+    <string name="assistant_off">Make Bruce the app the assistant gesture opens: pick it under Digital assistant app in Android\'s default apps. No wake word; Bruce never listens in the background.</string>
+    <string name="assistant_on">Bruce opens a new chat from the assistant gesture. Change it in Android\'s default apps.</string>
     <string name="search_title">Search my files</string>
     <string name="search_explained">Lets Bruce search the text of the files and folders you have granted, on this phone. It needs a 334 MB search model (EmbeddingGemma, by Google), used only while indexing or searching, and takes a few minutes to read your files.</string>
     <string name="search_terms">The model\'s terms of use</string>

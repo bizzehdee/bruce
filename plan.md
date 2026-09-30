@@ -318,7 +318,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Default assistant** — Bruce can be chosen as Android's digital assistant app
   and opens from the system assistant gesture or button. No always-on wake word:
   low-power hotword detection is limited to privileged system apps.
-  Milestone is an open question. `planned`
+  `done` (TASK-099; the role cannot be requested, so the user picks Bruce in Android's default apps)
 - **App logo** — Flat, 2D, stylised reddish-tan working Cocker Spaniel with a white
   stripe down the middle of the head, three-quarter pose looking from left to right,
   with neck and collar. Master SVG in `docs/branding/`. Launcher icon has a
@@ -429,7 +429,6 @@ device-to-device transfer.
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
-| Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Privacy policy URL on the owner's website. | User |
 
 ## Milestones
@@ -457,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Default assistant done through an ACTION_ASSIST activity; Android's requirements recorded (research/sources/android-assistant-role-2026-09-30) (TASK-099). |
 | 2026-09-30 | Changed | Model profiles done: named models picked per chat, restored when the chat opens; no automatic routing (owner) (TASK-098). |
 | 2026-09-30 | Changed | Search my files skill done: the best passages of granted files, offered once something is indexed (TASK-097). |
 | 2026-09-30 | Changed | Local file index done: EmbeddingGemma-300M chosen from measurements (research/experiments/embedding-models-2026-09-30), downloaded on request, updated with grants and daily while charging (TASK-096). |

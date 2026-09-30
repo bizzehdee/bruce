@@ -15,6 +15,7 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 - **Reminders.** If you turn it on, Bruce can set a reminder that appears as a notification, even if Bruce is closed. Settings → Reminders shows them and cancels any.
 - **Later, on its own.** If you turn it on, Bruce can answer a request later, once or every day or week, and tell you when it has. With the model on your phone it waits until the phone is charging; skills that ask first are not used.
 - **Search your files.** Optional: after a one-time 334 MB download, Bruce indexes the text of the folders and files you granted, on the phone, so it can find what you mean, in other languages too, and answer from your files with the Search my files skill.
+- **Your phone's assistant, if you like.** Pick Bruce as the digital assistant app in Android's default apps, and the assistant gesture opens a new chat. There is no wake word.
 - **Talk to it.** Tap the microphone to speak a message. Speech is turned into text on the phone itself; the audio never leaves it. Tap the speaker under a reply to hear it read aloud, or long-press the microphone for a hands-free conversation.
 - **Show it a picture.** With a model that can see (Bruce downloads its image support with it), add a photo or screenshot to a message. Images stay on the phone unless you use your own server's model.
 - **Share a document.** Attach a PDF or text file to a message and ask about it. Bruce reads its text on the phone; password-protected PDFs and scans without text cannot be read.
