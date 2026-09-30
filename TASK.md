@@ -652,8 +652,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`skills/contacts/`): `find_contact` (name of at least two letters; detail phone or email) lists up to 5 matches with only that detail, labelled with Android's own type names; READ_CONTACTS asked for when turned on; off by default. Only the numbers and addresses of the contacts found are read.
   - Device-tested on the Xperia 1 II by `ContactsDeviceTest` (manual): a contact added by adb ("Bruce Zzqtest") was found by that unusual name with its mobile number and home email, then deleted; no real contact was searched. The first run found a bug (Android's label lookup needs the app's resources), fixed.
   - Depends on: TASK-039
-- [ ] TASK-093: Camera and microphone skills
+- [x] TASK-093: Camera and microphone skills
   - `take_photo` opens the camera for the user to take the picture (an explicit action each time, as the plan requires); `record_audio` records only while the user holds a button. The result is attached to the chat.
+  - Owner (2026-09-30): camera only; no microphone skill, as voice input and voice conversation cover speaking.
+  - Done (`skills/camera/`): `take_photo`, off by default, only while Bruce is on screen. The skill asks the screen (a `PhotoRequests` bridge) to open the camera app through `TakePicture`, into Bruce's cache via a non-exported FileProvider; the user takes the photo (an explicit action every time), Bruce stores a copy as a chat image and adds it to the next message, and the camera's file is deleted. It waits at most 2 minutes, inside the runtime's 3-minute turn. No camera permission is declared: the camera app takes the picture.
+  - Device-tested on the Xperia 1 II by `CameraDeviceTest` (manual): with Bruce on screen the Sony camera opened; Back closed it without a photo and the skill said so. No photo was taken (it would show the owner's surroundings), so the stored-photo path is covered by the image code of TASK-082 and unit tests only. In a chat, Qwen3.5-0.8B answered in words instead of calling the skill.
   - Depends on: TASK-082
 - [ ] TASK-094: Reminders
   - Owner (2026-09-30): ask for exact alarms on the first reminder; if refused, deliver inexactly and say so.

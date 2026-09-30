@@ -123,6 +123,8 @@
     <string name="skill_message_summary">Opens your messaging app with a message written. You send it; Bruce never sends messages.</string>
     <string name="skill_dial">Dial numbers</string>
     <string name="skill_dial_summary">Opens your phone app with a number ready. You place the call; Bruce never calls.</string>
+    <string name="skill_take_photo">Take a photo</string>
+    <string name="skill_take_photo_summary">Opens the camera for you to take a photo; you send it with your next message.</string>
     <string name="skill_contact">Contacts</string>
     <string name="skill_contact_summary">Finds a contact by name and gives only the phone number or email address asked for.</string>
     <string name="permission_contacts">Contacts</string>

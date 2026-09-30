@@ -59,6 +59,8 @@ import com.bizzeh.bruce.skills.ToolOutput
 import com.bizzeh.bruce.skills.apps.AndroidPhoneActions
 import com.bizzeh.bruce.skills.apps.AppSkills
 import com.bizzeh.bruce.skills.calendar.AndroidCalendarStore
+import com.bizzeh.bruce.skills.camera.CameraSkills
+import com.bizzeh.bruce.skills.camera.PhotoRequests
 import com.bizzeh.bruce.skills.contacts.AndroidContacts
 import com.bizzeh.bruce.skills.contacts.ContactSkills
 import com.bizzeh.bruce.skills.location.AndroidLocationSource
@@ -255,6 +257,7 @@ class AppContainer(private val context: Context) {
                 NoteSkills(replyNotifications).create() +
                 LocationSkills(AndroidLocationSource(context), onScreen = { onScreen }).create() +
                 ContactSkills(AndroidContacts(context.contentResolver, context.resources), Dispatchers.IO).create() +
+                CameraSkills(photoRequests, onScreen = { onScreen }).create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
@@ -269,6 +272,9 @@ class AppContainer(private val context: Context) {
         SkillRequirement.NETWORK_ALLOWED -> networkSettings.mode.first() != NetworkMode.OFFLINE
         SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
     }
+
+    /** The camera skill's requests to the screen (TASK-093). */
+    val photoRequests = PhotoRequests()
 
     /** Documents attached to chats (TASK-084); PDF parsing may spill to the cache folder on disk. */
     val documentReader: DocumentReader by lazy { DocumentReader(context, context.contentResolver, context.cacheDir) }

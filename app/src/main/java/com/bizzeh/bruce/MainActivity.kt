@@ -10,6 +10,8 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import androidx.core.content.FileProvider
+import androidx.lifecycle.repeatOnLifecycle
 import com.bizzeh.bruce.chat.DocumentError
 import com.bizzeh.bruce.chat.DocumentReader
 import com.bizzeh.bruce.chat.DocumentResult
@@ -205,6 +207,7 @@ class MainActivity : ComponentActivity() {
         }
         container.stopTurn = { chat.stop() }
         if (savedInstanceState == null) removeUnusedImages()
+        watchPhotoRequests()
         lifecycleScope.launch(Dispatchers.IO) { capabilities.value = container.engine.getCapabilities() }
         enableEdgeToEdge()
         setContent {
@@ -488,6 +491,42 @@ class MainActivity : ComponentActivity() {
         DocumentError.UNREADABLE -> R.string.chat_document_unreadable
     }
 
+    /** The camera's photo for take_photo, written into the cache through the file provider. */
+    private var cameraFile: File? = null
+
+    /** The request the camera was opened for, so returning to the screen does not open it again. */
+    private var photoRequest: Any? = null
+    private val camera = registerForActivityResult(ActivityResultContracts.TakePicture()) { taken ->
+        val file = cameraFile
+        cameraFile = null
+        lifecycleScope.launch {
+            val name = if (taken && file != null) withContext(Dispatchers.IO) { container.chatImages.save(Uri.fromFile(file)) } else null
+            withContext(Dispatchers.IO) { file?.delete() }
+            name?.let(chat::attach)
+            container.photoRequests.complete(name)
+        }
+    }
+
+    /** Opens the camera when the camera skill asks, once per request. */
+    private fun watchPhotoRequests() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.RESUMED) {
+                container.photoRequests.pending.collect { request ->
+                    if (request == null || request === photoRequest) return@collect
+                    photoRequest = request
+                    val file = File(File(cacheDir, CAMERA_DIR).apply { mkdirs() }, "photo-${System.currentTimeMillis()}.jpg")
+                    cameraFile = file
+                    try {
+                        camera.launch(FileProvider.getUriForFile(this@MainActivity, "$packageName.camera", file))
+                    } catch (e: ActivityNotFoundException) {
+                        cameraFile = null
+                        container.photoRequests.complete(null)
+                    }
+                }
+            }
+        }
+    }
+
     /** Deletes stored images no saved chat shows, keeping those waiting to be sent. */
     private fun removeUnusedImages() {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -698,6 +737,8 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val MODELS_DIR = AppContainer.MODELS_DIR
+
+        private const val CAMERA_DIR = "camera"
 
         /** Pixels a side for chat image previews. */
         private const val THUMBNAIL_SIDE = 480

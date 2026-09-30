@@ -228,7 +228,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `in progress` (move and rename, TASK-085; calendar, TASK-086; sharing, opening apps and URLs, TASK-087; clipboard write, TASK-088; messages and calls prepared for the user, TASK-089; notes as notifications, TASK-090)
 - **Privacy-sensitive skills** — Location, contacts, camera, microphone; disabled
   by default; camera and microphone need an explicit user action each time.
-  `in progress` (location, TASK-091; contacts, TASK-092)
+  `done` (location, TASK-091; contacts, TASK-092; camera, TASK-093; no microphone skill, owner: voice input covers it)
 
 ### Interface and platform
 
@@ -456,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Camera skill done: opens the camera, the user takes the photo, it goes with their next message; no microphone skill (owner) (TASK-093). |
 | 2026-09-30 | Changed | Contacts skill done: find by name, only the detail asked for (TASK-092). |
 | 2026-09-30 | Changed | Location skill done: one reading while Bruce is on screen, approximate unless precise is allowed, never tracking (TASK-091). |
 | 2026-09-30 | Changed | Notifications skill: Bruce posts a note the user asked for; it never reads other apps' notifications (owner) (TASK-090). |

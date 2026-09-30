@@ -43,6 +43,10 @@
             <action android:name="android.intent.action.DIAL" />
             <data android:scheme="tel" />
         </intent>
+        <!-- take_photo (TASK-093): a camera app to take the picture. -->
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
         <!-- open_url (TASK-087): a browser to open a page in. -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -91,6 +95,16 @@
         <uses-native-library
             android:name="libOpenCL.so"
             android:required="false" />
+            <!-- Lets the camera app write take_photo's picture into Bruce's cache (TASK-093); not exported. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.camera"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/camera_paths" />
+        </provider>
     </application>
 
 </manifest>
