@@ -21,8 +21,12 @@ enum class VoiceState {
 interface VoiceRecogniser {
     val available: Boolean
 
-    /** [onDone] gets the recognised text, or null when nothing was recognised or it failed. */
-    fun start(onDone: (String?) -> Unit)
+    /**
+     * [onDone] gets the recognised text, or null when nothing was recognised or it failed.
+     * [pauseMillis] asks the recogniser to end after that much silence once speech has started; it
+     * is a hint that recognisers may ignore.
+     */
+    fun start(pauseMillis: Long? = null, onDone: (String?) -> Unit)
     fun stop()
 }
 
@@ -46,7 +50,7 @@ class AndroidVoiceRecogniser(private val context: Context) : VoiceRecogniser {
     override val available: Boolean
         get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && SpeechRecognizer.isOnDeviceRecognitionAvailable(context)
 
-    override fun start(onDone: (String?) -> Unit) {
+    override fun start(pauseMillis: Long?, onDone: (String?) -> Unit) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return onDone(null)
         stop()
         val speech = SpeechRecognizer.createOnDeviceSpeechRecognizer(context)
@@ -75,11 +79,14 @@ class AndroidVoiceRecogniser(private val context: Context) : VoiceRecogniser {
             override fun onPartialResults(partialResults: Bundle?) = Unit
             override fun onEvent(eventType: Int, params: Bundle?) = Unit
         })
-        speech.startListening(
-            Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                .putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true),
-        )
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            .putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+        pauseMillis?.let {
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, it)
+            intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, it)
+        }
+        speech.startListening(intent)
     }
 
     override fun stop() {

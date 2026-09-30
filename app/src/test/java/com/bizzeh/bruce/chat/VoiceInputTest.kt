@@ -60,6 +60,15 @@ class VoiceInputTest {
     }
 
     @Test
+    fun aPauseLengthIsPassedAsAHint() {
+        voice.start(2_000) { heard += it }
+        val intent = shadowOf(ShadowSpeechRecognizer.getLatestSpeechRecognizer()).lastRecognizerIntent
+
+        assertEquals(2_000L, intent.getLongExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 0))
+        assertEquals(2_000L, intent.getLongExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 0))
+    }
+
+    @Test
     fun anErrorGivesNothingAndStoppingReleasesTheRecogniser() {
         voice.start { heard += it }
         shadowOf(ShadowSpeechRecognizer.getLatestSpeechRecognizer()).triggerOnError(SpeechRecognizer.ERROR_NO_MATCH)

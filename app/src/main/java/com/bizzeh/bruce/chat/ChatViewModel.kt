@@ -74,6 +74,8 @@ data class ChatState(
     val voice: VoiceState = VoiceState.UNAVAILABLE,
     /** Reading replies aloud; set by the activity, which owns the speech engine. */
     val speech: SpeechState = SpeechState(),
+    /** A voice conversation's phase; null when none is running. */
+    val conversation: ConversationPhase? = null,
 )
 
 enum class ChatError {

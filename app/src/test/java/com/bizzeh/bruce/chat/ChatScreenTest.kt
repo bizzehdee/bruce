@@ -10,6 +10,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.longClick
 import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import androidx.compose.runtime.getValue
@@ -228,6 +230,32 @@ class ChatScreenTest {
         compose.onNodeWithTag("voice").performClick()
 
         assertEquals(listOf("voice", "stop voice"), calls)
+    }
+
+    @Test
+    fun aLongPressStartsAVoiceConversationThatCanBeEnded() {
+        var state by androidx.compose.runtime.mutableStateOf(ChatState(modelName = "m", voice = VoiceState.IDLE))
+        val conversationActions = object : ChatActions by actions {
+            override fun startVoice() { calls += "voice" }
+            override fun startConversation() { calls += "conversation" }
+            override fun endConversation() { calls += "end" }
+        }
+        compose.setContent { BruceTheme { ChatScreen(state, conversationActions) } }
+
+        compose.onNodeWithTag("voice").performTouchInput { longClick() }
+        state = state.copy(conversation = ConversationPhase.LISTENING)
+        compose.onNodeWithText("Voice conversation: listening…").assertIsDisplayed()
+        compose.onNodeWithTag("voice").performClick()
+        state = state.copy(conversation = ConversationPhase.WAITING, sidekick = "Milo")
+        compose.onNodeWithText("Voice conversation: Milo is answering…").assertIsDisplayed()
+        compose.onNodeWithTag("voice").performTouchInput { longClick() }
+        state = state.copy(conversation = ConversationPhase.SPEAKING)
+        compose.onNodeWithText("Voice conversation: Milo is speaking…").assertIsDisplayed()
+        compose.onNodeWithTag("endConversation").performClick()
+        state = state.copy(conversation = null)
+        compose.onNodeWithTag("conversation").assertDoesNotExist()
+
+        assertEquals(listOf("conversation", "end", "end", "end"), calls)
     }
 
     @Test

@@ -10,6 +10,7 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import com.bizzeh.bruce.chat.VoiceConversation
 import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
@@ -24,6 +25,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.net.Uri
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -214,6 +216,7 @@ class MainActivity : ComponentActivity() {
         val chatState by chat.state.collectAsState()
         val voice by voiceState.collectAsState()
         val speech by readAloud.state.collectAsState()
+        val conversation by voiceConversation.phase.collectAsState()
         val serverModels by servers.state.collectAsState()
         val activeModel by container.activeModel.state.collectAsState()
         LaunchedEffect(Unit) { container.modelSelection.restore() }
@@ -231,7 +234,7 @@ class MainActivity : ComponentActivity() {
             conversations.exportOutcomeShown()
         }
         BruceApp(
-            chat = chatState.copy(voice = voice, speech = speech),
+            chat = chatState.copy(voice = voice, speech = speech, conversation = conversation),
             chatActions = remember { chatActions() },
             activeModel = activeModel,
             remoteModels = serverModels.choices(),
@@ -431,6 +434,7 @@ class MainActivity : ComponentActivity() {
     override fun onStop() {
         container.onScreen = false
         // The microphone is only for while the user is here.
+        voiceConversation.stop()
         stopVoice()
         readAloud.stop()
         super.onStop()
@@ -448,11 +452,24 @@ class MainActivity : ComponentActivity() {
 
     private val voice: VoiceRecogniser by lazy { AndroidVoiceRecogniser(applicationContext) }
     private val voiceState = MutableStateFlow(VoiceState.UNAVAILABLE)
-    private val microphonePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) listen() }
-
-    private fun startVoice() {
-        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) listen() else microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+    private val voiceConversation by lazy {
+        VoiceConversation(voice, readAloud, chat.state, { words ->
+            chat.setInput(VoiceText.append(chat.state.value.input, words))
+            chat.send()
+        }, lifecycleScope, SystemClock::elapsedRealtime)
     }
+
+    /** What to start once the microphone permission is granted. */
+    private var afterMicrophone: () -> Unit = {}
+    private val microphonePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) afterMicrophone() }
+
+    private fun withMicrophone(start: () -> Unit) {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) return start()
+        afterMicrophone = start
+        microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
+    }
+
+    private fun startVoice() = withMicrophone(::listen)
 
     private fun listen() {
         voiceState.value = VoiceState.LISTENING
@@ -527,6 +544,8 @@ class MainActivity : ComponentActivity() {
             chat.state.value.entries.getOrNull(index)?.let { readAloud.read(index, it.text) }
         }
         override fun stopReading() = readAloud.stop()
+        override fun startConversation() = withMicrophone(voiceConversation::start)
+        override fun endConversation() = voiceConversation.stop()
     }
 
     private fun conversationActions() = object : ConversationActions {

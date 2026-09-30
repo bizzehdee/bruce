@@ -578,11 +578,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Xperia 1 II (Google TTS): "hello!" was read with the offline `en-gb-x-gba-local` voice; a five-sentence reply showed Stop reading while it played and Stop ended it. The network-voice note was not seen on a phone (that phone has an offline voice).
   - Depends on: TASK-051, TASK-074
   - Required by: TASK-081
-- [ ] TASK-081: Voice conversation mode
+- [x] TASK-081: Voice conversation mode
   - Owner (2026-09-30): long-press the microphone to start; a 2-second pause sends; ends after 10 seconds of silence, on Stop or on leaving the screen.
   - A hands-free mode: listen (TASK-074), send when speech ends, read the reply aloud (TASK-080), listen again; ends on Stop, on leaving the screen or after silence.
   - Confirmation cards still need a tap; they are never approved by voice.
   - Open question: the silence timeout, and whether it starts from the microphone button (long press) or a separate button.
+  - Done (`chat/VoiceConversation.kt`): a long press on the microphone starts it; a bar above the message box shows listening, answering or speaking, with End; a tap on the microphone also ends it. What is heard is added to anything typed and sent; the finished reply is read aloud (TASK-080), then Bruce listens again. Skill calls and approval cards are waited through: approval is only a tap. Hearing nothing for 10 seconds, a chat error, End, or leaving the screen ends it. The 2-second pause is passed to the recogniser as Android's silence-length hints, which recognisers may ignore.
+  - Not device-tested: the Xperia 1 II has no on-device recogniser (no microphone button), and the Pixel 11 was not connected. Covered by unit tests with a fake recogniser and speaker, and a screen test of the long press and bar.
   - Depends on: TASK-074, TASK-080
 - [ ] TASK-082: Image input for vision models
   - Attach a photo or a screenshot (Android photo picker, no storage permission) to a message; passed to models that can see, through llama.cpp's multimodal library (`mtmd`) on the phone and as OpenAI image content to a remote server.

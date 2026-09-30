@@ -4,6 +4,12 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.IconButton
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.minimumInteractiveComponentSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,6 +82,10 @@ interface ChatActions {
     /** Reads entry [index]'s reply aloud (TASK-080). */
     fun readAloud(index: Int) = Unit
     fun stopReading() = Unit
+
+    /** Hands-free chat from a long press on the microphone (TASK-081). */
+    fun startConversation() = Unit
+    fun endConversation() = Unit
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -109,6 +119,7 @@ fun ChatScreen(
                     modifier = Modifier.padding(horizontal = 16.dp).testTag("chatError"),
                 )
             }
+            state.conversation?.let { ConversationBar(it, state.sidekick, actions) }
             Composer(state, actions)
         }
     }
@@ -366,6 +377,54 @@ private fun ReadAloudButton(index: Int, speech: SpeechState, actions: ChatAction
     }
 }
 
+/** A tap speaks one message; a long press starts a voice conversation; either stops what is running. */
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun MicButton(state: ChatState, actions: ChatActions) {
+    val active = state.voice == VoiceState.LISTENING || state.conversation != null
+    val stop = { if (state.conversation != null) actions.endConversation() else actions.stopVoice() }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .minimumInteractiveComponentSize()
+            .clip(CircleShape)
+            .combinedClickable(
+                role = Role.Button,
+                onClickLabel = stringResource(if (active) R.string.chat_voice_stop else R.string.chat_voice),
+                onLongClickLabel = stringResource(R.string.chat_conversation_start),
+                onClick = { if (active) stop() else actions.startVoice() },
+                onLongClick = { if (active) stop() else actions.startConversation() },
+            )
+            .testTag("voice"),
+    ) {
+        Icon(
+            painterResource(R.drawable.ic_mic),
+            contentDescription = stringResource(if (active) R.string.chat_voice_stop else R.string.chat_voice),
+            tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun ConversationBar(phase: ConversationPhase, sidekick: String, actions: ChatActions) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("conversation"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            when (phase) {
+                ConversationPhase.LISTENING -> stringResource(R.string.chat_conversation_listening)
+                ConversationPhase.WAITING -> stringResource(R.string.chat_conversation_waiting, sidekick)
+                ConversationPhase.SPEAKING -> stringResource(R.string.chat_conversation_speaking, sidekick)
+            },
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f),
+        )
+        TextButton(onClick = actions::endConversation, modifier = Modifier.testTag("endConversation")) { Text(stringResource(R.string.chat_conversation_end)) }
+    }
+}
+
 @Composable
 private fun Composer(state: ChatState, actions: ChatActions) {
     Row(
@@ -380,16 +439,7 @@ private fun Composer(state: ChatState, actions: ChatActions) {
                 Text(if (state.voice == VoiceState.LISTENING) stringResource(R.string.chat_listening) else stringResource(R.string.chat_input_hint, state.sidekick))
             },
             trailingIcon = if (state.voice == VoiceState.UNAVAILABLE) null else {
-                {
-                    val listening = state.voice == VoiceState.LISTENING
-                    IconButton(onClick = if (listening) actions::stopVoice else actions::startVoice, modifier = Modifier.testTag("voice")) {
-                        Icon(
-                            painterResource(R.drawable.ic_mic),
-                            contentDescription = stringResource(if (listening) R.string.chat_voice_stop else R.string.chat_voice),
-                            tint = if (listening) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+                { MicButton(state, actions) }
             },
             shape = RoundedCornerShape(24.dp),
             maxLines = 5,
