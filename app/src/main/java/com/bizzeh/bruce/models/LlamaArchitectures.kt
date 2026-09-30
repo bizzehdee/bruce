@@ -166,12 +166,12 @@ internal object LlamaArchitectures {
      * "clip" is the vision projector format (mmproj files). "eagle3" and "dflash" are
      * speculative-decoding draft heads that need a target model's features (llama-context.cpp);
      * the Hub lists some large repositories by their draft file. The rest are embedding models,
-     * an encoder alone and an audio decoder, which a search of every task returns.
+     * an encoder alone, an audio decoder and speech synthesisers, which a search of every task returns.
      */
     private val notChatModels = setOf(
         "clip", "eagle3", "dflash",
         "bert", "modern-bert", "nomic-bert", "nomic-bert-moe", "neo-bert", "jina-bert-v2", "jina-bert-v3", "eurobert",
-        "t5encoder", "wavtokenizer-dec",
+        "llama-embed", "t5encoder", "wavtokenizer-dec", "qwen3tts", "pockettts",
     )
 
     fun supportsChat(architecture: String): Boolean = architecture in all && architecture !in notChatModels

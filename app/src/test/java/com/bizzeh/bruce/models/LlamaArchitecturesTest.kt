@@ -26,6 +26,9 @@ class LlamaArchitecturesTest {
         assertFalse(LlamaArchitectures.supportsChat("bert"))
         assertFalse(LlamaArchitectures.supportsChat("nomic-bert"))
         assertFalse(LlamaArchitectures.supportsChat("t5encoder"))
+        assertFalse(LlamaArchitectures.supportsChat("qwen3tts"))
+        assertFalse(LlamaArchitectures.supportsChat("pockettts"))
+        assertFalse(LlamaArchitectures.supportsChat("llama-embed"))
         assertFalse(LlamaArchitectures.supportsChat("not-a-real-architecture"))
     }
 }
