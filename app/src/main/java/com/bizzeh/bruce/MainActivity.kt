@@ -13,6 +13,7 @@ import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.models.AutoContext
 import android.util.Log
+import android.widget.Toast
 import android.content.ActivityNotFoundException
 import com.bizzeh.bruce.chat.Markdown
 import android.Manifest
@@ -43,6 +44,9 @@ import com.bizzeh.bruce.chat.ChatActions
 import com.bizzeh.bruce.chat.ChatViewModel
 import com.bizzeh.bruce.conversations.ConversationActions
 import com.bizzeh.bruce.conversations.ConversationsViewModel
+import com.bizzeh.bruce.conversations.ExportFormat
+import com.bizzeh.bruce.conversations.ExportOutcome
+import com.bizzeh.bruce.conversations.ExportRequest
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.BackendSelection
 import com.bizzeh.bruce.inference.EngineCapabilities
@@ -119,7 +123,9 @@ class MainActivity : ComponentActivity() {
         }
     }
     private val conversations: ConversationsViewModel by viewModels {
-        factory { ConversationsViewModel(container.conversations) { ids -> chat.forget(ids) } }
+        factory {
+            ConversationsViewModel(container.conversations, { ids -> chat.forget(ids) }, { uri -> contentResolver.openOutputStream(Uri.parse(uri), "wt") })
+        }
     }
     private val models: ModelsViewModel by viewModels {
         factory {
@@ -211,6 +217,16 @@ class MainActivity : ComponentActivity() {
         val browse = exit == SetupExit.BROWSE_MODELS
         val active by conversations.active.collectAsState()
         val archived by conversations.archived.collectAsState()
+        val exportOutcome by conversations.exportOutcome.collectAsState()
+        LaunchedEffect(exportOutcome) {
+            val text = when (val outcome = exportOutcome) {
+                is ExportOutcome.Exported -> resources.getQuantityString(R.plurals.conversations_exported, outcome.count, outcome.count)
+                ExportOutcome.Failed -> getString(R.string.conversations_export_failed)
+                null -> return@LaunchedEffect
+            }
+            Toast.makeText(this@MainActivity, text, Toast.LENGTH_SHORT).show()
+            conversations.exportOutcomeShown()
+        }
         BruceApp(
             chat = chatState.copy(voice = voice),
             chatActions = remember { chatActions() },
@@ -410,6 +426,14 @@ class MainActivity : ComponentActivity() {
         super.onStop()
     }
 
+    private val exportLaunchers = ExportFormat.entries.associateWith { format ->
+        registerForActivityResult(ActivityResultContracts.CreateDocument(format.mimeType)) { uri -> conversations.exportTo(uri?.toString()) }
+    }
+
+    private fun startExport(ids: Set<Long>?, format: ExportFormat) {
+        exportLaunchers.getValue(format).launch(conversations.requestExport(ExportRequest(ids, format)))
+    }
+
     private val voice: VoiceRecogniser by lazy { AndroidVoiceRecogniser(applicationContext) }
     private val voiceState = MutableStateFlow(VoiceState.UNAVAILABLE)
     private val microphonePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> if (granted) listen() }
@@ -495,6 +519,7 @@ class MainActivity : ComponentActivity() {
         override fun archive(ids: Set<Long>) = conversations.archive(ids)
         override fun restore(ids: Set<Long>) = conversations.restore(ids)
         override fun delete(ids: Set<Long>) = conversations.delete(ids)
+        override fun export(ids: Set<Long>, format: ExportFormat) = startExport(ids, format)
     }
 
     private fun appActions() = object : AppActions {
@@ -517,6 +542,7 @@ class MainActivity : ComponentActivity() {
             chat.newChat()
         }
         override fun deleteAllConversations() = conversations.deleteAll()
+        override fun exportAllConversations(format: ExportFormat) = startExport(null, format)
         override fun setNetworkMode(mode: NetworkMode) = settings.setNetworkMode(mode)
         override fun removeSite(host: String) = settings.removeSite(host)
         override fun saveSearchKey(key: String) = settings.saveSearchKey(key)

@@ -183,7 +183,7 @@ class ConversationsViewModelTest {
         Dispatchers.setMain(Dispatchers.Unconfined)
         val a = store.save(null, listOf(ChatEntry(ChatRole.USER, "a")))
         val b = store.save(null, listOf(ChatEntry(ChatRole.USER, "b")))
-        val vm = ConversationsViewModel(store) { removed += it }
+        val vm = ConversationsViewModel(store, onRemoved = { removed += it })
 
         vm.archive(setOf(a))
         store.archived.first { it.size == 1 }

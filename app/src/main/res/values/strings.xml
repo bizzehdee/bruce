@@ -294,6 +294,18 @@
     <string name="conversations_archive">Archive</string>
     <string name="conversations_restore">Restore</string>
     <string name="conversations_delete">Delete</string>
+    <string name="conversations_export">Export</string>
+    <string name="conversations_export_title">Export chats</string>
+    <string name="conversations_export_text">Markdown is easy to read. JSON keeps everything, including skill results. You choose where the file is saved; nothing is sent anywhere.</string>
+    <string name="conversations_export_markdown">Markdown</string>
+    <string name="conversations_export_json">JSON</string>
+    <plurals name="conversations_exported">
+        <item quantity="one">Exported %d chat</item>
+        <item quantity="other">Exported %d chats</item>
+    </plurals>
+    <string name="conversations_export_failed">Could not save the export there.</string>
+    <string name="settings_export_conversations">Export all chats</string>
+    <string name="settings_export_conversations_summary">Saves every chat, archived ones too, to a file you choose.</string>
     <string name="conversations_delete_confirm_text">This cannot be undone.</string>
     <plurals name="conversations_selected">
         <item quantity="one">%d selected</item>

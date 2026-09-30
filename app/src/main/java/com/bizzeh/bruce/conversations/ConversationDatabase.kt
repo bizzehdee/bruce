@@ -48,6 +48,9 @@ interface ConversationDao {
     @Query("SELECT * FROM conversations WHERE archived = :archived ORDER BY updatedAt DESC, id DESC")
     fun conversations(archived: Boolean): Flow<List<ConversationEntity>>
 
+    @Query("SELECT * FROM conversations ORDER BY updatedAt DESC, id DESC")
+    suspend fun allConversations(): List<ConversationEntity>
+
     @Query("SELECT * FROM conversations WHERE id = :id")
     suspend fun conversation(id: Long): ConversationEntity?
 

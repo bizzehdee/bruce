@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
@@ -35,11 +36,12 @@ interface ConversationActions {
     fun archive(ids: Set<Long>)
     fun restore(ids: Set<Long>)
     fun delete(ids: Set<Long>)
+    fun export(ids: Set<Long>, format: ExportFormat) = Unit
 }
 
 /**
  * Saved chats. A tap opens one (in the Archived view it selects instead); a long press starts
- * selecting, for renaming one or archiving, restoring or deleting several.
+ * selecting, for renaming one or archiving, restoring, exporting or deleting several.
  */
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
@@ -53,6 +55,7 @@ fun ConversationList(
     var selected by rememberSaveable { mutableStateOf(listOf<Long>()) }
     var renaming by rememberSaveable { mutableStateOf<Long?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
+    var choosingExport by rememberSaveable { mutableStateOf(false) }
     // Drop selections of conversations that have gone (deleted, archived elsewhere).
     val live = selected.filter { id -> conversations.any { it.id == id } }
     val selecting = live.isNotEmpty()
@@ -81,6 +84,7 @@ fun ConversationList(
                         Text(stringResource(R.string.conversations_archive))
                     }
                 }
+                TextButton(onClick = { choosingExport = true }, modifier = Modifier.testTag("export")) { Text(stringResource(R.string.conversations_export)) }
                 TextButton(onClick = { confirmDelete = true }, modifier = Modifier.testTag("delete")) {
                     Text(stringResource(R.string.conversations_delete), color = MaterialTheme.colorScheme.error)
                 }
@@ -152,4 +156,28 @@ fun ConversationList(
             dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.settings_cancel)) } },
         )
     }
+
+    if (choosingExport) {
+        ExportFormatDialog(
+            onChoose = { format -> actions.export(live.toSet(), format); choosingExport = false; selected = emptyList() },
+            onDismiss = { choosingExport = false },
+        )
+    }
+}
+
+/** Markdown to read, JSON to keep everything (TASK-078). */
+@Composable
+fun ExportFormatDialog(onChoose: (ExportFormat) -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.conversations_export_title)) },
+        text = { Text(stringResource(R.string.conversations_export_text)) },
+        confirmButton = {
+            Row {
+                TextButton(onClick = { onChoose(ExportFormat.MARKDOWN) }, modifier = Modifier.testTag("export:MARKDOWN")) { Text(stringResource(R.string.conversations_export_markdown)) }
+                TextButton(onClick = { onChoose(ExportFormat.JSON) }, modifier = Modifier.testTag("export:JSON")) { Text(stringResource(R.string.conversations_export_json)) }
+            }
+        },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) } },
+    )
 }

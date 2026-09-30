@@ -9,6 +9,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /** A saved chat as the drawer and Archived screen list it. */
@@ -39,6 +40,13 @@ class ConversationStore(
     suspend fun load(id: Long): List<ChatEntry>? {
         dao.conversation(id) ?: return null
         return dao.messages(id).mapNotNull(::toEntry)
+    }
+
+    /** Chats [ids], or every chat (archived too) when null, newest first; each is read as it is written out. */
+    fun exported(ids: Set<Long>?): Flow<ExportedChat> = flow {
+        dao.allConversations().filter { ids == null || it.id in ids }.forEach { chat ->
+            emit(ExportedChat(chat.title, chat.createdAt, chat.updatedAt, chat.archived, dao.messages(chat.id).mapNotNull(::toEntry)))
+        }
     }
 
     private fun toEntity(conversationId: Long, position: Int, entry: ChatEntry) = MessageEntity(

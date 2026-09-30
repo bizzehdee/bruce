@@ -309,7 +309,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   tier. Dropped: every feature is free. `dropped`
 - **Data ownership controls** — Export and delete conversations, delete memories
   and models, remove permissions, clear local data, disable networking.
-  `in progress` (all but conversation export)
+  `done`
 - **Theme** — Material 3 theme with a Bruce brand palette (tan and white).
   User setting: System (default), Light, Dark. On Android 12 and later the user
   may turn on wallpaper-based dynamic colour; it is off by default.
@@ -456,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Conversation export done: one chat or all as Markdown or JSON (TASK-078). |
 | 2026-09-30 | Changed | Owner's decisions for TASK-078 to TASK-101: export as Markdown and JSON; default assistant built now; embedding model chosen from evidence; texts and calls open the app prefilled; scheduled phone-model runs only while charging; profiles per chat without automatic routing. |
 | 2026-09-30 | Changed | Statuses brought up to date (model manager, context, memory, confirmations, denials, untrusted content, Android settings, notifications, screens, hardware tuning marked done); tasks created for the features not yet started (TASK-078 to TASK-101). |
 | 2026-09-29 | Changed | Remote model servers done: chat through a server's model, chosen from the Servers tab or the switcher (TASK-076, TASK-077). |

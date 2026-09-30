@@ -557,11 +557,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Pixel 11 against llama-server on this machine (Qwen3.5-0.8B, `--api-key`, through `adb reverse`): Use switched the chat to the server (context 8,192 from `/props`); `RemoteChatDeviceTest` (manual) ran "What time is it?" twice: the server called `get_datetime`, the skill ran on the phone, and the server answered "It's 22:30." One earlier run failed on the second request with "server unreachable" before failure types were logged; not reproduced since. A password manager offered to save the API key field, as it would any password field.
   - Depends on: TASK-075, TASK-076
   - Required by: TASK-098
-- [ ] TASK-078: Export conversations
+- [x] TASK-078: Export conversations
   - Owner (2026-09-30): both Markdown (to read) and JSON (everything, for a later import).
   - Settings, Data: export one chat or all chats to a file the user picks (Storage Access Framework create-document); nothing leaves the phone otherwise.
   - Includes messages, tool calls and results, summaries and the model used; never tokens, keys or memory unless chosen.
   - Open question (plan): export format. Candidates: Markdown (readable), JSON (re-importable), or both.
+  - Done (`conversations/ChatExport.kt`): Export in the chat list's selection bar and "Export all chats" in Settings, Privacy (archived chats included) ask Markdown or JSON, then Android's save dialog. The file is written through the picked document only, one chat at a time. Markdown shows the conversation with reasoning left out, skill calls and results (fenced so a result cannot break out), and summaries; JSON (`bruce-chats`, version 1) keeps raw text, tool calls, results and statuses, ISO-8601 times. The model used is not saved with a chat, so it is not exported. Failures are logged by type only.
+  - Device-tested on the Xperia 1 II: "Export all chats" as JSON to Documents gave valid JSON with the chat; one chat as Markdown from the drawer was saved as "Say hello in one word.md". Test files were removed. The toast after saving was not checked.
   - Depends on: TASK-032
 - [ ] TASK-079: Hugging Face sign-in with a pasted token
   - Settings, Network: paste an access token as an alternative to OAuth; it is checked with the Hub's whoami call, then sealed with the Android Keystore like the OAuth token. The field is never logged or shown again.

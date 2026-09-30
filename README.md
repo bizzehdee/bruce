@@ -10,6 +10,7 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 - **Readable replies.** Headings, lists, tables and code show formatted. Links ask before opening, and images from the web load only when you tap them.
 - **Your sidekick.** Pick a personality: Bruce, quick and eager, or Milo, calm and thoughtful.
 - **Your memory, if you want it.** Off unless you turn it on: Bruce then keeps short facts from your chats on the phone, uses them in later chats, and shows you every one to delete.
+- **Your chats to keep.** Export one chat or all of them as Markdown or JSON, to a file you choose.
 - **Free.** Every feature is free. No ads, no subscription, no purchases, no account.
 
 ## Status

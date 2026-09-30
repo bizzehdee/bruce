@@ -40,6 +40,7 @@ class SettingsScreenTest {
         override fun setContextLength(contextLength: Int?) { calls += "context $contextLength" }
         override fun clearAllData() { calls += "clear" }
         override fun deleteAllConversations() { calls += "deleteChats" }
+        override fun exportAllConversations(format: com.bizzeh.bruce.conversations.ExportFormat) { calls += "export $format" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
         override fun removeSite(host: String) { calls += "remove $host" }
         override fun saveSearchKey(key: String) { calls += "key $key" }
@@ -260,6 +261,18 @@ class SettingsScreenTest {
         compose.onNodeWithTag("settings:deleteChats").performScrollTo().performClick()
         compose.onNodeWithTag("confirmDeleteChats").performClick()
         assertEquals(listOf("deleteChats"), calls)
+    }
+
+    @Test
+    fun exportingAllChatsAsksForTheFormat() {
+        show()
+
+        compose.onNodeWithTag("settings:exportChats").performScrollTo().performClick()
+        compose.onNodeWithText("Cancel").performClick()
+        compose.onNodeWithTag("settings:exportChats").performScrollTo().performClick()
+        compose.onNodeWithTag("export:JSON").performClick()
+
+        assertEquals(listOf("export JSON"), calls)
     }
 
     @Test

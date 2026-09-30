@@ -41,6 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
+import com.bizzeh.bruce.conversations.ExportFormat
+import com.bizzeh.bruce.conversations.ExportFormatDialog
 import com.bizzeh.bruce.huggingface.HubAccount
 import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
@@ -85,6 +87,7 @@ interface SettingsActions {
     fun setContextLength(contextLength: Int?)
     fun clearAllData()
     fun deleteAllConversations()
+    fun exportAllConversations(format: ExportFormat) = Unit
     fun setNetworkMode(mode: NetworkMode)
     fun removeSite(host: String) = Unit
     fun saveSearchKey(key: String) = Unit
@@ -110,6 +113,7 @@ interface SettingsActions {
 fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () -> Unit) {
     var confirmClear by rememberSaveable { mutableStateOf(false) }
     var confirmDeleteChats by rememberSaveable { mutableStateOf(false) }
+    var choosingExport by rememberSaveable { mutableStateOf(false) }
     SubScreen(stringResource(R.string.nav_settings), onBack) {
         Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).testTag("settings")) {
             Heading(R.string.settings_sidekick)
@@ -300,6 +304,11 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             Heading(R.string.settings_privacy)
             Link(R.string.settings_permissions, R.string.settings_permissions_summary, "settings:permissions", actions::openPermissions)
             ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_export_conversations)) },
+                supportingContent = { Text(stringResource(R.string.settings_export_conversations_summary)) },
+                modifier = Modifier.clickable { choosingExport = true }.testTag("settings:exportChats"),
+            )
+            ListItem(
                 headlineContent = { Text(stringResource(R.string.settings_delete_conversations), color = MaterialTheme.colorScheme.error) },
                 supportingContent = { Text(stringResource(R.string.settings_delete_conversations_summary)) },
                 modifier = Modifier.clickable { confirmDeleteChats = true }.testTag("settings:deleteChats"),
@@ -314,6 +323,9 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             Link(R.string.settings_licences, null, "settings:licences", actions::openLicences)
             Link(R.string.nav_diagnostics, R.string.nav_diagnostics_summary, "settings:diagnostics", actions::openDiagnostics)
         }
+    }
+    if (choosingExport) {
+        ExportFormatDialog(onChoose = { choosingExport = false; actions.exportAllConversations(it) }, onDismiss = { choosingExport = false })
     }
     if (confirmDeleteChats) {
         AlertDialog(
