@@ -48,6 +48,28 @@ class ConversationStoreTest {
     }
 
     @Test
+    fun imagesAreSavedWithTheirMessageAndListedWhileInUse() = runBlocking {
+        val image = "0d49eb73-53a0-464b-9e5a-3eca3d64eb9d.jpg"
+        val id = store.save(null, listOf(ChatEntry(ChatRole.USER, "", images = listOf(image)), reply("A moon.")))
+
+        assertEquals("Image", store.active.first().single().title)
+        assertEquals(listOf(image), store.load(id)!!.first().images)
+        assertEquals(setOf(image), store.imagesInUse())
+        store.delete(listOf(id))
+        assertEquals(emptySet<String>(), store.imagesInUse())
+    }
+
+    @Test
+    fun storedImageNamesThatAreNotBrucesAreDropped() = runBlocking {
+        val id = store.save(null, listOf(user("x")))
+        database.conversations().replaceMessages(id, listOf(MessageEntity(conversationId = id, position = 0, role = "USER", text = "x", imagesJson = "[\"../../secret\",\"0d49eb73-53a0-464b-9e5a-3eca3d64eb9d.jpg\"]")), 2)
+
+        assertEquals(listOf("0d49eb73-53a0-464b-9e5a-3eca3d64eb9d.jpg"), store.load(id)!!.single().images)
+        database.conversations().replaceMessages(id, listOf(MessageEntity(conversationId = id, position = 0, role = "USER", text = "x", imagesJson = "not json")), 3)
+        assertEquals(emptyList<String>(), store.load(id)!!.single().images)
+    }
+
+    @Test
     fun laterSavesReplaceMessagesAndMoveTheChatToTheTop() = runBlocking {
         val first = store.save(null, listOf(user("one")))
         now = 2_000

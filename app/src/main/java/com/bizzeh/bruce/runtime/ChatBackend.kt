@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.runtime
 
+import android.util.Log
 import com.bizzeh.bruce.inference.BruceToolFormat
 import com.bizzeh.bruce.inference.ChatMessage
 import com.bizzeh.bruce.inference.ChatRole
@@ -9,11 +10,15 @@ import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.GenerationStats
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.ParsedReply
+import com.bizzeh.bruce.inference.RgbImage
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.inference.ToolDefinition
 import com.bizzeh.bruce.inference.ToolFormat
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -40,6 +45,13 @@ sealed interface StepEvent {
     data class Failed(val error: RuntimeError) : StepEvent
 }
 
+/** Images attached to chats, by stored name (TASK-082); ChatImages on a phone. */
+interface ImageSource {
+    fun rgb(name: String): RgbImage?
+
+    fun jpeg(name: String): ByteArray?
+}
+
 /**
  * Where model steps come from (TASK-076, owner's option A): the model on the phone ([LocalBackend])
  * or a remote server. The runtime's loop, policy checks, confirmations, memory and summaries are
@@ -57,21 +69,34 @@ interface ChatBackend {
     fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat? = null): Flow<StepEvent>
 
     fun stop()
+
+    /** Whether the model can be given images (TASK-082). */
+    suspend fun acceptsImages(): Boolean = false
 }
 
 /**
  * The model on the phone: the model's own chat template and tool format through llama.cpp, or
  * Bruce's format where the template has no tool support (ADR 0001), with the evaluated prompt reused.
  */
-class LocalBackend(private val engine: InferenceEngine) : ChatBackend {
-    private data class Prompt(val text: String, val format: ToolFormat)
+class LocalBackend(
+    private val engine: InferenceEngine,
+    private val images: ImageSource? = null,
+    private val io: CoroutineDispatcher = Dispatchers.IO,
+) : ChatBackend {
+    /** [images] are the names behind the prompt's media markers, in order. */
+    private data class Prompt(val text: String, val format: ToolFormat, val images: List<String> = emptyList())
+
+    /** Context tokens per image and model; decoding an image to count it is slow. */
+    private val imageTokens = mutableMapOf<Pair<String, String?>, Int?>()
+
+    override suspend fun acceptsImages(): Boolean = engine.mediaMarker() != null
 
     override suspend fun contextLength(): Int? = engine.contextLength()
 
     override suspend fun prepare(chat: BackendChat): Prepared {
         val prompt = prompt(chat) ?: return if (engine.contextLength() == null) Prepared.NoModel else Prepared.FormatFailed
         val tokens = engine.countTokens(prompt.text) ?: return Prepared.NoModel
-        return Prepared.Ready(chat, tokens, prompt)
+        return Prepared.Ready(chat, tokens + prompt.images.sumOf { tokensFor(it) ?: 0 }, prompt)
     }
 
     override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?): Flow<StepEvent> = flow {
@@ -80,7 +105,15 @@ class LocalBackend(private val engine: InferenceEngine) : ChatBackend {
         val text = StringBuilder()
         var stats: GenerationStats? = null
         var failure: RuntimeError? = null
-        val request = GenerationRequest(prompt.text, maxTokens = maxTokens, temperature = temperature, grammar = prompt.format.grammar, stops = prompt.format.stops, checkpointPrefix = shared)
+        val pixels = withContext(io) { prompt.images.mapNotNull { images?.rgb(it) } }
+        if (pixels.size != prompt.images.size) {
+            emit(StepEvent.Failed(RuntimeError.GENERATION_FAILED))
+            return@flow
+        }
+        val request = GenerationRequest(
+            prompt.text, maxTokens = maxTokens, temperature = temperature, grammar = prompt.format.grammar, stops = prompt.format.stops,
+            checkpointPrefix = shared.takeIf { pixels.isEmpty() }, images = pixels,
+        )
         engine.generate(request).collect { event ->
             when (event) {
                 is GenerationEvent.Token -> {
@@ -91,7 +124,7 @@ class LocalBackend(private val engine: InferenceEngine) : ChatBackend {
                 is GenerationEvent.Failed -> failure = when (event.error) {
                     GenerationError.NO_MODEL_LOADED -> RuntimeError.NO_MODEL_LOADED
                     GenerationError.PROMPT_TOO_LONG -> RuntimeError.CONVERSATION_TOO_LONG
-                    GenerationError.DECODE_FAILED, GenerationError.GRAMMAR_REJECTED -> RuntimeError.GENERATION_FAILED
+                    GenerationError.DECODE_FAILED, GenerationError.GRAMMAR_REJECTED, GenerationError.IMAGES_UNUSABLE -> RuntimeError.GENERATION_FAILED
                 }
             }
         }
@@ -104,14 +137,40 @@ class LocalBackend(private val engine: InferenceEngine) : ChatBackend {
     /** The model's own tool format when its template supports tools, otherwise Bruce's (ADR 0001). */
     private suspend fun prompt(chat: BackendChat): Prompt? {
         val system = ToolChatMessage(ChatRole.SYSTEM, chat.system)
-        val conversation = chat.messages.map(::withReadableArguments)
+        val (conversation, shown) = withImages(chat.messages.map(::withReadableArguments))
         val native = engine.formatToolChat(listOf(system) + conversation, chat.tools) ?: return null
-        if (chat.tools.isEmpty() || native.format.supportsTools) return Prompt(native.text, native.format)
+        if (chat.tools.isEmpty() || native.format.supportsTools) return Prompt(native.text, native.format, shown)
 
         val grammar = engine.bruceToolGrammar(chat.tools)
         val fallbackSystem = ChatMessage(ChatRole.SYSTEM, chat.system + "\n\n" + BruceToolFormat.instructions(chat.tools))
         val formatted = engine.formatChat(listOf(fallbackSystem) + conversation.map(::bruceMessage)) ?: return null
-        return Prompt(formatted.text, ToolFormat(format = BRUCE_FORMAT, parser = "", generationPrompt = "", supportsTools = false, grammar = grammar, stops = emptyList()))
+        return Prompt(formatted.text, ToolFormat(format = BRUCE_FORMAT, parser = "", generationPrompt = "", supportsTools = false, grammar = grammar, stops = emptyList()), shown)
+    }
+
+    /**
+     * Messages with their images as the model's media markers, and the names shown, in order. A
+     * marker the user typed is removed, so markers and images always match. An image the model
+     * cannot be given (no vision projector, or the file has gone) is described instead.
+     */
+    private suspend fun withImages(messages: List<ToolChatMessage>): Pair<List<ToolChatMessage>, List<String>> {
+        if (messages.none { it.images.isNotEmpty() }) return messages to emptyList()
+        val marker = engine.mediaMarker()
+        val shown = mutableListOf<String>()
+        val result = messages.map { message ->
+            val content = marker?.let { message.content.replace(it, "") } ?: message.content
+            if (message.images.isEmpty()) return@map message.copy(content = content)
+            val usable = message.images.filter { marker != null && tokensFor(it) != null }
+            shown += usable
+            val missing = message.images.size - usable.size
+            val note = if (missing > 0) "(${if (missing == 1) "An image was" else "$missing images were"} attached that you cannot see.)\n" else ""
+            message.copy(content = marker.orEmpty().repeat(usable.size) + (if (usable.isNotEmpty()) "\n" else "") + note + content, images = usable)
+        }
+        return result to shown
+    }
+
+    private suspend fun tokensFor(name: String): Int? = imageTokens.getOrPut(name to engine.getModelInfo()?.description) {
+        val image = withContext(io) { images?.rgb(name) } ?: return@getOrPut null.also { Log.w(TAG, "image unreadable; the model is told it cannot see it") }
+        engine.imageTokens(image) ?: null.also { Log.w(TAG, "the vision projector could not take a ${image.width}x${image.height} image") }
     }
 
     private fun parse(format: ToolFormat, text: String): ParsedReply =
@@ -140,6 +199,8 @@ class LocalBackend(private val engine: InferenceEngine) : ChatBackend {
     }
 
     companion object {
+        private const val TAG = "BruceBackend"
+
         /** Marks a prompt formatted in Bruce's own format rather than one of llama.cpp's. */
         private const val BRUCE_FORMAT = -1
 

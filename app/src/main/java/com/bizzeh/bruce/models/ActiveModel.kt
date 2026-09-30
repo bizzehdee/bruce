@@ -70,9 +70,11 @@ class ActiveModel(
         mutableState.update { it.copy(loading = true, error = null) }
         val metadata = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata }
         val trained = metadata?.contextLength
-        val capped = if (trained != null && trained in 1 until config.contextLength) config.copy(contextLength = trained.toInt()) else config
+        val projector = withContext(ioDispatcher) { Projectors.installedFor(file) }
+        val capped = (if (trained != null && trained in 1 until config.contextLength) config.copy(contextLength = trained.toInt()) else config)
+            .copy(projectorPath = projector?.absolutePath)
         val result = engine.loadModel(file, capped)
-        val projectorBytes = withContext(ioDispatcher) { Projectors.bytesFor(file) }
+        val projectorBytes = projector?.length() ?: 0
         val memory = metadata?.let { ModelMemory.estimate(it, capped.contextLength, projectorBytes).totalBytes } ?: 0
         mutableState.update {
             when (result) {

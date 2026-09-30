@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.bizzeh.bruce.chat.ChatImages
 import com.bizzeh.bruce.chat.ChatMemory
 import com.bizzeh.bruce.chat.TurnObserver
 import com.bizzeh.bruce.hardware.CpuFeatures
@@ -202,7 +203,7 @@ class AppContainer(private val context: Context) {
 
     private val conversationDatabase: ConversationDatabase by lazy {
         Room.databaseBuilder(context, ConversationDatabase::class.java, ConversationDatabase.NAME)
-            .addMigrations(ConversationDatabase.MIGRATION_1_2)
+            .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3)
             .build()
     }
 
@@ -251,6 +252,9 @@ class AppContainer(private val context: Context) {
         SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
     }
 
+    /** Images attached to chats (TASK-082). */
+    val chatImages: ChatImages by lazy { ChatImages(File(context.filesDir, ChatImages.DIR), context.contentResolver) }
+
     val remoteServers: RemoteServerStore by lazy { RemoteServerStore(context.settingsDataStore, KeystoreTokenCipher(SERVER_KEY_ALIAS)) }
 
     /** The chosen server model's backend, made again only when the choice changes; null when the model is on the phone. */
@@ -260,7 +264,7 @@ class AppContainer(private val context: Context) {
         val choice = activeModel.state.value.remote ?: return null
         remoteBackend?.takeIf { it.first == choice }?.let { return it.second }
         val server = remoteServers.servers.first().firstOrNull { it.id == choice.serverId } ?: return null
-        return RemoteBackend(server, choice.model, remoteServers.key(server.id), transport, Dispatchers.IO, userAgent).also { remoteBackend = choice to it }
+        return RemoteBackend(server, choice.model, remoteServers.key(server.id), transport, Dispatchers.IO, userAgent, chatImages).also { remoteBackend = choice to it }
     }
 
     /** Stops generation wherever the chosen model runs. */
@@ -295,12 +299,13 @@ class AppContainer(private val context: Context) {
                 else -> grantScope.check(request)
             }
         }, requirementMet = ::requirementMet, sites = sites)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend)
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages)
     }
 
     val dataReset: DataReset by lazy {
         DataReset(activeModel, context.settingsDataStore, modelsDir, context.cacheDir, Dispatchers.IO) {
             conversations.deleteAll()
+            chatImages.keepOnly(emptySet())
             skillStates.reset()
             grants.clear()
             sites.clear()

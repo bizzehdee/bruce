@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.conversations
 
 import com.bizzeh.bruce.chat.ChatEntry
+import com.bizzeh.bruce.chat.ChatImages
 import com.bizzeh.bruce.chat.ToolStatus
 import com.bizzeh.bruce.chat.ToolUse
 import com.bizzeh.bruce.inference.ChatRole
@@ -60,6 +61,7 @@ class ConversationStore(
         toolCallId = entry.tool?.callId,
         toolName = entry.tool?.name,
         toolStatus = entry.tool?.status?.name,
+        imagesJson = entry.images.takeIf { it.isNotEmpty() }?.let { JSONArray(it).toString() },
     )
 
     private fun toEntry(message: MessageEntity): ChatEntry? {
@@ -79,8 +81,21 @@ class ConversationStore(
         } else {
             null
         }
-        return ChatEntry(role, message.text, toolCalls = calls, tool = tool)
+        return ChatEntry(role, message.text, toolCalls = calls, tool = tool, images = images(message.imagesJson))
     }
+
+    /** Stored names only: anything else in the column is dropped, never used as a path. */
+    private fun images(json: String?): List<String> = json?.let {
+        try {
+            val array = JSONArray(it)
+            (0 until array.length()).map(array::optString).filter(ChatImages::isName)
+        } catch (e: JSONException) {
+            emptyList()
+        }
+    }.orEmpty()
+
+    /** Every image a saved chat still shows, so the others can be deleted (TASK-082). */
+    suspend fun imagesInUse(): Set<String> = dao.imageLists().flatMap(::images).toSet()
 
     /** Blank titles are ignored; titles are trimmed and capped at [MAX_TITLE_LENGTH]. */
     suspend fun rename(id: Long, title: String) {
@@ -104,8 +119,12 @@ class ConversationStore(
         /** Titles made from the first message are cut to about this many characters, at a word boundary where one is near. */
         const val AUTO_TITLE_LENGTH = 40
 
+        const val IMAGE_TITLE = "Image"
+
         fun titleFor(entries: List<ChatEntry>): String {
-            val first = entries.firstOrNull { it.role == ChatRole.USER }?.text?.replace(Regex("\\s+"), " ")?.trim().orEmpty()
+            val request = entries.firstOrNull { it.role == ChatRole.USER }
+            val first = request?.text?.replace(Regex("\\s+"), " ")?.trim().orEmpty()
+            if (first.isEmpty() && request?.images?.isNotEmpty() == true) return IMAGE_TITLE
             if (first.length <= AUTO_TITLE_LENGTH) return first
             val cut = first.take(AUTO_TITLE_LENGTH)
             val space = cut.lastIndexOf(' ')

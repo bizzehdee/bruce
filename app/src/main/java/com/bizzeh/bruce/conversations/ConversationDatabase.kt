@@ -41,6 +41,8 @@ data class MessageEntity(
     val toolName: String? = null,
     /** A [com.bizzeh.bruce.chat.ToolStatus] name. */
     val toolStatus: String? = null,
+    /** JSON array of the stored names of images the user attached (version 3). */
+    val imagesJson: String? = null,
 )
 
 @Dao
@@ -83,6 +85,9 @@ interface ConversationDao {
     @Query("UPDATE conversations SET archived = :archived WHERE id IN (:ids)")
     suspend fun setArchived(ids: List<Long>, archived: Boolean)
 
+    @Query("SELECT imagesJson FROM messages WHERE imagesJson IS NOT NULL")
+    suspend fun imageLists(): List<String>
+
     @Query("DELETE FROM conversations WHERE id IN (:ids)")
     suspend fun delete(ids: List<Long>)
 
@@ -90,7 +95,7 @@ interface ConversationDao {
     suspend fun deleteAll()
 }
 
-@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 2)
+@Database(entities = [ConversationEntity::class, MessageEntity::class], version = 3)
 abstract class ConversationDatabase : RoomDatabase() {
     abstract fun conversations(): ConversationDao
 
@@ -101,6 +106,13 @@ abstract class ConversationDatabase : RoomDatabase() {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 listOf("toolCallsJson", "toolCallId", "toolName", "toolStatus").forEach { db.execSQL("ALTER TABLE messages ADD COLUMN $it TEXT") }
+            }
+        }
+
+        /** Version 3 (TASK-082): images attached to messages. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE messages ADD COLUMN imagesJson TEXT")
             }
         }
     }

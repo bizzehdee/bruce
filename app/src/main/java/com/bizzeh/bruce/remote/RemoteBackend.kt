@@ -10,6 +10,7 @@ import com.bizzeh.bruce.inference.ToolCall
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.runtime.BackendChat
 import com.bizzeh.bruce.runtime.ChatBackend
+import com.bizzeh.bruce.runtime.ImageSource
 import com.bizzeh.bruce.runtime.Prepared
 import com.bizzeh.bruce.runtime.RuntimeError
 import com.bizzeh.bruce.runtime.StepEvent
@@ -21,6 +22,7 @@ import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.io.IOException
+import java.util.Base64
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
@@ -36,40 +38,55 @@ class RemoteBackend(
     private val transport: HttpTransport,
     private val io: CoroutineDispatcher,
     private val userAgent: String,
+    private val images: ImageSource? = null,
 ) : ChatBackend {
-    private var context: Int? = null
+    /** What llama-server's /props says: its context size, and whether it was started with a vision projector. */
+    private data class Props(val context: Int, val vision: Boolean)
+
+    private var props: Props? = null
 
     /** Characters per token, from the server's own usage reports; a common English figure until then. */
     @Volatile private var charsPerToken = DEFAULT_CHARS_PER_TOKEN
 
     @Volatile private var open: StreamingResponse? = null
 
-    override suspend fun contextLength(): Int = context ?: readContext().also { context = it }
+    override suspend fun contextLength(): Int = props().context
 
-    /** llama-server says its context size in /props; other servers are assumed to take [FALLBACK_CONTEXT]. */
-    private suspend fun readContext(): Int = kotlinx.coroutines.withContext(io) {
+    /** Only llama-server says so, in /props (`modalities.vision`); other servers are not sent images. */
+    override suspend fun acceptsImages(): Boolean = props().vision
+
+    private suspend fun props(): Props = props ?: readProps().also { props = it }
+
+    /** llama-server's /props; other servers are assumed to take [FALLBACK_CONTEXT] and no images. */
+    private suspend fun readProps(): Props = kotlinx.coroutines.withContext(io) {
+        val unknown = Props(FALLBACK_CONTEXT, vision = false)
         try {
             transport.openSingle("${server.address}/props", headers()).use { response ->
-                if (response.status != 200) return@withContext FALLBACK_CONTEXT
-                val text = response.body.reader().readText()
-                JSONObject(text).optJSONObject("default_generation_settings")?.optInt("n_ctx")?.takeIf { it > 0 } ?: FALLBACK_CONTEXT
+                if (response.status != 200) return@withContext unknown
+                val json = JSONObject(response.body.reader().readText())
+                Props(
+                    context = json.optJSONObject("default_generation_settings")?.optInt("n_ctx")?.takeIf { it > 0 } ?: FALLBACK_CONTEXT,
+                    vision = json.optJSONObject("modalities")?.optBoolean("vision") == true,
+                )
             }
         } catch (e: IOException) {
-            FALLBACK_CONTEXT
+            unknown
         } catch (e: JSONException) {
-            FALLBACK_CONTEXT
+            unknown
         }
     }
 
     override suspend fun prepare(chat: BackendChat): Prepared {
         val characters = chat.system.length + chat.messages.sumOf { it.content.length + it.toolCalls.sumOf { call -> call.name.length + call.argumentsJson.length } } +
             chat.tools.sumOf { it.name.length + it.description.length + it.parametersJson.length }
-        val tokens = (characters / charsPerToken).toInt() + PER_MESSAGE_TOKENS * (chat.messages.size + 1)
+        val tokens = (characters / charsPerToken).toInt() + PER_MESSAGE_TOKENS * (chat.messages.size + 1) +
+            IMAGE_TOKENS * chat.messages.sumOf { it.images.size }
         return Prepared.Ready(chat, tokens, characters)
     }
 
     override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?): Flow<StepEvent> = flow {
-        val body = request(prepared.chat, maxTokens, temperature).toString().toByteArray(Charsets.UTF_8)
+        val vision = prepared.chat.messages.any { it.images.isNotEmpty() } && acceptsImages()
+        val body = request(prepared.chat, maxTokens, temperature, vision).toString().toByteArray(Charsets.UTF_8)
         val response = try {
             transport.postStream("${server.address}/v1/chat/completions", headers() + ("Content-Type" to "application/json"), body, FIRST_TOKEN_TIMEOUT_MS)
         } catch (e: IOException) {
@@ -116,7 +133,7 @@ class RemoteBackend(
         key?.let { put("Authorization", "Bearer $it") }
     }
 
-    private fun request(chat: BackendChat, maxTokens: Int, temperature: Float): JSONObject = JSONObject()
+    private fun request(chat: BackendChat, maxTokens: Int, temperature: Float, vision: Boolean): JSONObject = JSONObject()
         .put("model", model)
         .put("stream", true)
         .put("stream_options", JSONObject().put("include_usage", true))
@@ -125,7 +142,7 @@ class RemoteBackend(
         .put("chat_template_kwargs", JSONObject().put("enable_thinking", false))
         .put("messages", JSONArray().apply {
             put(JSONObject().put("role", "system").put("content", chat.system))
-            chat.messages.forEach { put(message(it)) }
+            chat.messages.forEach { put(message(it, vision)) }
         })
         .apply {
             if (chat.tools.isNotEmpty()) {
@@ -138,9 +155,9 @@ class RemoteBackend(
             }
         }
 
-    private fun message(message: ToolChatMessage): JSONObject = when (message.role) {
+    private fun message(message: ToolChatMessage, vision: Boolean): JSONObject = when (message.role) {
         ChatRole.SYSTEM -> JSONObject().put("role", "system").put("content", message.content)
-        ChatRole.USER -> JSONObject().put("role", "user").put("content", message.content)
+        ChatRole.USER -> JSONObject().put("role", "user").put("content", userContent(message, vision))
         ChatRole.ASSISTANT -> JSONObject().put("role", "assistant").put("content", message.content).apply {
             if (message.toolCalls.isNotEmpty()) {
                 put("tool_calls", JSONArray(message.toolCalls.map { call ->
@@ -149,6 +166,22 @@ class RemoteBackend(
             }
         }
         ChatRole.TOOL -> JSONObject().put("role", "tool").put("tool_call_id", message.toolCallId).put("content", message.content)
+    }
+
+    /**
+     * Text alone, or with its images as OpenAI image parts (JPEG data URLs) when the server can see
+     * them. Otherwise, or for an image that has gone, the text says an image was attached.
+     */
+    private fun userContent(message: ToolChatMessage, vision: Boolean): Any {
+        if (message.images.isEmpty()) return message.content
+        val jpegs = if (vision) message.images.mapNotNull { images?.jpeg(it) } else emptyList()
+        val missing = message.images.size - jpegs.size
+        val note = if (missing > 0) "(${if (missing == 1) "An image was" else "$missing images were"} attached that you cannot see.)\n" else ""
+        if (jpegs.isEmpty()) return note + message.content
+        return JSONArray().apply {
+            jpegs.forEach { put(JSONObject().put("type", "image_url").put("image_url", JSONObject().put("url", "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(it)))) }
+            put(JSONObject().put("type", "text").put("text", note + message.content))
+        }
     }
 
     /** One reply as it streams: text, reasoning (shown as the chat shows a model's thinking) and tool calls by index. */
@@ -211,6 +244,9 @@ class RemoteBackend(
         const val FALLBACK_CONTEXT = 8192
         private const val DEFAULT_CHARS_PER_TOKEN = 3.5
         private const val PER_MESSAGE_TOKENS = 4
+
+        /** A rough figure per image until the server's usage report corrects the estimate. */
+        private const val IMAGE_TOKENS = 256
 
         /** Long prompts on a slow server take a while before the first token. */
         private const val FIRST_TOKEN_TIMEOUT_MS = 180_000

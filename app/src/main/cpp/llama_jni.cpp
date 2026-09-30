@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <unordered_map>
@@ -18,6 +19,8 @@
 #include "ggml-backend.h"
 #include "common.h"
 #include "llama.h"
+#include "mtmd.h"
+#include "mtmd-helper.h"
 
 namespace {
 
@@ -44,12 +47,15 @@ struct PromptCache {
     // Their partial state (LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) after [checkpointTokens] tokens.
     std::vector<uint8_t> checkpoint;
     int32_t checkpointTokens = -1;
+    // Memory holds a prompt with images, which [tokens] cannot describe; nothing is reused from it.
+    bool untracked = false;
 
     void reset(llama_context *context) {
         llama_memory_clear(llama_get_memory(context), true);
         tokens.clear();
         checkpoint.clear();
         checkpointTokens = -1;
+        untracked = false;
     }
 };
 
@@ -196,6 +202,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_loadBackends(JNIEnv *env, jobject, j
     const char *dir = env->GetStringUTFChars(libraryDir, nullptr);
     std::call_once(loaded, [dir] {
         llama_log_set(forwardLog, nullptr);
+        mtmd_log_set(forwardLog, nullptr);
         ggml_backend_load_all_from_path(dir);
         llama_backend_init();
     });
@@ -474,7 +481,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
     llama_context *context = generation->context;
     PromptCache &cache = *generation->cache;
     llama_memory_t memory = llama_get_memory(context);
-    if (!reuse) {
+    if (!reuse || cache.untracked) {
         cache.reset(context);
     }
     const bruce::ReusePlan plan = bruce::planReuse(cache.tokens, tokens, cache.canCut, cache.checkpointTokens);
@@ -545,6 +552,137 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
     return count - start;
 }
 
+// Vision projectors (TASK-082): llama.cpp's multimodal context for a model's mmproj file, on the
+// CPU like the model's default. Returns 0 if it cannot be loaded or cannot see images.
+JNIEXPORT jlong JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_loadProjector(JNIEnv *env, jobject, jlong model, jstring path, jint threads) {
+    mtmd_context_params params = mtmd_context_params_default();
+    params.use_gpu = false;
+    params.print_timings = false;
+    params.warmup = false;
+    params.n_threads = threads;
+    const char *nativePath = env->GetStringUTFChars(path, nullptr);
+    mtmd_context *projector = mtmd_init_from_file(nativePath, asModel(model), params);
+    env->ReleaseStringUTFChars(path, nativePath);
+    if (projector != nullptr && !mtmd_support_vision(projector)) {
+        mtmd_free(projector);
+        projector = nullptr;
+    }
+    return reinterpret_cast<jlong>(projector);
+}
+
+JNIEXPORT void JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_freeProjector(JNIEnv *, jobject, jlong projector) {
+    mtmd_free(reinterpret_cast<mtmd_context *>(projector));
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_mediaMarker(JNIEnv *env, jobject) {
+    return env->NewStringUTF(mtmd_default_marker());
+}
+
+}  // extern "C"
+
+namespace {
+
+using Bitmaps = std::vector<std::unique_ptr<mtmd_bitmap, decltype(&mtmd_bitmap_free)>>;
+
+// RGB images from Kotlin, 3 bytes a pixel; empty if any is the wrong size.
+Bitmaps toBitmaps(JNIEnv *env, jobjectArray images, jintArray widths, jintArray heights) {
+    Bitmaps bitmaps;
+    const jsize count = env->GetArrayLength(images);
+    if (env->GetArrayLength(widths) != count || env->GetArrayLength(heights) != count) return bitmaps;
+    std::vector<jint> w(static_cast<size_t>(count)), h(static_cast<size_t>(count));
+    env->GetIntArrayRegion(widths, 0, count, w.data());
+    env->GetIntArrayRegion(heights, 0, count, h.data());
+    for (jsize i = 0; i < count; ++i) {
+        auto pixels = reinterpret_cast<jbyteArray>(env->GetObjectArrayElement(images, i));
+        const jsize length = env->GetArrayLength(pixels);
+        if (w[i] <= 0 || h[i] <= 0 || static_cast<int64_t>(w[i]) * h[i] * 3 != length) {
+            env->DeleteLocalRef(pixels);
+            return {};
+        }
+        std::vector<unsigned char> rgb(static_cast<size_t>(length));
+        env->GetByteArrayRegion(pixels, 0, length, reinterpret_cast<jbyte *>(rgb.data()));
+        env->DeleteLocalRef(pixels);
+        bitmaps.emplace_back(mtmd_bitmap_init(static_cast<uint32_t>(w[i]), static_cast<uint32_t>(h[i]), rgb.data()), &mtmd_bitmap_free);
+    }
+    return bitmaps;
+}
+
+// The prompt split into text and image chunks; null if the images do not match its markers.
+std::unique_ptr<mtmd_input_chunks, decltype(&mtmd_input_chunks_free)> tokenizeWithImages(
+        mtmd_context *projector, const std::string &prompt, const Bitmaps &bitmaps) {
+    std::unique_ptr<mtmd_input_chunks, decltype(&mtmd_input_chunks_free)> chunks(mtmd_input_chunks_init(), &mtmd_input_chunks_free);
+    std::vector<const mtmd_bitmap *> pointers;
+    for (const auto &bitmap : bitmaps) pointers.push_back(bitmap.get());
+    mtmd_input_text text{};
+    text.text = prompt.c_str();
+    text.text_len = prompt.size();
+    text.add_special = true;
+    text.parse_special = true;
+    if (mtmd_tokenize(projector, chunks.get(), &text, pointers.data(), pointers.size()) != 0) {
+        chunks.reset();
+    }
+    return chunks;
+}
+
+std::string bytesToString(JNIEnv *env, jbyteArray bytes) {
+    const jsize length = env->GetArrayLength(bytes);
+    std::string text(static_cast<size_t>(length), '\0');
+    env->GetByteArrayRegion(bytes, 0, length, reinterpret_cast<jbyte *>(text.data()));
+    return text;
+}
+
+}  // namespace
+
+extern "C" {
+
+// How many context tokens one image takes with this projector, or -1 if it cannot be read.
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_imageTokens(
+        JNIEnv *env, jobject, jlong projector, jobjectArray images, jintArray widths, jintArray heights) {
+    auto *mctx = reinterpret_cast<mtmd_context *>(projector);
+    const Bitmaps bitmaps = toBitmaps(env, images, widths, heights);
+    if (bitmaps.size() != 1) return -1;
+    const auto chunks = tokenizeWithImages(mctx, mtmd_default_marker(), bitmaps);
+    if (!chunks) return -1;
+    size_t tokens = 0;
+    for (size_t i = 0; i < mtmd_input_chunks_size(chunks.get()); ++i) {
+        const mtmd_input_chunk *chunk = mtmd_input_chunks_get(chunks.get(), i);
+        if (mtmd_input_chunk_get_type(chunk) != MTMD_INPUT_CHUNK_TYPE_TEXT) tokens += mtmd_input_chunk_get_n_tokens(chunk);
+    }
+    return static_cast<jint>(tokens);
+}
+
+// As evaluatePrompt, for a prompt with one media marker per image. Nothing is reused: the context
+// is cleared first and afterwards, as image positions do not line up with the prompt's tokens.
+JNIEXPORT jint JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePromptWithImages(
+        JNIEnv *env, jobject, jlong handle, jlong projector, jbyteArray promptUtf8, jobjectArray images, jintArray widths, jintArray heights) {
+    Generation *generation = asGeneration(handle);
+    auto *mctx = reinterpret_cast<mtmd_context *>(projector);
+    llama_context *context = generation->context;
+    generation->cache->reset(context);
+
+    const Bitmaps bitmaps = toBitmaps(env, images, widths, heights);
+    if (bitmaps.size() != static_cast<size_t>(env->GetArrayLength(images))) return kDecodeFailed;
+    const auto chunks = tokenizeWithImages(mctx, bytesToString(env, promptUtf8), bitmaps);
+    if (!chunks) return kDecodeFailed;
+    const size_t count = mtmd_helper_get_n_tokens(chunks.get());
+    if (count >= llama_n_ctx(context)) return kPromptTooLong;
+
+    llama_pos past = 0;
+    const int32_t status = mtmd_helper_eval_chunks(mctx, context, chunks.get(), 0, 0, static_cast<int32_t>(llama_n_batch(context)), true, &past);
+    if (status != 0) {
+        generation->cache->reset(context);
+        return kDecodeFailed;
+    }
+    generation->cache->untracked = true;
+    __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt with %zu images: %zu tokens", bitmaps.size(), count);
+    return static_cast<jint>(count);
+}
+
 JNIEXPORT jint JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_nextToken(JNIEnv *, jobject, jlong handle) {
     Generation *generation = asGeneration(handle);
@@ -560,7 +698,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_nextToken(JNIEnv *, jobject, jlong h
         generation->cache->reset(generation->context);
         return kDecodeFailed;
     }
-    generation->cache->tokens.push_back(token);
+    if (!generation->cache->untracked) generation->cache->tokens.push_back(token);
     return kToken;
 }
 

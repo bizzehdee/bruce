@@ -64,6 +64,34 @@ class RemoteBackendTest {
 
     private fun run(prepared: Prepared.Ready = runBlocking { backend.prepare(chat) as Prepared.Ready }) = runBlocking { backend.generate(prepared, 200, 0.3f).toList() }
 
+    private val images = object : com.bizzeh.bruce.runtime.ImageSource {
+        override fun rgb(name: String): com.bizzeh.bruce.inference.RgbImage? = null
+        override fun jpeg(name: String): ByteArray? = if (name == "a.jpg") byteArrayOf(1, 2, 3) else null
+    }
+
+    private fun picture(message: String, vararg names: String) =
+        BackendChat("You are Bruce.", listOf(ToolChatMessage(ChatRole.USER, message, images = names.toList())), emptyList())
+
+    @Test
+    fun imagesGoAsDataUrlsOnlyToAServerThatCanSeeThem() = runBlocking {
+        props = """{"default_generation_settings":{"n_ctx":4096},"modalities":{"vision":true}}"""
+        val seeing = RemoteBackend(server, "vlm", null, transport, Dispatchers.Unconfined, "x", images)
+        assertTrue(seeing.acceptsImages())
+        val prepared = seeing.prepare(picture("What is this?", "a.jpg", "gone.jpg")) as Prepared.Ready
+        assertTrue("images are counted", prepared.tokens > 256)
+        seeing.generate(prepared, 10, 0f).toList()
+
+        val content = JSONObject(posted.last().third).getJSONArray("messages").getJSONObject(1).getJSONArray("content")
+        assertEquals("data:image/jpeg;base64,AQID", content.getJSONObject(0).getJSONObject("image_url").getString("url"))
+        assertEquals("(An image was attached that you cannot see.)\nWhat is this?", content.getJSONObject(1).getString("text"))
+
+        props = """{"default_generation_settings":{"n_ctx":4096},"modalities":{"vision":false}}"""
+        val blind = RemoteBackend(server, "llm", null, transport, Dispatchers.Unconfined, "x", images)
+        assertEquals(false, blind.acceptsImages())
+        blind.generate(blind.prepare(picture("And this?", "a.jpg")) as Prepared.Ready, 10, 0f).toList()
+        assertEquals("(An image was attached that you cannot see.)\nAnd this?", JSONObject(posted.last().third).getJSONArray("messages").getJSONObject(1).getString("content"))
+    }
+
     @Test
     fun theContextSizeComesFromTheServerOnce() = runBlocking {
         assertEquals(4096, backend.contextLength())

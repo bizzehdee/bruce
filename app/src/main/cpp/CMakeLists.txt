@@ -54,6 +54,11 @@ add_subdirectory(${EXTERNAL_DIR}/OpenCL-ICD-Loader opencl-icd-loader EXCLUDE_FRO
 set(OpenCL_INCLUDE_DIR ${EXTERNAL_DIR}/OpenCL-Headers CACHE PATH "" FORCE)
 set(OpenCL_LIBRARY OpenCL CACHE STRING "" FORCE)
 
+# Images for vision models (TASK-082): llama.cpp's multimodal library on its own. Video is off: it
+# runs ffmpeg as a subprocess.
+set(LLAMA_BUILD_MTMD ON CACHE BOOL "" FORCE)
+set(MTMD_VIDEO OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(llama.cpp)
 
 # Tool-call formats (docs/adr/0001-tool-calling-format.md): llama.cpp's chat, template, parser and
@@ -105,7 +110,8 @@ target_link_libraries(bruce_chat PUBLIC llama vendor::nlohmann vendor::sheredom)
 
 add_library(bruce SHARED llama_jni.cpp chat_tools.cpp cpu_features.cpp prompt_cache.cpp template_one_line.cpp vulkan_devices.cpp)
 target_include_directories(bruce PRIVATE ${EXTERNAL_DIR}/Vulkan-Headers/include)
-target_link_libraries(bruce PRIVATE llama ggml log vulkan bruce_chat)
+target_link_libraries(bruce PRIVATE llama ggml log vulkan bruce_chat mtmd)
 add_custom_command(TARGET bruce POST_BUILD
     COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DLIBRARY=$<TARGET_FILE:bruce> -P ${CMAKE_CURRENT_SOURCE_DIR}/check_no_network.cmake
+    COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DLIBRARY=$<TARGET_FILE:mtmd> -P ${CMAKE_CURRENT_SOURCE_DIR}/check_no_network.cmake
     VERBATIM)

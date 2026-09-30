@@ -52,6 +52,12 @@ interface InferenceEngine {
     /** How many tokens [prompt] takes in the loaded model's context; null with no model loaded. */
     suspend fun countTokens(prompt: String): Int?
 
+    /** How many context tokens [image] takes with the loaded vision projector; null without one (TASK-082). */
+    suspend fun imageTokens(image: RgbImage): Int? = null
+
+    /** The text that stands for an image in a prompt, one per image in order; null without a vision projector. */
+    fun mediaMarker(): String? = null
+
     /** The loaded context's length in tokens; null with no model loaded. */
     fun contextLength(): Int?
 }
@@ -83,6 +89,8 @@ data class GenerationRequest(
     val reusePrompt: Boolean = true,
     /** The part of [prompt] the next one will share, when a pass branches off the chat (TASK-047). */
     val checkpointPrefix: String? = null,
+    /** Images for the prompt's media markers, in order (TASK-082); nothing is reused with them. */
+    val images: List<RgbImage> = emptyList(),
 ) {
     init {
         require(maxTokens > 0) { "maxTokens must be positive, was $maxTokens" }
@@ -115,6 +123,8 @@ enum class GenerationError {
     DECODE_FAILED,
     /** The request's grammar or its triggers could not be used with this model. */
     GRAMMAR_REJECTED,
+    /** The request has images and the model has no vision projector loaded, or they could not be read. */
+    IMAGES_UNUSABLE,
 }
 
 data class GenerationStats(
@@ -141,6 +151,8 @@ data class LoadConfig(
     val backend: BackendPreference = BackendPreference.AUTO,
     /** A chat template to use instead of the file's own, e.g. one fetched for tool support (TASK-063). */
     val chatTemplate: String? = null,
+    /** The model's vision projector (TASK-083), loaded with it so it can see images. */
+    val projectorPath: String? = null,
 ) {
     init {
         require(contextLength > 0) { "contextLength must be positive, was $contextLength" }
@@ -154,7 +166,16 @@ data class ModelInfo(
     val parameterCount: Long,
     val sizeBytes: Long,
     val trainedContextLength: Int,
+    /** A vision projector is loaded: the model can be given images (TASK-082). */
+    val vision: Boolean = false,
 )
+
+/** An image as the model takes it: [rgb] holds 3 bytes a pixel, row by row. */
+class RgbImage(val width: Int, val height: Int, val rgb: ByteArray) {
+    init {
+        require(width > 0 && height > 0 && rgb.size.toLong() == width.toLong() * height * 3) { "not a ${width}x$height RGB image" }
+    }
+}
 
 sealed interface LoadResult {
     /**

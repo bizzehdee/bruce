@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.performFirstLinkClick
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.test.longClick
 import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.ui.theme.BruceTheme
@@ -211,6 +213,33 @@ class ChatScreenTest {
         compose.onNodeWithTag("imageNotAllowed").assertIsDisplayed()
         compose.onNodeWithTag("loadImage").assertDoesNotExist()
         assertEquals(listOf("https://example.com/d.png"), loads)
+    }
+
+    @Test
+    fun imagesCanBeAddedRemovedSentAndSeen() {
+        var state by androidx.compose.runtime.mutableStateOf(ChatState(modelName = "m"))
+        val imageActions = object : ChatActions by actions {
+            override fun attachImage() { calls += "attach" }
+            override fun removeAttachment(name: String) { calls += "remove $name" }
+            override suspend fun thumbnail(name: String) = if (name == "a.jpg") android.graphics.Bitmap.createBitmap(4, 4, android.graphics.Bitmap.Config.ARGB_8888).asImageBitmap() else null
+        }
+        compose.setContent { BruceTheme { ChatScreen(state, imageActions) } }
+
+        compose.onNodeWithTag("attachImage").assertDoesNotExist()
+        state = state.copy(canAttach = true)
+        compose.onNodeWithTag("attachImage").performClick()
+        state = state.copy(attachments = listOf("a.jpg", "b.jpg"))
+        compose.onNodeWithTag("image:a.jpg", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("image:b.jpg", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("send").assertIsEnabled()
+        compose.onNodeWithTag("removeAttachment:b.jpg").performClick()
+        state = state.copy(attachments = List(MAX_ATTACHMENTS) { "x$it.jpg" })
+        compose.onNodeWithTag("attachImage").assertIsNotEnabled()
+        state = state.copy(attachments = emptyList(), entries = listOf(ChatEntry(ChatRole.USER, "", images = listOf("a.jpg"))))
+        compose.onNodeWithTag("attachments").assertDoesNotExist()
+        compose.onNodeWithTag("image:a.jpg", useUnmergedTree = true).assertExists()
+
+        assertEquals(listOf("attach", "remove b.jpg"), calls)
     }
 
     @Test

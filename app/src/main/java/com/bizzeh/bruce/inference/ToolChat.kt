@@ -16,6 +16,8 @@ data class ToolChatMessage(
     val toolCalls: List<ToolCall> = emptyList(),
     val toolCallId: String = "",
     val toolName: String = "",
+    /** Images the user attached, by stored name (TASK-082). */
+    val images: List<String> = emptyList(),
 )
 
 /**

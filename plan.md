@@ -302,7 +302,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Voice** — Speech-to-text, text-to-speech, voice conversations; local where
   practical. `done` (TASK-074, TASK-080, TASK-081)
 - **Vision** — Local multimodal models for images, documents, screenshots.
-  `in progress` (projectors download with vision models, TASK-083)
+  `in progress` (images in chat on the phone and through servers, TASK-082 and TASK-083; documents, TASK-084)
 - **Advanced automation and background workflows** — Multi-step and multi-file tasks,
   scheduled tasks, reminders, within Android background limits. `planned`
 - **Bruce Plus purchase** — One-time Google Play purchase unlocking a paid
@@ -456,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Images in chat: photos and screenshots go to vision models on the phone (llama.cpp mtmd) or to a server that can see them (TASK-082). |
 | 2026-09-30 | Changed | Vision models download with their image projector, counted in the memory estimate (TASK-083); images in chat follow (TASK-082). |
 | 2026-09-30 | Changed | Voice conversations done: long-press the microphone to talk hands-free (TASK-081). |
 | 2026-09-30 | Changed | Replies can be read aloud with the phone's text-to-speech, an offline voice preferred (TASK-080). |

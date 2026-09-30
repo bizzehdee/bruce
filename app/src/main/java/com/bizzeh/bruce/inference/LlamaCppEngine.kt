@@ -25,7 +25,8 @@ internal class LlamaCppEngine(
     private val dispatcher: CoroutineDispatcher,
     private val timeSource: TimeSource = TimeSource.Monotonic,
 ) : InferenceEngine {
-    private class Session(val model: Long, val context: Long, val info: ModelInfo, val contextLength: Int, val chatTemplate: String?) {
+    /** [projector] is the vision projector's handle, 0 for none (TASK-082). */
+    private class Session(val model: Long, val context: Long, val info: ModelInfo, val contextLength: Int, val chatTemplate: String?, val projector: Long) {
         /** The model's chat templates for tool formats, made the first time they are needed; 0 if unusable. */
         var templates: Long? = null
     }
@@ -100,7 +101,7 @@ internal class LlamaCppEngine(
                 return@withLock
             }
             try {
-                streamCompletion(generation, request)
+                streamCompletion(generation, request, current.projector)
             } finally {
                 llama.endGeneration(generation)
             }
@@ -134,6 +135,17 @@ internal class LlamaCppEngine(
     }
 
     override fun contextLength(): Int? = session?.contextLength
+
+    override suspend fun imageTokens(image: RgbImage): Int? = mutex.withLock {
+        withContext(dispatcher) {
+            val projector = session?.projector?.takeIf { it != 0L } ?: return@withContext null
+            llama.imageTokens(projector, arrayOf(image.rgb), intArrayOf(image.width), intArrayOf(image.height)).takeIf { it >= 0 }
+        }
+    }
+
+    override fun mediaMarker(): String? = session?.takeIf { it.projector != 0L }?.let { marker }
+
+    private val marker: String by lazy { llama.mediaMarker() }
 
     override suspend fun formatToolChat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, enableThinking: Boolean): ToolChatPrompt? =
         mutex.withLock {
@@ -215,9 +227,19 @@ internal class LlamaCppEngine(
         )
     }
 
-    private suspend fun FlowCollector<GenerationEvent>.streamCompletion(generation: Long, request: GenerationRequest) {
+    private suspend fun FlowCollector<GenerationEvent>.streamCompletion(generation: Long, request: GenerationRequest, projector: Long) {
+        if (request.images.isNotEmpty() && projector == 0L) return emit(GenerationEvent.Failed(GenerationError.IMAGES_UNUSABLE))
         val promptStart = timeSource.markNow()
-        val promptTokens = llama.evaluatePrompt(generation, request.prompt.toByteArray(Charsets.UTF_8), request.reusePrompt, request.checkpointPrefix.orEmpty().toByteArray(Charsets.UTF_8))
+        val prompt = request.prompt.toByteArray(Charsets.UTF_8)
+        val promptTokens = if (request.images.isEmpty()) {
+            llama.evaluatePrompt(generation, prompt, request.reusePrompt, request.checkpointPrefix.orEmpty().toByteArray(Charsets.UTF_8))
+        } else {
+            val images = request.images
+            llama.evaluatePromptWithImages(
+                generation, projector, prompt,
+                images.map { it.rgb }.toTypedArray(), images.map { it.width }.toIntArray(), images.map { it.height }.toIntArray(),
+            )
+        }
         when (promptTokens) {
             LlamaApi.PROMPT_TOO_LONG -> return emit(GenerationEvent.Failed(GenerationError.PROMPT_TOO_LONG))
             LlamaApi.DECODE_FAILED -> return emit(GenerationEvent.Failed(GenerationError.DECODE_FAILED))
@@ -308,19 +330,23 @@ internal class LlamaCppEngine(
             return AttemptResult.Failed(LoadError.CONTEXT_CREATION_FAILED)
         }
 
+        // A projector that will not load leaves the model working, without images.
+        val projector = config.projectorPath?.let { llama.loadProjector(model, it, config.threads) } ?: 0L
         val info = ModelInfo(
             description = llama.modelDescription(model),
             parameterCount = llama.modelParameterCount(model),
             sizeBytes = llama.modelSizeBytes(model),
             trainedContextLength = llama.modelTrainedContextLength(model),
+            vision = projector != 0L,
         )
-        return AttemptResult.Opened(Session(model, context, info, config.contextLength, config.chatTemplate))
+        return AttemptResult.Opened(Session(model, context, info, config.contextLength, config.chatTemplate, projector))
     }
 
     private fun release() {
         val current = session ?: return
         session = null
         current.templates?.takeIf { it != 0L }?.let(llama::chatTemplatesFree)
+        if (current.projector != 0L) llama.freeProjector(current.projector)
         llama.freeContext(current.context)
         llama.freeModel(current.model)
     }

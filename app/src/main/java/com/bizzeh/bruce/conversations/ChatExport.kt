@@ -53,7 +53,7 @@ class ChatExport(private val zone: ZoneId) {
     }
 
     private fun markdownEntry(entry: ChatEntry): String = when (entry.role) {
-        ChatRole.USER -> "\n**You:**\n\n${entry.text}\n"
+        ChatRole.USER -> "\n**You:**\n\n" + images(entry.images.size) + "${entry.text}\n"
         ChatRole.SYSTEM -> "\n**Summary of earlier messages:**\n\n${entry.text}\n"
         ChatRole.ASSISTANT -> buildString {
             val answer = ThinkingText.split(entry.text).answer.trim()
@@ -86,6 +86,8 @@ class ChatExport(private val zone: ZoneId) {
 
     private fun jsonEntry(entry: ChatEntry): JSONObject {
         val message = JSONObject().put("role", entry.role.wireName).put("text", entry.text)
+        // The images themselves stay on the phone; the export says how many there were.
+        if (entry.images.isNotEmpty()) message.put("imageCount", entry.images.size)
         if (entry.toolCalls.isNotEmpty()) {
             message.put("toolCalls", JSONArray(entry.toolCalls.map { JSONObject().put("id", it.id).put("name", it.name).put("arguments", it.argumentsJson) }))
         }
@@ -103,6 +105,12 @@ class ChatExport(private val zone: ZoneId) {
         fun safeFileName(title: String): String =
             title.map { if (it.isISOControl() || it in "/\\:*?\"<>|") ' ' else it }.joinToString("")
                 .replace(Regex("\\s+"), " ").trim().trimStart('.').take(MAX_FILE_NAME).trim()
+
+        private fun images(count: Int): String = when (count) {
+            0 -> ""
+            1 -> "*(1 image, not exported)*\n\n"
+            else -> "*($count images, not exported)*\n\n"
+        }
 
         /** Inline code that holds any text: the fence is one backtick longer than the longest run inside. */
         private fun code(text: String): String {

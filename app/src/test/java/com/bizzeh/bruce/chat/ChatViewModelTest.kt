@@ -80,6 +80,42 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun imagesGoWithTheNextMessageWhenTheModelCanSeeThem() = runTest(dispatcher) {
+        var seeing = true
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, acceptsImages = { seeing })
+        advanceUntilIdle()
+        assertTrue(vm.state.value.canAttach)
+
+        vm.attach("a.jpg")
+        vm.attach("b.jpg")
+        vm.attach("a.jpg")
+        vm.removeAttachment("b.jpg")
+        assertEquals(listOf("a.jpg"), vm.state.value.attachments)
+        turns += reply("A moon.")
+        vm.send()
+        advanceUntilIdle()
+
+        assertEquals(listOf("a.jpg"), histories.single().single().images)
+        assertEquals(listOf("a.jpg"), saved.getValue(1).first().images)
+        assertTrue(vm.state.value.attachments.isEmpty())
+        vm.newChat()
+        assertTrue(vm.state.value.canAttach, "kept for the next chat")
+
+        seeing = false
+        activeModel.value = ActiveModelState(active = File("Llama.gguf"))
+        advanceUntilIdle()
+        assertFalse(vm.state.value.canAttach)
+    }
+
+    @Test
+    fun nothingIsSentWithoutTextOrImages() = runTest(dispatcher) {
+        val vm = viewModel()
+        vm.send()
+        advanceUntilIdle()
+        assertTrue(histories.isEmpty())
+    }
+
+    @Test
     fun contextUseIsMeasuredAfterEachTurnAndWhenTheChatOrModelChanges() = runTest(dispatcher) {
         val measured = mutableListOf<Int>()
         val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, measure = { history, _ ->

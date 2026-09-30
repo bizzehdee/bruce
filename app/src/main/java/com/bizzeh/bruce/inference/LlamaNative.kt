@@ -91,6 +91,23 @@ internal interface LlamaApi {
 
     fun endGeneration(generation: Long)
 
+    /** [model]'s vision projector from its mmproj file (TASK-082), or 0 if it cannot be loaded or cannot see images. */
+    fun loadProjector(model: Long, path: String, threads: Int): Long
+
+    fun freeProjector(projector: Long)
+
+    /** The text a prompt uses for each image, which [evaluatePromptWithImages] replaces with it. */
+    fun mediaMarker(): String
+
+    /** Context tokens for the single image given, or -1 if it cannot be read. Images are 3-byte RGB. */
+    fun imageTokens(projector: Long, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int
+
+    /**
+     * As [evaluatePrompt], for a prompt with one media marker per image, in order. The context is
+     * cleared and nothing is reused from it afterwards.
+     */
+    fun evaluatePromptWithImages(generation: Long, projector: Long, promptUtf8: ByteArray, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int
+
     companion object {
         // Must match the status codes in llama_jni.cpp.
         const val PROMPT_TOO_LONG = -1
@@ -171,4 +188,21 @@ internal object LlamaNative : LlamaApi {
     external override fun takePiece(generation: Long): ByteArray
 
     external override fun endGeneration(generation: Long)
+
+    external override fun loadProjector(model: Long, path: String, threads: Int): Long
+
+    external override fun freeProjector(projector: Long)
+
+    external override fun mediaMarker(): String
+
+    external override fun imageTokens(projector: Long, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int
+
+    external override fun evaluatePromptWithImages(
+        generation: Long,
+        projector: Long,
+        promptUtf8: ByteArray,
+        images: Array<ByteArray>,
+        widths: IntArray,
+        heights: IntArray,
+    ): Int
 }

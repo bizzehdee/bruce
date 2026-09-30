@@ -129,6 +129,31 @@ internal class FakeLlamaApi : LlamaApi {
         endedGenerations += generation
     }
 
+    var projectorHandle = 40L
+    val projectorRequests = mutableListOf<Pair<String, Int>>()
+    val freedProjectors = mutableListOf<Long>()
+    var imageTokenResult = 64
+    var lastImages: List<Triple<Int, Int, Int>>? = null
+
+    override fun loadProjector(model: Long, path: String, threads: Int): Long {
+        projectorRequests += path to threads
+        return projectorHandle
+    }
+
+    override fun freeProjector(projector: Long) {
+        freedProjectors += projector
+    }
+
+    override fun mediaMarker() = "<__media__>"
+
+    override fun imageTokens(projector: Long, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int = imageTokenResult
+
+    override fun evaluatePromptWithImages(generation: Long, projector: Long, promptUtf8: ByteArray, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int {
+        lastPrompt = promptUtf8
+        lastImages = images.indices.map { Triple(widths[it], heights[it], images[it].size) }
+        return promptResult
+    }
+
     var grammarGenerationResult = 31L
     var lastGrammar: String? = null
 

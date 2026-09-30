@@ -10,6 +10,8 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.compose.ui.graphics.asImageBitmap
 import com.bizzeh.bruce.chat.VoiceConversation
 import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.gguf.GgufReadResult
@@ -124,12 +126,13 @@ class MainActivity : ComponentActivity() {
                 container.chatMemory,
                 container.turnObserver,
                 container::stopModel,
+                container.runtime::acceptsImages,
             )
         }
     }
     private val conversations: ConversationsViewModel by viewModels {
         factory {
-            ConversationsViewModel(container.conversations, { ids -> chat.forget(ids) }, { uri -> contentResolver.openOutputStream(Uri.parse(uri), "wt") })
+            ConversationsViewModel(container.conversations, { ids -> chat.forget(ids); removeUnusedImages() }, { uri -> contentResolver.openOutputStream(Uri.parse(uri), "wt") })
         }
     }
     private val models: ModelsViewModel by viewModels {
@@ -195,6 +198,7 @@ class MainActivity : ComponentActivity() {
             handleOpenChat(intent)
         }
         container.stopTurn = { chat.stop() }
+        if (savedInstanceState == null) removeUnusedImages()
         lifecycleScope.launch(Dispatchers.IO) { capabilities.value = container.engine.getCapabilities() }
         enableEdgeToEdge()
         setContent {
@@ -449,6 +453,22 @@ class MainActivity : ComponentActivity() {
         exportLaunchers.getValue(format).launch(conversations.requestExport(ExportRequest(ids, format)))
     }
 
+    private val imagePicker = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            lifecycleScope.launch {
+                val name = withContext(Dispatchers.IO) { container.chatImages.save(uri) }
+                if (name != null) chat.attach(name) else Toast.makeText(this@MainActivity, R.string.chat_image_unreadable, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /** Deletes stored images no saved chat shows, keeping those waiting to be sent. */
+    private fun removeUnusedImages() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            container.chatImages.keepOnly(container.conversations.imagesInUse() + chat.state.value.attachments)
+        }
+    }
+
     private val readAloud by lazy { ReadAloud(AndroidReplySpeaker(applicationContext)) }
 
     private val voice: VoiceRecogniser by lazy { AndroidVoiceRecogniser(applicationContext) }
@@ -546,6 +566,9 @@ class MainActivity : ComponentActivity() {
         }
         override fun stopReading() = readAloud.stop()
         override fun startConversation() = withMicrophone(voiceConversation::start)
+        override fun attachImage() = imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        override fun removeAttachment(name: String) = chat.removeAttachment(name)
+        override suspend fun thumbnail(name: String) = withContext(Dispatchers.IO) { container.chatImages.thumbnail(name, THUMBNAIL_SIDE)?.asImageBitmap() }
         override fun endConversation() = voiceConversation.stop()
     }
 
@@ -631,6 +654,9 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         const val MODELS_DIR = AppContainer.MODELS_DIR
+
+        /** Pixels a side for chat image previews. */
+        private const val THUMBNAIL_SIDE = 480
 
         /** Where the user gets their own Brave Search key (research/sources/brave-search-api-2026-09-29). */
         private const val BRAVE_SIGN_UP = "https://api-dashboard.search.brave.com/register"

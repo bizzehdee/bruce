@@ -12,6 +12,10 @@
     <string name="chat_conversation_waiting">Voice conversation: %1$s is answering…</string>
     <string name="chat_conversation_speaking">Voice conversation: %1$s is speaking…</string>
     <string name="chat_conversation_end">End</string>
+    <string name="chat_image">Attached image</string>
+    <string name="chat_image_attach">Add an image</string>
+    <string name="chat_image_remove">Remove image</string>
+    <string name="chat_image_unreadable">That image could not be read.</string>
     <string name="chat_read_aloud">Read aloud</string>
     <string name="chat_read_stop">Stop reading</string>
     <string name="chat_read_network">This voice sends the text to its provider over the internet. Install an offline voice in Android\'s text-to-speech settings to keep it on the phone.</string>

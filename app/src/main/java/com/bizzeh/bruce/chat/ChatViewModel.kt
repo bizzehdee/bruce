@@ -41,6 +41,8 @@ data class ChatEntry(
     val toolCalls: List<ToolCall> = emptyList(),
     /** Set on [ChatRole.TOOL] entries: which skill ran and what went back to the model. */
     val tool: ToolUse? = null,
+    /** Images the user attached to a message, by stored name (TASK-082). */
+    val images: List<String> = emptyList(),
 )
 
 enum class ToolStatus { RAN, REFUSED, AWAITING_APPROVAL, DECLINED }
@@ -76,6 +78,10 @@ data class ChatState(
     val speech: SpeechState = SpeechState(),
     /** A voice conversation's phase; null when none is running. */
     val conversation: ConversationPhase? = null,
+    /** Images waiting to go with the next message, by stored name (TASK-082). */
+    val attachments: List<String> = emptyList(),
+    /** The chosen model can be given images. */
+    val canAttach: Boolean = false,
 )
 
 enum class ChatError {
@@ -113,6 +119,8 @@ class ChatViewModel(
     private val turns: TurnObserver = TurnObserver.None,
     /** Stops generation wherever the model runs; the phone's engine unless a server's model is in use. */
     private val stopModel: () -> Unit = engine::stop,
+    /** Whether the chosen model can be given images (BruceRuntime.acceptsImages). */
+    private val acceptsImages: suspend () -> Boolean = { false },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -129,6 +137,8 @@ class ChatViewModel(
         viewModelScope.launch {
             activeModel.collect { model ->
                 mutableState.update { it.copy(modelName = model.active?.nameWithoutExtension ?: model.remote?.label) }
+                val images = acceptsImages()
+                mutableState.update { it.copy(canAttach = images) }
                 remeasure()
             }
         }
@@ -141,13 +151,22 @@ class ChatViewModel(
         mutableState.update { it.copy(input = input) }
     }
 
+    /** Adds a stored image to the next message. */
+    fun attach(name: String) {
+        mutableState.update { if (name in it.attachments) it else it.copy(attachments = it.attachments + name) }
+    }
+
+    fun removeAttachment(name: String) {
+        mutableState.update { it.copy(attachments = it.attachments - name) }
+    }
+
     fun send() {
         val current = mutableState.value
         val text = current.input.trim()
-        if (text.isEmpty() || current.generating) return
-        val history = current.entries + ChatEntry(ChatRole.USER, text)
+        if ((text.isEmpty() && current.attachments.isEmpty()) || current.generating) return
+        val history = current.entries + ChatEntry(ChatRole.USER, text, images = current.attachments)
         val turnSession = session
-        mutableState.update { it.copy(input = "", entries = history, generating = true, error = null) }
+        mutableState.update { it.copy(input = "", attachments = emptyList(), entries = history, generating = true, error = null) }
         turns.turnStarted()
         turn = viewModelScope.launch {
             val summarised = try {
@@ -279,7 +298,7 @@ class ChatViewModel(
             session++
             pending.clear()
             recalled = null
-            mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries) }
+            mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, conversationId = id, entries = entries, canAttach = it.canAttach) }
             remeasure()
         }
     }
@@ -296,7 +315,7 @@ class ChatViewModel(
         session++
         pending.clear()
         recalled = null
-        mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick) }
+        mutableState.update { ChatState(modelName = it.modelName, sidekick = it.sidekick, canAttach = it.canAttach) }
         remeasure()
     }
 
@@ -345,7 +364,7 @@ class ChatViewModel(
         ChatRole.TOOL -> ToolChatMessage(ChatRole.TOOL, entry.text, toolCallId = entry.tool?.callId.orEmpty(), toolName = entry.tool?.name.orEmpty())
         // A summary note: the runtime puts it in the system prompt in place of the messages before it.
         ChatRole.SYSTEM -> ToolChatMessage(ChatRole.SYSTEM, entry.text)
-        else -> ToolChatMessage(entry.role, entry.text)
+        else -> ToolChatMessage(entry.role, entry.text, images = entry.images)
     }
 
     private fun chatError(error: RuntimeError) = when (error) {

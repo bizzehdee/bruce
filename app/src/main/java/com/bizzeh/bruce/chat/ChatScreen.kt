@@ -4,6 +4,12 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.IconButton
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.runtime.produceState
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.shape.CircleShape
@@ -83,6 +89,13 @@ interface ChatActions {
     fun readAloud(index: Int) = Unit
     fun stopReading() = Unit
 
+    /** Opens the photo picker for an image to send (TASK-082). */
+    fun attachImage() = Unit
+    fun removeAttachment(name: String) = Unit
+
+    /** A small copy of a stored chat image, for showing it; null when it has gone. */
+    suspend fun thumbnail(name: String): ImageBitmap? = null
+
     /** Hands-free chat from a long press on the microphone (TASK-081). */
     fun startConversation() = Unit
     fun endConversation() = Unit
@@ -120,6 +133,7 @@ fun ChatScreen(
                 )
             }
             state.conversation?.let { ConversationBar(it, state.sidekick, actions) }
+            if (state.attachments.isNotEmpty()) Attachments(state, actions)
             Composer(state, actions)
         }
     }
@@ -179,7 +193,7 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
                 )
             }
             when {
-                entry.role == ChatRole.USER -> UserMessage(entry.text)
+                entry.role == ChatRole.USER -> UserMessage(entry.text, entry.images, actions)
                 entry.role == ChatRole.SYSTEM -> SummaryNote(index, entry.text)
                 entry.tool?.status == ToolStatus.AWAITING_APPROVAL -> ConfirmationCard(entry.tool, state.confirmations[entry.tool.callId], !state.generating, actions)
                 // Skill use is not shown: people want the answer (owner, 2026-09-29). It is still saved.
@@ -312,14 +326,56 @@ private fun SummaryNote(index: Int, text: String) {
 }
 
 @Composable
-private fun UserMessage(text: String) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-        Surface(
-            color = MaterialTheme.colorScheme.primaryContainer,
-            shape = RoundedCornerShape(20.dp, 20.dp, 4.dp, 20.dp),
-            modifier = Modifier.widthIn(max = 320.dp),
-        ) {
-            Text(text, modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp), color = MaterialTheme.colorScheme.onPrimaryContainer)
+private fun UserMessage(text: String, images: List<String>, actions: ChatActions) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        images.forEach { Thumbnail(it, actions, size = 160.dp) }
+        if (text.isNotEmpty()) {
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = RoundedCornerShape(20.dp, 20.dp, 4.dp, 20.dp),
+                modifier = Modifier.widthIn(max = 320.dp),
+            ) {
+                Text(text, modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp), color = MaterialTheme.colorScheme.onPrimaryContainer)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Thumbnail(name: String, actions: ChatActions, size: androidx.compose.ui.unit.Dp) {
+    val image by produceState<ImageBitmap?>(null, name) { value = actions.thumbnail(name) }
+    val shape = RoundedCornerShape(12.dp)
+    val loaded = image
+    if (loaded == null) {
+        Box(modifier = Modifier.size(size).clip(shape).background(MaterialTheme.colorScheme.surfaceVariant).testTag("image:$name"))
+    } else {
+        Image(
+            loaded,
+            contentDescription = stringResource(R.string.chat_image),
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.size(size).clip(shape).testTag("image:$name"),
+        )
+    }
+}
+
+@Composable
+private fun Attachments(state: ChatState, actions: ChatActions) {
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("attachments"), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        state.attachments.forEach { name ->
+            Box {
+                Thumbnail(name, actions, size = 64.dp)
+                IconButton(
+                    onClick = { actions.removeAttachment(name) },
+                    modifier = Modifier.align(Alignment.TopEnd).size(28.dp).testTag("removeAttachment:$name"),
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_close),
+                        contentDescription = stringResource(R.string.chat_image_remove),
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f), CircleShape).padding(2.dp),
+                    )
+                }
+            }
         }
     }
 }
@@ -432,6 +488,11 @@ private fun Composer(state: ChatState, actions: ChatActions) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        if (state.canAttach) {
+            IconButton(onClick = actions::attachImage, enabled = state.attachments.size < MAX_ATTACHMENTS, modifier = Modifier.testTag("attachImage")) {
+                Icon(painterResource(R.drawable.ic_image), contentDescription = stringResource(R.string.chat_image_attach), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         OutlinedTextField(
             value = state.input,
             onValueChange = actions::setInput,
@@ -452,7 +513,7 @@ private fun Composer(state: ChatState, actions: ChatActions) {
         } else {
             FilledIconButton(
                 onClick = actions::send,
-                enabled = state.input.isNotBlank() && state.modelName != null,
+                enabled = (state.input.isNotBlank() || state.attachments.isNotEmpty()) && state.modelName != null,
                 modifier = Modifier.testTag("send"),
             ) {
                 Icon(painterResource(R.drawable.ic_send), contentDescription = stringResource(R.string.chat_send))
@@ -460,6 +521,9 @@ private fun Composer(state: ChatState, actions: ChatActions) {
         }
     }
 }
+
+/** Each image takes hundreds of context tokens and seconds to encode on a phone. */
+const val MAX_ATTACHMENTS = 4
 
 internal object ChatText {
     @StringRes

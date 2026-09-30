@@ -14,9 +14,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Chats saved by version 1 survive the upgrade to version 2. The version 1 database is built from
- * the exported schema (app/schemas, added to the device-test assets), and Room validates the
- * migrated tables against version 2 when it opens them. Room's own MigrationTestHelper is not
+ * Chats saved by earlier versions survive the upgrades to the current one. Each old database is
+ * built from its exported schema (app/schemas, added to the device-test assets), and Room validates
+ * the migrated tables against the current version when it opens them. Room's own MigrationTestHelper is not
  * used: it needs a newer kotlinx-serialization than the app ships.
  */
 @RunWith(AndroidJUnit4::class)
@@ -29,8 +29,8 @@ class ConversationMigrationTest {
         instrumentation.targetContext.deleteDatabase(file.name)
     }
 
-    private fun createVersion1() {
-        val schema = instrumentation.context.assets.open("${ConversationDatabase::class.java.name}/1.json").bufferedReader().use { JSONObject(it.readText()) }
+    private fun create(version: Int, rows: List<String>) {
+        val schema = instrumentation.context.assets.open("${ConversationDatabase::class.java.name}/$version.json").bufferedReader().use { JSONObject(it.readText()) }
             .getJSONObject("database")
         file.parentFile!!.mkdirs()
         SQLiteDatabase.openOrCreateDatabase(file, null).use { db ->
@@ -44,20 +44,26 @@ class ConversationMigrationTest {
             }
             val setup = schema.getJSONArray("setupQueries")
             for (i in 0 until setup.length()) db.execSQL(setup.getString(i))
-            db.execSQL("INSERT INTO conversations (id, title, createdAt, updatedAt, archived) VALUES (1, 'Old chat', 10, 20, 0)")
-            db.execSQL("INSERT INTO messages (id, conversationId, position, role, text) VALUES (1, 1, 0, 'USER', 'Hello')")
-            db.execSQL("INSERT INTO messages (id, conversationId, position, role, text) VALUES (2, 1, 1, 'ASSISTANT', 'Hi there')")
-            db.version = 1
+            rows.forEach(db::execSQL)
+            db.version = version
         }
     }
 
+    private val version1Rows = listOf(
+        "INSERT INTO conversations (id, title, createdAt, updatedAt, archived) VALUES (1, 'Old chat', 10, 20, 0)",
+        "INSERT INTO messages (id, conversationId, position, role, text) VALUES (1, 1, 0, 'USER', 'Hello')",
+        "INSERT INTO messages (id, conversationId, position, role, text) VALUES (2, 1, 1, 'ASSISTANT', 'Hi there')",
+    )
+
+    private fun open() = Room.databaseBuilder(instrumentation.targetContext, ConversationDatabase::class.java, file.name)
+        .addMigrations(ConversationDatabase.MIGRATION_1_2, ConversationDatabase.MIGRATION_2_3)
+        .build()
+
     @Test
     fun version1ChatsSurviveTheUpgrade() = runBlocking {
-        createVersion1()
+        create(1, version1Rows)
 
-        val database = Room.databaseBuilder(instrumentation.targetContext, ConversationDatabase::class.java, file.name)
-            .addMigrations(ConversationDatabase.MIGRATION_1_2)
-            .build()
+        val database = open()
         val store = ConversationStore(database.conversations())
 
         assertEquals(listOf("Old chat"), store.active.first().map { it.title })
@@ -65,6 +71,18 @@ class ConversationMigrationTest {
         assertEquals(listOf(ChatRole.USER, ChatRole.ASSISTANT), messages.map { it.role })
         assertEquals(listOf("Hello", "Hi there"), messages.map { it.text })
         assertEquals(emptyList<Any>(), messages.flatMap { it.toolCalls })
+        database.close()
+    }
+
+    @Test
+    fun version2ToolResultsSurviveAndHaveNoImages() = runBlocking {
+        create(2, version1Rows + "INSERT INTO messages (id, conversationId, position, role, text, toolCallId, toolName, toolStatus) VALUES (3, 1, 2, 'TOOL', '{}', 'c1', 'get_datetime', 'RAN')")
+
+        val database = open()
+        val messages = ConversationStore(database.conversations()).load(1)!!
+
+        assertEquals("get_datetime", messages.last().tool?.name)
+        assertEquals(emptyList<String>(), messages.flatMap { it.images })
         database.close()
     }
 }

@@ -141,6 +141,16 @@ class ChatExportTest {
     }
 
     @Test
+    fun imagesAreCountedButNotExported() {
+        val withImages = chat.copy(entries = listOf(ChatEntry(ChatRole.USER, "What is this?", images = listOf("a.jpg", "b.jpg"))))
+
+        assertTrue(write(ExportFormat.MARKDOWN, withImages).second.contains("**You:**\n\n*(2 images, not exported)*\n\nWhat is this?"))
+        val message = JSONObject(write(ExportFormat.JSON, withImages).second).getJSONArray("conversations").getJSONObject(0).getJSONArray("messages").getJSONObject(0)
+        assertEquals(2, message.getInt("imageCount"))
+        assertFalse(message.toString().contains("a.jpg"))
+    }
+
+    @Test
     fun anEmptyExportIsStillValidJson() {
         val (count, text) = write(ExportFormat.JSON)
 

@@ -110,10 +110,15 @@ class BruceRuntime(
     private val maxReplyTokens: Int = MAX_REPLY_TOKENS,
     /** A remote server's backend when the chosen model runs on one (TASK-076); otherwise the phone's. */
     private val remote: suspend () -> ChatBackend? = { null },
+    /** Images attached to chats (TASK-082). */
+    images: ImageSource? = null,
 ) {
-    private val local = LocalBackend(engine)
+    private val local = LocalBackend(engine, images)
 
     private suspend fun backend(): ChatBackend = remote() ?: local
+
+    /** Whether the chosen model can be given images (TASK-082). */
+    suspend fun acceptsImages(): Boolean = backend().acceptsImages()
 
     /** [memory] is what the chat recalled from earlier chats (TASK-047); the same for every turn of a chat, so the prompt stays reusable. */
     fun respond(history: List<ToolChatMessage>, memory: List<String> = emptyList()): Flow<RuntimeEvent> = flow {
@@ -343,7 +348,9 @@ class BruceRuntime(
      * The pass continues the chat's own prompt, with [memory] as the chat has it, so the chat's part
      * is reused; its end is marked for checkpointing, so the next turn can reuse it too.
      */
-    suspend fun extractFacts(history: List<ToolChatMessage>, memory: List<String> = emptyList()): List<String>? {
+    suspend fun extractFacts(chatHistory: List<ToolChatMessage>, memory: List<String> = emptyList()): List<String>? {
+        // Facts come from what was said; seeing the images again would mean encoding them again.
+        val history = chatHistory.map { if (it.images.isEmpty()) it else it.copy(images = emptyList()) }
         val offer = offer(memory)
         val backend = backend()
         val asked = backend.prepare(chat(history + ToolChatMessage(ChatRole.USER, FACTS_INSTRUCTIONS), offer.tools, offer)) as? Prepared.Ready ?: return null
