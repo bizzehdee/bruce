@@ -201,7 +201,7 @@ class MainActivity : ComponentActivity() {
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates, container.unmetRequirements) } }
     private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
-    private val reminders: RemindersViewModel by viewModels { factory { RemindersViewModel(container.reminders) } }
+    private val reminders: RemindersViewModel by viewModels { factory { RemindersViewModel(container.reminders, container.scheduledTasks) } }
     private val setup: SetupViewModel by viewModels {
         factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
     }
@@ -216,7 +216,10 @@ class MainActivity : ComponentActivity() {
         if (savedInstanceState == null) {
             removeUnusedImages()
             // Alarms are cleared when Bruce is force-stopped; setting them again is harmless.
-            lifecycleScope.launch(Dispatchers.IO) { container.reminders.rescheduleAll() }
+            lifecycleScope.launch(Dispatchers.IO) {
+                container.reminders.rescheduleAll()
+                container.scheduledTasks.rescheduleAll()
+            }
         }
         watchPhotoRequests()
         lifecycleScope.launch(Dispatchers.IO) { capabilities.value = container.engine.getCapabilities() }
@@ -407,6 +410,7 @@ class MainActivity : ComponentActivity() {
     @androidx.compose.runtime.Composable
     private fun Reminders(onBack: () -> Unit) {
         val upcoming by reminders.reminders.collectAsState()
+        val scheduled by reminders.scheduled.collectAsState()
         // Read again each time the screen shows, as the user may have just allowed exact alarms.
         var exact by remember { mutableStateOf(true) }
         androidx.lifecycle.compose.LifecycleResumeEffect(Unit) {
@@ -416,10 +420,11 @@ class MainActivity : ComponentActivity() {
         val actions = remember {
             object : RemindersActions {
                 override fun cancel(reminder: Reminder) = reminders.cancel(reminder)
+                override fun cancelTask(task: com.bizzeh.bruce.reminders.ScheduledTask) = reminders.cancel(task)
                 override fun allowExact() = openExactAlarmSettings()
             }
         }
-        RemindersScreen(upcoming, exact, actions, onBack)
+        RemindersScreen(upcoming, exact, actions, scheduled, onBack)
     }
 
     /** Android 12+'s page for letting Bruce set exact alarms. */

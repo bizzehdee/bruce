@@ -120,18 +120,22 @@ class BruceRuntime(
     /** Whether the chosen model can be given images (TASK-082). */
     suspend fun acceptsImages(): Boolean = backend().acceptsImages()
 
-    /** [memory] is what the chat recalled from earlier chats (TASK-047); the same for every turn of a chat, so the prompt stays reusable. */
-    fun respond(history: List<ToolChatMessage>, memory: List<String> = emptyList()): Flow<RuntimeEvent> = flow {
+    /**
+     * [memory] is what the chat recalled from earlier chats (TASK-047); the same for every turn of a
+     * chat, so the prompt stays reusable. An [unattended] turn (a scheduled task, TASK-095) never
+     * waits for approval: what needs it is refused and the model told why.
+     */
+    fun respond(history: List<ToolChatMessage>, memory: List<String> = emptyList(), unattended: Boolean = false): Flow<RuntimeEvent> = flow {
         val added = mutableListOf<ToolChatMessage>()
         try {
-            withTimeout(maxDuration) { loop(history, memory, added) }
+            withTimeout(maxDuration) { loop(history, memory, added, unattended) }
         } catch (e: TimeoutCancellationException) {
             backend().stop()
             emit(RuntimeEvent.Failed(RuntimeError.TIMED_OUT, added.toList()))
         }
     }
 
-    private suspend fun FlowCollector<RuntimeEvent>.loop(history: List<ToolChatMessage>, memory: List<String>, added: MutableList<ToolChatMessage>) {
+    private suspend fun FlowCollector<RuntimeEvent>.loop(history: List<ToolChatMessage>, memory: List<String>, added: MutableList<ToolChatMessage>, unattended: Boolean) {
         val offer = offer(memory)
         val tools = offer.tools
         var calls = 0
@@ -175,6 +179,8 @@ class BruceRuntime(
                 when (val decision = policy.decide(call.name, call.argumentsJson)) {
                     is PolicyDecision.Allowed -> result(call, policy.execute(decision).toString().also { results[key] = it }, ran = true, added, history)
                     is PolicyDecision.Denied -> result(call, policy.refusal(decision).toString().also { results[key] = it }, ran = false, added)
+                    is PolicyDecision.NeedsConfirmation if unattended ->
+                        result(call, policy.refusal(policy.unattended(decision)).toString().also { results[key] = it }, ran = false, added)
                     is PolicyDecision.NeedsConfirmation -> {
                         emit(RuntimeEvent.NeedsConfirmation(call, decision))
                         // Every call gets a result, so the conversation stays well formed when the turn resumes.

@@ -96,6 +96,10 @@ class PolicyEngine(
     fun declined(pending: PolicyDecision.NeedsConfirmation): PolicyDecision.Denied =
         deny(pending.request, DenialCode.USER_DENIED, "The user declined this.", userCanChange = false)
 
+    /** A scheduled run asked for something the user must approve, with no one there to do so (TASK-095). */
+    fun unattended(pending: PolicyDecision.NeedsConfirmation): PolicyDecision.Denied =
+        deny(pending.request, DenialCode.CONFIRMATION_REQUIRED, "This is a scheduled task and the user is not here to approve this, so it was not done. Tell them what you would have done.", userCanChange = true)
+
     private fun changed(request: SkillRequest) =
         deny(request, DenialCode.CONFIRMATION_REQUIRED, "Settings or files changed after the user was asked, so the approval no longer applies.", userCanChange = false, retryable = true)
 

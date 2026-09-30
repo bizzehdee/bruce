@@ -41,12 +41,55 @@ interface ReminderDao {
     suspend fun deleteAll()
 }
 
-@Database(entities = [ReminderEntity::class], version = 1)
+/** A prompt Bruce runs at [nextAt], again each day or week when it repeats (TASK-095). */
+@Entity(tableName = "scheduled_tasks")
+data class ScheduledTaskEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val prompt: String,
+    val nextAt: Long,
+    /** A [Repeat] name. */
+    val repeat: String,
+)
+
+@Dao
+interface ScheduledTaskDao {
+    @Query("SELECT * FROM scheduled_tasks ORDER BY nextAt, id")
+    fun all(): Flow<List<ScheduledTaskEntity>>
+
+    @Query("SELECT * FROM scheduled_tasks ORDER BY nextAt, id")
+    suspend fun allNow(): List<ScheduledTaskEntity>
+
+    @Query("SELECT * FROM scheduled_tasks WHERE id = :id")
+    suspend fun task(id: Long): ScheduledTaskEntity?
+
+    @Insert
+    suspend fun insert(task: ScheduledTaskEntity): Long
+
+    @Query("UPDATE scheduled_tasks SET nextAt = :nextAt WHERE id = :id")
+    suspend fun reschedule(id: Long, nextAt: Long)
+
+    @Query("DELETE FROM scheduled_tasks WHERE id = :id")
+    suspend fun delete(id: Long): Int
+
+    @Query("DELETE FROM scheduled_tasks")
+    suspend fun deleteAll()
+}
+
+@Database(entities = [ReminderEntity::class, ScheduledTaskEntity::class], version = 2)
 abstract class ReminderDatabase : RoomDatabase() {
     abstract fun reminders(): ReminderDao
 
+    abstract fun tasks(): ScheduledTaskDao
+
     companion object {
         const val NAME = "reminders.db"
+
+        /** Version 2 (TASK-095): scheduled tasks. */
+        val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE IF NOT EXISTS `scheduled_tasks` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `prompt` TEXT NOT NULL, `nextAt` INTEGER NOT NULL, `repeat` TEXT NOT NULL)")
+            }
+        }
     }
 }
 

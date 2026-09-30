@@ -55,7 +55,7 @@ class RemindersTest {
     private fun at(text: String) = LocalDateTime.parse(text).atZone(london).toInstant().toEpochMilli()
     private val now = at("2026-09-30T10:00")
     private var offered = 0
-    private val skill = ReminderSkills(store, { offered++ }, { london }, { now }, sdk = 34).create().single()
+    private val skill = ReminderSkills(store, inexact = { offered++ }, zone = { london }, clock = { now }, sdk = 34).create().single()
 
     @After
     fun tearDown() = database.close()
@@ -129,6 +129,23 @@ class RemindersTest {
         compose.onNodeWithTag("cancelReminder:4").performClick()
         compose.onNodeWithTag("allowExact").performClick()
         assertEquals(listOf("cancel 4", "exact"), calls)
+    }
+
+    @Test
+    fun scheduledTasksAreListedWithTheirRepeatAndCancelled() {
+        val calls = mutableListOf<String>()
+        val actions = object : RemindersActions {
+            override fun cancel(reminder: Reminder) = Unit
+            override fun cancelTask(task: ScheduledTask) { calls += "task ${task.id}" }
+            override fun allowExact() = Unit
+        }
+        compose.setContent { BruceTheme { RemindersScreen(emptyList(), true, actions, listOf(ScheduledTask(3, "Weather", now, Repeat.DAILY))) {} } }
+
+        compose.onNodeWithText("Scheduled tasks").assertExists()
+        compose.onNodeWithText("Every day", substring = true).assertExists()
+        compose.onNodeWithTag("remindersEmpty").assertDoesNotExist()
+        compose.onNodeWithTag("cancelTask:3").performClick()
+        assertEquals(listOf("task 3"), calls)
     }
 
     @Test

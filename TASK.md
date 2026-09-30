@@ -666,10 +666,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Device-tested on the Xperia 1 II (`ReminderDeviceTest`, manual): a reminder set a minute ahead, with Bruce stopped when the test ended, was scheduled as an exact RTC_WAKEUP alarm and posted at 13:19:27 for 13:19:21. The exact-alarm offer and the Reminders screen were not seen on a phone (unit and screen tests only).
   - Depends on: TASK-041, TASK-048
   - Required by: TASK-095
-- [ ] TASK-095: Scheduled tasks
+- [x] TASK-095: Scheduled tasks
   - Owner (2026-09-30): phone models run scheduled tasks only while charging; server models any time.
   - The user schedules a prompt to run later or repeatedly (WorkManager); the reply arrives as a notification and a chat. Skills in the Ask state wait for the user rather than run unattended.
   - Open question: whether scheduled runs may load a model in the background (memory and battery cost) or only run while charging.
+  - Owner (2026-09-30): WorkManager (androidx.work 2.12.0, Apache-2.0, no advisories; `research/sources/androidx-work-2026-09-30`).
+  - Done (`reminders/ScheduledTasks.kt`, `WorkManagerTasks.kt`): `schedule_task` (prompt; `at` or `in_minutes`; once, daily or weekly), off by default and approved every time (a task later runs on its own). Tasks live in `reminders.db` version 2 and one unique WorkManager job each, with the charging condition when the phone's model will run it; at run time a phone model not charging waits for charging again, a server model runs at once. A run loads the chosen model if none is loaded (waiting for a load already under way), asks the runtime for an unattended turn (anything needing approval is refused and the model told why, a new runtime option), saves the request and answer as a new chat and posts "Your reply is ready" (or "A scheduled task did not run"). Repeating tasks move to their next time. Tasks show on the Reminders screen with Cancel; all are queued again at app start and after a reboot or update; Clear all data removes them. Runs fit WorkManager's ten minutes, so no foreground service type is needed.
+  - Device-tested on the Xperia 1 II (USB power, battery full): a task scheduled a minute ahead by `ScheduledTaskDeviceTest` ran at 13:52:39 with Qwen3.5-0.8B loaded in the background (766-token prompt) and posted "Your reply is ready" at 13:53:08; `ReminderMigrationTest` (1→2) passed. Two earlier tries failed: the test's force stop cancelled the job (now re-queued at start), and a run gave up while the app's own start-up load was under way (now waits; failures logged) (`.learnings/background-work-and-force-stop.md`).
   - Depends on: TASK-048, TASK-052, TASK-094
 - [ ] TASK-096: Local RAG: index granted files
   - Owner (2026-09-30): research the embedding model on the phones, pick the best fit and record the evidence.

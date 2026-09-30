@@ -36,6 +36,11 @@ import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
 import com.bizzeh.bruce.inference.ToolChatMessage
+import android.os.BatteryManager
+import com.bizzeh.bruce.chat.ChatEntry
+import com.bizzeh.bruce.runtime.RuntimeError
+import com.bizzeh.bruce.runtime.RuntimeEvent
+import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.memory.MemoryDatabase
 import com.bizzeh.bruce.memory.MemorySettingsRepository
 import com.bizzeh.bruce.memory.MemoryStore
@@ -64,6 +69,9 @@ import com.bizzeh.bruce.skills.calendar.AndroidCalendarStore
 import com.bizzeh.bruce.reminders.AndroidReminderScheduler
 import com.bizzeh.bruce.reminders.ReminderDatabase
 import com.bizzeh.bruce.reminders.ReminderSkills
+import com.bizzeh.bruce.reminders.ScheduledTasks
+import com.bizzeh.bruce.reminders.TaskOutcome
+import com.bizzeh.bruce.reminders.WorkManagerTasks
 import com.bizzeh.bruce.reminders.ReminderStore
 import com.bizzeh.bruce.skills.camera.CameraSkills
 import com.bizzeh.bruce.skills.camera.PhotoRequests
@@ -265,7 +273,7 @@ class AppContainer(private val context: Context) {
                 LocationSkills(AndroidLocationSource(context), onScreen = { onScreen }).create() +
                 ContactSkills(AndroidContacts(context.contentResolver, context.resources), Dispatchers.IO).create() +
                 CameraSkills(photoRequests, onScreen = { onScreen }).create() +
-                ReminderSkills(reminders, inexact = { offerExactReminders.value = true }).create() +
+                ReminderSkills(reminders, scheduledTasks, inexact = { offerExactReminders.value = true }).create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
@@ -281,10 +289,53 @@ class AppContainer(private val context: Context) {
         SkillRequirement.SEARCH_KEY -> searchKey.saved.first()
     }
 
-    private val reminderDatabase: ReminderDatabase by lazy { Room.databaseBuilder(context, ReminderDatabase::class.java, ReminderDatabase.NAME).build() }
+    private val reminderDatabase: ReminderDatabase by lazy { Room.databaseBuilder(context, ReminderDatabase::class.java, ReminderDatabase.NAME).addMigrations(ReminderDatabase.MIGRATION_1_2).build() }
 
     /** Reminders set by the reminders skill (TASK-094). */
     val reminders: ReminderStore by lazy { ReminderStore(reminderDatabase.reminders(), AndroidReminderScheduler(context)) }
+
+    /** Prompts Bruce runs later (TASK-095); a phone model runs them only while charging. */
+    val scheduledTasks: ScheduledTasks by lazy {
+        ScheduledTasks(
+            reminderDatabase.tasks(),
+            WorkManagerTasks(context),
+            run = ::runScheduled,
+            usesPhoneModel = { activeModel.state.value.remote == null },
+            charging = { context.getSystemService(BatteryManager::class.java).isCharging },
+            announce = { outcome ->
+                when (outcome) {
+                    is TaskOutcome.Answered -> replyNotifications.replyReady(outcome.conversationId, outcome.reply)
+                    is TaskOutcome.Failed -> replyNotifications.post(context.getString(R.string.tasks_failed_title), outcome.reason)
+                }
+            },
+        )
+    }
+
+    /** One scheduled prompt as a new chat, loading the chosen model first if nothing is loaded. */
+    private suspend fun runScheduled(prompt: String): TaskOutcome {
+        val local = { activeModel.state.value.remote == null }
+        // The app may be loading the model itself as it starts; a second load would only replace it.
+        activeModel.state.first { !it.loading }
+        if (local() && engine.getModelInfo() == null) modelSelection.restore()
+        if (local() && engine.getModelInfo() == null) {
+            Log.w(TASKS_TAG, "scheduled task: no model loaded (${activeModel.state.value.error}, ${activeModel.state.value.installed.size} installed)")
+            return TaskOutcome.Failed(context.getString(R.string.tasks_failed_no_model))
+        }
+        Log.i(TASKS_TAG, "scheduled task: running")
+        var reply: String? = null
+        var failure: RuntimeError? = null
+        runtime.respond(listOf(ToolChatMessage(ChatRole.USER, prompt)), unattended = true).collect { event ->
+            when (event) {
+                is RuntimeEvent.Step -> if (event.toolCalls.isEmpty()) reply = event.content.trim()
+                is RuntimeEvent.Failed -> failure = event.error
+                else -> Unit
+            }
+        }
+        val answer = reply?.takeIf { it.isNotEmpty() } ?: return TaskOutcome.Failed(context.getString(R.string.tasks_failed_no_reply, failure?.name ?: "none"))
+            .also { Log.w(TASKS_TAG, "scheduled task: no reply (${failure?.name})") }
+        val id = conversations.save(null, listOf(ChatEntry(ChatRole.USER, prompt), ChatEntry(ChatRole.ASSISTANT, answer)))
+        return TaskOutcome.Answered(id, answer)
+    }
 
     /** Set when a reminder had to be inexact, so the screen can offer exact timing once. */
     val offerExactReminders = MutableStateFlow(false)
@@ -361,6 +412,7 @@ class AppContainer(private val context: Context) {
             conversations.deleteAll()
             chatImages.keepOnly(emptySet())
             reminders.deleteAll()
+            scheduledTasks.deleteAll()
             skillStates.reset()
             grants.clear()
             sites.clear()
@@ -388,6 +440,7 @@ class AppContainer(private val context: Context) {
 
         /** Tool-call markup a skill result must not be able to imitate (ADR 0001 formats). */
         private val EXACT_REMINDERS_ASKED = androidx.datastore.preferences.core.booleanPreferencesKey("exact_reminders_asked")
+        private const val TASKS_TAG = "BruceTasks"
         private val RESERVED_MARKERS = listOf("<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>", "<|tool_call_start|>", "<|tool_call_end|>")
     }
 }

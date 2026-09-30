@@ -156,6 +156,21 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun anUnattendedTurnRefusesWhatNeedsApprovalAndCarriesOn() = runBlocking {
+        engine.steps += Step("", ParsedReply("Saving.", "", listOf(ToolCall("write_note", "{}", "a"))))
+        engine.steps += Step("", ParsedReply("I could not save it while you were away.", "", emptyList()))
+
+        val events = runtime().respond(question, unattended = true).toList()
+
+        assertTrue(events.none { it is RuntimeEvent.NeedsConfirmation })
+        val refusal = JSONObject(events.filterIsInstance<RuntimeEvent.ToolResult>().single().resultJson)
+        assertEquals("CONFIRMATION_REQUIRED", refusal.getString("code"))
+        assertTrue(refusal.getString("message").startsWith("This is a scheduled task"))
+        assertEquals("I could not save it while you were away.", events.filterIsInstance<RuntimeEvent.Step>().last().content)
+        assertTrue(ran.isEmpty())
+    }
+
+    @Test
     fun callsAfterOneAwaitingApprovalGetAResultButDoNotRun() {
         engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("write_note", "{}", "a"), ToolCall("get_datetime", "{}", "b"))))
 

@@ -129,6 +129,9 @@ dependencies {
     implementation(libs.commonmark.ext.gfm.tables)
     // PDF text (TASK-084). BouncyCastle 1.72, which it brings for encrypted PDFs only, has known
     // advisories (research/sources/pdfbox-android-2026-09-30); it is left out and encrypted PDFs refused.
+    // Scheduled tasks (TASK-095): charging conditions, retries and reboots (research/sources/androidx-work-2026-09-30).
+    implementation(libs.androidx.work.runtime.ktx)
+    testImplementation(libs.androidx.work.testing)
     implementation(libs.pdfbox.android) {
         exclude(group = "org.bouncycastle")
     }

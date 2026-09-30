@@ -305,7 +305,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `done` (images, TASK-082 and TASK-083; PDF and text documents, TASK-084; screenshots come through the photo picker)
 - **Advanced automation and background workflows** — Multi-step and multi-file tasks,
   scheduled tasks, reminders, within Android background limits. `in progress`
-  (reminders done, TASK-094)
+  (reminders, TASK-094; scheduled tasks, TASK-095; multi-step multi-file tasks not planned as tasks yet)
 - **Bruce Plus purchase** — One-time Google Play purchase unlocking a paid
   tier. Dropped: every feature is free. `dropped`
 - **Data ownership controls** — Export and delete conversations, delete memories
@@ -457,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Scheduled tasks done with WorkManager (owner): once, daily or weekly; phone models only while charging; unattended runs never use skills that need approval (TASK-095). |
 | 2026-09-30 | Changed | Reminders done: exact alarms where allowed (offered once), otherwise inexact and said so; listed and cancelled in Settings, Reminders; restored after restarts (TASK-094). |
 | 2026-09-30 | Changed | Camera skill done: opens the camera, the user takes the photo, it goes with their next message; no microphone skill (owner) (TASK-093). |
 | 2026-09-30 | Changed | Contacts skill done: find by name, only the detail asked for (TASK-092). |

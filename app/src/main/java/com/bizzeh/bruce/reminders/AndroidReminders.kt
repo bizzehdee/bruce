@@ -62,7 +62,7 @@ class ReminderReceiver : BroadcastReceiver() {
     }
 }
 
-/** Sets reminders' alarms again after a reboot or an update of Bruce, which clear them. */
+/** Sets reminders' alarms and scheduled tasks' work again after a reboot or an update of Bruce. */
 class RemindersRestorer : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED && intent.action != Intent.ACTION_MY_PACKAGE_REPLACED) return
@@ -71,6 +71,7 @@ class RemindersRestorer : BroadcastReceiver() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 container.reminders.rescheduleAll()
+                container.scheduledTasks.rescheduleAll()
             } finally {
                 done.finish()
             }
