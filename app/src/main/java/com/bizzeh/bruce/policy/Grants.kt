@@ -53,6 +53,9 @@ interface DocumentAccess {
 
     /** Moves [document] from [from] into [to]; the moved document, or null if the provider cannot. */
     fun move(document: Uri, from: Uri, to: Uri): DocumentRef?
+
+    /** When [document] last changed, in epoch milliseconds; null if the provider does not say (TASK-096). */
+    fun lastModified(document: Uri): Long? = null
 }
 
 /** The user's grants. Only the Permissions screen adds or revokes them; nothing the model reaches holds this store. */

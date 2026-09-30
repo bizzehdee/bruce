@@ -152,7 +152,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   all models). Bruce saves facts automatically; the user reviews and deletes them
   in a Memory screen. Local knowledge follows with Local RAG. `done`
 - **Local RAG** — Text extraction, chunking, local embeddings, local index,
-  retrieval. Basic in Free, advanced in `planned`
+  retrieval. `in progress` (index of granted files with EmbeddingGemma-300M, TASK-096; search skill, TASK-097)
 - **Untrusted content handling** — Content from files, web pages and tool results
   is passed to the model as data and never grants authority. `done`
 
@@ -457,6 +457,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Local file index done: EmbeddingGemma-300M chosen from measurements (research/experiments/embedding-models-2026-09-30), downloaded on request, updated with grants and daily while charging (TASK-096). |
 | 2026-09-30 | Changed | Scheduled tasks done with WorkManager (owner): once, daily or weekly; phone models only while charging; unattended runs never use skills that need approval (TASK-095). |
 | 2026-09-30 | Changed | Reminders done: exact alarms where allowed (offered once), otherwise inexact and said so; listed and cancelled in Settings, Reminders; restored after restarts (TASK-094). |
 | 2026-09-30 | Changed | Camera skill done: opens the camera, the user takes the photo, it goes with their next message; no microphone skill (owner) (TASK-093). |

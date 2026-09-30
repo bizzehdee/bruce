@@ -146,6 +146,12 @@ internal class FakeLlamaApi : LlamaApi {
 
     override fun mediaMarker() = "<__media__>"
 
+    override fun loadEmbedder(path: String, contextLength: Int, threads: Int): Long = 50L
+
+    override fun freeEmbedder(embedder: Long) = Unit
+
+    override fun embed(embedder: Long, textUtf8: ByteArray): FloatArray? = floatArrayOf(1f, 0f)
+
     override fun imageTokens(projector: Long, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int = imageTokenResult
 
     override fun evaluatePromptWithImages(generation: Long, projector: Long, promptUtf8: ByteArray, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int {

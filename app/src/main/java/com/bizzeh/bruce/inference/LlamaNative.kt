@@ -108,6 +108,14 @@ internal interface LlamaApi {
      */
     fun evaluatePromptWithImages(generation: Long, projector: Long, promptUtf8: ByteArray, images: Array<ByteArray>, widths: IntArray, heights: IntArray): Int
 
+    /** An embedding model with its own context on the CPU (TASK-096); 0 if it cannot be loaded or pools no embeddings. */
+    fun loadEmbedder(path: String, contextLength: Int, threads: Int): Long
+
+    fun freeEmbedder(embedder: Long)
+
+    /** The text's L2-normalised embedding, or null; text past the context is cut. */
+    fun embed(embedder: Long, textUtf8: ByteArray): FloatArray?
+
     companion object {
         // Must match the status codes in llama_jni.cpp.
         const val PROMPT_TOO_LONG = -1
@@ -205,4 +213,10 @@ internal object LlamaNative : LlamaApi {
         widths: IntArray,
         heights: IntArray,
     ): Int
+
+    external override fun loadEmbedder(path: String, contextLength: Int, threads: Int): Long
+
+    external override fun freeEmbedder(embedder: Long)
+
+    external override fun embed(embedder: Long, textUtf8: ByteArray): FloatArray?
 }

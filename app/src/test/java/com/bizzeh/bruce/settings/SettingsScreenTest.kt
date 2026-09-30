@@ -42,6 +42,10 @@ class SettingsScreenTest {
         override fun clearAllData() { calls += "clear" }
         override fun deleteAllConversations() { calls += "deleteChats" }
         override fun exportAllConversations(format: com.bizzeh.bruce.conversations.ExportFormat) { calls += "export $format" }
+        override fun downloadSearchModel() { calls += "search download" }
+        override fun updateIndex() { calls += "search update" }
+        override fun removeSearch() { calls += "search remove" }
+        override fun openSearchModelTerms() { calls += "search terms" }
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
         override fun removeSite(host: String) { calls += "remove $host" }
         override fun saveSearchKey(key: String) { calls += "key $key" }
@@ -296,6 +300,35 @@ class SettingsScreenTest {
         compose.onNodeWithTag("export:JSON").performClick()
 
         assertEquals(listOf("export JSON"), calls)
+    }
+
+    @Test
+    fun fileSearchIsSetUpUpdatedAndRemoved() {
+        var state by androidx.compose.runtime.mutableStateOf(
+            SettingsState(network = NetworkMode.HUGGING_FACE, fileSearch = FileSearchState(com.bizzeh.bruce.search.SetupState(installed = false), com.bizzeh.bruce.search.IndexStatus())),
+        )
+        compose.setContent { BruceTheme { SettingsScreen(state, actions) {} } }
+
+        compose.onNodeWithTag("searchTerms").performScrollTo().performClick()
+        compose.onNodeWithTag("searchDownload").performScrollTo().performClick()
+        state = state.copy(fileSearch = FileSearchState(com.bizzeh.bruce.search.SetupState(installed = false, progress = 0.5f), com.bizzeh.bruce.search.IndexStatus()))
+        compose.onNodeWithTag("searchProgress").performScrollTo().assertIsDisplayed()
+        state = state.copy(fileSearch = FileSearchState(com.bizzeh.bruce.search.SetupState(installed = true), com.bizzeh.bruce.search.IndexStatus(files = 3, passages = 9)))
+        compose.onNodeWithText("3 files, 9 passages indexed", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("searchUpdate").performScrollTo().performClick()
+        compose.onNodeWithTag("searchRemove").performScrollTo().performClick()
+        compose.onNodeWithTag("confirmSearchRemove").performClick()
+        state = state.copy(fileSearch = FileSearchState(com.bizzeh.bruce.search.SetupState(installed = true), com.bizzeh.bruce.search.IndexStatus(updating = true, checked = 4)))
+        compose.onNodeWithText("4 looked at so far", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("searchUpdate").assertIsNotEnabled()
+
+        assertEquals(listOf("search terms", "search download", "search update", "search remove"), calls)
+    }
+
+    @Test
+    fun fileSearchNeedsTheNetworkToDownload() {
+        show(SettingsState(network = NetworkMode.OFFLINE, fileSearch = FileSearchState(com.bizzeh.bruce.search.SetupState(installed = false, error = com.bizzeh.bruce.huggingface.DownloadError.NETWORK_DISABLED), com.bizzeh.bruce.search.IndexStatus())))
+        compose.onNodeWithTag("searchDownload").performScrollTo().assertIsNotEnabled()
     }
 
     @Test

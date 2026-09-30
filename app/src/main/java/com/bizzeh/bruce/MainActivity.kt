@@ -10,6 +10,8 @@ import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidReplySpeaker
 import com.bizzeh.bruce.chat.ReadAloud
+import com.bizzeh.bruce.search.EmbeddingModel
+import com.bizzeh.bruce.settings.FileSearchState
 import com.bizzeh.bruce.reminders.AndroidReminderScheduler
 import com.bizzeh.bruce.reminders.Reminder
 import com.bizzeh.bruce.reminders.RemindersActions
@@ -199,7 +201,7 @@ class MainActivity : ComponentActivity() {
         factory { ServersViewModel(container.remoteServers, container.serverClient, container.activeModel.state.map { it.remote }) { container.modelSelection.chooseRemote(it.first, it.second) } }
     }
     private val skills: SkillsViewModel by viewModels { factory { SkillsViewModel(container.skills, container.skillStates, container.unmetRequirements) } }
-    private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions) } }
+    private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions, onChanged = container.searchSetup::updateIndex) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
     private val reminders: RemindersViewModel by viewModels { factory { RemindersViewModel(container.reminders, container.scheduledTasks) } }
     private val setup: SetupViewModel by viewModels {
@@ -358,7 +360,14 @@ class MainActivity : ComponentActivity() {
         val actions = remember { settingsActions(open) }
         val fixed = fixedPromptTokens()
         val auto = autoContext()
-        SettingsScreen(state.copy(backends = backendChoices(known, state.inference.backend), fixedPromptTokens = fixed, autoContext = auto), actions, onBack)
+        val searchSetup by container.searchSetup.setup.collectAsState()
+        val index by container.fileSearch.status.collectAsState()
+        LaunchedEffect(Unit) { withContext(Dispatchers.IO) { container.fileSearch.refreshCounts() } }
+        SettingsScreen(
+            state.copy(backends = backendChoices(known, state.inference.backend), fixedPromptTokens = fixed, autoContext = auto, fileSearch = FileSearchState(searchSetup, index)),
+            actions,
+            onBack,
+        )
     }
 
     @androidx.compose.runtime.Composable
@@ -774,6 +783,20 @@ class MainActivity : ComponentActivity() {
         override fun signOut() = settings.signOut()
         override fun openSkills() = open(Destination.SKILLS)
         override fun openMemory() = open(Destination.MEMORY)
+        override fun downloadSearchModel() {
+            lifecycleScope.launch { container.searchSetup.download() }
+        }
+        override fun updateIndex() = container.searchSetup.updateIndex()
+        override fun removeSearch() {
+            lifecycleScope.launch { container.searchSetup.remove() }
+        }
+        override fun openSearchModelTerms() {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(EmbeddingModel.TERMS_URL)).addCategory(Intent.CATEGORY_BROWSABLE))
+            } catch (e: ActivityNotFoundException) {
+                Log.w("BruceLinks", "no app opens web links")
+            }
+        }
         override fun openReminders() = open(Destination.REMINDERS)
         override fun setMemoryMode(mode: MemoryMode) = settings.setMemoryMode(mode)
         override fun openPermissions() = open(Destination.PERMISSIONS)

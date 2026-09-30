@@ -81,6 +81,14 @@ class AndroidDocumentAccess(private val resolver: ContentResolver) : DocumentAcc
 
     override fun delete(document: Uri): Boolean = DocumentsContract.deleteDocument(resolver, document)
 
+    override fun lastModified(document: Uri): Long? = try {
+        resolver.query(document, arrayOf(DocumentsContract.Document.COLUMN_LAST_MODIFIED), null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst() && !cursor.isNull(0)) cursor.getLong(0) else null
+        }
+    } catch (e: RuntimeException) {
+        null
+    }
+
     override fun rename(document: Uri, name: String): DocumentRef? = try {
         DocumentsContract.renameDocument(resolver, document, name)?.let { DocumentRef(it, isDirectory = false) }
     } catch (e: FileNotFoundException) {

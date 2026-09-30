@@ -18,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -42,6 +44,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.conversations.ExportFormat
+import com.bizzeh.bruce.search.IndexStatus
+import com.bizzeh.bruce.search.SetupState
 import com.bizzeh.bruce.conversations.ExportFormatDialog
 import com.bizzeh.bruce.huggingface.HubAccount
 import com.bizzeh.bruce.huggingface.SignInError
@@ -75,7 +79,11 @@ data class SettingsState(
     val searchKeySaved: Boolean = false,
     /** The last key entered did not look like one. */
     val searchKeyRejected: Boolean = false,
+    /** File search over granted files (TASK-096); null where the screen is shown without it. */
+    val fileSearch: FileSearchState? = null,
 )
+
+data class FileSearchState(val setup: SetupState, val index: IndexStatus)
 
 interface SettingsActions {
     fun setThemeMode(mode: ThemeMode)
@@ -99,6 +107,10 @@ interface SettingsActions {
     fun setMemoryMode(mode: MemoryMode)
     fun openMemory()
     fun openReminders() = Unit
+    fun downloadSearchModel() = Unit
+    fun updateIndex() = Unit
+    fun removeSearch() = Unit
+    fun openSearchModelTerms() = Unit
     fun setSummaryEnabled(enabled: Boolean)
     fun setSummaryThreshold(threshold: Int)
     fun signIn()
@@ -308,6 +320,8 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 )
             }
 
+            state.fileSearch?.let { FileSearchSection(it, state.network.allowsHuggingFace, actions) }
+
             Heading(R.string.settings_privacy)
             Link(R.string.settings_permissions, R.string.settings_permissions_summary, "settings:permissions", actions::openPermissions)
             ListItem(
@@ -437,6 +451,51 @@ private fun PastedToken(actions: SettingsActions) {
         Button(onClick = { actions.signInWithToken(token); token = "" }, enabled = token.isNotBlank(), modifier = Modifier.testTag("saveHubToken")) {
             Text(stringResource(R.string.account_token_sign_in))
         }
+    }
+}
+
+/** Setting up and keeping the local file search index (TASK-096). */
+@Composable
+private fun FileSearchSection(search: FileSearchState, networkAllowed: Boolean, actions: SettingsActions) {
+    var confirmRemove by rememberSaveable { mutableStateOf(false) }
+    Heading(R.string.search_title)
+    Column(modifier = Modifier.padding(horizontal = 16.dp).testTag("fileSearch"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        val setup = search.setup
+        when {
+            setup.progress != null -> {
+                Text(stringResource(R.string.search_downloading), style = MaterialTheme.typography.bodyMedium)
+                LinearProgressIndicator(progress = { setup.progress }, modifier = Modifier.fillMaxWidth().testTag("searchProgress"))
+            }
+            !setup.installed -> {
+                Text(stringResource(R.string.search_explained), style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = actions::openSearchModelTerms, modifier = Modifier.testTag("searchTerms")) { Text(stringResource(R.string.search_terms)) }
+                setup.error?.let { Text(stringResource(R.string.download_error, it.name), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
+                Button(onClick = actions::downloadSearchModel, enabled = networkAllowed, modifier = Modifier.testTag("searchDownload")) { Text(stringResource(R.string.search_download)) }
+                if (!networkAllowed) Text(stringResource(R.string.account_sign_in_offline), style = MaterialTheme.typography.bodySmall)
+            }
+            else -> {
+                val index = search.index
+                Text(
+                    if (index.updating) stringResource(R.string.search_updating, index.checked)
+                    else stringResource(R.string.search_status, index.files, index.passages),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.testTag("searchStatus"),
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = actions::updateIndex, enabled = !index.updating, modifier = Modifier.testTag("searchUpdate")) { Text(stringResource(R.string.search_update)) }
+                    TextButton(onClick = { confirmRemove = true }, modifier = Modifier.testTag("searchRemove")) { Text(stringResource(R.string.search_remove), color = MaterialTheme.colorScheme.error) }
+                }
+            }
+        }
+    }
+    if (confirmRemove) {
+        AlertDialog(
+            onDismissRequest = { confirmRemove = false },
+            title = { Text(stringResource(R.string.search_remove_title)) },
+            text = { Text(stringResource(R.string.search_remove_text)) },
+            confirmButton = { TextButton(onClick = { confirmRemove = false; actions.removeSearch() }, modifier = Modifier.testTag("confirmSearchRemove")) { Text(stringResource(R.string.search_remove), color = MaterialTheme.colorScheme.error) } },
+            dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text(stringResource(R.string.settings_cancel)) } },
+        )
     }
 }
 

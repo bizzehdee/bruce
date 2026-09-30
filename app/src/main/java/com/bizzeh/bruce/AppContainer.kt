@@ -29,6 +29,14 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.bizzeh.bruce.chat.ChatImages
 import com.bizzeh.bruce.chat.DocumentReader
+import com.bizzeh.bruce.chat.DocumentResult
+import com.bizzeh.bruce.inference.LlamaNative
+import com.bizzeh.bruce.search.EmbeddingModel
+import com.bizzeh.bruce.search.FileSearch
+import com.bizzeh.bruce.search.IndexWork
+import com.bizzeh.bruce.search.LlamaEmbedder
+import com.bizzeh.bruce.search.SearchDatabase
+import com.bizzeh.bruce.search.SearchSetup
 import com.bizzeh.bruce.chat.DocumentText
 import com.bizzeh.bruce.chat.ChatMemory
 import com.bizzeh.bruce.chat.TurnObserver
@@ -251,6 +259,36 @@ class AppContainer(private val context: Context) {
 
     private val grantScope: GrantScope by lazy { GrantScope(grants, documentAccess) }
 
+    private val searchDatabase: SearchDatabase by lazy { Room.databaseBuilder(context, SearchDatabase::class.java, SearchDatabase.NAME).build() }
+
+    /** The embedding model gets a thread of its own, apart from the chat model's (TASK-096). */
+    private val embeddingThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+
+    /** Search over the text of granted files (TASK-096). */
+    val fileSearch: FileSearch by lazy {
+        // The engine loads llama.cpp's backends, which the embedding model needs too.
+        engine
+        FileSearch(
+            searchDatabase.search(),
+            grants = { grants.current() },
+            access = documentAccess,
+            embedder = LlamaEmbedder(LlamaNative, EmbeddingModel.file(modelsDir), embeddingThread),
+            extract = { name, type, bytes -> (documentReader.parse(name, type, bytes, FileSearch.MAX_FILE_CHARS) as? DocumentResult.Read)?.document?.text },
+        )
+    }
+
+    val searchSetup: SearchSetup by lazy {
+        val file = EmbeddingModel.file(modelsDir)
+        SearchSetup(
+            fetch = { progress -> downloader.download(EmbeddingModel.REPOSITORY, EmbeddingModel.PATH, EmbeddingModel.SIZE_BYTES, EmbeddingModel.SHA256, destination = file, onProgress = progress) },
+            modelFile = file,
+            search = fileSearch,
+            work = IndexWork(context),
+        )
+    }
+
+    fun searchModelInstalled(): Boolean = EmbeddingModel.file(modelsDir).isFile
+
     val folderInstructions: FolderInstructionsStore by lazy { FolderInstructionsStore(policyDatabase.policy(), documentAccess) }
 
     /** The names the model starts file paths with. */
@@ -413,6 +451,7 @@ class AppContainer(private val context: Context) {
             chatImages.keepOnly(emptySet())
             reminders.deleteAll()
             scheduledTasks.deleteAll()
+            searchSetup.remove()
             skillStates.reset()
             grants.clear()
             sites.clear()

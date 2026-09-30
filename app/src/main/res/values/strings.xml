@@ -135,6 +135,17 @@
     <string name="tasks_repeat_weekly">Every week</string>
     <string name="notification_channel_reminders">Reminders</string>
     <string name="notification_reminder">Reminder</string>
+    <string name="search_title">Search my files</string>
+    <string name="search_explained">Lets Bruce search the text of the files and folders you have granted, on this phone. It needs a 334 MB search model (EmbeddingGemma, by Google), used only while indexing or searching, and takes a few minutes to read your files.</string>
+    <string name="search_terms">The model\'s terms of use</string>
+    <string name="search_download">Download and set up (334 MB)</string>
+    <string name="search_downloading">Downloading the search model…</string>
+    <string name="search_status">%1$d files, %2$d passages indexed. Updated daily while charging, and when your grants change.</string>
+    <string name="search_updating">Reading your files… %1$d looked at so far.</string>
+    <string name="search_update">Update now</string>
+    <string name="search_remove">Remove</string>
+    <string name="search_remove_title">Remove file search?</string>
+    <string name="search_remove_text">Deletes the search model and the index of your files from this phone. Your files are not touched.</string>
     <string name="reminders_title">Reminders</string>
     <string name="reminders_summary">What Bruce will remind you of, and scheduled tasks</string>
     <string name="reminders_empty">No reminders or scheduled tasks. Ask Bruce to remind you of something, or to do something later, with those skills turned on.</string>

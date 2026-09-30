@@ -29,6 +29,8 @@ class GrantsViewModel(
     private val store: GrantStore,
     private val ioDispatcher: CoroutineDispatcher,
     private val instructions: FolderInstructionsStore? = null,
+    /** Hears that the grants changed, once the change is saved (the file search index follows them). */
+    private val onChanged: () -> Unit = {},
 ) : ViewModel() {
     val grants: StateFlow<List<Grant>> = store.grants.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())
 
@@ -68,6 +70,7 @@ class GrantsViewModel(
         viewModelScope.launch {
             mutableAddFailed.value = try {
                 val grant = withContext(ioDispatcher) { store.add(uri, kind) }
+                onChanged()
                 // A newly granted folder with instructions asks at once (TASK-049).
                 val found = instructions?.let { withContext(ioDispatcher) { it.read(grant) } }
                 if (found != null && instructions.choice(found) == InstructionsChoice.UNDECIDED) mutableReviewing.value = grant.id
@@ -79,7 +82,10 @@ class GrantsViewModel(
     }
 
     fun revoke(grant: Grant) {
-        viewModelScope.launch { withContext(ioDispatcher) { store.revoke(grant) } }
+        viewModelScope.launch {
+            withContext(ioDispatcher) { store.revoke(grant) }
+            onChanged()
+        }
     }
 
     private companion object {

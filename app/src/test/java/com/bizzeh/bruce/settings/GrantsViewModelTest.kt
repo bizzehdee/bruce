@@ -56,7 +56,8 @@ class GrantsViewModelTest {
         override fun move(document: Uri, from: Uri, to: Uri): DocumentRef? = null
     }
     /** Built after setUp, so its flows start on the test Main dispatcher rather than the blocked main looper. */
-    private val viewModel by lazy { GrantsViewModel(GrantStore(database.policy(), documents), Dispatchers.IO) }
+    private val changes = java.util.concurrent.atomic.AtomicInteger()
+    private val viewModel by lazy { GrantsViewModel(GrantStore(database.policy(), documents), Dispatchers.IO, onChanged = { changes.incrementAndGet() }) }
 
     @Before
     fun setUp() = Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -78,6 +79,8 @@ class GrantsViewModelTest {
 
         viewModel.revoke(grant)
         viewModel.grants.await { it.isEmpty() }
+        runBlocking { withTimeout(5_000) { while (changes.get() < 2) kotlinx.coroutines.delay(10) } }
+        assertEquals("the index hears of each saved change", 2, changes.get())
 
         refuse = true
         viewModel.add(Uri.parse("content://docs/tree/other"), GrantKind.FOLDER)

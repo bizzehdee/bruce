@@ -4,6 +4,7 @@
 #include <sys/auxv.h>
 
 #include <algorithm>
+#include <cmath>
 #include <exception>
 #include <memory>
 #include <mutex>
@@ -681,6 +682,92 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePromptWithImages(
     generation->cache->untracked = true;
     __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt with %zu images: %zu tokens", bitmaps.size(), count);
     return static_cast<jint>(count);
+}
+
+// Embedding models for file search (TASK-096): a model and its own context, apart from the chat's.
+struct Embedder {
+    llama_model *model;
+    llama_context *context;
+};
+
+// Loads an embedding model on the CPU; 0 if it cannot be loaded or gives no pooled embeddings.
+JNIEXPORT jlong JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_loadEmbedder(JNIEnv *env, jobject, jstring path, jint contextLength, jint threads) {
+    std::vector<ggml_backend_dev_t> devices{nullptr};
+    llama_model_params modelParams = llama_model_default_params();
+    modelParams.devices = devices.data();
+    modelParams.n_gpu_layers = 0;
+    const char *nativePath = env->GetStringUTFChars(path, nullptr);
+    llama_model *model = llama_model_load_from_file(nativePath, modelParams);
+    env->ReleaseStringUTFChars(path, nativePath);
+    if (model == nullptr) return 0;
+    llama_context_params params = llama_context_default_params();
+    params.embeddings = true;
+    params.n_ctx = static_cast<uint32_t>(contextLength);
+    // A non-causal model needs the whole input in one micro-batch.
+    params.n_batch = params.n_ctx;
+    params.n_ubatch = params.n_ctx;
+    params.n_threads = threads;
+    params.n_threads_batch = threads;
+    llama_context *context = llama_init_from_model(model, params);
+    if (context == nullptr || llama_pooling_type(context) == LLAMA_POOLING_TYPE_NONE) {
+        if (context != nullptr) llama_free(context);
+        llama_model_free(model);
+        return 0;
+    }
+    return reinterpret_cast<jlong>(new Embedder{model, context});
+}
+
+JNIEXPORT void JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_freeEmbedder(JNIEnv *, jobject, jlong handle) {
+    auto *embedder = reinterpret_cast<Embedder *>(handle);
+    llama_free(embedder->context);
+    llama_model_free(embedder->model);
+    delete embedder;
+}
+
+// The text's embedding, L2-normalised; null if it cannot be computed. Text past the context is cut.
+JNIEXPORT jfloatArray JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_embed(JNIEnv *env, jobject, jlong handle, jbyteArray textUtf8) {
+    auto *embedder = reinterpret_cast<Embedder *>(handle);
+    const std::string text = bytesToString(env, textUtf8);
+    const llama_vocab *vocab = llama_model_get_vocab(embedder->model);
+    const int32_t limit = static_cast<int32_t>(llama_n_ctx(embedder->context));
+    std::vector<llama_token> tokens(static_cast<size_t>(limit));
+    int32_t count = llama_tokenize(vocab, text.data(), static_cast<int32_t>(text.size()), tokens.data(), limit, true, false);
+    if (count < 0) {
+        // Too long: tokenise in full, then keep what fits.
+        tokens.resize(static_cast<size_t>(-count));
+        count = llama_tokenize(vocab, text.data(), static_cast<int32_t>(text.size()), tokens.data(), -count, true, false);
+        if (count < 0) return nullptr;
+        count = std::min(count, limit);
+    }
+    if (count == 0) return nullptr;
+    llama_memory_clear(llama_get_memory(embedder->context), true);
+    llama_batch batch = llama_batch_init(count, 0, 1);
+    for (int32_t i = 0; i < count; ++i) {
+        batch.token[i] = tokens[static_cast<size_t>(i)];
+        batch.pos[i] = i;
+        batch.n_seq_id[i] = 1;
+        batch.seq_id[i][0] = 0;
+        batch.logits[i] = true;
+    }
+    batch.n_tokens = count;
+    const bool encoded = llama_model_has_encoder(embedder->model) && !llama_model_has_decoder(embedder->model)
+            ? llama_encode(embedder->context, batch) == 0
+            : llama_decode(embedder->context, batch) == 0;
+    llama_batch_free(batch);
+    const float *pooled = encoded ? llama_get_embeddings_seq(embedder->context, 0) : nullptr;
+    if (pooled == nullptr) return nullptr;
+    const int32_t dims = llama_model_n_embd_out(embedder->model);
+    double norm = 0;
+    for (int32_t i = 0; i < dims; ++i) norm += static_cast<double>(pooled[i]) * pooled[i];
+    const float scale = norm > 0 ? static_cast<float>(1.0 / std::sqrt(norm)) : 0.0f;
+    std::vector<float> out(static_cast<size_t>(dims));
+    for (int32_t i = 0; i < dims; ++i) out[static_cast<size_t>(i)] = pooled[i] * scale;
+    jfloatArray result = env->NewFloatArray(dims);
+    env->SetFloatArrayRegion(result, 0, dims, out.data());
+    return result;
 }
 
 JNIEXPORT jint JNICALL

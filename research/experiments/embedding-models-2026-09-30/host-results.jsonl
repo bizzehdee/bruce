@@ -1,0 +1,5 @@
+{"model": "all-MiniLM-L6-v2-Q8_0", "recall@1": 0.9, "recall@3": 0.9, "mrr": 0.916, "english_recall@1": 1.0, "other_language_recall@1": 0.6, "dimensions": 384, "seconds_for_30_passages": 0.05}
+{"model": "bge-small-en-v1.5-q8_0", "recall@1": 0.75, "recall@3": 0.9, "mrr": 0.821, "english_recall@1": 0.8666666666666667, "other_language_recall@1": 0.4, "dimensions": 384, "seconds_for_30_passages": 0.09}
+{"model": "nomic-embed-text-v1.5.Q8_0", "recall@1": 0.9, "recall@3": 0.9, "mrr": 0.913, "english_recall@1": 1.0, "other_language_recall@1": 0.6, "dimensions": 768, "seconds_for_30_passages": 0.53}
+{"model": "embeddinggemma-300M-Q8_0", "recall@1": 1.0, "recall@3": 1.0, "mrr": 1.0, "english_recall@1": 1.0, "other_language_recall@1": 1.0, "dimensions": 768, "seconds_for_30_passages": 0.47}
+{"model": "Qwen3-Embedding-0.6B-Q8_0", "recall@1": 0.9, "recall@3": 1.0, "mrr": 0.95, "english_recall@1": 0.9333333333333333, "other_language_recall@1": 0.8, "dimensions": 1024, "seconds_for_30_passages": 1.81}

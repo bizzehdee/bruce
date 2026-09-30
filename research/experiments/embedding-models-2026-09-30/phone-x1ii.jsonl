@@ -1,0 +1,4 @@
+{"model": "all-MiniLM-L6-v2-Q8_0@x1ii", "recall@1": 0.9, "recall@3": 0.9, "mrr": 0.916, "english_recall@1": 1.0, "other_language_recall@1": 0.6, "dimensions": 384, "seconds_for_30_passages": 0.21}
+{"model": "embeddinggemma-300M-Q8_0@x1ii", "recall@1": 1.0, "recall@3": 1.0, "mrr": 1.0, "english_recall@1": 1.0, "other_language_recall@1": 1.0, "dimensions": 768, "seconds_for_30_passages": 1.22}
+{"model": "nomic-embed-text-v1.5.Q8_0@x1ii", "recall@1": 0.9, "recall@3": 0.9, "mrr": 0.912, "english_recall@1": 1.0, "other_language_recall@1": 0.6, "dimensions": 768, "seconds_for_30_passages": 0.84}
+{"model": "embeddinggemma-300M-Q8_0@x1ii-ub512", "recall@1": 1.0, "recall@3": 1.0, "mrr": 1.0, "english_recall@1": 1.0, "other_language_recall@1": 1.0, "dimensions": 768, "seconds_for_30_passages": 1.18}
