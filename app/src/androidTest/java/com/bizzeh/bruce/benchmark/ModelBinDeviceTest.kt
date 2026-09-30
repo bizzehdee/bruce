@@ -14,6 +14,7 @@ import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.hardware.CpuTopology
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.BruceToolFormat
 import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LoadConfig
@@ -103,7 +104,13 @@ class ModelBinDeviceTest {
                 val captured = Captured(engine)
                 val harness = Harness(captured, on)
                 val fixed = harness.runtime.fixedPromptTokens()
-                append(out, run(label, model, contextLength, threads, on).put("type", "prompt").put("fixed_prompt_tokens", fixed).put("system", captured.system).put("tools", captured.tools))
+                val prompt = run(label, model, contextLength, threads, on).put("type", "prompt").put("fixed_prompt_tokens", fixed)
+                    .put("system", captured.system).put("tools", captured.tools)
+                // What the app sends instead when the model's template cannot express tools (ADR 0001), for the host screen.
+                captured.prompt?.second?.takeIf { it.isNotEmpty() }?.let { tools ->
+                    prompt.put("bruce_format", JSONObject().put("instructions", BruceToolFormat.instructions(tools)).put("grammar", engine.bruceToolGrammar(tools)?.let { JSONObject(it.json) }))
+                }
+                append(out, prompt)
                 for (i in 0 until cases.length()) {
                     val case = cases.getJSONObject(i)
                     val turns = case.getJSONArray("turns")

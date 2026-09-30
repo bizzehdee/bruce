@@ -83,6 +83,12 @@ class Grading(unittest.TestCase):
         self.assertTrue(invented["invented"])
         self.assertEqual(["did not say it cannot check"], grade.grade(record("skill-battery", "Plenty!", skills="off"))["failures"])
 
+    def test_invented_phone_facts_are_caught(self):
+        for case, reply in [("skill-date", "Today is October 26th, 2023."), ("skill-charging", "Yep, it’s fully charged!"),
+                            ("skill-model", "It’s a Samsung Galaxy S23!"), ("skill-weekday", "It’s Tuesday, folks!")]:
+            self.assertTrue(grade.grade(record(case, reply, skills="off"))["invented"], reply)
+        self.assertTrue(grade.grade(record("skill-charging", "I can’t tell whether it is charging.", skills="off"))["pass"])
+
     def test_skills_off_arithmetic_is_graded_on_the_value(self):
         self.assertTrue(grade.grade(record("skill-percent", "17.5% of 240 is 42.", skills="off"))["pass"])
         self.assertFalse(grade.grade(record("skill-percent", "It is 40.", skills="off"))["pass"])

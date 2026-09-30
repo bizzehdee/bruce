@@ -5,7 +5,9 @@ Bruce's runtime would, and writes records in the phone harness's shape (ModelBin
 Usage: host.py <server-url> <label> <file-name> <out.jsonl> [on|off ...]
 
 - System prompt and skill definitions: bruce-prompt.json, captured from the app.
-- The model's own tool-call format through /v1/chat/completions with `tools`, thinking off,
+- The model's own tool-call format through /v1/chat/completions with `tools` when the template can
+  express tool calls; otherwise Bruce's format (ADR 0001) as the app sends it: instructions and lazy
+  grammar captured from the app, through /apply-template and /completion. Thinking off,
   temperature 0, context as the server was started with (4096).
 - Skill results in Bruce's envelope. Date and time, battery, device and storage answer with fixed
   values; the calculator evaluates for real. A call repeated in one turn gets its earlier result
@@ -92,11 +94,46 @@ def post(url, body):
         return json.load(response)
 
 
+BRUCE_CALL = re.compile(r"<tool_call>(.*?)(?:</tool_call>|$)", re.S)
+
+
+def bruce_message(message):
+    """Bruce's format as plain chat (LocalBackend.bruceMessage): calls in its tags, results as the user's turn."""
+    if message["role"] == "assistant":
+        calls = [f'<tool_call>{{"name": {json.dumps(c["function"]["name"])}, "arguments": {c["function"].get("arguments") or "{}"}}}</tool_call>'
+                 for c in message.get("tool_calls", [])]
+        return {"role": "assistant", "content": "\n".join(part for part in [message["content"]] + calls if part)}
+    if message["role"] == "tool":
+        return {"role": "user", "content": f"<tool_response>\n{message['content']}\n</tool_response>"}
+    return {"role": message["role"], "content": message["content"]}
+
+
+def bruce_step(server, messages):
+    """One step in Bruce's own format (ADR 0001), for templates that cannot express tools; returns an OpenAI-style message and timings."""
+    fallback = PROMPT["on"]["bruce_format"]
+    system = {"role": "system", "content": messages[0]["content"] + "\n\n" + fallback["instructions"]}
+    chat = [system] + [bruce_message(m) for m in messages[1:]]
+    prompt = post(f"{server}/apply-template", {"messages": chat, "chat_template_kwargs": {"enable_thinking": False}})["prompt"]
+    body = {"prompt": prompt, "n_predict": MAX_REPLY_TOKENS, "temperature": 0, "seed": 1, "cache_prompt": True, **fallback["grammar"]}
+    result = post(f"{server}/completion", body)
+    text = result["content"]
+    match = BRUCE_CALL.search(text)
+    calls = []
+    if match:
+        try:
+            call = json.loads(match.group(1).strip())
+            calls = [{"function": {"name": call["name"], "arguments": json.dumps(call.get("arguments", {}))}}]
+            text = (text[:match.start()] + text[match.end():])
+        except (json.JSONDecodeError, KeyError, TypeError):
+            calls = []
+    return {"content": text.strip(), "tool_calls": calls}, result.get("timings", {})
+
+
 def tools_for(skills):
     return [{"type": "function", "function": t} for t in PROMPT["on"]["tools"]] if skills else []
 
 
-def turn(server, messages, skills, user):
+def turn(server, messages, skills, user, native=True):
     """One user turn; returns (messages added, turn record)."""
     added, steps, results = [], [], []
     seen, repeats, answer_only, calls, error = {}, 0, False, 0, None
@@ -108,13 +145,16 @@ def turn(server, messages, skills, user):
         if tools:
             body["tools"] = tools
         try:
-            response = post(f"{server}/v1/chat/completions", body)
+            if tools and not native:
+                message, timings = bruce_step(server, messages + added)
+            else:
+                response = post(f"{server}/v1/chat/completions", body)
+                timings = response.get("timings", {})
+                message = response["choices"][0]["message"]
         except urllib.error.HTTPError as failure:
-            # llama-server answers 500 when its parser rejects the model's tool call.
+            # llama-server answers 500 when its parser rejects the model's tool call, 400 when the chat outgrows the context.
             error = "MALFORMED: " + failure.read().decode(errors="replace")[:300]
             break
-        timings = response.get("timings", {})
-        message = response["choices"][0]["message"]
         content = message.get("content") or ""
         reasoning = message.get("reasoning_content") or ""
         tool_calls = message.get("tool_calls") or []
@@ -166,17 +206,20 @@ def main():
     if not loaded.endswith(file_name):
         sys.exit(f"server has {loaded}, not {file_name}")
     context = props.get("default_generation_settings", {}).get("n_ctx")
+    # As the app decides (chat_tools.cpp): the model's own format only when its template can express tool calls.
+    native = props.get("chat_template_caps", {}).get("supports_tool_calls", False)
     with open(out, "a") as sink:
         for setting in settings:
             skills = setting == "on"
             system = PROMPT[setting]["system"]
-            run = {"label": label, "file": file_name, "platform": "host", "context": context, "skills": setting}
+            run = {"label": label, "file": file_name, "platform": "host", "context": context, "skills": setting,
+                   "tool_format": ("native" if native else "bruce") if skills else "none"}
             for case in CASES:
                 messages = [{"role": "system", "content": system}]
                 turns = []
                 for user in case["turns"]:
                     messages.append({"role": "user", "content": user})
-                    added, record = turn(server, messages, skills, user)
+                    added, record = turn(server, messages, skills, user, native)
                     messages += added
                     turns.append(record)
                 sink.write(json.dumps({**run, "type": "case", "case": case["id"], "turns": turns}, ensure_ascii=False) + "\n")
