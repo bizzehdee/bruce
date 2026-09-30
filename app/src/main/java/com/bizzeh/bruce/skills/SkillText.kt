@@ -29,6 +29,7 @@ object SkillText {
         "write_text_message" to (R.string.skill_message to R.string.skill_message_summary),
         "dial_number" to (R.string.skill_dial to R.string.skill_dial_summary),
         "post_note" to (R.string.skill_post_note to R.string.skill_post_note_summary),
+        "get_location" to (R.string.skill_location to R.string.skill_location_summary),
         "move_file" to (R.string.skill_move_file to R.string.skill_move_file_summary),
         "delete_file" to (R.string.skill_delete_file to R.string.skill_delete_file_summary),
         "find_settings" to (R.string.skill_find_settings to R.string.skill_find_settings_summary),

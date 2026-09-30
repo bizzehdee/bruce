@@ -99,6 +99,8 @@ class Skill(
     val highRisk: Boolean = false,
     val scope: ResourceScope = ResourceScope.NONE,
     val androidPermissions: List<String> = emptyList(),
+    /** Asked for with [androidPermissions] when the skill is turned on, but not required, e.g. precise location. */
+    val optionalPermissions: List<String> = emptyList(),
     /** What must hold before the skill can be used at all; while any does not, the skill is locked off. */
     val requires: Set<SkillRequirement> = emptySet(),
     /** For [ResourceScope.WEB]: the host a call reaches, from its arguments (WebAddress.host), or null if it names none. */

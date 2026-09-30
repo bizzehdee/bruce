@@ -642,8 +642,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`notifications/NoteSkills.kt`): `post_note` (title, text) posts on a new Notes channel; tapping opens Bruce; the last 50 notes are kept, older ones replaced. Off by default; needs the notification permission from Android 13 (asked when turned on, TASK-086's mechanism). Capability SHARE, as the spec's list has no notification capability.
   - Device-tested on the Xperia 1 II (`NotesDeviceTest`, manual): the note appeared among Bruce's active notifications on the Notes channel and was cleared.
   - Depends on: TASK-041
-- [ ] TASK-091: Location skill
+- [x] TASK-091: Location skill
   - `get_location`: approximate by default, precise only if the user grants it; off by default and listed with the privacy-sensitive skills; asked when first enabled. One reading per call, no tracking.
+  - Done (`skills/location/`): `get_location`, off by default, requires approximate location; precise is asked for alongside (a new optional-permission list) so Android's dialog lets the user choose. With approximate only, the answer is rounded to about a kilometre. One reading per call through Android's own providers (fused where present, no Play services); if no fresh fix comes in 30 s, the last known position up to 15 minutes old is used and its age said. Works only while Bruce is on screen, as Android grants location to foreground apps only. The Permissions screen names both permissions.
+  - Device-tested on the Xperia 1 II by `LocationDeviceTest` (manual; permission granted by adb and revoked after; the position was never printed): a reading was obtained with Bruce on screen. Getting there: requests from a test with no screen were refused (app-op "foreground"); with the screen open no fresh fix came indoors; a mistaken conclusion that LocationManagerCompat was at fault was withdrawn after a same-run comparison, and the change reverted (`.learnings/location-on-android.md`).
   - Depends on: TASK-039
 - [ ] TASK-092: Contacts skill
   - `find_contact` by name, returning only the fields asked for (number, email); off by default; the contacts permission is asked when first enabled; results passed as untrusted data.

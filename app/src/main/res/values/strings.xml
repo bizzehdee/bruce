@@ -123,6 +123,12 @@
     <string name="skill_message_summary">Opens your messaging app with a message written. You send it; Bruce never sends messages.</string>
     <string name="skill_dial">Dial numbers</string>
     <string name="skill_dial_summary">Opens your phone app with a number ready. You place the call; Bruce never calls.</string>
+    <string name="skill_location">Location</string>
+    <string name="skill_location_summary">Finds where the phone is, once, when a question needs it. Approximate unless you allow precise location. Never tracks you.</string>
+    <string name="permission_coarse_location">Approximate location</string>
+    <string name="permission_coarse_location_summary">Used only by the location skill, once each time it is asked where the phone is.</string>
+    <string name="permission_fine_location">Precise location</string>
+    <string name="permission_fine_location_summary">Only if you chose it when Android asked; otherwise the location skill uses approximate location.</string>
     <string name="skill_post_note">Post notes</string>
     <string name="skill_post_note_summary">Posts a notification with a note you asked for. Bruce never reads other apps\' notifications.</string>
     <string name="notification_channel_notes">Notes</string>

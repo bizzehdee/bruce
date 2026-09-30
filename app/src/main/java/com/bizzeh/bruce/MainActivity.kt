@@ -507,19 +507,19 @@ class MainActivity : ComponentActivity() {
     }
 
     /** A skill being turned on, waiting for the Android permissions it needs. */
-    private var pendingSkill: (() -> Unit)? = null
+    private var pendingSkill: Pair<() -> Unit, List<String>>? = null
     private val skillPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
-        val turnOn = pendingSkill
+        val (turnOn, required) = pendingSkill ?: return@registerForActivityResult
         pendingSkill = null
-        if (turnOn != null && results.values.all { it }) turnOn() else if (turnOn != null) Toast.makeText(this, R.string.skills_permission_refused, Toast.LENGTH_LONG).show()
+        if (required.all { results[it] == true || checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }) turnOn() else Toast.makeText(this, R.string.skills_permission_refused, Toast.LENGTH_LONG).show()
     }
 
     /** A skill needing Android permissions asks for them when it is turned on, and stays off if refused. */
     private fun setSkill(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean) {
         val missing = skill.androidPermissions.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (state == SkillState.DECLINED || missing.isEmpty()) return skills.set(skill, state, highRiskWarningAccepted)
-        pendingSkill = { skills.set(skill, state, highRiskWarningAccepted) }
-        skillPermissions.launch(missing.toTypedArray())
+        pendingSkill = { skills.set(skill, state, highRiskWarningAccepted) } to missing
+        skillPermissions.launch((missing + skill.optionalPermissions).distinct().toTypedArray())
     }
 
     /** What to start once the microphone permission is granted. */

@@ -59,6 +59,8 @@ import com.bizzeh.bruce.skills.ToolOutput
 import com.bizzeh.bruce.skills.apps.AndroidPhoneActions
 import com.bizzeh.bruce.skills.apps.AppSkills
 import com.bizzeh.bruce.skills.calendar.AndroidCalendarStore
+import com.bizzeh.bruce.skills.location.AndroidLocationSource
+import com.bizzeh.bruce.skills.location.LocationSkills
 import com.bizzeh.bruce.skills.calendar.CalendarSkills
 import com.bizzeh.bruce.policy.PolicyEngine
 import com.bizzeh.bruce.runtime.BruceRuntime
@@ -249,6 +251,7 @@ class AppContainer(private val context: Context) {
                 calendarSkills.create() +
                 AppSkills(AndroidPhoneActions(context), onScreen = { onScreen }).create() +
                 NoteSkills(replyNotifications).create() +
+                LocationSkills(AndroidLocationSource(context), onScreen = { onScreen }).create() +
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },

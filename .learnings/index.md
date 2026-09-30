@@ -30,3 +30,4 @@
 - [tool-json-layout.md](tool-json-layout.md) — Why template JSON is printed on one line and never compact: measured prompt size and Llama 3.2 1B accuracy. Read before changing how tools reach the prompt.
 - [phone-ui-scripting.md](phone-ui-scripting.md) — Keyboard traps when scripting the chat with adb (gesture typing, Escape vs Back per phone, off-screen buttons). Read before driving the app with `input tap`/`swipe`.
 - [mtmd-in-bruce.md](mtmd-in-bruce.md) — How images reach the model through llama.cpp's mtmd: build flags, the `mtmd_input_text` layout trap, logging, no prompt reuse with images. Read before changing vision or native prompt code.
+- [location-on-android.md](location-on-android.md) — Location only in the foreground, fresh fixes that do not come indoors, and the last-known fallback. Read before changing the location skill or testing it on a phone.
