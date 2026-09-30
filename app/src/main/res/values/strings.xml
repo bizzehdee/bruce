@@ -375,6 +375,9 @@
     <string name="browse_any">Any</string>
     <string name="browse_search">Search</string>
     <string name="browse_no_results">Couldn\'t sniff out a match. Try other filters.</string>
+    <string name="browse_copies">Bruce can\'t run %1$s as it is published. These are copies of it in a format Bruce can run.</string>
+    <string name="browse_no_copies">Bruce can\'t run %1$s as it is published, and Hugging Face lists no copy in a format Bruce can run.</string>
+    <string name="browse_search_name">Search for %1$s</string>
     <string name="browse_sniffing">Sniffing out models for this phone…</string>
     <string name="browse_gated">Gated</string>
     <string name="browse_download">Download</string>

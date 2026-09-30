@@ -36,6 +36,8 @@ data class HubSearchFilter(
     /** Inclusive parameter-count bounds; null for no bound. The Hub filters on one parsed file's count, so treat it as a hint. */
     val minParameters: Long? = null,
     val maxParameters: Long? = null,
+    /** Only GGUF copies made from this repository, by its exact id; the Hub's tag is case-sensitive. */
+    val quantisedFrom: String? = null,
 )
 
 data class HubFile(val path: String, val sizeBytes: Long, val sha256: String?)
@@ -81,12 +83,24 @@ class HubClient(
     suspend fun search(query: String, limit: Int = 20, filter: HubSearchFilter = HubSearchFilter()): HubResult<List<HubModel>> {
         require(limit in 1..MAX_RESULTS) { "limit must be 1..$MAX_RESULTS, was $limit" }
         val parameters = listOfNotNull(filter.minParameters?.let { "min:$it" }, filter.maxParameters?.let { "max:$it" })
-        val url = "$baseUrl/api/models?filter=gguf&sort=downloads&direction=-1&limit=$limit" +
+        require(filter.quantisedFrom?.let(::isRepositoryId) != false) { "not a repository id: ${filter.quantisedFrom}" }
+        val url = "$baseUrl/api/models?filter=gguf" + filter.quantisedFrom?.let { "&filter=${encode("base_model:quantized:$it")}" }.orEmpty() +
+            "&sort=downloads&direction=-1&limit=$limit" +
             query.trim().takeIf { it.isNotEmpty() }?.let { "&search=${encode(it)}" }.orEmpty() +
             (if (filter.textGeneration) "&pipeline_tag=text-generation" else "") +
             parameters.takeIf { it.isNotEmpty() }?.let { "&num_parameters=${encode(it.joinToString(","))}" }.orEmpty() +
             SEARCH_EXPANSIONS.joinToString("") { "&expand[]=$it" }
         return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray(body)) }
+    }
+
+    /**
+     * One repository as [search] lists it, under the id the Hub spells it with. [HubModel.files] is
+     * empty for a repository with no GGUF file. The Hub answers an unknown name as UNAUTHORISED.
+     */
+    suspend fun model(repositoryId: String): HubResult<HubModel> {
+        require(isRepositoryId(repositoryId)) { "not a repository id: $repositoryId" }
+        val url = "$baseUrl/api/models/$repositoryId?" + SEARCH_EXPANSIONS.joinToString("&") { "expand[]=$it" }
+        return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray().put(JSONObject(body)))?.single() }
     }
 
     suspend fun ggufFiles(repositoryId: String, revision: String = "main"): HubResult<List<HubFile>> {
@@ -231,12 +245,29 @@ class HubClient(
         private val REPOSITORY_ID = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}")
         private val REVISION = Regex("[A-Za-z0-9._-]{1,100}")
         private val SHA256 = Regex("[0-9a-f]{64}")
+        private val HUB_ADDRESS = Regex("(?:https?://)?(?:www\\.)?(?:huggingface\\.co|hf\\.co)/([^?#\\s]+).*", RegexOption.IGNORE_CASE)
+
+        /** Address paths that are not model repositories. */
+        private val NOT_MODELS = setOf("datasets", "spaces", "api", "docs", "collections", "models")
         private val CONTENT_RANGE = Regex("bytes \\d+-\\d+/(\\d+)")
 
         /** Tokenizer vocabularies make GGUF headers several megabytes; 64 MB is the most fetched. */
         private val HEADER_RANGE_STEPS = listOf(2, 8, 32, 64).map { it * 1024 * 1024 }
 
         fun isRepositoryId(value: String): Boolean = REPOSITORY_ID.matches(value) && ".." !in value
+
+        /**
+         * The repository a search text names: "owner/name" alone, or a huggingface.co address of
+         * the repository or a page inside it. Null for anything else, such as a name search.
+         */
+        fun repositoryIn(text: String): String? {
+            val trimmed = text.trim()
+            val path = HUB_ADDRESS.matchEntire(trimmed)?.groupValues?.get(1)
+                ?: return trimmed.takeIf(::isRepositoryId)
+            val segments = path.split('/').filter { it.isNotEmpty() }
+            if (segments.size < 2 || segments[0].lowercase() in NOT_MODELS) return null
+            return "${segments[0]}/${segments[1]}".takeIf(::isRepositoryId)
+        }
 
         /** A repository-relative path with no traversal, backslashes or absolute prefix. */
         internal fun isSafePath(path: String): Boolean =

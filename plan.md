@@ -113,7 +113,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   do. `done`
   A model published without GGUF files (safetensors only) cannot run in Bruce, so
   searching for it by name or address says so and lists the GGUF copies made from
-  it. `planned` (TASK-102)
+  it. A name or address of a repository that has GGUF files shows that repository.
+  `done` (TASK-102)
 - **Hugging Face sign-in** — OAuth ("Sign in with Hugging Face") as the default,
   pasted access token as a fallback. Token stored in Keystore-backed storage.
   `done` (a pasted token must be a read or fine-grained one)
@@ -459,6 +460,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | A model without GGUF files now points to its GGUF copies; a repository's name or address shows that repository (TASK-102). |
 | 2026-09-30 | Added | Hugging Face discovery: a model without GGUF files points to its GGUF copies (owner; TASK-102). |
 | 2026-09-30 | Changed | Quick Settings tile, home-screen widget (buttons only, owner) and launcher shortcuts done (TASK-101). |
 | 2026-09-30 | Changed | Share to Bruce done: text, links, images and PDFs start a new chat as attachments (TASK-100). |

@@ -19,7 +19,7 @@
 - [ndk-glslc-too-old.md](ndk-glslc-too-old.md) — Why the build needs a host glslc. Read when the Vulkan shader build fails or when upgrading the NDK.
 - [vtracer-python-binding-crashes.md](vtracer-python-binding-crashes.md) — How the logo was traced, and why with the vtracer CLI. Read before re-tracing artwork.
 - [phase0-cpu-benchmarks.md](phase0-cpu-benchmarks.md) — Measured speed and memory on both test phones, thread-count conclusions, and why RSS exceeds the memory estimate on repacking CPUs. Read before tuning threads, recommending models or changing the memory estimate.
-- [hf-hub-api-for-model-discovery.md](hf-hub-api-for-model-discovery.md) — Verified Hub API calls for GGUF search, metadata, hashes and partial downloads. Read before any Hugging Face work.
+- [hf-hub-api-for-model-discovery.md](hf-hub-api-for-model-discovery.md) — Verified Hub API calls for GGUF search, one repository's lookup, a model's GGUF copies, metadata, hashes and partial downloads. Read before any Hugging Face work.
 - [build-memory-limits.md](build-memory-limits.md) — Why Gradle, Kotlin and native compiles are memory-capped, and the rule against a second Gradle daemon. Read before changing build parallelism or running builds with another Gradle home.
 - [hf-oauth-for-native-apps.md](hf-oauth-for-native-apps.md) — Hugging Face OAuth for Bruce: public app, PKCE, exact redirect, scopes, 8-hour tokens, no token on CDN redirects; pasted tokens through whoami-v2. Read before any sign-in work.
 - [adb-shell-background-process-hangs.md](adb-shell-background-process-hangs.md) — How to start and stop phone-side servers (`-T` with `setsid`; never `pkill -f`), and how a stale server corrupted results. Read before scripting anything that runs in the background on a phone.

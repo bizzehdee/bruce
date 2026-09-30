@@ -81,7 +81,21 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
         if (state.recommended && state.searched && state.error == null) {
             Text(stringResource(R.string.browse_recommended), style = MaterialTheme.typography.titleSmall, modifier = Modifier.testTag("browseRecommended"))
         }
-        if (state.searched && !state.searching && state.error == null && state.listings.isEmpty()) Text(stringResource(R.string.browse_no_results))
+        val copiesOf = state.copiesOf?.takeIf { !state.searching && state.error == null }
+        if (copiesOf != null && state.results.isEmpty()) {
+            val name = copiesOf.substringAfter('/')
+            Text(stringResource(R.string.browse_no_copies, copiesOf), modifier = Modifier.testTag("browseNoCopies"))
+            OutlinedButton(
+                onClick = {
+                    actions.setQuery(name)
+                    search()
+                },
+                modifier = Modifier.testTag("browseSearchName"),
+            ) { Text(stringResource(R.string.browse_search_name, name)) }
+        } else {
+            if (copiesOf != null) Text(stringResource(R.string.browse_copies, copiesOf), modifier = Modifier.testTag("browseCopies"))
+            if (state.searched && !state.searching && state.error == null && state.listings.isEmpty()) Text(stringResource(R.string.browse_no_results))
+        }
         state.listings.forEach { listing ->
             val model = listing.model
             val expanded = open == model.id

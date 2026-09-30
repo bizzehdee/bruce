@@ -44,5 +44,16 @@ limits added 2026-09-28. Archived responses: `research/sources/hf-hub-api-2026-0
 - **Rate limit:** anonymous API calls are a fixed window of 500 requests per 300 seconds
   (`ratelimit-policy: "fixed window";"api";q=500;w=300`).
 - Search is paged with a `Link: <…cursor=…>; rel="next"` header.
+- **One repository (2026-09-30, TASK-102):** `GET /api/models/<repo>` takes the same `expand[]`
+  values as search and answers under the repository's exact spelling whatever case was asked
+  for. A repository with only safetensors weights has no `gguf` object and no `.gguf` sibling.
+  An unknown name answers `401` ("Invalid username or password"), not `404`.
+- **GGUF copies of a model (2026-09-30, TASK-102):** `filter=gguf&filter=base_model:quantized:<repo>`
+  lists the GGUF repositories made from `<repo>`. The tag is case-sensitive (`qwen/qwen3.5-0.8b`
+  returned nothing), so take the id from the lookup above. It also returns merges that name
+  several base models, so a 35B model appears among a 0.8B model's copies; ranking for the
+  phone removes it. Adding `pipeline_tag=text-generation` dropped every main copy of
+  Qwen3.5-0.8B, because copies of a model that takes images are tagged `image-text-to-text`.
+  Archived: `research/sources/hf-hub-api-2026-09-30-copies/`.
 
 Not yet checked: how gated repositories respond without a token.

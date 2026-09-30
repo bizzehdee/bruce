@@ -2,7 +2,7 @@
 
 Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, local, and never sniffing around your data.
 
-- **Your model.** You choose which open-weight model Bruce uses. Download one from Hugging Face or import your own GGUF file.
+- **Your model.** You choose which open-weight model Bruce uses. Download one from Hugging Face or import your own GGUF file. Paste a model's Hugging Face name or address into the search: if it is published in a format Bruce can't run, Bruce lists the copies it can.
 - **Your phone.** The model runs on the device. Bruce works offline once a model is installed.
 - **Profiles.** Save a model as a named profile, such as Fast or Coding, and pick one per chat; the chat switches to it whenever you open it.
 - **Or your own server.** If you run llama.cpp (or another OpenAI-compatible server) at home, Bruce can use its models instead. Your skills and permissions still stay on the phone.

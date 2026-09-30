@@ -1,0 +1,56 @@
+{
+ "_id": "69a380cd89a162034708a04b",
+ "id": "Qwen/Qwen3.5-0.8B",
+ "downloads": 2498860,
+ "gated": false,
+ "cardData": {
+  "library_name": "transformers",
+  "license": "apache-2.0",
+  "license_link": "https://huggingface.co/Qwen/Qwen3.5-0.8B/blob/main/LICENSE",
+  "pipeline_tag": "image-text-to-text",
+  "base_model": [
+   "Qwen/Qwen3.5-0.8B-Base"
+  ]
+ },
+ "siblings": [
+  {
+   "rfilename": ".gitattributes"
+  },
+  {
+   "rfilename": "LICENSE"
+  },
+  {
+   "rfilename": "README.md"
+  },
+  {
+   "rfilename": "chat_template.jinja"
+  },
+  {
+   "rfilename": "config.json"
+  },
+  {
+   "rfilename": "merges.txt"
+  },
+  {
+   "rfilename": "model.safetensors-00001-of-00001.safetensors"
+  },
+  {
+   "rfilename": "model.safetensors.index.json"
+  },
+  {
+   "rfilename": "preprocessor_config.json"
+  },
+  {
+   "rfilename": "tokenizer.json"
+  },
+  {
+   "rfilename": "tokenizer_config.json"
+  },
+  {
+   "rfilename": "video_preprocessor_config.json"
+  },
+  {
+   "rfilename": "vocab.json"
+  }
+ ]
+}

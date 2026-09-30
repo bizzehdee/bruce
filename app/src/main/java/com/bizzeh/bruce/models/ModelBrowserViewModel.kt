@@ -51,6 +51,8 @@ data class BrowseState(
     val recommended: Boolean = true,
     val searched: Boolean = false,
     val error: HubError? = null,
+    /** The searched-for repository that has no GGUF file; [results] are the GGUF copies made from it (TASK-102). */
+    val copiesOf: String? = null,
     val files: Map<String, RepositoryFiles> = emptyMap(),
     val downloads: Map<String, DownloadState> = emptyMap(),
 )
@@ -111,11 +113,19 @@ class ModelBrowserViewModel(
         mutableState.update { it.copy(searching = true, error = null, recommended = recommended) }
         viewModelScope.launch {
             val filter = Recommendations.hubFilter(mutableState.value.filters, device())
-            val result = hub.search(query, limit = if (recommended) RECOMMENDATION_LIMIT else SEARCH_LIMIT, filter = filter)
+            // A lookup that fails (the Hub answers an unknown name as unauthorised) leaves a name search.
+            val named = HubClient.repositoryIn(query)?.let { (hub.model(it) as? HubResult.Success)?.value }
+            val copiesOf = named?.id?.takeIf { named.files.isEmpty() }
+            val result = when {
+                named == null -> hub.search(query, limit = if (recommended) RECOMMENDATION_LIMIT else SEARCH_LIMIT, filter = filter)
+                copiesOf == null -> HubResult.Success(listOf(named))
+                // Copies of a model that also takes images are not tagged text-generation, and the user named the model.
+                else -> hub.search("", limit = SEARCH_LIMIT, filter = filter.copy(textGeneration = false, quantisedFrom = copiesOf))
+            }
             mutableState.update {
                 when (result) {
-                    is HubResult.Success -> it.copy(searching = false, searched = true, results = result.value, files = emptyMap())
-                    is HubResult.Failure -> it.copy(searching = false, searched = true, results = emptyList(), error = result.error)
+                    is HubResult.Success -> it.copy(searching = false, searched = true, results = result.value, files = emptyMap(), copiesOf = copiesOf)
+                    is HubResult.Failure -> it.copy(searching = false, searched = true, results = emptyList(), error = result.error, copiesOf = null)
                 }
             }
             relist()

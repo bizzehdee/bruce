@@ -1,0 +1,112 @@
+{
+ "_id": "69a44f6bbd54b442c759e17f",
+ "id": "unsloth/Qwen3.5-0.8B-GGUF",
+ "downloads": 202946,
+ "gated": false,
+ "cardData": {
+  "tags": [
+   "unsloth"
+  ],
+  "library_name": "transformers",
+  "license": "apache-2.0",
+  "license_link": "https://huggingface.co/Qwen/Qwen3.5-0.8B/blob/main/LICENSE",
+  "pipeline_tag": "image-text-to-text",
+  "base_model": [
+   "Qwen/Qwen3.5-0.8B"
+  ]
+ },
+ "gguf": {
+  "total": 752393024,
+  "architecture": "qwen35",
+  "context_length": 262144,
+  "chat_template": "(removed)",
+  "eos_token": "<|im_end|>",
+  "totalFileSize": 1516744736
+ },
+ "siblings": [
+  {
+   "rfilename": ".gitattributes"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-BF16.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-IQ4_NL.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-IQ4_XS.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q3_K_M.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q3_K_S.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q4_0.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q4_1.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q4_K_M.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q4_K_S.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q5_K_M.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q5_K_S.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q6_K.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-Q8_0.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-IQ2_M.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-IQ2_XXS.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-IQ3_XXS.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-Q2_K_XL.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-Q3_K_XL.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-Q4_K_XL.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-Q5_K_XL.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-Q6_K_XL.gguf"
+  },
+  {
+   "rfilename": "Qwen3.5-0.8B-UD-Q8_K_XL.gguf"
+  },
+  {
+   "rfilename": "README.md"
+  },
+  {
+   "rfilename": "imatrix_unsloth.gguf_file"
+  },
+  {
+   "rfilename": "mmproj-BF16.gguf"
+  },
+  {
+   "rfilename": "mmproj-F16.gguf"
+  },
+  {
+   "rfilename": "mmproj-F32.gguf"
+  }
+ ]
+}

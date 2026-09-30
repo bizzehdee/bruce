@@ -1,0 +1,381 @@
+[
+ {
+  "_id": "6a1ebcc07bb2d85de81d5386",
+  "id": "Hcompany/Holo-3.1-35B-A3B-GGUF",
+  "cardData": {
+   "license": "apache-2.0",
+   "language": [
+    "en"
+   ],
+   "base_model": [
+    "Qwen/Qwen3.6-35B-A3B",
+    "Qwen/Qwen3.5-9B",
+    "Qwen/Qwen3.5-4B",
+    "Qwen/Qwen3.5-0.8B"
+   ],
+   "pipeline_tag": "image-text-to-text",
+   "library_name": "transformers",
+   "tags": [
+    "multimodal",
+    "action",
+    "agent",
+    "pytorch",
+    "computer use",
+    "gui agents",
+    "moe"
+   ]
+  },
+  "gated": false,
+  "downloads": 211239,
+  "gguf": {
+   "total": 34660610688,
+   "architecture": "qwen35moe",
+   "context_length": 262144,
+   "chat_template": "(removed)",
+   "bos_token": "<|endoftext|>",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 69376637024
+  },
+  "siblings": [
+   {
+    "rfilename": ".gitattributes"
+   },
+   {
+    "rfilename": "README.md"
+   },
+   {
+    "rfilename": "chat_template.jinja"
+   },
+   {
+    "rfilename": "imatrix.gguf"
+   },
+   {
+    "rfilename": "imatrix.log"
+   },
+   {
+    "rfilename": "main.bf16.gguf"
+   },
+   {
+    "rfilename": "mmproj.f16.gguf"
+   },
+   {
+    "rfilename": "q4_k_m.gguf"
+   },
+   {
+    "rfilename": "quantize_q4_k_m.log"
+   }
+  ]
+ },
+ {
+  "_id": "69a44f6bbd54b442c759e17f",
+  "id": "unsloth/Qwen3.5-0.8B-GGUF",
+  "cardData": {
+   "tags": [
+    "unsloth"
+   ],
+   "library_name": "transformers",
+   "license": "apache-2.0",
+   "license_link": "https://huggingface.co/Qwen/Qwen3.5-0.8B/blob/main/LICENSE",
+   "pipeline_tag": "image-text-to-text",
+   "base_model": [
+    "Qwen/Qwen3.5-0.8B"
+   ]
+  },
+  "gated": false,
+  "downloads": 202946,
+  "gguf": {
+   "total": 752393024,
+   "architecture": "qwen35",
+   "context_length": 262144,
+   "chat_template": "(removed)",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 1516744736
+  },
+  "siblings": [
+   {
+    "rfilename": ".gitattributes"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-BF16.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-IQ4_NL.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-IQ4_XS.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q3_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q3_K_S.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q4_0.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q4_1.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q4_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q4_K_S.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q5_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q5_K_S.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q6_K.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q8_0.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-IQ2_M.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-IQ2_XXS.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-IQ3_XXS.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-Q2_K_XL.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-Q3_K_XL.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-Q4_K_XL.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-Q5_K_XL.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-Q6_K_XL.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-UD-Q8_K_XL.gguf"
+   },
+   {
+    "rfilename": "README.md"
+   },
+   {
+    "rfilename": "imatrix_unsloth.gguf_file"
+   },
+   {
+    "rfilename": "mmproj-BF16.gguf"
+   },
+   {
+    "rfilename": "mmproj-F16.gguf"
+   },
+   {
+    "rfilename": "mmproj-F32.gguf"
+   }
+  ]
+ },
+ {
+  "_id": "69a45ca6a50ce97141d4e3b0",
+  "id": "bartowski/Qwen_Qwen3.5-0.8B-GGUF",
+  "cardData": {
+   "quantized_by": "bartowski",
+   "pipeline_tag": "image-text-to-text",
+   "base_model": "Qwen/Qwen3.5-0.8B",
+   "base_model_relation": "quantized",
+   "license": "apache-2.0",
+   "license_link": "https://huggingface.co/Qwen/Qwen3.5-0.8B/blob/main/LICENSE"
+  },
+  "gated": false,
+  "downloads": 172553,
+  "gguf": {
+   "total": 772845888,
+   "architecture": "qwen35",
+   "context_length": 262144,
+   "chat_template": "(removed)",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 1557662528
+  },
+  "siblings": [
+   {
+    "rfilename": ".gitattributes"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-IQ2_M.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-IQ3_M.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-IQ3_XS.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-IQ3_XXS.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-IQ4_NL.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-IQ4_XS.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q2_K.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q2_K_L.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q3_K_L.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q3_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q3_K_S.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q3_K_XL.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q4_0.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q4_1.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q4_K_L.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q4_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q4_K_S.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q5_K_L.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q5_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q5_K_S.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q6_K.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q6_K_L.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-Q8_0.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-bf16.gguf"
+   },
+   {
+    "rfilename": "Qwen_Qwen3.5-0.8B-imatrix.gguf"
+   },
+   {
+    "rfilename": "README.md"
+   },
+   {
+    "rfilename": "mmproj-Qwen_Qwen3.5-0.8B-bf16.gguf"
+   },
+   {
+    "rfilename": "mmproj-Qwen_Qwen3.5-0.8B-f16.gguf"
+   }
+  ]
+ },
+ {
+  "_id": "69f05263f4807a980a74f2d9",
+  "id": "ggml-org/Qwen3.5-0.8B-GGUF",
+  "cardData": {
+   "license": "apache-2.0",
+   "pipeline_tag": "image-text-to-text",
+   "tags": [
+    "gguf",
+    "quantized"
+   ],
+   "base_model": [
+    "Qwen/Qwen3.5-0.8B"
+   ]
+  },
+  "gated": false,
+  "downloads": 94867,
+  "gguf": {
+   "total": 772845888,
+   "architecture": "qwen35",
+   "context_length": 262144,
+   "chat_template": "(removed)",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 1557662496
+  },
+  "siblings": [
+   {
+    "rfilename": ".gitattributes"
+   },
+   {
+    "rfilename": ".src_sha"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-BF16.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q4_0.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q8_0.gguf"
+   },
+   {
+    "rfilename": "README.md"
+   },
+   {
+    "rfilename": "convert.log"
+   }
+  ]
+ },
+ {
+  "_id": "69a591d1311144ce3c2626c5",
+  "id": "lmstudio-community/Qwen3.5-0.8B-GGUF",
+  "cardData": {
+   "base_model": "Qwen/Qwen3.5-0.8B",
+   "license": "apache-2.0",
+   "tags": [
+    "gguf"
+   ]
+  },
+  "gated": false,
+  "downloads": 15734,
+  "gguf": {
+   "total": 752393024,
+   "architecture": "qwen35",
+   "context_length": 262144,
+   "chat_template": "(removed)",
+   "eos_token": "<|im_end|>",
+   "totalFileSize": 527502816
+  },
+  "siblings": [
+   {
+    "rfilename": ".gitattributes"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q4_K_M.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q6_K.gguf"
+   },
+   {
+    "rfilename": "Qwen3.5-0.8B-Q8_0.gguf"
+   },
+   {
+    "rfilename": "README.md"
+   },
+   {
+    "rfilename": "mmproj-Qwen3.5-0.8B-BF16.gguf"
+   }
+  ]
+ }
+]

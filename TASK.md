@@ -715,7 +715,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`surfaces/`): launcher shortcuts New chat and Speak to Bruce (static, `res/xml/shortcuts.xml`); a New chat Quick Settings tile; a 2×1 home-screen widget with New chat and Speak to Bruce buttons in the theme's colours, showing no chat content. Each opens Bruce on a new chat; Speak also starts listening where the phone has an on-device recogniser.
   - Device-tested on the Xperia 1 II: both shortcuts registered; the tile, added with `cmd statusbar`, opened Bruce when clicked, and was removed again; the Voice action opened a new chat (no listening: this phone has no on-device recogniser). The widget was not placed on a home screen (that needs the launcher); its buttons are unit-tested.
   - Depends on: TASK-074
-- [ ] TASK-102: Point a model without GGUF files to its GGUF copies
+- [x] TASK-102: Point a model without GGUF files to its GGUF copies
   - Owner (2026-09-30): wanted, after noticing that Qwen/Qwen3.5-0.8B does not show in the Hugging Face list.
   - Cause: the search asks the Hub for GGUF repositories only (`filter=gguf`), and a repository such as Qwen/Qwen3.5-0.8B holds safetensors weights, which llama.cpp cannot load and the phone cannot convert.
   - When the search text is a repository's name or its huggingface.co address and that repository has no GGUF file, say so in plain words ("This model isn't in a format Bruce can run") and list the GGUF copies made from it, ranked for the phone like any other result.
@@ -723,4 +723,8 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - No copies found: say so, and offer a name search for the model's name with "GGUF".
   - Nothing new leaves the phone: the same anonymous Hub API, under the same network modes.
   - Tests: HubClient against a fake server (repository without GGUF, with copies, without copies, unknown repository, pasted address); the model browser shows the message and the copies.
+  - Hub API confirmed (2026-09-30, `research/sources/hf-hub-api-2026-09-30-copies`, `.learnings/hf-hub-api-for-model-discovery.md`): `GET /api/models/<repo>` gives the repository under its exact spelling; `filter=gguf&filter=base_model:quantized:<repo>` lists its GGUF copies.
+  - Done: a search text that is a repository's name (`owner/name`) or a huggingface.co or hf.co address is looked up first (`HubClient.model`, `HubClient.repositoryIn`). With GGUF files, that repository is shown itself. Without, the browser says Bruce can't run it as published and lists its GGUF copies, most downloaded first, under the usual phone-side ranking and filters. A name the Hub does not know falls back to the name search.
+  - Decisions: the Task filter is not applied to copies, since every main copy of Qwen3.5-0.8B is tagged image-text-to-text and the filter hid them. With no copies, the button searches for the model's name alone; the name search is already limited to GGUF repositories, so "GGUF" is not added to the text.
+  - Device-tested on the Xperia 1 II: searching for `https://huggingface.co/Qwen/Qwen3.5-0.8B` showed the message and the copies (unsloth and bartowski first, both "Fits"). The no-copies message and its button are tested in unit tests only.
   - Depends on: TASK-020, TASK-022

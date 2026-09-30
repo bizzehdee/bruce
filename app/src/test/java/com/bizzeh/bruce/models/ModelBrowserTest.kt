@@ -105,6 +105,119 @@ class ModelBrowserTest {
         assertEquals(listOf("{{ tools }}", "{{ messages }}"), templatesJudged)
     }
 
+    private val copies = """[
+      {"id":"unsloth/Qwen3.5-0.8B-GGUF","siblings":[{"rfilename":"m-Q4_0.gguf"}],"gguf":{"total":752393024,"architecture":"qwen35"}},
+      {"id":"Hcompany/Holo-35B-GGUF","siblings":[{"rfilename":"m-Q4_0.gguf"}],"gguf":{"total":34660610688,"architecture":"qwen35"}}
+    ]"""
+
+    @Test
+    fun aModelWithoutGgufFilesListsItsGgufCopies() = runTest(dispatcher) {
+        hub.modelBody = """{"id":"Qwen/Qwen3.5-0.8B","siblings":[{"rfilename":"model.safetensors"}]}"""
+        hub.searchBody = copies
+        val vm = viewModel()
+        vm.setQuery("https://huggingface.co/qwen/qwen3.5-0.8b/tree/main")
+        vm.search()
+        advanceUntilIdle()
+
+        assertEquals("Qwen/Qwen3.5-0.8B", vm.state.value.copiesOf)
+        assertEquals(listOf("unsloth/Qwen3.5-0.8B-GGUF"), vm.state.value.listings.map { it.model.id })
+        assertTrue(hub.urls[0], hub.urls[0].startsWith("https://huggingface.co/api/models/qwen/qwen3.5-0.8b?"))
+        assertTrue(hub.urls[1], "filter=base_model%3Aquantized%3AQwen%2FQwen3.5-0.8B" in hub.urls[1])
+        assertFalse("copies of a vision model are not text-generation", "pipeline_tag" in hub.urls[1])
+        assertFalse("&search=" in hub.urls[1])
+
+        vm.setQuery("qwen3")
+        vm.search()
+        advanceUntilIdle()
+
+        assertNull(vm.state.value.copiesOf)
+    }
+
+    @Test
+    fun aNamedRepositoryWithGgufFilesIsShownItself() = runTest(dispatcher) {
+        hub.modelBody = """{"id":"unsloth/Qwen3.5-0.8B-GGUF","siblings":[{"rfilename":"m-Q4_0.gguf"}],"gguf":{"total":752393024,"architecture":"qwen35"}}"""
+        val vm = viewModel()
+        vm.setQuery("unsloth/Qwen3.5-0.8B-GGUF")
+        vm.search()
+        advanceUntilIdle()
+
+        assertNull(vm.state.value.copiesOf)
+        assertEquals(listOf("unsloth/Qwen3.5-0.8B-GGUF"), vm.state.value.listings.map { it.model.id })
+        assertEquals(1, hub.urls.size)
+    }
+
+    @Test
+    fun aNameTheHubDoesNotKnowIsSearchedFor() = runTest(dispatcher) {
+        hub.modelStatus = 401
+        hub.searchBody = copies
+        val vm = viewModel()
+        vm.setQuery("unsloth/qwen")
+        vm.search()
+        advanceUntilIdle()
+
+        assertNull(vm.state.value.copiesOf)
+        assertNull(vm.state.value.error)
+        assertTrue(hub.urls[1], "&search=unsloth%2Fqwen" in hub.urls[1])
+        assertEquals(listOf("unsloth/Qwen3.5-0.8B-GGUF"), vm.state.value.listings.map { it.model.id })
+    }
+
+    @Test
+    fun aFailedSearchForCopiesShowsTheError() = runTest(dispatcher) {
+        hub.modelBody = """{"id":"Qwen/Qwen3.5-0.8B","siblings":[]}"""
+        hub.searchBody = "not json"
+        val vm = viewModel()
+        vm.setQuery("Qwen/Qwen3.5-0.8B")
+        vm.search()
+        advanceUntilIdle()
+
+        assertEquals(HubError.MALFORMED_RESPONSE, vm.state.value.error)
+        assertNull(vm.state.value.copiesOf)
+    }
+
+    private fun recordingActions(calls: MutableList<String>) = object : BrowseActions {
+        override fun setQuery(query: String) { calls += "query $query" }
+        override fun search() { calls += "search" }
+        override fun recommend() = Unit
+        override fun setFilters(filters: BrowseFilters) = Unit
+        override fun openRepository(model: HubModel) = Unit
+        override fun download(model: HubModel, assessment: Assessment) = Unit
+        override fun cancel(repositoryId: String, path: String) = Unit
+    }
+
+    @Test
+    fun paneSaysTheModelCannotRunAndShowsItsCopies() {
+        val state = BrowseState(
+            searched = true, recommended = false, copiesOf = "Qwen/Qwen3.5-0.8B",
+            results = listOf(qwen), listings = listOf(Listing(qwen, storiesAssessment())),
+        )
+        compose.setContent { BruceTheme { BrowsePane(state, recordingActions(mutableListOf())) } }
+
+        compose.onNodeWithTag("browseCopies").assertTextEquals("Bruce can't run Qwen/Qwen3.5-0.8B as it is published. These are copies of it in a format Bruce can run.")
+        compose.onNodeWithTag("repo:${qwen.id}").assertIsDisplayed()
+        compose.onNodeWithTag("browseNoCopies").assertDoesNotExist()
+    }
+
+    @Test
+    fun paneOffersANameSearchWhenThereAreNoCopies() {
+        val calls = mutableListOf<String>()
+        compose.setContent { BruceTheme { BrowsePane(BrowseState(searched = true, recommended = false, copiesOf = "Qwen/Qwen3.5-0.8B"), recordingActions(calls)) } }
+
+        compose.onNodeWithTag("browseNoCopies").assertTextEquals("Bruce can't run Qwen/Qwen3.5-0.8B as it is published, and Hugging Face lists no copy in a format Bruce can run.")
+        compose.onNodeWithTag("browseCopies").assertDoesNotExist()
+        compose.onNodeWithTag("browseSearchName").performClick()
+
+        assertEquals(listOf("query Qwen3.5-0.8B", "search"), calls)
+    }
+
+    @Test
+    fun paneSaysWhenFiltersHideEveryCopy() {
+        val state = BrowseState(searched = true, recommended = false, copiesOf = "Qwen/Qwen3.5-0.8B", results = listOf(qwen))
+        compose.setContent { BruceTheme { BrowsePane(state, recordingActions(mutableListOf())) } }
+
+        compose.onNodeWithTag("browseCopies").assertIsDisplayed()
+        compose.onNodeWithText("Couldn't sniff out a match. Try other filters.").assertIsDisplayed()
+    }
+
     @Test
     fun searchShowsResultsOrErrors() = runTest(dispatcher) {
         val vm = viewModel()
@@ -532,6 +645,8 @@ class ModelBrowserTest {
         var treeStatus = 200
         var searchBody: String? = null
         var treeBody: String? = null
+        var modelStatus = 200
+        var modelBody = ""
 
         private fun resource(name: String) = javaClass.getResource("/huggingface/$name")!!.readBytes()
 
@@ -541,6 +656,8 @@ class ModelBrowserTest {
                 "/tree/" in url -> HttpResponse(treeStatus, emptyMap(), if (treeStatus == 200) treeBody?.toByteArray() ?: resource("tree-qwen3-0.6b.json") else ByteArray(0))
                 // A GGUF header read: the start of the stories260K file.
                 "/resolve/" in url -> HttpResponse(206, mapOf("content-range" to "bytes 0-${minOf(maxBytes, stories.size) - 1}/${stories.size}"), stories.copyOf(minOf(maxBytes, stories.size)))
+                // One repository by name; the search is "/api/models?".
+                "/api/models/" in url -> HttpResponse(modelStatus, emptyMap(), modelBody.toByteArray())
                 else -> HttpResponse(200, emptyMap(), searchBody?.toByteArray() ?: resource("search-expand.json"))
             }
         }

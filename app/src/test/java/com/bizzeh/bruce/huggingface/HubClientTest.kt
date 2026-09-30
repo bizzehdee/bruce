@@ -283,6 +283,77 @@ class HubClientTest {
         }
     }
 
+    @Test
+    fun modelReadsOneRepositoryWithTheSearchExpansions() = runTest(dispatcher) {
+        transport.respond(200, """{"id":"unsloth/Qwen3.5-0.8B-GGUF","downloads":7,"gated":false,"gguf":{"total":752393024,"architecture":"qwen35"},
+            "siblings":[{"rfilename":"README.md"},{"rfilename":"Qwen3.5-0.8B-Q4_K_M.gguf"}]}""")
+
+        val model = client.model("unsloth/qwen3.5-0.8b-gguf").value()
+
+        assertEquals("https://huggingface.co/api/models/unsloth/qwen3.5-0.8b-gguf?" + EXPANSIONS.removePrefix("&"), transport.urls.single())
+        assertEquals("unsloth/Qwen3.5-0.8B-GGUF", model.id)
+        assertEquals(listOf("Qwen3.5-0.8B-Q4_K_M.gguf"), model.files)
+        assertEquals(752_393_024L, model.parameterCount)
+    }
+
+    @Test
+    fun modelWithoutGgufFilesHasNoFiles() = runTest(dispatcher) {
+        transport.respond(200, fixture("model-safetensors-only.json"))
+
+        val model = client.model("Qwen/Qwen3.5-0.8B").value()
+
+        assertEquals("Qwen/Qwen3.5-0.8B", model.id)
+        assertEquals(emptyList<String>(), model.files)
+        assertNull(model.architecture)
+    }
+
+    @Test
+    fun modelFailures() = runTest(dispatcher) {
+        transport.respond(401, """{"error":"Invalid username or password."}""")
+        assertEquals(HubResult.Failure(HubError.UNAUTHORISED), client.model("Qwen/NoSuchModel"))
+
+        transport.respond(200, """{"id":"../evil"}""")
+        assertEquals(HubResult.Failure(HubError.MALFORMED_RESPONSE), client.model("a/b"))
+
+        transport.respond(200, "[]")
+        assertEquals(HubResult.Failure(HubError.MALFORMED_RESPONSE), client.model("a/b"))
+    }
+
+    @Test
+    fun searchForCopiesFiltersOnTheQuantisedBaseModel() = runTest(dispatcher) {
+        transport.respond(200, "[]")
+
+        client.search("", limit = 5, filter = HubSearchFilter(textGeneration = false, quantisedFrom = "Qwen/Qwen3.5-0.8B"))
+
+        assertEquals(
+            "https://huggingface.co/api/models?filter=gguf&filter=base_model%3Aquantized%3AQwen%2FQwen3.5-0.8B" +
+                "&sort=downloads&direction=-1&limit=5" + EXPANSIONS,
+            transport.urls.single(),
+        )
+    }
+
+    @Test
+    fun repositoryInFindsANameOrAnAddress() {
+        val named = mapOf(
+            "Qwen/Qwen3.5-0.8B" to "Qwen/Qwen3.5-0.8B",
+            "  Qwen/Qwen3.5-0.8B " to "Qwen/Qwen3.5-0.8B",
+            "https://huggingface.co/Qwen/Qwen3.5-0.8B" to "Qwen/Qwen3.5-0.8B",
+            "https://huggingface.co/Qwen/Qwen3.5-0.8B/" to "Qwen/Qwen3.5-0.8B",
+            "https://huggingface.co/Qwen/Qwen3.5-0.8B/tree/main?x=1#y" to "Qwen/Qwen3.5-0.8B",
+            "https://huggingface.co/Qwen/Qwen3.5-0.8B?library=transformers" to "Qwen/Qwen3.5-0.8B",
+            "HTTP://WWW.HuggingFace.co/a/b" to "a/b",
+            "huggingface.co/a/b" to "a/b",
+            "hf.co/a/b" to "a/b",
+        )
+        named.forEach { (text, id) -> assertEquals(text, id, HubClient.repositoryIn(text)) }
+
+        listOf(
+            "qwen3", "qwen3 coder", "", "a/b/c", "a/b c", "https://huggingface.co/Qwen", "https://huggingface.co/",
+            "https://huggingface.co/datasets/a/b", "https://huggingface.co/spaces/a/b", "https://example.com/a/b",
+            "https://huggingface.co/a/..", "https://huggingface.co.evil.test/a/b",
+        ).forEach { assertNull(it, HubClient.repositoryIn(it)) }
+    }
+
     private class FakeTransport : HttpTransport {
         val urls = mutableListOf<String>()
         val headers = mutableListOf<Map<String, String>>()
