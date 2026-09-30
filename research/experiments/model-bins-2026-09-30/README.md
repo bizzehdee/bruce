@@ -63,6 +63,11 @@ it fits.
 | 1B to 3B | Qwen/Qwen2.5-Coder-1.5B-Instruct | Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF | 1.54 | apache-2.0 | q3_k_m | q6_k |
 | 1B to 3B | google/gemma-2-2b-it | MaziyarPanahi/gemma-2-2b-it-GGUF | 2.61 | not stated (gemma upstream) | IQ2_XS | IQ4_XS |
 
+**Owner, 2026-09-30:** JiRackUltra_1b dropped (single author, downloads nearly all on its own
+repository) and Qwen/Qwen3-VL-2B-Instruct (reserve) takes its place; 2- and 3-bit files on the
+low-memory phone are acceptable. All 30 files for the candidates downloaded to
+`build/scratch/bins/models` and matched their published SHA-256.
+
 Reserves: under 1B, openbmb/MiniCPM-V-4.6, Qwen/Qwen2-0.5B-Instruct,
 DavidAU/Qwen3-Zero-Coder-Reasoning-V2-0.8B; 1B to 3B, Qwen/Qwen3-VL-2B-Instruct,
 01-ai/Yi-Coder-1.5B-Chat, XHToken/Spark-X2.5-1.7B.

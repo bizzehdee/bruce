@@ -430,7 +430,7 @@
  },
  {
   "bucket": "1B-to-3B",
-  "role": "candidate",
+  "role": "dropped",
   "base_model": "CMSManhattan/JiRackUltra_1b",
   "downloads_all_copies": 2531258,
   "publishers": 2,
@@ -459,7 +459,8 @@
     "sha256": "8a7a9a4052ded2800d95b37a0bfc8b00630dc417b0e3410785203bab58238463",
     "fits": true
    }
-  }
+  },
+  "note": "Owner 2026-09-30: dropped (single author, downloads almost all on its own repository); replaced by Qwen/Qwen3-VL-2B-Instruct."
  },
  {
   "bucket": "1B-to-3B",
@@ -760,7 +761,7 @@
  },
  {
   "bucket": "1B-to-3B",
-  "role": "reserve",
+  "role": "candidate",
   "base_model": "Qwen/Qwen3-VL-2B-Instruct",
   "downloads_all_copies": 227782,
   "publishers": 8,
@@ -789,7 +790,8 @@
     "sha256": "089d75c52f4b7ffc56ba998ffc50aae89fcafc755f9e7208aacca281dca6c2ae",
     "fits": true
    }
-  }
+  },
+  "note": "Owner 2026-09-30: promoted from reserve in place of JiRackUltra_1b."
  },
  {
   "bucket": "1B-to-3B",

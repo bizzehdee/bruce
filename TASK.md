@@ -729,7 +729,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Owner (2026-09-30, after the task): the Task filter gains "Image and text" (the Hub's image-text-to-text tag) and defaults to Any, for recommendations and searches. With Any the Hub also returns speech, image and embedding models; those are dropped on the phone as before, and embedding architectures (the BERT family, `t5encoder`, `wavtokenizer-dec`) now count as not chat models. Device-tested on the Xperia 1 II: recommendations opened on Any with vision models listed; Image and text listed only vision models.
   - Device-tested on the Xperia 1 II: searching for `https://huggingface.co/Qwen/Qwen3.5-0.8B` showed the message and the copies (unsloth and bartowski first, both "Fits"). The no-copies message and its button are tested in unit tests only.
   - Depends on: TASK-020, TASK-022
-- [~] TASK-103: Choose the small models to evaluate
+- [x] TASK-103: Choose the small models to evaluate
   - Owner (2026-09-30): test the most popular instruction-capable models under 1B and under 3B parameters on all three phones, so models can be binned as "recommended" per device type, by memory size at first.
   - From the Hub, most downloaded first: GGUF repositories in two parameter buckets, under 1B and 1B to under 3B. Kept only if the repository has a chat template, llama.cpp supports the architecture as a chat model, and it is not gated. One repository per base model (its most downloaded copy), the first 10 base models per bucket.
   - For each model and phone, the file tested is the one Bruce itself picks for that phone at the default context length, so a tier's result is what a user on that phone would get.
@@ -737,7 +737,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Owner to confirm the list before anything is downloaded (about 20 models, up to three files each).
   - List made 2026-09-30: `research/experiments/model-bins-2026-09-30/` (README, `models.json`, scripts in `selection/`). 20 candidates and 6 reserves; 31 files, 29.7 GB, for the candidates on the phones they fit. Added to the rule: a base model needs GGUF copies from at least two publishers, and repositories whose Hub parameter count comes from part of a larger model are dropped.
   - Found and fixed on the way: "fp16" in file names was not recognised, so float files outranked Q8_0 on the 8 GB phone; `qwen3tts`, `pockettts` and `llama-embed` were listed as chat models.
-  - Waiting on the owner: confirm the list (JiRackUltra_1b is flagged), before downloading.
+  - Owner (2026-09-30): drop JiRackUltra_1b for Qwen3-VL-2B-Instruct; 2- and 3-bit files on low-memory phones are fine. The 30 files downloaded to `build/scratch/bins/models` (disk) and matched their SHA-256.
   - Depends on: TASK-020, TASK-022
   - Required by: TASK-104, TASK-105, TASK-108
 - [ ] TASK-104: Evaluation cases and phone harness for model binning
