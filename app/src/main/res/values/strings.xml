@@ -7,6 +7,9 @@
     <string name="chat_listening">Listening…</string>
     <string name="chat_voice">Speak a message</string>
     <string name="chat_voice_stop">Stop listening</string>
+    <string name="chat_read_aloud">Read aloud</string>
+    <string name="chat_read_stop">Stop reading</string>
+    <string name="chat_read_network">This voice sends the text to its provider over the internet. Install an offline voice in Android\'s text-to-speech settings to keep it on the phone.</string>
     <string name="chat_send">Send</string>
     <string name="chat_stop">Stop</string>
     <string name="chat_reasoning_show">Show reasoning</string>

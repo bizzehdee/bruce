@@ -300,7 +300,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   while the app is in the background. Needs the notification permission,
   requested when first needed. `done`
 - **Voice** — Speech-to-text, text-to-speech, voice conversations; local where
-  practical. `in progress` (speech-to-text done, TASK-074)
+  practical. `in progress` (speech-to-text and reading replies aloud done, TASK-074, TASK-080)
 - **Vision** — Local multimodal models for images, documents, screenshots.
   `planned`
 - **Advanced automation and background workflows** — Multi-step and multi-file tasks,
@@ -456,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Replies can be read aloud with the phone's text-to-speech, an offline voice preferred (TASK-080). |
 | 2026-09-30 | Changed | Hugging Face sign-in with a pasted access token done; write tokens are refused (TASK-079). |
 | 2026-09-30 | Changed | Conversation export done: one chat or all as Markdown or JSON (TASK-078). |
 | 2026-09-30 | Changed | Owner's decisions for TASK-078 to TASK-101: export as Markdown and JSON; default assistant built now; embedding model chosen from evidence; texts and calls open the app prefilled; scheduled phone-model runs only while charging; profiles per chat without automatic routing. |

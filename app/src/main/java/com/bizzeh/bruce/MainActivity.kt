@@ -8,6 +8,8 @@ import com.bizzeh.bruce.chat.VoiceText
 import com.bizzeh.bruce.chat.VoiceState
 import com.bizzeh.bruce.chat.VoiceRecogniser
 import com.bizzeh.bruce.chat.AndroidVoiceRecogniser
+import com.bizzeh.bruce.chat.AndroidReplySpeaker
+import com.bizzeh.bruce.chat.ReadAloud
 import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
@@ -211,6 +213,7 @@ class MainActivity : ComponentActivity() {
     private fun Main(exit: SetupExit) {
         val chatState by chat.state.collectAsState()
         val voice by voiceState.collectAsState()
+        val speech by readAloud.state.collectAsState()
         val serverModels by servers.state.collectAsState()
         val activeModel by container.activeModel.state.collectAsState()
         LaunchedEffect(Unit) { container.modelSelection.restore() }
@@ -228,7 +231,7 @@ class MainActivity : ComponentActivity() {
             conversations.exportOutcomeShown()
         }
         BruceApp(
-            chat = chatState.copy(voice = voice),
+            chat = chatState.copy(voice = voice, speech = speech),
             chatActions = remember { chatActions() },
             activeModel = activeModel,
             remoteModels = serverModels.choices(),
@@ -417,12 +420,19 @@ class MainActivity : ComponentActivity() {
         super.onStart()
         container.onScreen = true
         voiceState.value = if (voice.available) VoiceState.IDLE else VoiceState.UNAVAILABLE
+        readAloud.prepare()
+    }
+
+    override fun onDestroy() {
+        readAloud.release()
+        super.onDestroy()
     }
 
     override fun onStop() {
         container.onScreen = false
         // The microphone is only for while the user is here.
         stopVoice()
+        readAloud.stop()
         super.onStop()
     }
 
@@ -433,6 +443,8 @@ class MainActivity : ComponentActivity() {
     private fun startExport(ids: Set<Long>?, format: ExportFormat) {
         exportLaunchers.getValue(format).launch(conversations.requestExport(ExportRequest(ids, format)))
     }
+
+    private val readAloud by lazy { ReadAloud(AndroidReplySpeaker(applicationContext)) }
 
     private val voice: VoiceRecogniser by lazy { AndroidVoiceRecogniser(applicationContext) }
     private val voiceState = MutableStateFlow(VoiceState.UNAVAILABLE)
@@ -511,6 +523,10 @@ class MainActivity : ComponentActivity() {
         override suspend fun loadImage(url: String) = container.remoteImages.load(url)
         override fun startVoice() = this@MainActivity.startVoice()
         override fun stopVoice() = this@MainActivity.stopVoice()
+        override fun readAloud(index: Int) {
+            chat.state.value.entries.getOrNull(index)?.let { readAloud.read(index, it.text) }
+        }
+        override fun stopReading() = readAloud.stop()
     }
 
     private fun conversationActions() = object : ConversationActions {

@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
 import org.junit.After
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -167,16 +168,18 @@ class ConversationExportTest {
     private val written = ByteArrayOutputStream()
     private val opened = mutableListOf<String>()
 
+    @Before
+    fun setUp() = Dispatchers.setMain(Dispatchers.Unconfined)
+
     @After
     fun tearDown() {
         Dispatchers.resetMain()
         database.close()
     }
 
-    private fun viewModel(open: (String) -> OutputStream? = { opened += it; written }): ConversationsViewModel {
-        Dispatchers.setMain(Dispatchers.Unconfined)
-        return ConversationsViewModel(store, {}, open, { 1_790_762_400_000L }, ChatExport(ZoneOffset.UTC), Dispatchers.Unconfined)
-    }
+    // Main is set once per test: setting it again while an earlier view model's flows run fails.
+    private fun viewModel(open: (String) -> OutputStream? = { opened += it; written }) =
+        ConversationsViewModel(store, {}, open, { 1_790_762_400_000L }, ChatExport(ZoneOffset.UTC), Dispatchers.Unconfined)
 
     private fun outcome(vm: ConversationsViewModel) = runBlocking { withTimeout(5_000) { vm.exportOutcome.filterNotNull().first() } }
 

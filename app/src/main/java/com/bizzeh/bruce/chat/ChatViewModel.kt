@@ -72,6 +72,8 @@ data class ChatState(
     val error: ChatError? = null,
     /** Voice input's state; set by the activity, which owns the recogniser and the microphone permission. */
     val voice: VoiceState = VoiceState.UNAVAILABLE,
+    /** Reading replies aloud; set by the activity, which owns the speech engine. */
+    val speech: SpeechState = SpeechState(),
 )
 
 enum class ChatError {

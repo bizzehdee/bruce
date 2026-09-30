@@ -570,10 +570,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: Settings, Network, "Use an access token instead" under Sign in opens a hidden field. Only `hf_` plus 20–100 letters and digits is sent (so nothing else can reach a header); `/api/whoami-v2` gives the username and role; `write` tokens are refused (secure default: Bruce only downloads), read and fine-grained are kept, sealed like the OAuth token, with no expiry ("With an access token"). Sign-in errors now show sentences rather than error codes.
   - Device-tested on the Xperia 1 II: a made-up token reached Hugging Face, got 401 and showed "Hugging Face did not accept that token". A real token was not tried (none of the owner's was used).
   - Depends on: TASK-028
-- [ ] TASK-080: Read replies aloud (text-to-speech)
+- [x] TASK-080: Read replies aloud (text-to-speech)
   - Owner (2026-09-30): any engine the phone has; where the voice needs the network, say so and prefer an offline voice when one exists.
   - A speaker button on each reply reads it with Android's `TextToSpeech`, Markdown stripped, code blocks skipped. Stop ends it.
   - Open question: on-device voices only (as with voice input, TASK-074), or any engine the phone has set up.
+  - Done (`chat/SpeechOutput.kt`): a speaker button under each finished reply (not the one still streaming) reads it; it becomes Stop while reading, and starting another reply stops the first. Spoken text is the answer only: reasoning, code blocks and rules are skipped, links and emphasis read as their text, tables row by row, images by their description; long replies go in parts under the engine's 4,000-character limit. The voice is an installed offline one for the phone's language where there is one, otherwise the engine's default; while a network voice reads, the chat says the text goes to its provider. Reading stops when Bruce leaves the screen. The manifest declares the TTS service query Android 11+ needs to find engines. Only error codes are logged.
+  - Device-tested on the Xperia 1 II (Google TTS): "hello!" was read with the offline `en-gb-x-gba-local` voice; a five-sentence reply showed Stop reading while it played and Stop ended it. The network-voice note was not seen on a phone (that phone has an offline voice).
   - Depends on: TASK-051, TASK-074
   - Required by: TASK-081
 - [ ] TASK-081: Voice conversation mode

@@ -72,6 +72,10 @@ interface ChatActions {
     /** Starts listening, asking for the microphone first if needed (TASK-074). */
     fun startVoice() = Unit
     fun stopVoice() = Unit
+
+    /** Reads entry [index]'s reply aloud (TASK-080). */
+    fun readAloud(index: Int) = Unit
+    fun stopReading() = Unit
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,7 +175,7 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
                 entry.tool != null -> Unit
                 // A reply that only asked for skills has nothing to show; its tool rows follow.
                 entry.text.isEmpty() && entry.toolCalls.isNotEmpty() -> Unit
-                else -> Reply(index, entry, state.sidekick, markdownActions)
+                else -> Reply(index, entry, state.sidekick, markdownActions, readAloud = state.speech.takeIf { it.available && !(state.generating && index == state.entries.lastIndex) }, actions)
             }
         }
         if (state.summarising) {
@@ -310,7 +314,7 @@ private fun UserMessage(text: String) {
 }
 
 @Composable
-private fun Reply(index: Int, entry: ChatEntry, sidekick: String, markdown: MarkdownActions) {
+private fun Reply(index: Int, entry: ChatEntry, sidekick: String, markdown: MarkdownActions, readAloud: SpeechState?, actions: ChatActions) {
     val reply = ThinkingText.split(entry.text)
     var showReasoning by rememberSaveable(index) { mutableStateOf(false) }
     Column(modifier = Modifier.fillMaxWidth().testTag("reply:$index"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -335,6 +339,29 @@ private fun Reply(index: Int, entry: ChatEntry, sidekick: String, markdown: Mark
         }
         if (reply.answer.isNotEmpty()) {
             MarkdownText(reply.answer, markdown, modifier = Modifier.testTag("answer:$index"))
+            if (readAloud != null) ReadAloudButton(index, readAloud, actions)
+        }
+    }
+}
+
+@Composable
+private fun ReadAloudButton(index: Int, speech: SpeechState, actions: ChatActions) {
+    val reading = speech.reading == index
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = { if (reading) actions.stopReading() else actions.readAloud(index) }, modifier = Modifier.testTag("readAloud:$index")) {
+            Icon(
+                painterResource(if (reading) R.drawable.ic_stop else R.drawable.ic_volume_up),
+                contentDescription = stringResource(if (reading) R.string.chat_read_stop else R.string.chat_read_aloud),
+                tint = if (reading) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (reading && speech.needsNetwork) {
+            Text(
+                stringResource(R.string.chat_read_network),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.testTag("readNetwork"),
+            )
         }
     }
 }

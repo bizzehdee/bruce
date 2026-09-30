@@ -231,6 +231,30 @@ class ChatScreenTest {
     }
 
     @Test
+    fun finishedRepliesCanBeReadAloud() {
+        val entries = listOf(ChatEntry(ChatRole.USER, "hi"), ChatEntry(ChatRole.ASSISTANT, "Hello."), ChatEntry(ChatRole.USER, "more"), ChatEntry(ChatRole.ASSISTANT, "Stream"))
+        var state by androidx.compose.runtime.mutableStateOf(ChatState(modelName = "m", entries = entries, generating = true))
+        val speechActions = object : ChatActions by actions {
+            override fun readAloud(index: Int) { calls += "read $index" }
+            override fun stopReading() { calls += "stop reading" }
+        }
+        compose.setContent { BruceTheme { ChatScreen(state, speechActions) } }
+
+        compose.onNodeWithTag("readAloud:1").assertDoesNotExist()
+        state = state.copy(speech = SpeechState(available = true))
+        compose.onNodeWithTag("readAloud:3").assertDoesNotExist()
+        compose.onNodeWithTag("readAloud:1").performClick()
+        state = state.copy(speech = SpeechState(available = true, reading = 1, needsNetwork = true))
+        compose.onNodeWithTag("readNetwork").assertIsDisplayed()
+        compose.onNodeWithTag("readAloud:1").performClick()
+        state = state.copy(generating = false, speech = SpeechState(available = true))
+        compose.onNodeWithTag("readAloud:3").assertExists()
+        compose.onNodeWithTag("readNetwork").assertDoesNotExist()
+
+        assertEquals(listOf("read 1", "stop reading"), calls)
+    }
+
+    @Test
     fun aNewSiteCanBeAlwaysAllowedFromTheCard() {
         val tool = ToolUse("c1", "fetch_page", "", ToolStatus.AWAITING_APPROVAL)
         val siteActions = object : ChatActions by actions {
