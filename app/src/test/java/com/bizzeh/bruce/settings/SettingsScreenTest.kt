@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.settings
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.performTextInput
@@ -50,6 +51,7 @@ class SettingsScreenTest {
         override fun setSummaryEnabled(enabled: Boolean) { calls += "summarise $enabled" }
         override fun setSummaryThreshold(threshold: Int) { calls += "threshold $threshold" }
         override fun signIn() { calls += "signIn" }
+        override fun signInWithToken(token: String) { calls += "token $token" }
         override fun signOut() { calls += "signOut" }
         override fun openSkills() { calls += "skills" }
         override fun openMemory() { calls += "memory" }
@@ -190,6 +192,27 @@ class SettingsScreenTest {
         compose.onNodeWithTag("signOut").performClick()
 
         assertEquals(listOf("signOut"), calls)
+    }
+
+    @Test
+    fun anAccessTokenCanBePastedInstead() {
+        show(SettingsState(network = NetworkMode.HUGGING_FACE))
+
+        compose.onNodeWithTag("useToken").performScrollTo().performClick()
+        compose.onNodeWithTag("saveHubToken").assertIsNotEnabled()
+        compose.onNodeWithTag("hubToken").performScrollTo().performTextInput("hf_token")
+        compose.onNodeWithTag("saveHubToken").performScrollTo().performClick()
+
+        assertEquals(listOf("token hf_token"), calls)
+    }
+
+    @Test
+    fun aTokenAccountHasNoExpiryAndErrorsAreExplained() {
+        show(SettingsState(network = NetworkMode.HUGGING_FACE, account = HubAccount("bruce-owner", null), signInError = SignInError.WRITE_TOKEN))
+
+        compose.onNodeWithText("With an access token").assertIsDisplayed()
+        compose.onNodeWithText("That token can change your repositories. Bruce only downloads: create a Read token instead.").assertIsDisplayed()
+        SignInError.entries.forEach { assertTrue(SettingsText.signInError(it) != 0) }
     }
 
     @Test

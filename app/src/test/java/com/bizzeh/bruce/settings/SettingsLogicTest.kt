@@ -141,6 +141,15 @@ class SettingsLogicTest {
     }
 
     @Test
+    fun aMalformedPastedTokenReachesTheState() = runTest(dispatcher) {
+        val f = Fixture(this)
+
+        f.viewModel.signInWithToken("not a token")
+
+        assertEquals(SignInError.INVALID_TOKEN, f.viewModel.state.first { it.signInError != null }.signInError)
+    }
+
+    @Test
     fun threadChoicesAndLabels() {
         assertEquals(listOf(1, 2, 4, 8), SettingsText.threadChoices(8))
         assertEquals(listOf(1, 2, 4, 6), SettingsText.threadChoices(6))

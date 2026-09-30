@@ -17,3 +17,7 @@ Established: 2026-09-28. Sources: `research/sources/hf-oauth-2026-09-28/`.
 - Resolve (download) URLs redirect to a CDN. The `Authorization` header must not follow that
   redirect; Bruce follows redirects itself when a token is attached and drops the header
   when the host changes.
+- Pasted tokens (2026-09-30, `research/sources/hf-whoami-2026-09-30/`): `GET /api/whoami-v2` with
+  the bearer token gives `name` and `auth.accessToken.role` (`read`, `write`, `fineGrained`); a bad
+  token gets 401 (seen from the Xperia 1 II). User tokens have no expiry in the response, so Bruce
+  stores none. Bruce refuses `write` tokens, since it only downloads.

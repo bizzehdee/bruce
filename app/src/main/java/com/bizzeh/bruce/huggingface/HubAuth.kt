@@ -25,7 +25,8 @@ interface TokenCipher {
     fun decrypt(sealed: ByteArray): ByteArray?
 }
 
-data class HubAccount(val username: String, val expiresAtMillis: Long)
+/** [expiresAtMillis] is null for a pasted access token, which lasts until the user revokes it. */
+data class HubAccount(val username: String, val expiresAtMillis: Long?)
 
 sealed interface SignInResult {
     data class SignedIn(val account: HubAccount) : SignInResult
@@ -41,6 +42,10 @@ enum class SignInError {
     /** The user declined, or Hugging Face returned an error. */
     DENIED,
     TOKEN_EXCHANGE_FAILED,
+    /** A pasted token that is not one, or that Hugging Face does not accept. */
+    INVALID_TOKEN,
+    /** A pasted token that can write to the user's repositories; Bruce only downloads. */
+    WRITE_TOKEN,
 }
 
 /** A sign-in in progress: open [authorizeUrl] in the browser, then pass the redirect to [HubAuth.complete]. */
@@ -50,6 +55,7 @@ data class PendingSignIn(val authorizeUrl: String, internal val state: String, i
  * Hugging Face sign-in with OAuth 2 authorisation code + PKCE, as a public app with no client
  * secret (.learnings/hf-oauth-for-native-apps.md). The token is stored encrypted; the code
  * verifier lives only in memory, so a sign-in interrupted by process death is simply retried.
+ * A pasted access token is the fallback (TASK-079), checked with `/api/whoami-v2`.
  */
 class HubAuth(
     private val transport: HttpTransport,
@@ -73,7 +79,7 @@ class HubAuth(
     val account: Flow<HubAccount?> = dataStore.data.map { preferences ->
         val username = preferences[USERNAME] ?: return@map null
         val expires = preferences[EXPIRES] ?: return@map null
-        HubAccount(username, expires).takeIf { expires > clock() && preferences[TOKEN] != null }
+        HubAccount(username, expires.takeIf { it != NO_EXPIRY }).takeIf { expires > clock() && preferences[TOKEN] != null }
     }
 
     fun begin(): PendingSignIn {
@@ -106,6 +112,38 @@ class HubAuth(
         } catch (e: IOException) {
             SignInResult.Failed(SignInError.OFFLINE)
         }
+    }
+
+    /**
+     * Signs in with an access token the user pasted. Only read and fine-grained tokens are kept
+     * (research/sources/hf-whoami-2026-09-30); the token is never logged.
+     */
+    suspend fun signInWithToken(pasted: String): SignInResult {
+        pending = null
+        val token = pasted.trim()
+        if (!PASTED_TOKEN.matches(token)) return SignInResult.Failed(SignInError.INVALID_TOKEN)
+        if (!networkAllowed()) return SignInResult.Failed(SignInError.NETWORK_DISABLED)
+        return try {
+            withContext(dispatcher) { checkPasted(token) }
+        } catch (e: IOException) {
+            SignInResult.Failed(SignInError.OFFLINE)
+        }
+    }
+
+    private suspend fun checkPasted(token: String): SignInResult {
+        val response = transport.get("$baseUrl/api/whoami-v2", mapOf("Authorization" to "Bearer $token", "Accept" to "application/json"), MAX_RESPONSE_BYTES)
+        if (response?.status == 401) return SignInResult.Failed(SignInError.INVALID_TOKEN)
+        if (response == null || response.status != 200) return SignInResult.Failed(SignInError.TOKEN_EXCHANGE_FAILED)
+        val (username, role) = try {
+            val json = JSONObject(response.body.toString(Charsets.UTF_8))
+            json.getString("name").take(MAX_USERNAME) to json.optJSONObject("auth")?.optJSONObject("accessToken")?.optString("role")
+        } catch (e: JSONException) {
+            return SignInResult.Failed(SignInError.TOKEN_EXCHANGE_FAILED)
+        }
+        if (username.isBlank()) return SignInResult.Failed(SignInError.TOKEN_EXCHANGE_FAILED)
+        if (role == "write") return SignInResult.Failed(SignInError.WRITE_TOKEN)
+        store(token, username, NO_EXPIRY)
+        return SignInResult.SignedIn(HubAccount(username, null))
     }
 
     /** The bearer token for Hub requests, or null when signed out or expired. */
@@ -149,14 +187,18 @@ class HubAuth(
         if (token.isBlank() || lifetimeSeconds <= 0) return SignInResult.Failed(SignInError.TOKEN_EXCHANGE_FAILED)
         val username = username(token) ?: return SignInResult.Failed(SignInError.TOKEN_EXCHANGE_FAILED)
 
-        val account = HubAccount(username, clock() + lifetimeSeconds * 1000)
+        val expires = clock() + lifetimeSeconds * 1000
+        store(token, username, expires)
+        return SignInResult.SignedIn(HubAccount(username, expires))
+    }
+
+    private suspend fun store(token: String, username: String, expires: Long) {
         val sealed = Base64.encodeToString(cipher.encrypt(token.toByteArray(Charsets.UTF_8)), Base64.NO_WRAP)
         dataStore.edit {
             it[TOKEN] = sealed
-            it[EXPIRES] = account.expiresAtMillis
-            it[USERNAME] = account.username
+            it[EXPIRES] = expires
+            it[USERNAME] = username
         }
-        return SignInResult.SignedIn(account)
     }
 
     private fun username(token: String): String? {
@@ -182,6 +224,10 @@ class HubAuth(
         private const val MAX_USERNAME = 100
         /** Hugging Face's documented default when a response omits expires_in. */
         private const val DEFAULT_LIFETIME_SECONDS = 8L * 60 * 60
+        /** Stored as the expiry of a pasted token, which has none. */
+        private const val NO_EXPIRY = Long.MAX_VALUE
+        /** User access tokens: `hf_` then letters and digits. Anything else never reaches a header. */
+        private val PASTED_TOKEN = Regex("hf_[A-Za-z0-9]{20,100}")
         private val TOKEN = stringPreferencesKey("hf_token_sealed")
         private val EXPIRES = longPreferencesKey("hf_token_expires")
         private val USERNAME = stringPreferencesKey("hf_username")

@@ -560,6 +560,7 @@ class MainActivity : ComponentActivity() {
         override fun signIn() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(settings.beginSignIn())))
         }
+        override fun signInWithToken(token: String) = settings.signInWithToken(token)
         override fun signOut() = settings.signOut()
         override fun openSkills() = open(Destination.SKILLS)
         override fun openMemory() = open(Destination.MEMORY)

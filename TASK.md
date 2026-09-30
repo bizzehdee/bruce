@@ -565,8 +565,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`conversations/ChatExport.kt`): Export in the chat list's selection bar and "Export all chats" in Settings, Privacy (archived chats included) ask Markdown or JSON, then Android's save dialog. The file is written through the picked document only, one chat at a time. Markdown shows the conversation with reasoning left out, skill calls and results (fenced so a result cannot break out), and summaries; JSON (`bruce-chats`, version 1) keeps raw text, tool calls, results and statuses, ISO-8601 times. The model used is not saved with a chat, so it is not exported. Failures are logged by type only.
   - Device-tested on the Xperia 1 II: "Export all chats" as JSON to Documents gave valid JSON with the chat; one chat as Markdown from the drawer was saved as "Say hello in one word.md". Test files were removed. The toast after saving was not checked.
   - Depends on: TASK-032
-- [ ] TASK-079: Hugging Face sign-in with a pasted token
+- [x] TASK-079: Hugging Face sign-in with a pasted token
   - Settings, Network: paste an access token as an alternative to OAuth; it is checked with the Hub's whoami call, then sealed with the Android Keystore like the OAuth token. The field is never logged or shown again.
+  - Done: Settings, Network, "Use an access token instead" under Sign in opens a hidden field. Only `hf_` plus 20–100 letters and digits is sent (so nothing else can reach a header); `/api/whoami-v2` gives the username and role; `write` tokens are refused (secure default: Bruce only downloads), read and fine-grained are kept, sealed like the OAuth token, with no expiry ("With an access token"). Sign-in errors now show sentences rather than error codes.
+  - Device-tested on the Xperia 1 II: a made-up token reached Hugging Face, got 401 and showed "Hugging Face did not accept that token". A real token was not tried (none of the owner's was used).
   - Depends on: TASK-028
 - [ ] TASK-080: Read replies aloud (text-to-speech)
   - Owner (2026-09-30): any engine the phone has; where the voice needs the network, say so and prefer an offline voice when one exists.

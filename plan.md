@@ -113,7 +113,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   do. `done`
 - **Hugging Face sign-in** — OAuth ("Sign in with Hugging Face") as the default,
   pasted access token as a fallback. Token stored in Keystore-backed storage.
-  `done` for OAuth; the pasted-token fallback is not built.
+  `done` (a pasted token must be a read or fine-grained one)
 - **Resumable downloads** — Download into app storage, resume with range requests
   after interruption, check free space first, and verify the SHA-256 the Hub
   publishes for the file. `done`
@@ -456,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Hugging Face sign-in with a pasted access token done; write tokens are refused (TASK-079). |
 | 2026-09-30 | Changed | Conversation export done: one chat or all as Markdown or JSON (TASK-078). |
 | 2026-09-30 | Changed | Owner's decisions for TASK-078 to TASK-101: export as Markdown and JSON; default assistant built now; embedding model chosen from evidence; texts and calls open the app prefilled; scheduled phone-model runs only while charging; profiles per chat without automatic routing. |
 | 2026-09-30 | Changed | Statuses brought up to date (model manager, context, memory, confirmations, denials, untrusted content, Android settings, notifications, screens, hardware tuning marked done); tasks created for the features not yet started (TASK-078 to TASK-101). |

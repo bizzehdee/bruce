@@ -79,6 +79,11 @@ class SettingsViewModel(
         signInError.value = (hubAuth.complete(parameters) as? SignInResult.Failed)?.error
     }
 
+    fun signInWithToken(token: String) = launch {
+        signInError.value = null
+        signInError.value = (hubAuth.signInWithToken(token) as? SignInResult.Failed)?.error
+    }
+
     fun signOut() = launch { hubAuth.signOut() }
 
     fun setThemeMode(mode: ThemeMode) = launch { theme.setMode(mode) }

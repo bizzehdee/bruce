@@ -187,6 +187,64 @@ class HubAuthTest {
         assertNull(auth.accessToken())
     }
 
+    private val pasted = "hf_" + "a1B2c3".repeat(6)
+
+    @Test
+    fun aPastedReadTokenSignsInWithoutExpiry() = runTest(dispatcher) {
+        val auth = auth()
+
+        assertEquals(SignInResult.SignedIn(HubAccount("bruce-owner", null)), auth.signInWithToken("  $pasted\n"))
+
+        assertEquals("Bearer $pasted", transport.whoamiAuth)
+        now = Long.MAX_VALUE - 1
+        assertEquals(HubAccount("bruce-owner", null), auth.account.first())
+        assertEquals(pasted, auth.accessToken())
+        auth.signOut()
+        assertNull(auth.account.first())
+    }
+
+    @Test
+    fun fineGrainedTokensAreKept() = runTest(dispatcher) {
+        transport.whoamiBody = """{"name":"bruce-owner","auth":{"accessToken":{"role":"fineGrained"}}}"""
+
+        assertEquals(SignInResult.SignedIn(HubAccount("bruce-owner", null)), auth().signInWithToken(pasted))
+    }
+
+    @Test
+    fun pastedTokensThatAreRefused() = runTest(dispatcher) {
+        val refused = listOf<Pair<String, OAuthServer.() -> Unit>>(
+            "not a token" to {},
+            "hf_short" to {},
+            "hf_${"a".repeat(30)}\r\nX-Evil: 1" to {},
+            "api_org_${"a".repeat(30)}" to {},
+        )
+        for ((token, _) in refused) {
+            transport.whoamiAuth = null
+            assertEquals(token, SignInResult.Failed(SignInError.INVALID_TOKEN), auth().signInWithToken(token))
+            assertNull("never sent: $token", transport.whoamiAuth)
+        }
+        val cases = listOf<Pair<SignInError, OAuthServer.() -> Unit>>(
+            SignInError.INVALID_TOKEN to { whoamiStatus = 401 },
+            SignInError.WRITE_TOKEN to { whoamiBody = """{"name":"bruce-owner","auth":{"accessToken":{"role":"write"}}}""" },
+            SignInError.TOKEN_EXCHANGE_FAILED to { whoamiStatus = 500 },
+            SignInError.TOKEN_EXCHANGE_FAILED to { whoamiBody = "not json" },
+            SignInError.TOKEN_EXCHANGE_FAILED to { whoamiBody = """{"name":" "}""" },
+            SignInError.OFFLINE to { fail = true },
+        )
+        for ((error, setUp) in cases) {
+            transport.reset()
+            transport.whoamiStatus = 200
+            transport.whoamiBody = """{"name":"bruce-owner"}"""
+            transport.setUp()
+            val auth = auth()
+            assertEquals(SignInResult.Failed(error), auth.signInWithToken(pasted))
+            assertNull(auth.accessToken())
+        }
+        transport.reset()
+        allowed = false
+        assertEquals(SignInResult.Failed(SignInError.NETWORK_DISABLED), auth().signInWithToken(pasted))
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun httpsOnly() = runTest(dispatcher) {
         HubAuth(transport, PreferenceDataStoreFactory.create(scope = backgroundScope) { temp.newFile("c.preferences_pb").also { it.delete() } }, ReversingCipher, { true }, dispatcher, "c", baseUrl = "http://h")
@@ -221,7 +279,16 @@ class HubAuthTest {
             return if (tooLarge) null else HttpResponse(tokenStatus, emptyMap(), tokenBody.toByteArray())
         }
 
+        var whoamiStatus = 200
+        var whoamiBody = """{"type":"user","name":"bruce-owner","auth":{"accessToken":{"displayName":"phone","role":"read"}}}"""
+        var whoamiAuth: String? = null
+
         override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse {
+            if (fail) throw IOException("offline")
+            if (url == "https://huggingface.co/api/whoami-v2") {
+                whoamiAuth = headers["Authorization"]
+                return HttpResponse(whoamiStatus, emptyMap(), whoamiBody.toByteArray())
+            }
             assertEquals("https://huggingface.co/oauth/userinfo", url)
             userinfoAuth = headers["Authorization"]
             return HttpResponse(userinfoStatus, emptyMap(), userinfoBody.toByteArray())

@@ -101,6 +101,7 @@ interface SettingsActions {
     fun setSummaryEnabled(enabled: Boolean)
     fun setSummaryThreshold(threshold: Int)
     fun signIn()
+    fun signInWithToken(token: String) = Unit
     fun signOut()
     fun openSkills()
     fun openPermissions()
@@ -280,7 +281,10 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             if (account != null) {
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.account_signed_in, account.username)) },
-                    supportingContent = { Text(stringResource(R.string.account_signed_in_until, SettingsText.date(account.expiresAtMillis))) },
+                    supportingContent = {
+                        val expires = account.expiresAtMillis
+                        Text(if (expires == null) stringResource(R.string.account_signed_in_token) else stringResource(R.string.account_signed_in_until, SettingsText.date(expires)))
+                    },
                     trailingContent = { TextButton(onClick = actions::signOut, modifier = Modifier.testTag("signOut")) { Text(stringResource(R.string.account_sign_out)) } },
                 )
             } else {
@@ -292,10 +296,11 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                     },
                     modifier = Modifier.clickable(enabled = allowed, onClick = actions::signIn).testTag("signIn"),
                 )
+                if (allowed) PastedToken(actions)
             }
             state.signInError?.let {
                 Text(
-                    stringResource(R.string.account_error, it.name),
+                    stringResource(SettingsText.signInError(it)),
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(horizontal = 16.dp).testTag("signInError"),
                 )
@@ -407,6 +412,32 @@ private fun SearchKey(state: SettingsState, actions: SettingsActions) {
     }
 }
 
+/** The fallback to OAuth (TASK-079): a Hugging Face access token, hidden as it is typed. */
+@Composable
+private fun PastedToken(actions: SettingsActions) {
+    var open by rememberSaveable { mutableStateOf(false) }
+    if (!open) {
+        TextButton(onClick = { open = true }, modifier = Modifier.padding(horizontal = 8.dp).testTag("useToken")) { Text(stringResource(R.string.account_use_token)) }
+        return
+    }
+    var token by rememberSaveable { mutableStateOf("") }
+    Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.account_token_explained), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        OutlinedTextField(
+            value = token,
+            onValueChange = { token = it },
+            label = { Text(stringResource(R.string.account_token)) },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, autoCorrectEnabled = false),
+            modifier = Modifier.fillMaxWidth().testTag("hubToken"),
+        )
+        Button(onClick = { actions.signInWithToken(token); token = "" }, enabled = token.isNotBlank(), modifier = Modifier.testTag("saveHubToken")) {
+            Text(stringResource(R.string.account_token_sign_in))
+        }
+    }
+}
+
 @Composable
 private fun Chips(content: @Composable () -> Unit) {
     // Wraps onto more lines rather than scrolling sideways, which users do not expect of a row of choices.
@@ -482,6 +513,16 @@ internal object SettingsText {
         NetworkMode.HUGGING_FACE -> R.string.network_huggingface_summary
         NetworkMode.APPROVED_DOMAINS -> R.string.network_approved_summary
         NetworkMode.GENERAL -> R.string.network_general_summary
+    }
+
+    fun signInError(error: SignInError) = when (error) {
+        SignInError.NETWORK_DISABLED -> R.string.account_error_network
+        SignInError.OFFLINE -> R.string.account_error_offline
+        SignInError.UNEXPECTED_CALLBACK -> R.string.account_error_unexpected
+        SignInError.DENIED -> R.string.account_error_denied
+        SignInError.TOKEN_EXCHANGE_FAILED -> R.string.account_error_failed
+        SignInError.INVALID_TOKEN -> R.string.account_error_invalid_token
+        SignInError.WRITE_TOKEN -> R.string.account_error_write_token
     }
 
     fun date(millis: Long, locale: java.util.Locale = java.util.Locale.getDefault()): String =
