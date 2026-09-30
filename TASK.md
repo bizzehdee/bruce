@@ -736,7 +736,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Output: the list with repository, revision, file, SHA-256, licence and parameter count, in `research/experiments/model-bins-<date>/models.json`; the Hub answers archived under `research/sources` and indexed.
   - Owner to confirm the list before anything is downloaded (about 20 models, up to three files each).
   - Depends on: TASK-020, TASK-022
-  - Required by: TASK-104, TASK-105
+  - Required by: TASK-104, TASK-105, TASK-108
 - [ ] TASK-104: Evaluation cases and phone harness for model binning
   - Harness: a manual-only device test that drives `BruceRuntime` (Bruce's real system prompt, skill descriptions, tool-call handling and prompt reuse), not llama-server, so results match the app. It reads a model path, context length, skills on or off and the case list from instrumentation arguments and writes one JSON line per case to the app's files directory. It keeps app data.
   - Skills on: the skill states of a fresh install. The automatic skills (date and time, calculator, battery, device, storage, network) run for real; every other skill is answered by a fixed stub, so no contact, calendar entry, location, photo or file of the owner is read and nothing is written to the phone. Skills off: no skills offered.
@@ -747,13 +747,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - A host script runs the three phones side by side, one model at a time per phone, and checks the loaded model's name before measuring. Scratch files in `build/scratch`.
   - Tests: unit tests for the case checks and the outcome grading; the harness itself checked with the smallest model on one phone.
   - Depends on: TASK-012, TASK-033, TASK-103
-  - Required by: TASK-105
+  - Required by: TASK-105, TASK-108
 - [ ] TASK-105: Run the model evaluation on the three phones
   - Phones and memory tiers: Xperia XZ Premium (4 GB), Xperia 1 II (8 GB), Pixel 11 (12 GB). All on USB power, screen on, nothing else running.
-  - Every model from TASK-103 on every phone where Bruce's fit label allows it; a model that does not fit a phone is recorded as "does not fit" for that tier.
+  - Every model that passed TASK-108 on every phone where Bruce's fit label allows it; a model that does not fit a phone is recorded as "does not fit" for that tier.
   - Output in `research/experiments/model-bins-<date>/`: raw results per phone, and a report per model with every reply side by side (skills on and off, per phone) for the owner to read.
   - A run that crashes, stalls or serves the wrong model is discarded and rerun, and the discard is noted.
-  - Depends on: TASK-103, TASK-104
+  - Only the models that pass the host screen (TASK-108) go to the phones.
+  - Depends on: TASK-103, TASK-104, TASK-108
   - Required by: TASK-106
 - [ ] TASK-106: Bin the models per memory tier
   - Bins per tier (4 GB, 8 GB, 12 GB): Recommended, Usable, Not recommended. A tier's bin comes from that tier's phone only.
@@ -768,3 +769,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - How it shows (a "Recommended" label, ranking first, the setup wizard's first-model offer) is agreed with the owner once the bins exist.
   - Nothing new leaves the phone: the list is in the app, matched against Hub results on the phone.
   - Depends on: TASK-031, TASK-106
+- [ ] TASK-108: Screen the models on the development machine first
+  - Owner (2026-09-30): test on the development machine with llama.cpp first, so phone time is not spent on poor models.
+  - `llama-server` from the pinned llama.cpp submodule, CPU only, with Bruce's own system prompt and skill definitions exported from the app (as `PromptDumpDeviceTest` does) and each model's own tool-call format, the way the TASK-033 harness ran. Same `cases.json`, skills on and off, context 4096, greedy.
+  - Each model is screened with every file that one of the three phones would pick for it, since the phones may pick different quantisations.
+  - Proposed screen, for the owner to confirm: a model is dropped if, with its best file, it misses the Usable bar of TASK-106 on quality (below 60% on the no-skill or the skill cases), or it invents answers in the skills-off cases that need a skill. The owner can keep a dropped model.
+  - Measures quality only. Speed, memory and the context sweep need the phones (TASK-105), and the phones still run the full case set on the models that pass, since phone results can differ (ARM kernels, other quantisations).
+  - Output: host results and a report with every reply in `research/experiments/model-bins-<date>/host/`, and the list of models that go to the phones.
+  - Depends on: TASK-103, TASK-104
+  - Required by: TASK-105

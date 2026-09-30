@@ -281,8 +281,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   first (4 GB, 8 GB and 12 GB tiers, one test phone each). The bins come from an
   evaluation of the most popular small chat models (under 1B and under 3B
   parameters) on the three test phones: replies to a fixed set of prompts with
-  skills on and off, at several context lengths, with speed and memory. `planned`
-  (TASK-103 to TASK-107)
+  skills on and off, at several context lengths, with speed and memory. Models
+  are screened on the development machine first; only those that pass go to the
+  phones. `planned`
+  (TASK-103 to TASK-108)
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and
@@ -469,6 +471,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Model evaluation screens models on the development machine first; only those that pass are run on the phones (owner) (TASK-108). |
 | 2026-09-30 | Added | Recommended models by device type (memory tiers), from an evaluation of popular small models on the three test phones (owner) (TASK-103 to TASK-107). |
 | 2026-09-30 | Changed | Model browser's Task filter: Any (now the default), Text generation, Image and text (owner). |
 | 2026-09-30 | Changed | A model without GGUF files now points to its GGUF copies; a repository's name or address shows that repository (TASK-102). |
