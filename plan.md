@@ -111,6 +111,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   with a partial (range) download to get the layer shape for the memory estimate.
   Only the search text and download requests leave the phone; device details never
   do. `done`
+  A model published without GGUF files (safetensors only) cannot run in Bruce, so
+  searching for it by name or address says so and lists the GGUF copies made from
+  it. `planned` (TASK-102)
 - **Hugging Face sign-in** — OAuth ("Sign in with Hugging Face") as the default,
   pasted access token as a fallback. Token stored in Keystore-backed storage.
   `done` (a pasted token must be a read or fine-grained one)
@@ -456,6 +459,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Added | Hugging Face discovery: a model without GGUF files points to its GGUF copies (owner; TASK-102). |
 | 2026-09-30 | Changed | Quick Settings tile, home-screen widget (buttons only, owner) and launcher shortcuts done (TASK-101). |
 | 2026-09-30 | Changed | Share to Bruce done: text, links, images and PDFs start a new chat as attachments (TASK-100). |
 | 2026-09-30 | Changed | Default assistant done through an ACTION_ASSIST activity; Android's requirements recorded (research/sources/android-assistant-role-2026-09-30) (TASK-099). |

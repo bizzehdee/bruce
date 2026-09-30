@@ -124,7 +124,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Adds the `INTERNET` permission. Requests only when networking is allowed.
   - The network check is injected; TASK-028 connects it to the network mode setting. Verified against the real Hub from a phone with the manual-only `HubClientOnlineTest`.
   - Uses Android's `HttpURLConnection` and `org.json`; no new dependencies.
-  - Required by: TASK-021, TASK-022, TASK-023, TASK-028, TASK-029
+  - Required by: TASK-021, TASK-022, TASK-023, TASK-028, TASK-029, TASK-102
 - [x] TASK-021: Read a remote GGUF header
   - Fetch only the start of a model file with range requests, growing the range until the header parses, with a fixed upper limit.
   - Refactor `GgufReader` to read from a bounded stream so local and remote files share one parser.
@@ -137,7 +137,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Speed model: tokens/s ≈ constant ÷ weights in GB (24 with DOTPROD, 5.8 without), fitted to TASK-012; within 5–12% of every measurement, slightly pessimistic. "Tight" means over 80% of usable memory, a judgement rather than a measurement.
   - Architecture support comes from llama.cpp's own table, with a test that fails if a llama.cpp upgrade changes it.
   - Depends on: TASK-010, TASK-012, TASK-019, TASK-021
-  - Required by: TASK-029
+  - Required by: TASK-029, TASK-102
 - [x] TASK-023: Resumable, verified model download
   - Download into app storage through a partial file; resume with range requests; check free space first; verify the SHA-256 before the file becomes a model.
   - Files without a published SHA-256 are refused. The partial file is named after the SHA-256, so resuming only continues the same content. Verified on a phone with a real Hub download (`ModelDownloaderOnlineTest`).
@@ -715,3 +715,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`surfaces/`): launcher shortcuts New chat and Speak to Bruce (static, `res/xml/shortcuts.xml`); a New chat Quick Settings tile; a 2×1 home-screen widget with New chat and Speak to Bruce buttons in the theme's colours, showing no chat content. Each opens Bruce on a new chat; Speak also starts listening where the phone has an on-device recogniser.
   - Device-tested on the Xperia 1 II: both shortcuts registered; the tile, added with `cmd statusbar`, opened Bruce when clicked, and was removed again; the Voice action opened a new chat (no listening: this phone has no on-device recogniser). The widget was not placed on a home screen (that needs the launcher); its buttons are unit-tested.
   - Depends on: TASK-074
+- [ ] TASK-102: Point a model without GGUF files to its GGUF copies
+  - Owner (2026-09-30): wanted, after noticing that Qwen/Qwen3.5-0.8B does not show in the Hugging Face list.
+  - Cause: the search asks the Hub for GGUF repositories only (`filter=gguf`), and a repository such as Qwen/Qwen3.5-0.8B holds safetensors weights, which llama.cpp cannot load and the phone cannot convert.
+  - When the search text is a repository's name or its huggingface.co address and that repository has no GGUF file, say so in plain words ("This model isn't in a format Bruce can run") and list the GGUF copies made from it, ranked for the phone like any other result.
+  - Before building: confirm against the Hub API how to list a model's quantised copies (the `base_model:quantized:<repository>` tag filter is the candidate), and record it in `research/sources`.
+  - No copies found: say so, and offer a name search for the model's name with "GGUF".
+  - Nothing new leaves the phone: the same anonymous Hub API, under the same network modes.
+  - Tests: HubClient against a fake server (repository without GGUF, with copies, without copies, unknown repository, pasted address); the model browser shows the message and the copies.
+  - Depends on: TASK-020, TASK-022
