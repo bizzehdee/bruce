@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.models.AutoContext
+import com.bizzeh.bruce.models.Projectors
 import android.util.Log
 import android.widget.Toast
 import android.content.ActivityNotFoundException
@@ -387,7 +388,7 @@ class MainActivity : ComponentActivity() {
                 null
             } else {
                 val metadata = withContext(Dispatchers.IO) { (GgufReader.read(active) as? GgufReadResult.Read)?.metadata }
-                AutoContext.pick(metadata, container.memoryForModels())
+                AutoContext.pick(metadata, container.memoryForModels(), withContext(Dispatchers.IO) { Projectors.bytesFor(active) })
             }
         }
         return picked

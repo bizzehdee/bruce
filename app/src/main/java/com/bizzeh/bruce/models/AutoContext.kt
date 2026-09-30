@@ -8,15 +8,16 @@ import com.bizzeh.bruce.settings.InferenceDefaults
  * that leaves the phone room for other apps, meaning its memory estimate stays in the comfortable
  * band (at most [ModelFit.TIGHT_SHARE] of [usableMemoryBytes]), and no bigger than the model was
  * trained for. The smallest choice when none is comfortable; the old fixed default when the file
- * does not declare enough to estimate the context's memory.
+ * does not declare enough to estimate the context's memory. A vision projector's [projectorBytes]
+ * count against the room.
  */
 object AutoContext {
-    fun pick(metadata: GgufMetadata?, usableMemoryBytes: Long): Int {
+    fun pick(metadata: GgufMetadata?, usableMemoryBytes: Long, projectorBytes: Long = 0): Int {
         val trained = metadata?.contextLength?.takeIf { it > 0 }
         val choices = InferenceDefaults.CONTEXT_CHOICES.filter { trained == null || it <= trained }.ifEmpty { listOf(InferenceDefaults.CONTEXT_CHOICES.first()) }
         if (metadata == null || !ModelMemory.estimate(metadata, choices.first()).complete) {
             return choices.lastOrNull { it <= InferenceDefaults.FALLBACK_CONTEXT } ?: choices.first()
         }
-        return choices.lastOrNull { ModelMemory.estimate(metadata, it).totalBytes <= usableMemoryBytes * ModelFit.TIGHT_SHARE } ?: choices.first()
+        return choices.lastOrNull { ModelMemory.estimate(metadata, it, projectorBytes).totalBytes <= usableMemoryBytes * ModelFit.TIGHT_SHARE } ?: choices.first()
     }
 }

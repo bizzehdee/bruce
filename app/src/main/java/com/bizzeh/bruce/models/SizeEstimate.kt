@@ -39,6 +39,6 @@ object SizeEstimate {
     /** Files a user can download as a whole model: not vision projectors, not parts of a split model. */
     fun isWholeModel(path: String): Boolean {
         val name = path.substringAfterLast('/')
-        return !name.contains("mmproj", ignoreCase = true) && !SPLIT_PART.containsMatchIn(name)
+        return !Projectors.isProjector(name) && !SPLIT_PART.containsMatchIn(name)
     }
 }

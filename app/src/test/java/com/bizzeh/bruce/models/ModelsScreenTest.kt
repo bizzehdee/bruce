@@ -152,6 +152,15 @@ class ModelsScreenTest {
     }
 
     @Test
+    fun aModelWithItsProjectorSeesImagesAndCountsIt() {
+        val estimate = stories.assessment.estimate.copy(projectorBytes = 300L shl 20)
+        show(ModelsState(models = listOf(stories.copy(assessment = stories.assessment.copy(estimate = estimate))), totalMemoryBytes = 8L shl 30))
+
+        compose.onNodeWithTag("vision:stories260K.gguf", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("+ image projector 300.0 MB", substring = true).assertExists()
+    }
+
+    @Test
     fun withoutThePhonesRamThereIsNoBar() {
         show(ModelsState(models = listOf(stories)))
 

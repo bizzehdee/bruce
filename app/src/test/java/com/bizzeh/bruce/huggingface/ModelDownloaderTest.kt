@@ -53,6 +53,33 @@ class ModelDownloaderTest {
     }
 
     @Test
+    fun theSameFileAlreadyThereIsKeptWithoutARequest() {
+        val first = (download() as DownloadResult.Downloaded).file
+
+        val again = (download() as DownloadResult.Downloaded).file
+
+        assertEquals(first, again)
+        assertEquals(1, server.urls.size)
+        first.writeBytes(content.copyOf().also { it[0] = (it[0] + 1).toByte() })
+        val replaced = (download() as DownloadResult.Downloaded).file
+        assertEquals("Model_Q4-1.gguf", replaced.name, "a different file of the same name is not reused")
+    }
+
+    @Test
+    fun aDestinationIsFilledAndReplaced() {
+        val target = File(modelsDir, "projectors/model.gguf")
+        target.parentFile!!.mkdirs()
+        target.writeText("stale")
+
+        val result = runBlocking { downloader.download("a/b", "mmproj-f16.gguf", content.size.toLong(), sha, destination = target) }
+
+        assertEquals(DownloadResult.Downloaded(target), result)
+        assertArrayEquals(content, target.readBytes())
+        runBlocking { downloader.download("a/b", "mmproj-f16.gguf", content.size.toLong(), sha, destination = target) }
+        assertEquals(1, server.urls.size, "already there")
+    }
+
+    @Test
     fun interruptedDownloadResumesFromThePartialFile() {
         server.failAfterBytes = 300_000
 

@@ -18,8 +18,10 @@ data class MemoryEstimate(
     val weightsBytes: Long,
     val kvCacheBytes: Long?,
     val contextLength: Int,
+    /** A vision projector loaded with the model (TASK-083), counted at its file size. */
+    val projectorBytes: Long = 0,
 ) {
-    val totalBytes: Long get() = weightsBytes + (kvCacheBytes ?: 0)
+    val totalBytes: Long get() = weightsBytes + (kvCacheBytes ?: 0) + projectorBytes
 
     val complete: Boolean get() = kvCacheBytes != null
 }
@@ -38,13 +40,14 @@ object ModelMemory {
     // llama.cpp's default micro-batch, which a sliding-window cache holds on top of the window.
     private const val MICRO_BATCH = 512L
 
-    fun estimate(metadata: GgufMetadata, contextLength: Int): MemoryEstimate {
+    fun estimate(metadata: GgufMetadata, contextLength: Int, projectorBytes: Long = 0): MemoryEstimate {
         require(contextLength > 0) { "contextLength must be positive, was $contextLength" }
         val paddedContext = (contextLength + CONTEXT_PADDING - 1) / CONTEXT_PADDING * CONTEXT_PADDING
         return MemoryEstimate(
             weightsBytes = (metadata.fileSizeBytes - metadata.lookupOnlyBytes).coerceAtLeast(0),
             kvCacheBytes = kvCacheBytes(metadata, paddedContext.toLong()),
             contextLength = paddedContext,
+            projectorBytes = projectorBytes,
         )
     }
 

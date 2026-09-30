@@ -32,7 +32,8 @@ class ModelSelection(
     suspend fun choose(file: File): LoadResult {
         val template = modelSettings.template(file.name).first()
         val metadata = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata }
-        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first()) { AutoContext.pick(metadata, memoryForModels()) }
+        val projectorBytes = withContext(ioDispatcher) { Projectors.bytesFor(file) }
+        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first()) { AutoContext.pick(metadata, memoryForModels(), projectorBytes) }
             .copy(chatTemplate = template?.text)
         val result = activeModel.load(file, config)
         if (result is LoadResult.Loaded) modelSettings.setActiveModel(file.name)
@@ -52,10 +53,13 @@ class ModelSelection(
         choose(file)
     }
 
-    /** Deletes a model file, unloading it first if it is loaded, and forgets its settings. */
+    /** Deletes a model file and its projector, unloading it first if it is loaded, and forgets its settings. */
     suspend fun delete(file: File) {
         if (activeModel.state.value.active == file) activeModel.unload()
-        withContext(ioDispatcher) { file.delete() }
+        withContext(ioDispatcher) {
+            file.delete()
+            Projectors.fileFor(file).delete()
+        }
         modelSettings.forget(file.name)
         activeModel.refresh()
     }

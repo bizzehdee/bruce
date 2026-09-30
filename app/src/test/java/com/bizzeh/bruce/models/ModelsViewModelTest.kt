@@ -1,5 +1,8 @@
 package com.bizzeh.bruce.models
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withContext
 import android.net.Uri
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.bizzeh.bruce.R
@@ -97,6 +100,8 @@ class ModelsViewModelTest {
         val model = f.viewModel.state.first { it.models.single().template != null }.models.single()
         assertEquals(FetchedTemplate("{{ tools }}", "b/full"), model.template)
         assertEquals(true, model.skills)
+        // The refresh started with the view model can show the saved template before the reload ends.
+        withContext(Dispatchers.Default) { withTimeout(5_000) { while (engine.loads.size == loadsBefore) delay(10) } }
         assertEquals("the loaded model is reloaded with it", "{{ tools }}", engine.loads.last().second.chatTemplate)
         assertEquals(loadsBefore + 1, engine.loads.size)
 

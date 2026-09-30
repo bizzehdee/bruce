@@ -203,6 +203,9 @@ private fun ModelCard(
                 }
             }
             RamUse(model, totalMemoryBytes)
+            if (model.assessment.estimate.projectorBytes > 0) {
+                Text(stringResource(R.string.models_sees_images), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.testTag("vision:${model.file.name}"))
+            }
             if (model.skills == false) {
                 Text(
                     stringResource(R.string.limited_skills),
@@ -364,8 +367,9 @@ internal object ModelsText {
         val share = if (totalMemoryBytes > 0) (estimate.totalBytes.toDouble() / totalMemoryBytes).toFloat() else null
         val percent = share?.let { " (${(it * 100).roundToInt()}% of ${Format.bytes(totalMemoryBytes)})" }.orEmpty()
         val context = SettingsText.contextLabel(estimate.contextLength)
-        val breakdown = estimate.kvCacheBytes?.let { "Model ${Format.bytes(estimate.weightsBytes)} + $context context ${Format.bytes(it)}" }
-            ?: "Model ${Format.bytes(estimate.weightsBytes)}; the file does not say how much the context adds"
+        val projector = if (estimate.projectorBytes > 0) " + image projector ${Format.bytes(estimate.projectorBytes)}" else ""
+        val breakdown = estimate.kvCacheBytes?.let { "Model ${Format.bytes(estimate.weightsBytes)}$projector + $context context ${Format.bytes(it)}" }
+            ?: "Model ${Format.bytes(estimate.weightsBytes)}$projector; the file does not say how much the context adds"
         return RamUse("Expected RAM: ${Format.bytes(estimate.totalBytes)}$percent", breakdown, share)
     }
 

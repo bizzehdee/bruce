@@ -255,6 +255,48 @@ class ModelBrowserTest {
         assertTrue(File(dir, "stories260K.gguf").isFile)
     }
 
+    private fun treeEntry(path: String, size: Long, sha: String) = """{"type":"file","size":$size,"lfs":{"oid":"$sha","size":$size},"path":"$path"}"""
+
+    @Test
+    fun aVisionModelsProjectorIsDownloadedWithItAndAddedOnRetry() = runTest(dispatcher) {
+        val dir = temp.newFolder()
+        val vm = viewModel(dir)
+        val size = stories.size.toLong()
+        fun tree(projectorSha: String) = "[" + listOf(
+            treeEntry("stories-Q8_0.gguf", size, storiesSha),
+            treeEntry("mmproj-Q8_0.gguf", size - 1, storiesSha),
+            treeEntry("mmproj-model-f16.gguf", size, projectorSha),
+        ).joinToString(",") + "]"
+        hub.treeBody = tree("0".repeat(64))
+
+        vm.openRepository(qwen)
+        advanceUntilIdle()
+        val files = vm.state.value.files.getValue(qwen.id)
+        assertEquals("mmproj-model-f16.gguf", files.projector?.path)
+        val assessment = files.ranked.single()
+        assertEquals(size, assessment.candidate.projectorBytes)
+        assertEquals(size, assessment.estimate.projectorBytes)
+
+        vm.download(qwen, assessment)
+        val failed = vm.state.first { it.downloads.values.any { d -> d.error != null } }.downloads.values.single()
+        assertEquals(DownloadError.VERIFICATION_FAILED, failed.error)
+        assertTrue("the model is kept", failed.modelInstalled)
+        assertTrue(File(dir, "stories-Q8_0.gguf").isFile)
+        assertEquals(1, downloaded)
+
+        hub.treeBody = tree(storiesSha)
+        val retry = viewModel(dir)
+        retry.openRepository(qwen)
+        advanceUntilIdle()
+        val opens = hub.opens
+        retry.download(qwen, retry.state.value.files.getValue(qwen.id).ranked.single())
+        retry.state.first { it.downloads.isEmpty() && downloaded == 2 }
+
+        assertEquals("only the projector is fetched again", opens + 1, hub.opens)
+        assertEquals(listOf("stories-Q8_0.gguf"), dir.listFiles { f -> f.isFile && !f.name.startsWith(".") }!!.map { it.name })
+        assertTrue(File(dir, "projectors/stories-Q8_0.gguf").isFile)
+    }
+
     @Test
     fun secondDownloadOfTheSameFileWhileRunningIsIgnored() = runTest(dispatcher) {
         val vm = viewModel()
@@ -489,13 +531,14 @@ class ModelBrowserTest {
         val urls = mutableListOf<String>()
         var treeStatus = 200
         var searchBody: String? = null
+        var treeBody: String? = null
 
         private fun resource(name: String) = javaClass.getResource("/huggingface/$name")!!.readBytes()
 
         override fun get(url: String, headers: Map<String, String>, maxBytes: Int): HttpResponse {
             urls += url
             return when {
-                "/tree/" in url -> HttpResponse(treeStatus, emptyMap(), if (treeStatus == 200) resource("tree-qwen3-0.6b.json") else ByteArray(0))
+                "/tree/" in url -> HttpResponse(treeStatus, emptyMap(), if (treeStatus == 200) treeBody?.toByteArray() ?: resource("tree-qwen3-0.6b.json") else ByteArray(0))
                 // A GGUF header read: the start of the stories260K file.
                 "/resolve/" in url -> HttpResponse(206, mapOf("content-range" to "bytes 0-${minOf(maxBytes, stories.size) - 1}/${stories.size}"), stories.copyOf(minOf(maxBytes, stories.size)))
                 else -> HttpResponse(200, emptyMap(), searchBody?.toByteArray() ?: resource("search-expand.json"))

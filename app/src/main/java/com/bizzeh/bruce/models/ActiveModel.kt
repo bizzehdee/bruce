@@ -72,7 +72,8 @@ class ActiveModel(
         val trained = metadata?.contextLength
         val capped = if (trained != null && trained in 1 until config.contextLength) config.copy(contextLength = trained.toInt()) else config
         val result = engine.loadModel(file, capped)
-        val memory = metadata?.let { ModelMemory.estimate(it, capped.contextLength).totalBytes } ?: 0
+        val projectorBytes = withContext(ioDispatcher) { Projectors.bytesFor(file) }
+        val memory = metadata?.let { ModelMemory.estimate(it, capped.contextLength, projectorBytes).totalBytes } ?: 0
         mutableState.update {
             when (result) {
                 is LoadResult.Loaded -> it.copy(active = file, info = result.info, backend = result.backend, loading = false, memoryBytes = memory, remote = null)

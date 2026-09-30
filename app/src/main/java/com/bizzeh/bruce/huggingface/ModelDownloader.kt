@@ -55,13 +55,18 @@ class ModelDownloader(
         require(baseUrl.startsWith("https://")) { "Hub base URL must use HTTPS" }
     }
 
-    /** [onProgress] receives bytes on disk and the total, on the download thread. */
+    /**
+     * [onProgress] receives bytes on disk and the total, on the download thread. The file goes to
+     * [destination] when given (replacing what is there), otherwise into the models folder under
+     * its own name. A file already there with the same size and SHA-256 is kept, not fetched again.
+     */
     suspend fun download(
         repositoryId: String,
         path: String,
         sizeBytes: Long,
         sha256: String?,
         revision: String = "main",
+        destination: File? = null,
         onProgress: (Long, Long) -> Unit = { _, _ -> },
     ): DownloadResult = withContext(dispatcher) {
         require(HubClient.isRepositoryId(repositoryId)) { "not a repository id: $repositoryId" }
@@ -72,6 +77,8 @@ class ModelDownloader(
             ?: return@withContext DownloadResult.Failed(DownloadError.NO_CHECKSUM)
         if (!networkAllowed()) return@withContext DownloadResult.Failed(DownloadError.NETWORK_DISABLED)
 
+        val named = destination ?: File(modelsDir, ModelImporter.sanitisedFileName(path.substringAfterLast('/')))
+        if (named.length() == sizeBytes && sha256Of(named) == expectedSha) return@withContext DownloadResult.Downloaded(named)
         modelsDir.mkdirs()
         val partial = File(modelsDir, ".download-$expectedSha.part")
         if (partial.length() > sizeBytes) partial.delete()
@@ -87,7 +94,13 @@ class ModelDownloader(
             partial.delete()
             return@withContext DownloadResult.Failed(DownloadError.VERIFICATION_FAILED)
         }
-        val target = ModelImporter.uniqueTarget(modelsDir, ModelImporter.sanitisedFileName(path.substringAfterLast('/')))
+        val target = if (destination != null) {
+            destination.parentFile?.mkdirs()
+            destination.delete()
+            destination
+        } else {
+            ModelImporter.uniqueTarget(modelsDir, named.name)
+        }
         if (!partial.renameTo(target)) return@withContext DownloadResult.Failed(DownloadError.INSUFFICIENT_STORAGE)
         DownloadResult.Downloaded(target)
     }

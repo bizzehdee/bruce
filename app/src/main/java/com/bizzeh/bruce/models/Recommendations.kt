@@ -41,7 +41,10 @@ data class BrowseFilters(
 
 /** A repository in the list, with the file Bruce would pick for this phone, sized by estimate. */
 /** [skills] is false when the repository's chat template cannot express tool calls, null when unknown (TASK-061). */
-data class Listing(val model: HubModel, val best: Assessment?, val skills: Boolean? = null)
+data class Listing(val model: HubModel, val best: Assessment?, val skills: Boolean? = null) {
+    /** The repository has a vision projector, so its models can see images (TASK-083). */
+    val vision: Boolean get() = model.files.any(Projectors::isProjector)
+}
 
 /**
  * Recommendations and filtering for the model browser. The Hub applies the task and parameter

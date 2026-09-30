@@ -591,8 +591,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - The attach button shows only when the active model can take images. Images are stored with the chat on the phone.
   - Research first: `mtmd` on Android (build, memory, speed on the test phones), recorded in research/experiments.
   - Depends on: TASK-076, TASK-083
-- [ ] TASK-083: Vision projector files
+- [x] TASK-083: Vision projector files
   - Vision models need a projector file (`mmproj-*.gguf`) next to the model. The model browser offers the matching projector with a vision model and downloads both; the Models screen shows a model as vision-capable when its projector is installed; the memory estimate includes the projector.
+  - Done (`models/Projectors.kt`): a repository's `mmproj` files are not listed as models; its projector (F16 where there is one, otherwise the smallest) is named under the files and downloaded after the model, into `models/projectors/<model file name>`, so it is never listed as a model and is deleted with it. If the projector fails, the model stays and the row says so; downloading again reuses the model (a file already there with the same size and SHA-256 is kept) and fetches only the projector. Listings of repositories with a projector say "Sees images", as do installed models with one. The projector's file size is added to every memory estimate (list, download check, Auto context, loaded model); its working memory while encoding an image is measured with TASK-082.
+  - Device-tested on the Xperia 1 II: ggml-org/SmolVLM-256M-Instruct-GGUF showed "Sees images" and "Downloads with image support (mmproj-SmolVLM-256M-Instruct-f16.gguf, 181.2 MB)"; Download fetched the Q8_0 model and then the projector into `projectors/`; the Installed card read "Model 166.9 MB + image projector 181.2 MB + 8K context 180.0 MB" and "Sees images".
   - Depends on: TASK-023, TASK-029
   - Required by: TASK-082
 - [ ] TASK-084: Documents as input (PDF and text)

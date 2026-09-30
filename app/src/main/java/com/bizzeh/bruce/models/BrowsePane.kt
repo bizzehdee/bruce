@@ -97,6 +97,9 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
                         Text(model.id, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                         if (model.gated) Text(stringResource(R.string.browse_gated), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
                     }
+                    if (listing.vision) {
+                        Text(stringResource(R.string.models_sees_images), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.testTag("vision:${model.id}"))
+                    }
                     if (listing.skills == false) {
                         Text(
                             stringResource(R.string.limited_skills),
@@ -131,6 +134,14 @@ private fun Files(model: HubModel, state: BrowseState, actions: BrowseActions) {
     if (files.ranked.isNotEmpty()) {
         Text(stringResource(R.string.browse_weights_only), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
+    files.projector?.let {
+        Text(
+            stringResource(R.string.browse_projector, it.path.substringAfterLast('/'), Format.bytes(it.sizeBytes)),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.testTag("projector:${model.id}"),
+        )
+    }
     files.ranked.forEach { assessment ->
         val path = assessment.candidate.path
         val download = state.downloads[ModelBrowserViewModel.key(model.id, path)]
@@ -157,7 +168,11 @@ private fun Files(model: HubModel, state: BrowseState, actions: BrowseActions) {
                     modifier = Modifier.testTag("tooLarge:$path"),
                 )
                 download.error != null -> Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(stringResource(R.string.download_error, download.error.name), color = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
+                    Text(
+                        stringResource(if (download.modelInstalled) R.string.download_projector_error else R.string.download_error, download.error.name),
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.weight(1f),
+                    )
                     OutlinedButton(onClick = { actions.download(model, assessment) }, modifier = Modifier.testTag("retry:$path")) { Text(stringResource(R.string.browse_retry)) }
                 }
                 else -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

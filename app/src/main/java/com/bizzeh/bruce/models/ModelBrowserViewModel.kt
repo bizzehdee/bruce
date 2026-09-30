@@ -30,11 +30,14 @@ data class DownloadState(
     val error: DownloadError? = null,
     val neededBytes: Long? = null,
     val freeBytes: Long? = null,
+    /** The model is installed and [error] is its vision projector's (TASK-083). */
+    val modelInstalled: Boolean = false,
 ) {
     val fraction: Float get() = if (totalBytes > 0) downloadedBytes.toFloat() / totalBytes else 0f
 }
 
-data class RepositoryFiles(val loading: Boolean = true, val ranked: List<Assessment> = emptyList(), val error: HubError? = null)
+/** [projector] is the vision projector downloaded with any of the repository's models (TASK-083). */
+data class RepositoryFiles(val loading: Boolean = true, val ranked: List<Assessment> = emptyList(), val error: HubError? = null, val projector: HubFile? = null)
 
 data class BrowseState(
     val query: String = "",
@@ -138,10 +141,14 @@ class ModelBrowserViewModel(
         viewModelScope.launch {
             val files = when (val result = hub.ggufFiles(model.id)) {
                 is HubResult.Failure -> RepositoryFiles(loading = false, error = result.error)
-                is HubResult.Success -> RepositoryFiles(
-                    loading = false,
-                    ranked = ModelFit.rank(result.value.map { candidate(model, it) }, device(), roughContext()),
-                )
+                is HubResult.Success -> {
+                    val projector = Projectors.choose(result.value)
+                    RepositoryFiles(
+                        loading = false,
+                        ranked = ModelFit.rank(result.value.filterNot { Projectors.isProjector(it.path) }.map { candidate(model, it, projector) }, device(), roughContext()),
+                        projector = projector,
+                    )
+                }
             }
             mutableState.update { it.copy(files = it.files + (model.id to files)) }
         }
@@ -151,30 +158,39 @@ class ModelBrowserViewModel(
         val key = key(model.id, assessment.candidate.path)
         if (downloadJobs[key]?.isActive == true) return
         val size = assessment.candidate.sizeBytes
-        mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(0, size))) }
+        val projector = mutableState.value.files[model.id]?.projector
+        val total = size + (projector?.sizeBytes ?: 0)
+        mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(0, total))) }
         downloadJobs[key] = viewModelScope.launch {
             // The list judged the file by its size alone; its header shows what it really needs (owner, 2026-09-29).
             val exact = exactAssessment(model, assessment)
             if (exact != null) {
                 replaceAssessment(model.id, exact)
                 if (exact.fit == Fit.DOES_NOT_FIT) {
-                    val refused = DownloadState(0, size, DownloadError.TOO_LARGE, exact.estimate.totalBytes, device().usableMemoryBytes)
+                    val refused = DownloadState(0, total, DownloadError.TOO_LARGE, exact.estimate.totalBytes, device().usableMemoryBytes)
                     mutableState.update { it.copy(downloads = it.downloads + (key to refused)) }
                     return@launch
                 }
             }
-            val result = downloader.download(model.id, assessment.candidate.path, size, assessment.candidate.sha256) { done, total ->
-                mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(done, total))) }
+            val progress = { done: Long -> mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(done, total))) } }
+            val result = downloader.download(model.id, assessment.candidate.path, size, assessment.candidate.sha256) { done, _ -> progress(done) }
+            val failed = { error: DownloadError, modelInstalled: Boolean ->
+                mutableState.update {
+                    it.copy(downloads = it.downloads + (key to (it.downloads[key] ?: DownloadState(0, total)).copy(error = error, modelInstalled = modelInstalled)))
+                }
             }
-            when (result) {
-                is DownloadResult.Downloaded -> {
-                    mutableState.update { it.copy(downloads = it.downloads - key) }
+            if (result is DownloadResult.Failed) return@launch failed(result.error, false)
+            val file = (result as DownloadResult.Downloaded).file
+            if (projector != null) {
+                // After the model, so a model is never left waiting on its projector; downloading again adds only the projector.
+                val paired = downloader.download(model.id, projector.path, projector.sizeBytes, projector.sha256, destination = Projectors.fileFor(file)) { done, _ -> progress(size + done) }
+                if (paired is DownloadResult.Failed) {
                     onDownloaded()
-                }
-                is DownloadResult.Failed -> mutableState.update {
-                    it.copy(downloads = it.downloads + (key to (it.downloads[key] ?: DownloadState(0, size)).copy(error = result.error)))
+                    return@launch failed(paired.error, true)
                 }
             }
+            mutableState.update { it.copy(downloads = it.downloads - key) }
+            onDownloaded()
         }
     }
 
@@ -185,9 +201,10 @@ class ModelBrowserViewModel(
      * header could not be read, and the download goes ahead as before.
      */
     private suspend fun exactAssessment(model: HubModel, assessment: Assessment): Assessment? {
+        val projectorBytes = assessment.candidate.projectorBytes
         val header = (hub.ggufHeader(model.id, assessment.candidate.path) as? HubResult.Success)?.value as? GgufReadResult.Read ?: return null
         val profile = device()
-        val context = contextLength() ?: AutoContext.pick(header.metadata, profile.usableMemoryBytes)
+        val context = contextLength() ?: AutoContext.pick(header.metadata, profile.usableMemoryBytes, projectorBytes)
         return ModelFit.assess(assessment.candidate.copy(header = header.metadata), profile, context)
     }
 
@@ -204,7 +221,7 @@ class ModelBrowserViewModel(
         mutableState.update { it.copy(downloads = it.downloads - key) }
     }
 
-    private fun candidate(model: HubModel, file: HubFile) = Candidate(
+    private fun candidate(model: HubModel, file: HubFile, projector: HubFile?) = Candidate(
         repositoryId = model.id,
         path = file.path,
         sizeBytes = file.sizeBytes,
@@ -212,6 +229,7 @@ class ModelBrowserViewModel(
         architecture = model.architecture,
         parameterCount = model.parameterCount,
         sha256 = file.sha256,
+        projectorBytes = projector?.sizeBytes ?: 0,
     )
 
     companion object {

@@ -151,6 +151,7 @@ class ModelsViewModel(
         val models = activeModel.state.value.installed.map { file ->
             val metadata = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata }
             val overrides = modelSettings.overridesNow(file.name)
+            val projectorBytes = withContext(ioDispatcher) { Projectors.bytesFor(file) }
             val candidate = Candidate(
                 repositoryId = "local/model",
                 path = file.name,
@@ -159,9 +160,10 @@ class ModelsViewModel(
                 architecture = metadata?.architecture,
                 parameterCount = metadata?.parameterCount,
                 header = metadata,
+                projectorBytes = projectorBytes,
             )
             // The same cap ActiveModel applies when loading, so the estimate matches reality.
-            val requested = overrides.loadConfig(defaults) { AutoContext.pick(metadata, profile.usableMemoryBytes) }.contextLength
+            val requested = overrides.loadConfig(defaults) { AutoContext.pick(metadata, profile.usableMemoryBytes, projectorBytes) }.contextLength
             val contextLength = metadata?.contextLength?.takeIf { it in 1 until requested }?.toInt() ?: requested
             val fetched = modelSettings.template(file.name).first()
             // A fetched template was judged able to call tools before it was saved.

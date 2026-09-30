@@ -36,6 +36,8 @@ data class Candidate(
     val header: GgufMetadata? = null,
     /** Published SHA-256, for verifying a download. */
     val sha256: String? = null,
+    /** The vision projector that comes with it (TASK-083); 0 for none. */
+    val projectorBytes: Long = 0,
 )
 
 data class Assessment(
@@ -80,8 +82,8 @@ object ModelFit {
     fun assess(candidate: Candidate, device: DeviceProfile, contextLength: Int): Assessment {
         val header = candidate.header
         val architecture = header?.architecture ?: candidate.architecture
-        val estimate = header?.let { ModelMemory.estimate(it, contextLength) }
-            ?: MemoryEstimate(weightsBytes = candidate.sizeBytes, kvCacheBytes = null, contextLength = contextLength)
+        val estimate = header?.let { ModelMemory.estimate(it, contextLength, candidate.projectorBytes) }
+            ?: MemoryEstimate(weightsBytes = candidate.sizeBytes, kvCacheBytes = null, contextLength = contextLength, projectorBytes = candidate.projectorBytes)
         val tokensPerSecond = (if (device.cpu.dotProd) DOTPROD_TOKENS_GB_PER_SECOND else BASELINE_TOKENS_GB_PER_SECOND) /
             (estimate.weightsBytes / BYTES_PER_GB)
         return Assessment(

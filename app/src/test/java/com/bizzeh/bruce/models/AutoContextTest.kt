@@ -23,6 +23,13 @@ class AutoContextTest {
     }
 
     @Test
+    fun aVisionProjectorTakesItsShareOfTheRoom() {
+        assertEquals(49152, AutoContext.pick(model, 4 * gb, projectorBytes = 800 * mb), "64K plus the projector would crowd 4 GB; 48K takes 3.1 GB")
+        assertEquals(65536, ModelMemory.estimate(model, 65536, 800 * mb).contextLength)
+        assertEquals(ModelMemory.estimate(model, 2048).totalBytes + 800 * mb, ModelMemory.estimate(model, 2048, 800 * mb).totalBytes)
+    }
+
+    @Test
     fun neverBeyondWhatTheModelWasTrainedFor() {
         assertEquals(8192, AutoContext.pick(model.copy(contextLength = 8192), 16 * gb))
         assertEquals(2048, AutoContext.pick(model.copy(contextLength = 1000), 16 * gb))
