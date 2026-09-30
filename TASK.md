@@ -558,6 +558,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Depends on: TASK-075, TASK-076
   - Required by: TASK-098
 - [ ] TASK-078: Export conversations
+  - Owner (2026-09-30): both Markdown (to read) and JSON (everything, for a later import).
   - Settings, Data: export one chat or all chats to a file the user picks (Storage Access Framework create-document); nothing leaves the phone otherwise.
   - Includes messages, tool calls and results, summaries and the model used; never tokens, keys or memory unless chosen.
   - Open question (plan): export format. Candidates: Markdown (readable), JSON (re-importable), or both.
@@ -566,11 +567,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Settings, Network: paste an access token as an alternative to OAuth; it is checked with the Hub's whoami call, then sealed with the Android Keystore like the OAuth token. The field is never logged or shown again.
   - Depends on: TASK-028
 - [ ] TASK-080: Read replies aloud (text-to-speech)
+  - Owner (2026-09-30): any engine the phone has; where the voice needs the network, say so and prefer an offline voice when one exists.
   - A speaker button on each reply reads it with Android's `TextToSpeech`, Markdown stripped, code blocks skipped. Stop ends it.
   - Open question: on-device voices only (as with voice input, TASK-074), or any engine the phone has set up.
   - Depends on: TASK-051, TASK-074
   - Required by: TASK-081
 - [ ] TASK-081: Voice conversation mode
+  - Owner (2026-09-30): long-press the microphone to start; a 2-second pause sends; ends after 10 seconds of silence, on Stop or on leaving the screen.
   - A hands-free mode: listen (TASK-074), send when speech ends, read the reply aloud (TASK-080), listen again; ends on Stop, on leaving the screen or after silence.
   - Confirmation cards still need a tap; they are never approved by voice.
   - Open question: the silence timeout, and whether it starts from the microphone button (long press) or a separate button.
@@ -585,6 +588,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Depends on: TASK-023, TASK-029
   - Required by: TASK-082
 - [ ] TASK-084: Documents as input (PDF and text)
+  - Owner (2026-09-30): extract PDF text with a library (PdfBox-Android, Apache-2.0).
   - Attach a PDF or text file to a message; its text is extracted on the phone and passed as untrusted data, within the context budget.
   - Open question: PDF text extraction library (Android's `PdfRenderer` gives images only), or render pages to images for vision models (TASK-082).
   - Depends on: TASK-042
@@ -592,6 +596,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - `move_file` and `rename_file` inside granted folders only (source and destination both in a grant); Ask by default; confirmed per operation.
   - Depends on: TASK-040, TASK-041, TASK-043
 - [ ] TASK-086: Calendar skill
+  - Owner (2026-09-30): write directly with the calendar permission; every create, change and delete goes through the approval card.
   - List events, and create, change and delete events through the Calendar Provider; reading and changing are separate skills, both off by default; changes Ask. The calendar permissions are asked when first enabled.
   - Open question: whether create can use the system's insert screen (no write permission; the user saves it) instead of writing directly.
   - Depends on: TASK-041
@@ -603,9 +608,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Clipboard reading is not included: Android limits it to the app in focus, and it would expose other apps' data.
   - Depends on: TASK-041
 - [ ] TASK-089: Messages and calls
+  - Owner (2026-09-30): option A, open the messaging or phone app prefilled; the user sends or calls.
   - Open question before building: Google Play restricts the SMS and call-log permissions to default handlers. Option A: open the messaging or phone app with the text or number filled in (no permission, the user sends). Option B: send directly (needs a Play declaration and is likely refused).
   - Depends on: TASK-041
 - [ ] TASK-090: Notifications skill
+  - Owner (2026-09-30): option A, Bruce posts a notification the user asked for.
   - Open question before building: which one the plan means. A: Bruce posts a notification the user asked for (a note to self). B: Bruce reads the phone's notifications (a notification-listener service the user enables in system settings; high risk, other apps' private data).
   - Depends on: TASK-041
 - [ ] TASK-091: Location skill
@@ -618,15 +625,18 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - `take_photo` opens the camera for the user to take the picture (an explicit action each time, as the plan requires); `record_audio` records only while the user holds a button. The result is attached to the chat.
   - Depends on: TASK-082
 - [ ] TASK-094: Reminders
+  - Owner (2026-09-30): ask for exact alarms on the first reminder; if refused, deliver inexactly and say so.
   - `set_reminder` schedules a notification at a time the user gave (exact alarms where allowed, otherwise inexact with a note); listed and cancelled in a Reminders list; survive a restart.
   - Open question: exact alarm permission (`SCHEDULE_EXACT_ALARM` needs the user to allow it on Android 14+), or accept inexact timing.
   - Depends on: TASK-041, TASK-048
   - Required by: TASK-095
 - [ ] TASK-095: Scheduled tasks
+  - Owner (2026-09-30): phone models run scheduled tasks only while charging; server models any time.
   - The user schedules a prompt to run later or repeatedly (WorkManager); the reply arrives as a notification and a chat. Skills in the Ask state wait for the user rather than run unattended.
   - Open question: whether scheduled runs may load a model in the background (memory and battery cost) or only run while charging.
   - Depends on: TASK-048, TASK-052, TASK-094
 - [ ] TASK-096: Local RAG: index granted files
+  - Owner (2026-09-30): research the embedding model on the phones, pick the best fit and record the evidence.
   - Extract text from granted files (TASK-084's formats), split into chunks, embed with a local embedding model and store the vectors on the phone; the index updates when grants change.
   - Open question (plan): which embedding model. Research candidates first (size, languages, speed on the test phones) and record them.
   - Depends on: TASK-040, TASK-084
@@ -635,10 +645,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - `search_my_files` returns the best-matching chunks with their file path; results are untrusted data; offered only when something is indexed.
   - Depends on: TASK-059, TASK-096
 - [ ] TASK-098: Model profiles and routing
+  - Owner (2026-09-30): profiles chosen per chat; no automatic routing yet.
   - Named profiles (Main, Fast, Coding, Vision), each a model with its settings; the user picks one per chat. Automatic routing (choosing a profile per request) follows only after the profiles are used.
   - Open question: switching models on the phone costs a reload (seconds and RAM); whether routing is limited to remote servers and a single phone model.
   - Depends on: TASK-077
 - [ ] TASK-099: Default assistant
+  - Owner (2026-09-30): build it now, after researching the Android requirements.
   - Before building: confirm the Android requirements (voice-interaction service, assistant role) against current documentation, as the plan requires, and record them.
   - Bruce can be chosen as the digital assistant app and opens a new chat from the assistant gesture; no wake word.
   - Open question (plan): milestone.
@@ -646,6 +658,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Bruce appears in the share sheet for text, links and (with TASK-082) images; shared content starts a new chat as untrusted data with the user's request still to type.
   - Depends on: TASK-032
 - [ ] TASK-101: Quick Settings tile, widget and shortcuts
+  - Owner (2026-09-30): the widget is buttons only (New chat, Voice); no chat content on the home screen.
   - A Quick Settings tile and launcher shortcuts for New chat and Voice; a home-screen widget that opens a new chat.
   - Open question: whether the widget shows anything (last reply) or is only a button.
   - Depends on: TASK-074

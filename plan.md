@@ -424,12 +424,9 @@ device-to-device transfer.
 | Question | Owner |
 |---|---|
 | App signing arrangements (Play App Signing, upload key custody). | User |
-| Local embedding model for RAG. | User, from evidence |
-| Conversation export format. | User |
 | Dependency injection approach (Hilt or manual). | Developer, with user approval |
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from Phase 0 benchmarks |
-| Default assistant: milestone. | User |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Default assistant: confirm the Android requirements (voice-interaction service, assistant role) against current Android documentation. | Developer, before planning tasks |
 | Privacy policy URL on the owner's website. | User |
@@ -459,6 +456,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-09-30 | Changed | Owner's decisions for TASK-078 to TASK-101: export as Markdown and JSON; default assistant built now; embedding model chosen from evidence; texts and calls open the app prefilled; scheduled phone-model runs only while charging; profiles per chat without automatic routing. |
 | 2026-09-30 | Changed | Statuses brought up to date (model manager, context, memory, confirmations, denials, untrusted content, Android settings, notifications, screens, hardware tuning marked done); tasks created for the features not yet started (TASK-078 to TASK-101). |
 | 2026-09-29 | Changed | Remote model servers done: chat through a server's model, chosen from the Servers tab or the switcher (TASK-076, TASK-077). |
 | 2026-09-29 | Changed | Remote model servers can be added and checked (TASK-075); chatting through one follows. |
