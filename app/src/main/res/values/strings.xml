@@ -104,6 +104,10 @@
     <string name="skill_create_file_summary">Creates new plain-text files in folders you have granted.</string>
     <string name="skill_write_file">Change files</string>
     <string name="skill_write_file_summary">Replaces the whole text of a plain-text file you have granted.</string>
+    <string name="skill_rename_file">Rename files</string>
+    <string name="skill_rename_file_summary">Renames single files inside folders you have granted, in the same folder.</string>
+    <string name="skill_move_file">Move files</string>
+    <string name="skill_move_file_summary">Moves single files between folders you have granted.</string>
     <string name="skill_delete_file">Delete files</string>
     <string name="skill_delete_file_summary">Deletes single files inside folders you have granted. Deleted files cannot be recovered.</string>
     <string name="skill_find_settings">Find settings</string>

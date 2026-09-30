@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
+import java.io.FileNotFoundException
 import java.io.IOException
 
 /** [DocumentAccess] through Android's content resolver and document providers. */
@@ -79,4 +80,23 @@ class AndroidDocumentAccess(private val resolver: ContentResolver) : DocumentAcc
     }
 
     override fun delete(document: Uri): Boolean = DocumentsContract.deleteDocument(resolver, document)
+
+    override fun rename(document: Uri, name: String): DocumentRef? = try {
+        DocumentsContract.renameDocument(resolver, document, name)?.let { DocumentRef(it, isDirectory = false) }
+    } catch (e: FileNotFoundException) {
+        null
+    } catch (e: UnsupportedOperationException) {
+        null
+    }
+
+    // Providers that cannot move (FLAG_SUPPORTS_MOVE unset) throw; the file then stays where it was.
+    override fun move(document: Uri, from: Uri, to: Uri): DocumentRef? = try {
+        DocumentsContract.moveDocument(resolver, document, from, to)?.let { DocumentRef(it, isDirectory = false) }
+    } catch (e: FileNotFoundException) {
+        null
+    } catch (e: UnsupportedOperationException) {
+        null
+    } catch (e: IllegalArgumentException) {
+        null
+    }
 }

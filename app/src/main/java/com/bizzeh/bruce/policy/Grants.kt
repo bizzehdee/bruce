@@ -47,6 +47,12 @@ interface DocumentAccess {
 
     /** Deletes [document]; false if the provider refused. */
     fun delete(document: Uri): Boolean
+
+    /** Renames [document] in its folder; the renamed document, or null if the provider refused. */
+    fun rename(document: Uri, name: String): DocumentRef?
+
+    /** Moves [document] from [from] into [to]; the moved document, or null if the provider cannot. */
+    fun move(document: Uri, from: Uri, to: Uri): DocumentRef?
 }
 
 /** The user's grants. Only the Permissions screen adds or revokes them; nothing the model reaches holds this store. */
@@ -137,6 +143,12 @@ object PathRules {
     /** Grant names go into the system prompt, so they are kept short. */
     private const val MAX_NAME = 80
 
+    /** A single file name, as a rename gives it: no folders, nothing special. */
+    fun isFileName(name: String): Boolean = name.length <= MAX_FILE_NAME && '/' !in name && isPlainName(name) && name.trim() == name
+
+    /** Most file systems' limit on one name. */
+    private const val MAX_FILE_NAME = 255
+
     private fun isPlainName(segment: String) =
         segment.isNotBlank() && segment != "." && segment != ".." && segment.none { it == '\\' || it.isISOControl() }
 }
@@ -177,13 +189,21 @@ class GrantScope(private val grants: GrantStore, private val access: DocumentAcc
         error("unreachable: the loop returns on the last segment")
     }
 
-    /** The policy engine's scope check: a skill that acts on files names its target in a `path` argument. */
+    /**
+     * The policy engine's scope check: a skill that acts on files names its target in a `path`
+     * argument, and one that moves a file names where to in a `destination` argument (TASK-085).
+     * Every path must lie inside a grant, and an approval binds them all.
+     */
     suspend fun check(request: SkillRequest): ScopeCheck {
         val path = request.arguments.string(PATH_ARGUMENT) ?: return ScopeCheck.OutOfScope("This skill needs a path inside a granted file or folder.")
-        return when (val resolution = resolve(path)) {
-            is PathResolution.Found -> ScopeCheck.InScope(listOf(target(path, resolution)))
-            is PathResolution.Refused -> ScopeCheck.OutOfScope(resolution.reason)
+        val paths = listOfNotNull(path, request.arguments.string(DESTINATION_ARGUMENT))
+        val targets = paths.map { each ->
+            when (val resolution = resolve(each)) {
+                is PathResolution.Found -> target(each, resolution)
+                is PathResolution.Refused -> return ScopeCheck.OutOfScope(resolution.reason)
+            }
         }
+        return ScopeCheck.InScope(targets)
     }
 
     /** Bound by an approval: the document itself, or the folder and name it would be created as. */
@@ -194,5 +214,6 @@ class GrantScope(private val grants: GrantStore, private val access: DocumentAcc
 
     companion object {
         const val PATH_ARGUMENT = "path"
+        const val DESTINATION_ARGUMENT = "destination"
     }
 }

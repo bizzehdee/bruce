@@ -15,7 +15,8 @@ import org.junit.runner.RunWith
 
 /**
  * The file skills against a real document provider, through the app's own grant of a folder
- * named "Documents" (added by hand in Settings, Permissions). The file it makes is deleted at the end. The skills are run directly, as
+ * named "Documents" (added by hand in Settings, Permissions), holding a folder named
+ * "bruce-move-test" for the move (made by hand, for example with adb). The file it makes is deleted at the end. The skills are run directly, as
  * the runtime does once policy has allowed them; policy itself is covered by unit tests.
  */
 @ManualOnly("needs a folder named Documents granted in the installed app")
@@ -40,5 +41,22 @@ class FileSkillsDeviceTest {
         assertTrue((run("list_files", "path" to "Documents") as SkillOutcome.Done).content.lines().contains(name))
         assertEquals(SkillOutcome.Done("Deleted the file."), run("delete_file", "path" to path))
         assertTrue(name !in (run("list_files", "path" to "Documents") as SkillOutcome.Done).content.lines())
+    }
+
+    @Test
+    fun renameAndMoveInAGrantedFolder() = runBlocking {
+        assumeTrue("grant a folder named Documents first", "Documents" in container.grantNames())
+        assumeTrue("make Documents/bruce-move-test first", "bruce-move-test/" in (run("list_files", "path" to "Documents") as SkillOutcome.Done).content.lines())
+        val stamp = System.currentTimeMillis()
+        val name = "bruce-rename-$stamp.txt"
+        val renamed = "bruce-renamed-$stamp.txt"
+
+        run("create_file", "path" to "Documents/$name", "content" to "moving")
+        assertEquals(SkillOutcome.Done("Renamed the file."), run("rename_file", "path" to "Documents/$name", "new_name" to renamed))
+        assertEquals(SkillOutcome.Done("Moved the file."), run("move_file", "path" to "Documents/$renamed", "destination" to "Documents/bruce-move-test"))
+        assertEquals(SkillOutcome.Done("moving"), run("read_file", "path" to "Documents/bruce-move-test/$renamed"))
+        val top = (run("list_files", "path" to "Documents") as SkillOutcome.Done).content.lines()
+        assertTrue(name !in top && renamed !in top)
+        assertEquals(SkillOutcome.Done("Deleted the file."), run("delete_file", "path" to "Documents/bruce-move-test/$renamed"))
     }
 }

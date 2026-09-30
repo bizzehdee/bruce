@@ -17,6 +17,8 @@ object SkillText {
         "read_file" to (R.string.skill_read_file to R.string.skill_read_file_summary),
         "create_file" to (R.string.skill_create_file to R.string.skill_create_file_summary),
         "write_file" to (R.string.skill_write_file to R.string.skill_write_file_summary),
+        "rename_file" to (R.string.skill_rename_file to R.string.skill_rename_file_summary),
+        "move_file" to (R.string.skill_move_file to R.string.skill_move_file_summary),
         "delete_file" to (R.string.skill_delete_file to R.string.skill_delete_file_summary),
         "find_settings" to (R.string.skill_find_settings to R.string.skill_find_settings_summary),
         "get_setting" to (R.string.skill_get_setting to R.string.skill_get_setting_summary),

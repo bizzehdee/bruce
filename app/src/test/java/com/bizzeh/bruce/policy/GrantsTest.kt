@@ -55,6 +55,35 @@ class GrantsTest {
 
     private fun resolve(path: String) = runBlocking { scope.resolve(path) }
 
+    private fun check(vararg arguments: Pair<String, Any>) = runBlocking {
+        val skill = com.bizzeh.bruce.skills.Skill(
+            id = "move_file", version = 1, description = "d", input = com.bizzeh.bruce.skills.InputSchema(emptyList()),
+            capabilities = emptySet(), defaultState = com.bizzeh.bruce.skills.SkillState.ASK,
+        ) { com.bizzeh.bruce.skills.SkillOutcome.Done("") }
+        scope.check(com.bizzeh.bruce.skills.SkillRequest(skill, com.bizzeh.bruce.skills.SkillArguments(mapOf(*arguments))))
+    }
+
+    @Test
+    fun aMoveMustStayInsideGrantsAndItsApprovalBindsBothPaths() {
+        grantDocuments()
+
+        val both = check("path" to "Documents/readme.txt", "destination" to "Documents/notes") as ScopeCheck.InScope
+        assertEquals(listOf("Documents/readme.txt", "Documents/notes"), both.targets.map { it.display })
+        assertEquals(listOf(readme.uri.toString(), notes.uri.toString()), both.targets.map { it.identity })
+        assertTrue(check("path" to "Documents/readme.txt", "destination" to "Pictures") is ScopeCheck.OutOfScope)
+        assertTrue(check("path" to "Documents/readme.txt", "destination" to "Documents/../x") is ScopeCheck.OutOfScope)
+        assertEquals(1, (check("path" to "Documents/readme.txt") as ScopeCheck.InScope).targets.size)
+        assertTrue(check("destination" to "Documents/notes") is ScopeCheck.OutOfScope)
+    }
+
+    @Test
+    fun fileNamesForRenames() {
+        assertTrue(PathRules.isFileName("done.txt"))
+        assertFalse(PathRules.isFileName("a/b"))
+        assertFalse(PathRules.isFileName(" a"))
+        assertFalse(PathRules.isFileName("x".repeat(256)))
+    }
+
     @Test
     fun addingTakesPersistedAccessAndNamesTheGrantUniquely() = runBlocking {
         val first = grantDocuments()

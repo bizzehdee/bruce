@@ -35,7 +35,7 @@ class FileSkills(
     /** Followed instructions of the folder a skill worked in (FolderInstructionsStore.guidance). */
     private val guidance: suspend (Grant) -> FolderGuidance? = { null },
 ) {
-    fun create(): List<Skill> = listOf(listFiles(), readFile(), createFile(), writeFile(), deleteFile())
+    fun create(): List<Skill> = listOf(listFiles(), readFile(), createFile(), writeFile(), renameFile(), moveFile(), deleteFile())
 
     private fun pathParameter(description: String) =
         Parameter(GrantScope.PATH_ARGUMENT, ParameterType.STRING, description, maxLength = PathRules.MAX_LENGTH)
@@ -86,6 +86,38 @@ class FileSkills(
         requires = setOf(SkillRequirement.FILE_GRANT),
     ) { arguments -> withContext(io) { replace(arguments) } }
 
+    private fun renameFile() = Skill(
+        id = "rename_file",
+        version = 1,
+        description = "Rename one file in a granted folder. It stays in the same folder.",
+        input = InputSchema(
+            listOf(
+                pathParameter("The file, starting with a granted name, for example Documents/notes/todo.txt"),
+                Parameter(NEW_NAME_ARGUMENT, ParameterType.STRING, "The file's new name only, for example done.txt", maxLength = MAX_NAME_CHARS),
+            ),
+        ),
+        capabilities = setOf(Capability.FILE_MOVE),
+        defaultState = SkillState.ASK,
+        scope = ResourceScope.GRANTED_FILES,
+        requires = setOf(SkillRequirement.FILE_GRANT),
+    ) { arguments -> withContext(io) { rename(arguments) } }
+
+    private fun moveFile() = Skill(
+        id = "move_file",
+        version = 1,
+        description = "Move one file into another folder. Both must be inside granted folders; the file keeps its name.",
+        input = InputSchema(
+            listOf(
+                pathParameter("The file, starting with a granted name, for example Documents/notes/todo.txt"),
+                Parameter(GrantScope.DESTINATION_ARGUMENT, ParameterType.STRING, "The folder to move it into, starting with a granted name, for example Documents/archive", maxLength = PathRules.MAX_LENGTH),
+            ),
+        ),
+        capabilities = setOf(Capability.FILE_MOVE),
+        defaultState = SkillState.ASK,
+        scope = ResourceScope.GRANTED_FILES,
+        requires = setOf(SkillRequirement.FILE_GRANT),
+    ) { arguments -> withContext(io) { move(arguments) } }
+
     private fun deleteFile() = Skill(
         id = "delete_file",
         version = 1,
@@ -109,6 +141,50 @@ class FileSkills(
         if (found.parent == null) return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, "Only files inside a granted folder can be deleted.")
         if (!access.delete(file.uri)) return SkillOutcome.Failed(DenialCode.TOOL_FAILED, "The folder did not allow the file to be deleted.")
         return SkillOutcome.Done("Deleted the file.", guidance(found.grant))
+    }
+
+    /** A file inside a granted folder, not a folder and not a granted file itself (it was granted to be used where it is). */
+    private suspend fun movableFile(arguments: SkillArguments): Pair<PathResolution.Found, DocumentRef>? {
+        val found = resolve(arguments) as? PathResolution.Found ?: return null
+        val file = found.document ?: return null
+        if (file.isDirectory || found.parent == null) return null
+        return found to file
+    }
+
+    private suspend fun rename(arguments: SkillArguments): SkillOutcome {
+        val (found, file) = movableFile(arguments) ?: return notMovable(arguments)
+        val name = arguments.string(NEW_NAME_ARGUMENT).orEmpty()
+        if (!PathRules.isFileName(name)) return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "The new name must be a single file name, without folders.")
+        if (name == found.name) return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "The file already has that name.")
+        if (access.children(found.grant.uri, found.parent!!).any { it.first == name }) {
+            return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "Something in that folder already has that name.")
+        }
+        access.rename(file.uri, name) ?: return SkillOutcome.Failed(DenialCode.TOOL_FAILED, "The folder did not allow the file to be renamed.")
+        return SkillOutcome.Done("Renamed the file.", guidance(found.grant))
+    }
+
+    private suspend fun move(arguments: SkillArguments): SkillOutcome {
+        val (found, file) = movableFile(arguments) ?: return notMovable(arguments)
+        val destination = when (val resolution = scope.resolve(arguments.string(GrantScope.DESTINATION_ARGUMENT).orEmpty())) {
+            is PathResolution.Found -> resolution
+            is PathResolution.Refused -> return SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, resolution.reason)
+        }
+        val folder = destination.document?.takeIf { it.isDirectory } ?: return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "The destination must be an existing folder.")
+        if (folder.uri == found.parent!!.uri) return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "The file is already in that folder.")
+        if (access.children(destination.grant.uri, folder).any { it.first == found.name }) {
+            return SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "That folder already has something with the same name.")
+        }
+        access.move(file.uri, found.parent.uri, folder.uri) ?: return SkillOutcome.Failed(DenialCode.TOOL_FAILED, "The files app does not allow moving this file there.")
+        return SkillOutcome.Done("Moved the file.", guidance(destination.grant))
+    }
+
+    private suspend fun notMovable(arguments: SkillArguments): SkillOutcome = when (val resolution = resolve(arguments)) {
+        is PathResolution.Refused -> SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, resolution.reason)
+        is PathResolution.Found -> when {
+            resolution.document == null -> notFound()
+            resolution.document.isDirectory -> SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "That is a folder. Only single files can be moved or renamed.")
+            else -> SkillOutcome.Failed(DenialCode.RESOURCE_OUTSIDE_SCOPE, "Only files inside a granted folder can be moved or renamed.")
+        }
     }
 
     private suspend fun createNew(arguments: SkillArguments): SkillOutcome {
@@ -183,6 +259,8 @@ class FileSkills(
         /** Inside InputSchema.MAX_RAW_LENGTH, which bounds the whole arguments object. */
         const val MAX_WRITE_CHARS = 15_000
         private const val CONTENT_ARGUMENT = "content"
+        private const val NEW_NAME_ARGUMENT = "new_name"
+        private const val MAX_NAME_CHARS = 255
     }
 }
 

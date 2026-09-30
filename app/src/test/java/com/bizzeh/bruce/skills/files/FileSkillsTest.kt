@@ -58,7 +58,9 @@ class FileSkillsTest {
 
     @Test
     fun readingIsOffAndChangingAsksByDefault() {
-        assertEquals(setOf("list_files", "read_file", "create_file", "write_file", "delete_file"), skills.keys)
+        assertEquals(setOf("list_files", "read_file", "create_file", "write_file", "rename_file", "move_file", "delete_file"), skills.keys)
+        assertEquals(SkillState.ASK, skills.getValue("rename_file").defaultState)
+        assertEquals(SkillState.ASK, skills.getValue("move_file").defaultState)
         assertEquals(SkillState.DECLINED, skills.getValue("list_files").defaultState)
         assertEquals(SkillState.DECLINED, skills.getValue("read_file").defaultState)
         assertEquals(SkillState.ASK, skills.getValue("create_file").defaultState)
@@ -84,6 +86,55 @@ class FileSkillsTest {
         assertEquals(5, asked.size)
         assertTrue("failures carry none", guided.getValue("read_file").execute(SkillArguments(mapOf("path" to "Documents/gone.txt"))) is SkillOutcome.Failed)
         assertEquals(5, asked.size)
+    }
+
+    private fun run(id: String, vararg arguments: Pair<String, Any>) = runBlocking { skills.getValue(id).execute(SkillArguments(mapOf(*arguments))) }
+
+    @Test
+    fun renamingKeepsTheFileInItsFolder() {
+        assertTrue(run("rename_file", "path" to "Documents/todo.txt", "new_name" to "done.txt") is SkillOutcome.Done)
+
+        assertEquals(listOf("done.txt", "notes", "photo.jpg"), documents.tree.getValue(root).map { it.first })
+        assertEquals("milk\neggs", String(documents.contents.getValue(documents.tree.getValue(root).first().second.uri).second))
+    }
+
+    @Test
+    fun renamingRefusesBadNamesClashesFoldersAndGrantedFiles() = runBlocking {
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("rename_file", "path" to "Documents/todo.txt", "new_name" to "notes/x.txt")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("rename_file", "path" to "Documents/todo.txt", "new_name" to "..")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("rename_file", "path" to "Documents/todo.txt", "new_name" to " x.txt")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("rename_file", "path" to "Documents/todo.txt", "new_name" to "todo.txt")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("rename_file", "path" to "Documents/todo.txt", "new_name" to "photo.jpg")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("rename_file", "path" to "Documents/notes", "new_name" to "n")))
+        assertEquals(DenialCode.RESOURCE_NOT_FOUND, failure(run("rename_file", "path" to "Documents/gone.txt", "new_name" to "n")))
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(run("rename_file", "path" to "../etc", "new_name" to "n")))
+        val single = Uri.parse("content://docs/single")
+        documents.names[single] = "single.txt"
+        grants.add(single, GrantKind.FILE)
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(run("rename_file", "path" to "single.txt", "new_name" to "n.txt")))
+        documents.refuseRename = true
+        assertEquals(DenialCode.TOOL_FAILED, failure(run("rename_file", "path" to "Documents/todo.txt", "new_name" to "n.txt")))
+    }
+
+    @Test
+    fun movingPutsTheFileInAnotherGrantedFolder() {
+        assertTrue(run("move_file", "path" to "Documents/todo.txt", "destination" to "Documents/notes") is SkillOutcome.Done)
+
+        assertEquals(listOf("notes", "photo.jpg"), documents.tree.getValue(root).map { it.first })
+        assertEquals(listOf("todo.txt"), documents.tree.getValue(notes.uri).map { it.first })
+    }
+
+    @Test
+    fun movingNeedsAnExistingOtherFolderWithoutTheName() {
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("move_file", "path" to "Documents/todo.txt", "destination" to "Documents/photo.jpg")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("move_file", "path" to "Documents/todo.txt", "destination" to "Documents/missing")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("move_file", "path" to "Documents/todo.txt", "destination" to "Documents")))
+        assertEquals(DenialCode.RESOURCE_OUTSIDE_SCOPE, failure(run("move_file", "path" to "Documents/todo.txt", "destination" to "Elsewhere")))
+        documents.tree[notes.uri] = listOf("todo.txt" to DocumentRef(Uri.parse("content://docs/other"), isDirectory = false))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, failure(run("move_file", "path" to "Documents/todo.txt", "destination" to "Documents/notes")))
+        documents.tree[notes.uri] = emptyList()
+        documents.refuseMove = true
+        assertEquals(DenialCode.TOOL_FAILED, failure(run("move_file", "path" to "Documents/todo.txt", "destination" to "Documents/notes")))
     }
 
     @Test

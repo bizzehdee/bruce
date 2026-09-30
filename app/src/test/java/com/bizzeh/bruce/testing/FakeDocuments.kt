@@ -53,4 +53,25 @@ class FakeDocuments : DocumentAccess {
         contents.remove(document)
         return true
     }
+
+    var refuseRename = false
+    var refuseMove = false
+
+    override fun rename(document: Uri, name: String): DocumentRef? {
+        if (refuseRename) return null
+        val renamed = DocumentRef(Uri.parse(document.toString().substringBeforeLast('/') + "/" + name), isDirectory = false)
+        tree.replaceAll { _, children -> children.map { if (it.second.uri == document) name to renamed else it } }
+        contents.remove(document)?.let { contents[renamed.uri] = it }
+        return renamed
+    }
+
+    override fun move(document: Uri, from: Uri, to: Uri): DocumentRef? {
+        if (refuseMove) return null
+        val (name, _) = tree[from].orEmpty().single { it.second.uri == document }
+        val moved = DocumentRef(Uri.parse("$to/$name"), isDirectory = false)
+        tree[from] = tree[from].orEmpty().filterNot { it.second.uri == document }
+        tree[to] = tree[to].orEmpty() + (name to moved)
+        contents.remove(document)?.let { contents[moved.uri] = it }
+        return moved
+    }
 }

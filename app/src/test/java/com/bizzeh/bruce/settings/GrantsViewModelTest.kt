@@ -52,6 +52,8 @@ class GrantsViewModelTest {
         override fun create(tree: Uri, parent: DocumentRef, name: String): DocumentRef? = null
         override fun write(document: Uri, bytes: ByteArray) = Unit
         override fun delete(document: Uri) = false
+        override fun rename(document: Uri, name: String): DocumentRef? = null
+        override fun move(document: Uri, from: Uri, to: Uri): DocumentRef? = null
     }
     /** Built after setUp, so its flows start on the test Main dispatcher rather than the blocked main looper. */
     private val viewModel by lazy { GrantsViewModel(GrantStore(database.policy(), documents), Dispatchers.IO) }
