@@ -29,6 +29,15 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- write_text_message and dial_number (TASK-089): the apps that send and call; the user does both. -->
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
         <!-- open_url (TASK-087): a browser to open a page in. -->
         <intent>
             <action android:name="android.intent.action.VIEW" />

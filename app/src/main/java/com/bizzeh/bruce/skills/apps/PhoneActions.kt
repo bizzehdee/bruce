@@ -26,6 +26,12 @@ interface PhoneActions {
 
     /** Puts [text] on the clipboard, marked sensitive so Android does not preview it (TASK-088). */
     fun copy(text: String)
+
+    /** Opens the messaging app with [text] written to [number] (or to no one yet); the user sends it (TASK-089). */
+    fun compose(number: String?, text: String): Boolean
+
+    /** Opens the phone app with [number] dialled; the user places the call. */
+    fun dial(number: String): Boolean
 }
 
 /**
@@ -57,6 +63,11 @@ class AndroidPhoneActions(private val context: Context) : PhoneActions {
         clip.description.extras = PersistableBundle().apply { putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true) }
         context.getSystemService(ClipboardManager::class.java).setPrimaryClip(clip)
     }
+
+    override fun compose(number: String?, text: String): Boolean =
+        start(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:" + Uri.encode(number.orEmpty()))).putExtra("sms_body", text))
+
+    override fun dial(number: String): Boolean = start(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(number))))
 
     private fun start(intent: Intent): Boolean = try {
         context.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

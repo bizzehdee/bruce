@@ -20,6 +20,8 @@ class AppSkillsTest {
         override fun launchable() = apps
         override fun launch(packageName: String) = works.also { done += "launch $packageName" }
         override fun copy(text: String) { done += "copy $text" }
+        override fun compose(number: String?, text: String) = works.also { done += "sms $number $text" }
+        override fun dial(number: String) = works.also { done += "dial $number" }
     }
 
     private val actions = FakeActions()
@@ -32,7 +34,7 @@ class AppSkillsTest {
 
     @Test
     fun allAreOffByDefaultAndPagesFollowTheSiteRules() {
-        assertEquals(listOf("share_text", "open_url", "open_app", "copy_to_clipboard"), skills.keys.toList())
+        assertEquals(listOf("share_text", "open_url", "open_app", "copy_to_clipboard", "write_text_message", "dial_number"), skills.keys.toList())
         assertTrue(skills.values.all { it.defaultState == SkillState.DECLINED })
         assertEquals(ResourceScope.WEB, skills.getValue("open_url").scope)
         assertEquals("example.com", skills.getValue("open_url").site!!(SkillArguments(mapOf("url" to "https://Example.com/a"))))
@@ -43,6 +45,21 @@ class AppSkillsTest {
         onScreen = false
         assertEquals(SkillOutcome.Done("Copied to the clipboard."), run("copy_to_clipboard", "text" to "4417"))
         assertEquals(listOf("copy 4417"), actions.done)
+    }
+
+    @Test
+    fun messagesAndCallsAreOnlyPreparedForTheUser() {
+        assertEquals(SkillOutcome.Done("The message is written in the messaging app; the user sends it."), run("write_text_message", "text" to "On my way", "number" to " +44 7700 900123 "))
+        assertTrue(run("write_text_message", "text" to "Hi") is SkillOutcome.Done)
+        assertEquals(SkillOutcome.Done("The number is ready in the phone app; the user places the call."), run("dial_number", "number" to "(020) 7946-0018"))
+        assertEquals(listOf("sms +44 7700 900123 On my way", "sms null Hi", "dial (020) 7946-0018"), actions.done)
+
+        assertEquals(DenialCode.INVALID_ARGUMENTS, code(run("dial_number", "number" to "*#06#")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, code(run("dial_number", "number" to "call mum")))
+        assertEquals(DenialCode.INVALID_ARGUMENTS, code(run("write_text_message", "text" to "x", "number" to "12")))
+        actions.works = false
+        assertEquals(DenialCode.TOOL_UNAVAILABLE, code(run("dial_number", "number" to "999")))
+        assertEquals(DenialCode.TOOL_UNAVAILABLE, code(run("write_text_message", "text" to "x")))
     }
 
     @Test

@@ -630,9 +630,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: in `skills/apps/`, capability SHARE (the spec's list has no clipboard capability, and a test pins it). Works whether or not Bruce is on screen. Unit-tested with a fake.
   - Device test on the Xperia 1 II (`PhoneActionsDeviceTest`, manual) ran the copy without error and the keyboard's clipboard handler picked up a new clip; reading it back was refused by Android (only the app in focus may read), so the text itself was not confirmed.
   - Depends on: TASK-041
-- [ ] TASK-089: Messages and calls
+- [x] TASK-089: Messages and calls
   - Owner (2026-09-30): option A, open the messaging or phone app prefilled; the user sends or calls.
   - Open question before building: Google Play restricts the SMS and call-log permissions to default handlers. Option A: open the messaging or phone app with the text or number filled in (no permission, the user sends). Option B: send directly (needs a Play declaration and is likely refused).
+  - Done (`skills/apps/`): `write_text_message` (text, optional number; opens the messaging app with the message written) and `dial_number` (opens the dialler with the number), off by default, only while Bruce is on screen. Numbers must be digits with + ( ) - and spaces; codes such as `*#06#` are refused, as the dialler runs them. No SMS or call permission is declared.
+  - Device-tested on the Xperia 1 II (`PhoneActionsDeviceTest`, manual): the dialler opened with +44 7700 900123 ready and nothing was called; for messages only the handler was checked (a messaging app takes `smsto:`), so no draft was left in the owner's messages.
   - Depends on: TASK-041
 - [ ] TASK-090: Notifications skill
   - Owner (2026-09-30): option A, Bruce posts a notification the user asked for.

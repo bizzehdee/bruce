@@ -25,6 +25,14 @@ class PhoneActionsDeviceTest {
         assertTrue(actions.share("Shared by a Bruce device test", null))
     }
 
+    /** The dialler really opens; for messages only the handler is checked, so no draft is left in the owner's messages. */
+    @Test
+    fun messagesHaveAnAppAndCallsOpenTheDialler() {
+        val sms = android.content.Intent(android.content.Intent.ACTION_SENDTO, android.net.Uri.parse("smsto:+447700900123"))
+        assertTrue(context.packageManager.queryIntentActivities(sms, 0).isNotEmpty())
+        assertTrue(actions.dial("+447700900123"))
+    }
+
     @Test
     fun copiedTextIsOnTheClipboardMarkedSensitive() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
