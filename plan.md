@@ -286,8 +286,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   skills on and off, at several context lengths, with speed and memory. Models
   are screened on the development machine first; only those that pass go to the
   phones. The setup wizard's model step suggests a few of the recommended models
-  for this phone, each with its size and what it trades (speed against answer and
-  skill quality), downloadable in one tap; the user can skip the suggestions and
+  for this phone, each with its size and a line or two on what it is good at,
+  downloadable in one tap; the user can skip the suggestions and
   pick their own from the model browser or import a file (owner, 2026-10-01).
   `planned` (TASK-103 to TASK-108)
 - **Saved system prompt** — The first reply after a model loads has to read the

@@ -774,7 +774,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [ ] TASK-107: Show recommended models in the model browser
   - Ship the bins from TASK-106 with the app, keyed by base model and memory tier; a phone uses the tier of its own memory.
   - Owner (2026-10-01): the setup wizard's model step suggests recommended models for this phone's tier, and the user can skip them and choose their own (model browser or import, as now).
-    - Proposed, for the owner to confirm: up to three suggestions, each labelled by what it trades (for example fastest, balanced, best answers), with download size and a plain speed hint; one tap downloads Bruce's pick of file for that model. The suggestion list sits above the existing Import and Browse buttons; Skip stays.
+    - Owner (2026-10-01): a selection of models, each with a short description (one or two lines at most) of what it is good at, written from the evaluation results, with its download size; one tap downloads Bruce's pick of file for that model. The selection sits above the existing Import and Browse buttons; Skip stays.
     - With network mode offline, the suggestions show but cannot download, with the reason, as Browse does now.
     - A phone outside every tested tier (under 4 GB, or no bin for its processor type) gets no suggestions, only Import and Browse.
   - How it shows in the model browser (a "Recommended" label, ranking first) is agreed with the owner once the bins exist.
