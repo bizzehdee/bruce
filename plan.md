@@ -351,10 +351,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Store listing** — Play Store feature graphic, listing text (name, short
   description, full description) and prepared answers for the Play Console setup
   questions, kept as Markdown in the repository. Phone screenshots follow once
-  the product UI exists (Phase 1). `planned`
+  the product UI exists (Phase 1). `in progress` (feature graphic done, TASK-015)
 - **Privacy policy** — Public privacy policy describing Bruce's local-only data
   handling, required by Google Play. Published on the owner's website; the
-  contact email is the one given in `docs/store/`. `planned`
+  contact email is the one given in `docs/store/`. `in progress` (written,
+  `docs/store/privacy-policy.md`; not yet published)
 - **Future surfaces** — Widget, Quick Settings tile, share-sheet actions,
   shortcuts. `done` (share to Bruce, TASK-100; tile, widget and shortcuts, TASK-101)
 

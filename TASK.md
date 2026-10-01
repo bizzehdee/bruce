@@ -97,11 +97,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Phone screenshots are out of scope here; they follow once the product UI exists.
   - Done (2026-10-01): `docs/store/feature-graphic-1024x500.png`, 24-bit PNG without alpha as Play requires: the head on the left, facing "Bruce" and "Your AI sidekick, on your phone." on the Play icon's cream. `docs/branding/export-icons.sh` generates it with the icons (Montserrat, SIL Open Font License); its scratch files now go under `build/scratch`.
   - Depends on: TASK-014
-- [ ] TASK-016: Privacy policy
+- [x] TASK-016: Privacy policy
   - Markdown under `docs/store/`, describing local-only storage, what leaves the device (Hugging Face requests and downloads only when the user enables them), no ads, no analytics, no accounts, and how to delete data.
   - Must match the app's actual behaviour and `plan.md`'s privacy model.
   - Published on the owner's website; contact email dhorrocks@gmail.com.
   - Open: the publication URL (needed for the Play Console, not for writing the policy).
+  - Done (2026-10-01): `docs/store/privacy-policy.md`, checked against the code: what is stored and where, each network feature with the data it sends and to whom (including the parameter ceiling derived from free memory that recommendations send to Hugging Face, and that a remote server receives skill results and memories), each Android permission and its use, the camera skill using the system camera app, text to speech possibly using a network voice, and how to delete each kind of data.
+  - Still open: the publication URL. The policy must be updated in the same change as any feature that alters what leaves the phone.
   - Required by: TASK-017
 - [ ] TASK-017: Play Store listing text and setup answers
   - `docs/store/listing.md`: app name (30 characters or fewer), short description (80 or fewer), full description (4000 or fewer).
