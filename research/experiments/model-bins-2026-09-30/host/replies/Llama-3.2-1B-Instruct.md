@@ -10,7 +10,7 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-Deep blue vastness
+Deep blue waters.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, 0 words) · calls: `get_datetime({"expression": "now"})`
@@ -130,7 +130,7 @@ Yes
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-CATS ARE KNOWN FOR THEIR AGILITY, PLAYFUL NATURE, AND THE FACT THAT THEY CAN SLEEP FOR UP TO 16 HOURS A DAY.
+CATS ARE THE MOST ADORABLE AND CUTE CREATURES ON THE PLANET, DON'T YOU THINK?
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, 0% upper, missing CAT) · calls: `get_device_info({"type": "object", "properties": {}, "required": []})`
@@ -142,7 +142,7 @@ CATS ARE KNOWN FOR THEIR AGILITY, PLAYFUL NATURE, AND THE FACT THAT THEY CAN SLE
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-CATS ARE KNOWN FOR THEIR AGILITY, PLAYFUL NATURE, AND THE FACT THAT THEY CAN SLEEP FOR UP TO 16 HOURS A DAY.
+CATS ARE THE MOST ADORABLE AND SASSY ANIMALS ON THE PLANET, DON'T YOU THINK?
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, 0% upper, missing CAT)
@@ -159,12 +159,7 @@ CATS ARE KNOWN FOR THEIR AGILITY, PLAYFUL NATURE, AND THE FACT THAT THEY CAN SLE
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-'''
-{
-  "name": "Sam",
-  "age": 30
-}
-'''
+{"name": "Sam", "age": 30}
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, no JSON) · calls: `get_device_info({"expression": "Sam"})`
@@ -176,12 +171,7 @@ CATS ARE KNOWN FOR THEIR AGILITY, PLAYFUL NATURE, AND THE FACT THAT THEY CAN SLE
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-'''
-{
-  "name": "Sam",
-  "age": 30
-}
-'''
+{"name": "Sam", "age": 30}
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, no JSON) · calls: `get_device_info({"expression": "get_device_info"})`
@@ -198,7 +188,7 @@ CATS ARE KNOWN FOR THEIR AGILITY, PLAYFUL NATURE, AND THE FACT THAT THEY CAN SLE
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-Photosynthesis is the magical process by which plants, algae, and some bacteria convert sunlight, carbon dioxide, and water into glucose and oxygen, using energy from the sun.
+It's like a superpower for plants, where they take in sunlight, water, and a dash of air, and then use that energy to create their own food, releasing oxygen as a byproduct - it's pretty cool!
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, 0 words, missing light) · calls: `get_datetime({"expression": "now"})`
@@ -210,7 +200,7 @@ Photosynthesis is the magical process by which plants, algae, and some bacteria 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-"Hey, I've got a quick one for you! Photosynthesis is like a superpower that plants have, where they use sunlight, water, and CO2 to create their own food, releasing oxygen as a byproduct - it's like a free energy drink for plants!"
+It's like a superpower for plants, where they take in sunlight, water, and a bit of air, and then use that energy to create their own food, releasing oxygen as a byproduct - it's pretty cool!
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, 0 words, missing light) · calls: `get_datetime({})`
@@ -227,7 +217,7 @@ Photosynthesis is the magical process by which plants, algae, and some bacteria 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-The capital of Australia is Canberra.
+G'day mate! The capital of Australia is Canberra.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing Canberra)
@@ -285,7 +275,7 @@ Spiders have eight legs.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-That's a classic one.  William Shakespeare wrote Romeo and Juliet.
+That's a classic one! The famous tale of star-crossed lovers was penned by the one and only William Shakespeare.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing Shakespeare) · calls: `get_device_info({"type": "object", "properties": {"author": "William Shakespeare"}})`
@@ -343,7 +333,7 @@ Water boils at 100 degrees Celsius at sea level.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-The largest planet in our solar system is Jupiter.
+That's an easy one! Jupiter is the largest planet in our solar system.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing Jupiter) · calls: `get_device_info({"type": "object", "properties": {"manufacturer": "None", "model": "None", "Android_version": "None", "processor": "None", "total_memory": "None"}})`
@@ -355,7 +345,7 @@ The largest planet in our solar system is Jupiter.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-The largest planet in our solar system is Jupiter.
+That's an easy one! Jupiter is the largest planet in our solar system.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing Jupiter) · calls: `get_device_info({"type": "object", "properties": {}, "required": []})`
@@ -430,7 +420,7 @@ You now have 4 apples.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (has Tom is the shortest)
 
 ```text
-Based on the information, Tom is taller than Ann, and Ann is taller than Joe. This means Tom is taller than Joe. Therefore, Tom is the shortest.
+Based on the information, Tom is taller than Ann, and Ann is taller than Joe. So, Tom is taller than Joe. Therefore, Tom is the shortest.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing Joe)
@@ -439,10 +429,10 @@ Based on the information, Tom is taller than Ann, and Ann is taller than Joe. Th
 
 ```
 
-**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (has Tom is the shortest)
+**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-Based on the information, Tom is taller than Ann, and Ann is taller than Joe. This means Tom is taller than Joe. Therefore, Tom is the shortest.
+Based on the information, Tom is the tallest, Ann is the middle height, and Joe is the shortest.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing Joe) · calls: `get_device_info({"type": "object", "properties": {}, "required": []})`
@@ -459,7 +449,7 @@ Based on the information, Tom is taller than Ann, and Ann is taller than Joe. Th
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-Since today is Monday, in three days it will be Thursday.
+If today is Monday, then in three days, it will be Thursday.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing Thursday) · calls: `get_datetime({"type": "object", "properties": {"day": "Monday", "date": "3"}})`
@@ -471,7 +461,7 @@ Since today is Monday, in three days it will be Thursday.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-Since today is Monday, in three days it will be Thursday.
+It'll be Thursday in three days.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing Thursday) · calls: `get_datetime({"type": "object", "properties": {}, "required": []})`
@@ -492,7 +482,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-The town council discussed plans for a new library, including a children's wing, cafe, and community event space, with construction set to begin in March.
+The town council is planning a new library with a range of facilities, including a children's wing, cafe, and community event space, which will be completed in eighteen months.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, 0 words, missing library) · calls: `get_device_info({"type": "object", "properties": {"Android": "10", "processor": "ARM", "total_memory": "4GB"}})`
@@ -504,7 +494,7 @@ The town council discussed plans for a new library, including a children's wing,
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-The town council approved plans for a new library, with construction set to begin in March and expected to be completed in eighteen months, featuring a children's wing, cafe, and community event space.
+The town council is planning a new library with a range of facilities, including a children's wing, cafe, and community event space, which will be completed in March after an 18-month construction period.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, 0 words, missing library) · calls: `get_device_info({"type": "object", "properties": {"manufacturer": "Google", "model": "Pixel", "Android": "11", "processor": "Google Tensor", "total_memory": "8GB"}})`
@@ -523,12 +513,7 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-"I'd be happy to help facilitate the process. To ensure timely delivery, I recommend considering the following options: 
-
-1. Submit the report by Friday.
-2. If you need an extension, please let me know and I'll do my best to accommodate your request.
-
-Please let me know which option you prefer, and I'll be more than happy to assist you further."
+"I'd be happy to help facilitate the process, but I wanted to ensure that I'm providing you with the most accurate and timely information possible. Could you please confirm your availability to receive the report by Friday?"
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing Friday)
@@ -542,9 +527,7 @@ Please let me know which option you prefer, and I'll be more than happy to assis
 ```text
 Here's a rewritten version of the message:
 
-"Hello, I wanted to request a report by this Friday. If there are any issues or concerns, please let me know as soon as possible so we can discuss a revised timeline."
-
-This revised message maintains a polite and formal tone while still conveying the urgency and importance of the request.
+"Hello, I wanted to request a copy of the report by this Friday. If it's not available by then, I would appreciate it if you could expedite the process and provide it to me by the end of the week. Thank you for your prompt attention to this matter."
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing Friday)
@@ -561,7 +544,7 @@ This revised message maintains a polite and formal tone while still conveying th
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-"Meet us in room 4 at 3pm on Thursday."
+"Hey, I've got the new meeting time. It's now Thursday at 3pm in room 4. Let's get ready to roll!"
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({"expression": "get_device_info"}), get_datetime({"expression": "get_device_info"}), get_datetime({"expression": "get_device_info"})`
@@ -573,7 +556,7 @@ This revised message maintains a polite and formal tone while still conveying th
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-"Hey, I've got the meeting details. It's now on Thursday at 3pm in room 4. See you then!"
+"Hey, I've got the new meeting time. It's now Thursday at 3pm in room 4. Let's get ready to roll!"
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing Thursday, missing 3pm)
@@ -592,7 +575,7 @@ Rubric: Says the text does not say (it mentions a bike, not a car).
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-I don't have any information about Sam's car. The text only mentions that Sam parked his bike by the red door, but it doesn't mention his car.
+I don't have any information about Sam's car. The text only mentions that Sam parked his bike by the red door.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing not) · calls: `get_device_info({"type": "object", "properties": {"manufacturer": "Sam", "model": "car", "Android_version": "10", "processor": "Exynos 2100", "total_memory": "8GB"}})`
@@ -601,10 +584,10 @@ I don't have any information about Sam's car. The text only mentions that Sam pa
 
 ```
 
-**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
+**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (missing not)
 
 ```text
-I don't have any information about Sam's car. The text only mentions that Sam parked his bike by the red door, but it doesn't mention his car.
+I don't have any information about Sam's car.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing not)
@@ -653,10 +636,10 @@ The tickets cost $20 each.
 > What's my name, and where do I live?
 >
 
-**Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (refused, missing Leeds)
+**Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-Sorry, Priya, I made a mistake! My name is Bruce, and I don't have your name. I'm just a phone, I don't have the ability to store or recall information about you.
+I remember! Your name is Priya, and you live in Leeds.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (unwanted, missing Leeds) · calls: `get_device_info({"manufacturer": "string", "model": "string", "Android_version": "string", "processor": "string", "total_memory": "string"}), get_device_info({"manufacturer": "string", "model": "string", "Android_version": "string", "processor": "string", "total_memory": "string"}), get_device_info({"manufacturer": "string", "model": "string", "Android_version": "string", "processor": "string", "total_memory": "string"})`
@@ -668,7 +651,7 @@ I'm Bruce, your trusty sidekick. I'm here to help you with any questions or task
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-I remember! Your name is Priya, and you live in Leeds.
+Sorry, Priya! I made a mistake. My name is Bruce, and I don't know where you live. Can you tell me where Leeds is?
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing Priya, missing Leeds) · calls: `get_device_info({"type": "object", "properties": {}, "required": []}), get_datetime({"type": "object", "properties": {}, "required": []}), get_battery_status({"type": "object", "properties": {}, "required": []}), get_storage_status({"type": "object", "properties": {}, "required": []})`
@@ -765,7 +748,7 @@ It's 8:45 AM.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's 8:47 AM.
+It's 8:45 AM. You've got a busy day ahead, and I'm here to help you stay on track! What's the first thing you need to tackle?
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_datetime({"}})`
@@ -794,7 +777,7 @@ Today's date is October 1st.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Today's date is October 1st, 2023.
+Today's date is October 1st.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_datetime({"type": "object", "properties": {}, "required": []})`
@@ -811,7 +794,7 @@ Today's date is October 1st, 2023.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's Tuesday.
+It's Wednesday.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_datetime({"}})`
@@ -823,7 +806,7 @@ It's Tuesday.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's Wednesday.
+It's Wednesday!
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_datetime({"}})`
@@ -840,7 +823,9 @@ It's Wednesday.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-I can do that. 1234 * 5678 = 7,090,872.
+That's a big multiplication problem. Let me just tap a few buttons on this phone... *tap tap* Okay, I've got it. Multiply 1234 by 5678. *tap* 
+
+The answer is... 7,136,502.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, wrong number) · calls: `calculate({"expression": "1234 * 5678"})`
@@ -852,7 +837,7 @@ I can do that. 1234 * 5678 = 7,090,872.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-I've got this. Let me just check the phone's calculator real quick. *taps screen* Okay, it says 1234 * 5678 = 7,090,872.
+That's a big multiplication problem. Let me just... *tap tap* ...get the calculator real quick. *pause* Okay, I've got it. 1234 * 5678 = 7,090,872.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, wrong number) · calls: `calculate({"expression": "1234 * 5678"})`
@@ -866,12 +851,10 @@ I've got this. Let me just check the phone's calculator real quick. *taps screen
 > What's 17.5% of 240?
 >
 
-**Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (wrong number)
+**Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-To find 17.5% of 240, I'll use a tool. 
-
-The result is: 42.5
+That's an easy one. 17.5% of 240 is 42.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, wrong number) · calls: `calculate({"expression": "0.175 * 240"})`
@@ -883,9 +866,7 @@ The result is: 42.5
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-To find 17.5% of 240, I'll use a tool. Let's calculate... 
-
-240 x 0.175 = 42. So, 17.5% of 240 is 42.
+That's an easy one. 17.5% of 240 is 42.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, wrong number) · calls: `calculate({"expression": "0.175 * 240"})`
@@ -902,11 +883,11 @@ To find 17.5% of 240, I'll use a tool. Let's calculate...
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-To solve this, I'll follow the order of operations (PEMDAS):
+To solve this, first calculate the sum inside the parentheses: 45 + 55 = 100.
 
-1. Add 45 and 55: 45 + 55 = 100
-2. Divide 100 by 4: 100 / 4 = 25
-3. Subtract 3: 25 - 3 = 22
+Then, divide by 4: 100 / 4 = 25.
+
+Finally, subtract 3: 25 - 3 = 22.
 
 The answer is 22.
 ```
@@ -920,11 +901,11 @@ The answer is 22.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-To solve this, I'll follow the order of operations (PEMDAS):
+To solve this, first calculate the sum inside the parentheses: 45 + 55 = 100.
 
-1. Add 45 and 55: 45 + 55 = 100
-2. Divide 100 by 4: 100 / 4 = 25
-3. Subtract 3: 25 - 3 = 22
+Then, divide by 4: 100 / 4 = 25.
+
+Finally, subtract 3: 25 - 3 = 22.
 
 The answer is 22.
 ```
@@ -947,7 +928,7 @@ To split the bill, I'll divide the total by 4:
 
 187.60 ÷ 4 = 46.80
 
-Each person owes $46.80.
+So each person owes $46.80.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, wrong number) · calls: `calculate({"expression": "187.60 / 4"})`
@@ -959,11 +940,11 @@ Each person owes $46.80.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-To split the bill, I'll divide the total by 4:
+Let's split the bill. I'll divide the total by 4.
 
 187.60 ÷ 4 = 46.80
 
-So each person owes $46.80.
+Each person owes 46.80.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, wrong number) · calls: `calculate({"expression": "187.60 / 4"})`
@@ -980,7 +961,7 @@ So each person owes $46.80.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (invented)
 
 ```text
-You've got 87% battery life left.
+Don't worry, buddy! I've got the lowdown. Your phone's battery level is currently at 87%. You've got about 13 minutes of juice left before it starts to drain.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_battery_status({"type": "object", "properties": {"expression": "battery", "expression": "usage"}})`
@@ -992,7 +973,7 @@ You've got 87% battery life left.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-You've got 87% battery life left.
+Don't worry, buddy! I've got the lowdown. You've got around 80% battery life left. Better charge up soon!
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_battery_status({"type": "object", "properties": {}, "required": []})`
@@ -1006,10 +987,10 @@ You've got 87% battery life left.
 > Is my phone charging right now?
 >
 
-**Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
+**Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (invented)
 
 ```text
-I've got the time: 3:47 PM. Your phone is likely charging, but I'm not sure about the exact status.
+I can check that for you. *taps screen* Yep, your phone is charging.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_battery_status({"type": "object", "properties": {"charging": "True"}})`
@@ -1018,10 +999,10 @@ I've got the time: 3:47 PM. Your phone is likely charging, but I'm not sure abou
 
 ```
 
-**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
+**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-I've got the time: 3:47 PM. Let me check the battery level... *whirr* Ah, yes! Your phone is currently 87% charged.
+Let's get this charging question out of the way quickly. I've got my eyes on the screen, and I can tell you that your phone is not charging.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_battery_status({"type": "object", "properties": {}, "required": []})`
@@ -1038,7 +1019,7 @@ I've got the time: 3:47 PM. Let me check the battery level... *whirr* Ah, yes! Y
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (invented)
 
 ```text
-You've got 128GB of free storage space on your Android phone.
+You've got a lot of space on your phone, buddy! There's 128GB of free storage space available.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_storage_status({"type": "function", "function": "get_storage_status"})`
@@ -1050,7 +1031,7 @@ You've got 128GB of free storage space on your Android phone.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-You've got 128GB of free storage space on your Android phone.
+Let's get to the storage. I've got the info right here. Your phone has 128GB of free storage space.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_storage_status({"type": "object", "properties": {"required": []}})`
@@ -1067,7 +1048,7 @@ You've got 128GB of free storage space on your Android phone.
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (invented)
 
 ```text
-I'm running on the latest Samsung Galaxy S22 Ultra.
+I'm running on the latest version of Android, specifically the Samsung Galaxy S22 series.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_device_info({"type": "object", "properties": {}, "required": []})`
@@ -1079,7 +1060,7 @@ I'm running on the latest Samsung Galaxy S22 Ultra.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-I'm running on the latest Samsung Galaxy S22 Ultra.
+I'm running on the latest version of Android, specifically the Samsung Galaxy S22 series.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_device_info({"type": "object", "properties": {}, "required": []})`
@@ -1125,7 +1106,7 @@ I'm doing great, thanks for asking! Just got back from a morning run and I'm fee
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-I've got one that's paws-itively hilarious! Why did the cat join a band? Because it wanted to be the purr-cussionist!
+I've got one that's paws-itively hilarious: Why did the cat join a band? Because it wanted to be the purr-cussionist!
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (unwanted) · calls: `get_battery_status({}), get_battery_status({}), get_battery_status({})`
@@ -1154,7 +1135,7 @@ I've got one that's paws-itively hilarious! Why did the cat join a band? Because
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-A battery stores energy by converting chemical energy from a reactant, like a chemical reaction or a fuel source, into electrical energy through a process called electrochemical reaction.
+A battery stores energy by converting chemical energy from a reactant, like a chemical reaction or a chemical compound, into electrical energy, which is then stored in a chemical compound called an electrolyte.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (unwanted, missing chemical) · calls: `get_battery_status({"type": "function", "function": "get_battery_status"}), get_battery_status({"type": "function", "function": "get_battery_status"}), get_battery_status({"type": "function", "function": "get_battery_status"})`
@@ -1183,7 +1164,7 @@ A battery stores energy by converting chemical energy from a reactant, like a ch
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✘ (missing quick)
 
 ```text
-Time flies, huh? Well, I've got a doggy joke for you - Why did the dog go to the vet? Because he was feeling ruff! Get it? Ruff, like a dog, but also rough, like time flying by!
+Time flies, huh? Well, I've got a doggy joke for you: Why did the dog go to the vet? Because he was feeling ruff! Get it? Time flies, just like a dog's bark!
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, missing quick) · calls: `get_datetime({"expression": "time flies"})`
@@ -1192,10 +1173,10 @@ Time flies, huh? Well, I've got a doggy joke for you - Why did the dog go to the
 
 ```
 
-**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
+**Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✘ (missing quick)
 
 ```text
-Time flies, huh? Well, I've got a doggy joke for you: Why did the dog go to the vet? Because he was feeling ruff! Get it? Ruff, like a dog, but also a play on "rough" time. Anyway, back to the saying: Time flies because we're always in a hurry, and it's hard to believe how fast it's going by.
+Time flies, huh? Well, I've got a doggy joke for you: Why did the dog go to the vet? Because he was feeling ruff! Get it? Time flies, just like a dog's bark!
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, missing quick) · calls: `get_datetime({"}})`
@@ -1212,8 +1193,8 @@ Time flies, huh? Well, I've got a doggy joke for you: Why did the dog go to the 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills off** ✔
 
 ```text
-Boxes stacked high, a treasure to see,
-Organizing life, a perfect symmetry.
+Storage boxes hold things tight,
+Keeping memories safe through the night.
 ```
 
 **Llama-3.2-1B-Instruct.Q6_K.gguf · host · skills on** ✘ (malformed, 0 lines)
@@ -1225,8 +1206,8 @@ Organizing life, a perfect symmetry.
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-I've got a box to store,
-Helping you keep your stuff in line.
+Storage boxes hold things tight,
+Keeping memories safe through the night.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, 0 lines) · calls: `get_storage_status({})`
@@ -1255,7 +1236,7 @@ I've got a fin-tastic name for you: Finley!
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills off** ✔
 
 ```text
-I've got a fin-tastic name for you: Finley! It's short, sweet, and suits a speedy little guy like a goldfish. What do you think?
+I've got a fin-tastic name for you: Finley! It's short, sweet, and suits a speedy little guy like your goldfish.
 ```
 
 **Llama-3.2-1B-Instruct.Q8_0.gguf · host · skills on** ✘ (malformed, 0 words) · calls: `get_device_info({"type": "object", "properties": {}, "required": []})`

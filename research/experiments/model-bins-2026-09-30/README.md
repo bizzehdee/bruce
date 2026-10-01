@@ -202,3 +202,12 @@ the 4 GB phone.
 The best general scores of any model tested, and no invented answers. With skills off it does
 not say it cannot check: it writes made-up tool code (`<tool_code> print(phone.get_battery_level())
 </tool_code>`), because Bruce's system prompt tells it to use a tool even when none is offered.
+
+### Skills off, after the prompt fix (c3ba23b, 2026-10-01)
+
+Every host file's skills-off cases were run again with the new skills-off system prompt
+(`host-rerun-off.sh`; earlier results kept in `host/results-before-off-fix.jsonl.gz`). Over all 37
+files, of the 259 skills-off cases that need a skill: honest answers rose from 65 to 103, invented
+ones fell from 114 to 90. Gemma 4 E2B (0.00 to 0.86–1.00), LFM2.5-2.6B (0.00 to 1.00) and
+Qwen3.5-2B Q6_K (0.43 to 1.00) gained most; Llama 3.2 1B, Qwen2.5-Coder and gemma-3 still
+invent. General scores with skills off moved by at most 0.17 either way.

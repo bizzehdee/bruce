@@ -22,7 +22,7 @@ Waves, blue, vast.
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-Vast, blue, wild.
+Vast, Blue, Deep
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
@@ -51,8 +51,8 @@ Vast, blue, endless.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-- Apple
-- Banana
+- Pineapple
+- Mango
 - Orange
 ```
 
@@ -85,7 +85,7 @@ Vast, blue, endless.
 ```text
 - Apple
 - Banana
-- Orange
+- Cherry
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -145,7 +145,7 @@ Yes.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-Bonjour, comment ça va ?
+Bonjour, comment ça aujourd'hui ?
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -186,7 +186,7 @@ Bonjour, comment ça va ?
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-FAST AND EAGER TO PLEASE, CATS ARE THE BEST FRIENDS OF ANYONE WHO HAS THEM!
+CATS ARE THE BEST!
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (15% upper)
@@ -198,7 +198,7 @@ Feline Majesty: The Ultimate Cat Appreciation!
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-CATS ARE ENDLESSLY FUNNY AND ALWAYS IN NEED OF A GOOD MEOW.
+CATS ARE ENDLESSLY CUTE AND LOVABLE, BUT ALSO VERY SOMETIMES CRAZY AND UNFOLDED.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (87% upper)
@@ -361,7 +361,7 @@ The capital of Australia is Canberra.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-A spider has eight legs.
+A spider has eight legs!
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -385,7 +385,7 @@ A spider has eight legs.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-Eight.
+Eight!
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -426,7 +426,7 @@ Romeo and Juliet was written by William Shakespeare.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-William Shakespeare wrote Romeo and Juliet.
+That's a classic question! Romeo and Juliet was written by William Shakespeare. He's known for many other plays and poems, like "Hamlet" and "Macbeth." Shakespeare was a very talented writer who lived a long time ago, but his works are still very popular today.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -455,7 +455,7 @@ The boiling point of water at sea level is 100 degrees Celsius.
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-100°C
+At sea level, water boils at 100 degrees Celsius.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
@@ -467,7 +467,7 @@ At sea level, water boils at 100 degrees Celsius.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-100°C
+At sea level, water boils at 100 degrees Celsius.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -508,7 +508,7 @@ The largest planet in our solar system is Jupiter.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-The largest planet in our solar system is Jupiter.
+The largest planet in our solar system is Jupiter!
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -566,7 +566,7 @@ A kilogram of feathers is heavier than a kilogram of steel.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-You now have 4 apples.
+You have 2 apples now.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -578,7 +578,7 @@ You started with 3 apples. After eating one, you have 2 apples left. Then you bo
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-You have 3 apples now.
+You have 2 apples now.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
@@ -587,10 +587,10 @@ You have 3 apples now.
 3 - 1 + 5 = 7
 ```
 
-**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
+**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-You have 7 apples now.
+You have 3 apples now.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -648,7 +648,7 @@ Joe is the shortest.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-In three days from today, which is Monday, it will be Thursday.
+In three days, it will be Thursday.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -693,7 +693,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-The town council approved plans for a new library that will open in March, featuring a children's wing, cafe, and community space, with funding coming from a national grant and local contributions.
+The town council approved plans for a new library that will open in March, featuring a children's wing, cafe, and community events, with funding coming from a national grant and local contributions.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -717,7 +717,7 @@ The town council is planning a new library that will open in March, with a child
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-The town council approved plans for a new library that will open in March with features like a children's wing, cafe, and community space, funded primarily by a national grant with local contributions.
+The town council approved plans for a new library that will open in March, featuring a children's wing, cafe, and community space, with funding from a national grant and local contributions.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -736,7 +736,7 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-"Hello, could you please send the report by Friday? Otherwise, we might face some difficulties."
+"Hello, could you please ensure that the report is delivered by Friday, as we would like to proceed with our work accordingly."
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -760,7 +760,7 @@ Hello, could you please send the report by Friday so that we are not in any trou
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-"Hello, could you please send the report by Friday? We would be in serious trouble if we miss that deadline."
+"Hello, could you please send the report to me by Friday? Thank you."
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -829,10 +829,10 @@ The car is red.
 I'm sorry, but I don't have enough information to determine the color of Sam's car. The information provided doesn't mention the color of the car.
 ```
 
-**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (missing not, has car is red)
 
 ```text
-The text does not provide any information about the color of Sam's car.
+Sam's car is red.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
@@ -860,10 +860,10 @@ The text doesn't provide any information about Sam's car color.
 
 Rubric: Says the note does not give a price.
 
-**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
+**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (missing not)
 
 ```text
-The note doesn't provide information about the cost of the tickets. It only mentions that two tickets were bought for the concert on Friday.
+The tickets cost two dollars.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missing not)
@@ -872,10 +872,10 @@ The note doesn't provide information about the cost of the tickets. It only ment
 The tickets cost two dollars.
 ```
 
-**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (missing not, invented a price)
 
 ```text
-The note doesn't specify the cost of the tickets. It only mentions that you bought two tickets for the concert on Friday. To know the cost, you would need to look at the invoice or receipt for the concert.
+The tickets cost $20 each.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing not, invented a price)
@@ -1000,7 +1000,7 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-BBQ chicken sliders, grilled portobello mushrooms.
+Grilled chicken breast with rosemary, roasted sweet potatoes with rosemary.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -1009,11 +1009,10 @@ BBQ chicken sliders, grilled portobello mushrooms.
 Sure, here are the final two foods for your picnic: a delicious bowl of fresh fruit salad and a refreshing glass of iced tea. Enjoy your picnic!
 ```
 
-**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (not a list)
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-BBQ chicken sliders
-Vegetable skewers with teriyaki sauce
+BBQ chicken and potato salad.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
@@ -1039,10 +1038,10 @@ Great! How about some vegetarian lasagna and fresh fruit?
 > What time is it?
 >
 
-**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (invented)
+**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-It's currently 14:05.
+I'm sorry, but I don't have access to your phone's clock.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1054,7 +1053,7 @@ The current time is [get_datetime].
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's currently 14:00.
+It's currently 10:30 AM.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1066,7 +1065,7 @@ I'm sorry, but I don't have direct access to your device's clock. You can check 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's currently 14:30.
+It's currently 10:30 AM.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✘ (missed, result not used)
@@ -1092,10 +1091,10 @@ Today's date is [insert current date].
 The current date is [get_datetime]
 ```
 
-**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
 
 ```text
-Today's date is [insert current date].
+Today's date is October 15, 2023.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1107,7 +1106,7 @@ I'm sorry, but I don't have direct access to the current date and time. However,
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Today's date is [insert current date].
+Today's date is [insert today's date].
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✘ (missed, refused, result not used)
@@ -1121,10 +1120,10 @@ I'm sorry, but I don't have the ability to access the internet or any external s
 > Which day of the week is it today?
 >
 
-**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (invented)
 
 ```text
-Today is a Monday!
+Today is Monday!
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1133,10 +1132,10 @@ Today is a Monday!
 It's today! The day of the week is [day of the week].
 ```
 
-**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
 
 ```text
-Today is a Monday.
+Today is Thursday.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1145,10 +1144,10 @@ Today is a Monday.
 I'm sorry, I don't have direct access to the device's calendar or system settings. However, I can tell you the current date and day of the week based on the device's clock. Let me check.
 ```
 
-**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
+**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Today is Thursday.
+Today is a Tuesday.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -1165,7 +1164,7 @@ Today is Wednesday.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-1234 multiplied by 5678 equals 72,849,920.
+1234 multiplied by 5678 equals 72,897,920.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, wrong number)
@@ -1177,7 +1176,7 @@ Today is Wednesday.
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-1234 * 5678 = 71,361,522
+1234 * 5678 = 71,381,122
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔ · calls: `calculate({"expression": "1234 * 5678"})`
@@ -1189,7 +1188,7 @@ The result of 1234 multiplied by 5678 is 7006652.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-1234 * 5678 = 714,5732
+1234 * 5678 = 7103352
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔ · calls: `calculate({"expression": "1234 * 5678"})`
@@ -1203,10 +1202,10 @@ The result of 1234 multiplied by 5678 is 7006652.
 > What's 17.5% of 240?
 >
 
-**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
+**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-17.5% of 240 is 42.0.
+21.6
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed)
@@ -1218,7 +1217,7 @@ The result of 1234 multiplied by 5678 is 7006652.
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-17.5% of 240 is 42.
+240 * 17.5 / 100 = 42.0
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔ · calls: `calculate({"expression": "17.5 * 240 / 100"})`
@@ -1230,7 +1229,7 @@ The result of 1234 multiplied by 5678 is 7006652.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-17.5% of 240 is 42.
+240 * 17.5 / 100 = 42
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔ · calls: `calculate({"expression": "17.5 * 240 / 100"})`
@@ -1324,7 +1323,7 @@ Sure, let's divide the bill fairly. Each person should pay: 187.60 / 4 = 46.90.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-Each person should contribute approximately 46.90.
+Each person should contribute $46.90.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✘ (missed)
@@ -1341,7 +1340,7 @@ Sure, let's split the bill. Each person should contribute approximately $46.90.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-I'm sorry, but I don't have a way to check the battery level on your device. You might want to check the battery icon in your app drawer or use a battery app on your phone to get an accurate reading.
+I'm sorry, but I don't have a way to check the battery level on your phone. I'm just here to help you with whatever you need.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, refused, result not used)
@@ -1353,7 +1352,7 @@ I'm sorry, but I can't see the battery level right now. You'll need to go into y
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-I'm sorry, but I don't have direct access to your device's battery status. You might want to check the battery level on your device's settings or use a battery app to get an accurate reading.
+I'm sorry, but I don't have access to your phone's battery status. You might want to check the battery level on your device.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1365,7 +1364,7 @@ I can help with that. Let's check your battery status.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-I'm sorry, but I don't have direct access to your phone's battery status. You might want to check the battery level on your phone's settings or use a battery app to get an accurate reading.
+I'm sorry, but I don't have access to your phone's battery status. You might want to check it yourself or use a battery app on your phone.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✘ (refused) · calls: `get_battery_status({})`
@@ -1382,7 +1381,7 @@ I'm sorry, but I can't access your device's battery status directly. However, ba
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (invented)
 
 ```text
-Yes, it's charging.
+It's plugged in, so it's charging.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1391,10 +1390,10 @@ Yes, it's charging.
 I can check the battery status for you. Is there anything else you'd like to know?
 ```
 
-**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
 
 ```text
-Yes, it is.
+Yes, it's charging.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1403,10 +1402,10 @@ Yes, it is.
 I can check the battery status for you. Let me see.
 ```
 
-**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
+**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Yes, your phone is charging right now.
+Yes, it is.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -1423,7 +1422,7 @@ My phone is not charging right now. The battery level is 76%, and the temperatur
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-I'd be happy to help with that! Let's check the storage space on your phone.
+I'm sorry, but I don't have the ability to check your phone's storage space. You might want to check your phone's settings or use a storage management app to find out how much free space you have.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1435,7 +1434,7 @@ I can check that for you. Let's see.
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-I'll check the storage space for you. Let's see... (pauses) Ah, there you go! You have 12.3 gigabytes of free storage space on your phone.
+I'm sorry, but I don't have the ability to check your phone's storage space. You might want to check it yourself or use a storage management app on your phone.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
@@ -1447,7 +1446,7 @@ There is 176.7 GB of free storage space on your phone.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-I'll check the storage space for you. Let's go!
+I'm sorry, but I can't help with that. My capabilities are limited to providing information and recommendations based on the data I have.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
@@ -1461,10 +1460,10 @@ There's 176.7 GB of free storage space on your phone.
 > What phone model is this?
 >
 
-**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (invented)
+**qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-This is a Google Pixel 6.
+This is an Android phone.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
@@ -1485,10 +1484,10 @@ This is an Android phone.
 I'm sorry, but I don't have direct access to your device's information. However, I can help you with other tasks if you need assistance.
 ```
 
-**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (did not say it cannot check)
+**qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-This is an Android phone.
+It's an Android phone, but I don't know the exact model.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✘ (missed, result not used)
@@ -1517,7 +1516,7 @@ Hey there! I'm just a little AI, but I'm here to help you out! How can I assist 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-I'm doing great, thanks for asking! How can I help you today?
+Hey there! I'm doing great, thanks for asking! How about you?
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
@@ -1546,7 +1545,11 @@ Hey there! I'm doing great, thanks! How can I help you today?
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-Why was the math book sad? Because it had too many problems.
+Sure, here's a short joke for you:
+
+Why don't scientists trust atoms?
+
+Because they make up everything.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -1558,7 +1561,6 @@ Why was the math book sad? Because it didn't get an even day off!
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-Sure, here's a short joke:
 Why don't scientists trust atoms? Because they make up everything.
 ```
 
@@ -1571,7 +1573,7 @@ Why don't scientists trust atoms? Because they make up everything!
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-Sure, here's a short joke for you: Why don't scientists trust atoms? Because they make up everything.
+Sure! Here's a short joke for you: Why don't scientists trust atoms? Because they make up everything!
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -1641,7 +1643,7 @@ It means time moves quickly and efficiently.
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
 
 ```text
-The saying "time flies" means that time moves quickly and seems to pass quickly. It's often used to describe how time seems to go by quickly when you're doing something enjoyable or when you're in a hurry.
+The saying "time flies" means that time moves quickly and seems to pass quickly. It's like when you're having fun and you don't realize how much time has gone by.
 ```
 
 **qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
@@ -1653,7 +1655,7 @@ It means that time moves quickly and you might feel like you have a lot of thing
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-It means time moves quickly and efficiently.
+It means time moves quickly and easily, like a bird flying through the sky.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -1670,8 +1672,10 @@ It means time moves quickly and easily, like a bird flying through the air. It's
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-Boxes hold our treasures,  
-Secure and strong, they keep them.
+Boxes hold things we keep,  
+In closets, shelves, and drawers,  
+They protect treasures, too,  
+In storage, they stay.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
@@ -1698,8 +1702,8 @@ Storage boxes keep my plans.
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
-Boxes stack high, a fortress of sorts,  
-Protecting treasures, from dust and rust.
+Boxes stack high, a fortress of space,
+Protecting treasures, from the storm's embrace.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills on** ✔
@@ -1719,7 +1723,7 @@ Ready to hold, and never to hoard.
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills off** ✔
 
 ```text
-How about "Sparkle"?
+How about "Flash"?
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔

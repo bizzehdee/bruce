@@ -251,11 +251,9 @@ I don't have access to physical measurements or weight data, so I can't determin
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-You start with 3 apples. You eat 1, so you have 3 - 1 = 2 apples left. You then buy 5 more, so you add 5 to your count, making it 2 + 5 = 7 apples.
+You start with 3 apples. You eat 1, so you have 3 - 1 = 2 apples left. You then buy 5 more, so you have 2 + 5 = 7 apples.
 
 You now have 7 apples.
-
-\boxed{7}
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (wrong number) · calls: `get_storage_status({})`
@@ -319,7 +317,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The town council met to discuss the new library, with construction starting in March and a children's wing, cafe, and community events space, funded mainly by a national grant.
+The town council met to discuss the new library, with construction starting in March and a community event space, funded by a national grant and local contributions.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"18 * 3"})`
@@ -411,10 +409,10 @@ I don't have access to ticket pricing information or the ability to retrieve spe
 > What's my name, and where do I live?
 >
 
-**LFM2.5-230M-Q8_0.gguf · host · skills off** ✘ (missing Priya)
+**LFM2.5-230M-Q8_0.gguf · host · skills off** ✘ (missing Priya, missing Leeds)
 
 ```text
-I don't have personal information like your name or location. However, I can help you with general knowledge about Leeds, such as its history, culture, and attractions. If you have any specific questions about Leeds or need recommendations for places to visit, feel free to ask!
+I'm sorry, but I don't have personal information like your name or location. However, I can help you with information about your Android phone, such as its status, time, or other details. Let me know how I can assist!
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (missing Priya, missing Leeds)
@@ -435,7 +433,9 @@ I don't have access to personal information like your name or location. However,
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The number you asked me to remember is **42**.
+I was asked to remember the number **42**. 
+
+Let me know if you'd like to clarify or need further assistance!
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (refused)
@@ -460,10 +460,10 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 ```text
 Sure! Here are the final two food suggestions for a picnic:
 
-1. A colorful salad with a mix of fresh vegetables and a light dressing
-2. A veggie wrap with a variety of toppings like hummus, avocado, and lettuce
+1. A colorful salad with a mix of fresh vegetables and a light dressing.
+2. A light, easy-to-eat sandwich with a mix of whole-grain bread, fresh fruits, and a simple hummus spread.
 
-Both options are easy to prepare and can be enjoyed in a picnic setting.
+Enjoy your picnic!
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔
@@ -485,7 +485,7 @@ Let me know if you'd like more details about any of these! 😊
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time information like the current time. However, I can help you with any other questions or tasks you might have!
+I don't have access to real-time information like the current time. Could you please provide the user's Android phone's current time?
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -519,7 +519,7 @@ Today's date is Wednesday, September 30, 2026, at 14:37:12. Time zone: Europe/Lo
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time data or the ability to check the current date. However, you can check the current date by entering it into a date calculator or app.
+I don't have access to real-time data or the ability to check the current date or time. However, you can check the current date and time by entering it into a date and time tool or app.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -536,17 +536,11 @@ Today is Wednesday, September 30, 2026.
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-To calculate 1234 multiplied by 5678, I'll use the distributive property:
+To calculate 1234 multiplied by 5678, I'll perform the multiplication:
 
-1234 × 5678 = 1234 × (5000 + 700 + 60 + 8)
+1234 × 5678 = 7,071,272
 
-= 1234 × 5000 = 6,970,000  
-= 6,970,000 + 6,970,000 = 13,940,000  
-= 13,940,000 + 6,700 = 14,646,700
-
-So, 1234 × 5678 = 14,646,700.
-
-Answer: 14,646,700
+So, the result is **7,071,272**.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔ · calls: `calculate({"expression":"1234 * 5678"})`
@@ -569,7 +563,7 @@ To find 17.5% of 240, you can use the formula:
 \text{Percentage} = \left( \frac{\text{Percentage}}{100} \right) \times \text{Amount}
 \]
 
-Plugging in the values:
+Substitute the values:
 
 \[
 \text{Percentage} = \left( \frac{17.5}{100} \right) \times 240 = 0.175 \times 240 = 42
@@ -596,11 +590,11 @@ Here's the calculation:
 
 45 + 55 = 100
 
-Now divide by 4: 100 / 4 = 25
+100 / 4 = 25
 
-Then subtract 3: 25 - 3 = 22
+25 - 3 = 22
 
-So the result is **22**.
+So, the result is **22**.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔ · calls: `calculate({"expression":"(45 + 55) / 4 - 3"})`
@@ -617,16 +611,13 @@ The calculation result is: (45 + 55) / 4 - 3 = 22.0.
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-To determine how much each person should pay for the bill, I'll calculate the total amount and divide it by the number of people.
+To determine how much each person should pay for the bill, I'll divide the total amount by the number of people:
 
-Total bill: $187.60  
-Number of people: 4  
+187.60 ÷ 4 = 46.35
 
-Amount per person = Total bill / Number of people  
-Amount per person = $187.60 / 4  
-Amount per person = $46.35  
+Each person should pay approximately **46.35** dollars.
 
-Each person should pay $46.35.
+\boxed{46.35}
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -643,7 +634,7 @@ I don't have access to a billing calculator or financial tool to split a bill be
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time battery information. You'll need to check your phone's battery status directly on Android.
+I don't have access to your device's battery level. Could you please tell me how many hours you have left on your phone?
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -660,7 +651,7 @@ You have 76% battery remaining. The device is not charging and the temperature i
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time device status information. You'll need to check your phone's status directly on your device or through a trusted app like Google Play Store or Apple's official status page.
+I don't have access to real-time device status information. You'll need to check your phone's status directly on your device or through a companion app.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_battery_status({})`
@@ -677,7 +668,7 @@ Your phone is currently charging at 76% battery with a temperature of 29.5°C. L
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time information about your phone's storage space. However, you can check your phone's storage settings on your device's settings or through the manufacturer's website.
+I don't have access to your phone's storage information. You can check your phone's storage settings directly on your device or through the manufacturer's website.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
@@ -694,7 +685,7 @@ Your phone currently has 176.7 GB of free storage space available.
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I'm sorry, but I don't have access to specific information about the phone model of the device you're referring to. Could you please provide more details about the device or clarify if you have any other questions?
+I don't have access to specific information about the phone model of the user's Android phone. Could you please provide more details about the user's phone model?
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (missed, refused, result not used)
@@ -728,10 +719,11 @@ I'm sorry, but I don't have personal experiences or feelings. I'm an AI assistan
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Sure! Here's a light-hearted joke for you:
+Here's a light-hearted joke for you:
 
-Why did the scarecrow win an award?  
-Because he was outstanding in his field!
+Why did the cat leave the house?
+
+Because it wanted to explore the neighborhood!
 
 Hope that helps!
 ```
@@ -750,7 +742,7 @@ I'm sorry, but I can't provide a joke. My capabilities are limited to the tools 
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-A battery stores energy by converting chemical energy into electrical energy through a chemical reaction.
+A battery stores energy by converting chemical energy into electrical energy through a process called electrochemical reactions.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (unwanted, missing chemical) · calls: `get_battery_status({})`
@@ -767,7 +759,7 @@ A battery stores energy at 76% with a temperature of 29.5°C.
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The saying "time flies" means that time passes quickly and easily, often due to the passage of time, the passage of events, or the passage of natural processes. It suggests that while we may not have all the details of what's happening right now, we can still make sense of the past and plan for the future.
+The saying "time flies" means that time passes quickly and easily, often due to the passage of time, the passage of events, or the natural tendency of things to change. It suggests that while we may not have all the details of what's happening right now, we can still make sense of the past and plan for the future.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✘ (refused)
@@ -784,8 +776,8 @@ I don't have access to a tool that can explain the meaning of the saying "time f
 **LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-In boxes of memories, they hold the past,
-A treasure of moments, a silent sentinel.
+In boxes of memories, they hold the stories,
+Storage keeps them safe, forever.
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔
@@ -801,21 +793,23 @@ Would you like me to craft a short, playful poem about storage boxes instead?
 > Suggest a name for a pet goldfish.
 >
 
-**LFM2.5-230M-Q8_0.gguf · host · skills off** ✘ (126 words)
+**LFM2.5-230M-Q8_0.gguf · host · skills off** ✔
 
 ```text
 Here are some creative name suggestions for a pet goldfish, balancing uniqueness and appeal:
 
-1. **"Golden Spark"** – Evokes the sparkle of gold and adds a playful, memorable touch.  
-2. **"Crystal Cove"** – Suggests a serene, reflective environment with a touch of luxury.  
-3. **"Luminous Lover"** – Combines the idea of light and affection with a catchy, modern vibe.  
-4. **"Echo Gold"** – Implies a harmonious, timeless connection to gold.  
-5. **"Floating Reflections"** – Highlights the fish's ability to reflect light, adding a whimsical flair.  
-6. **"Golden Guardian"** – Implies protection and a protective, guarded personality.  
-7. **"Sunlit Sphere"** – Evokes warmth and a bright, inviting atmosphere.  
-8. **"Goldfish of the Future"** – Ties the fish to innovation and a forward-looking tone.  
+1. **Golden Glimmer** – Evokes shimmering light and vitality.  
+2. **Crystal Cove** – Suggests a serene, reflective environment.  
+3. **Luminous Lark** – Implies a bright, enchanting presence.  
+4. **Starlight Serenade** – Combines celestial imagery with a soothing tone.  
+5. **Floating Fury** – Highlights agility and playful energy.  
+6. **Golden Spark** – A playful, glowing name for a lively fish.  
+7. **Ethereal Eel** – Evokes mystery and elegance.  
+8. **Sunlit Sunfish** – A bright, sun-kissed option.  
+9. **Whispering Whale** – Suggests calm, mysterious, and gentle care.  
+10. **Golden Tide** – Implies movement and the ocean's rhythm.  
 
-Each name balances creativity with clarity, ensuring the pet's personality shines through! 🐟✨
+Each name balances creativity with clarity, ensuring the goldfish's personality shines through! 🐟✨
 ```
 
 **LFM2.5-230M-Q8_0.gguf · host · skills on** ✔

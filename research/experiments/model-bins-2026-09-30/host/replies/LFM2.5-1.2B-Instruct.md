@@ -39,9 +39,8 @@ Waves crash loudly!
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Sure! Here are three fruits:
-- Apple
-- Banana
+- Banana  
+- Apple  
 - Orange
 ```
 
@@ -80,7 +79,7 @@ Sure! Here are three fruits:
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (format)
 
 ```text
-Yes! Paris is indeed the capital of France.
+Yes! Paris is definitely the capital of France.
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -109,7 +108,7 @@ Yes!
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Bonjour ! Comment ça va ?
+Bonjour ! Comment ça va ? Je suis là pour t'aider, alors dis-moi ce dont tu as besoin !
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -138,7 +137,7 @@ Bonjour ! Je suis Bruce, prêt à t'aider. Comment vas-tu aujourd'hui ?
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-THIS IS AN IMPORTANT REMINDER THAT CATS ARE FASCINATING CREATURES!
+THIS IS AN IMPORTANT MESSAGE ABOUT CATS!
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -150,7 +149,7 @@ BEHOLD, THE CATS ARE FASCINATING CREATURES!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-THIS IS AN IMPORTANT REMINDER THAT CATS ARE FASCINATING CREATURES!
+THIS IS AN IMPORTANT NOTE ABOUT CATS!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -223,7 +222,7 @@ Photosynthesis is the process by which plants convert sunlight into energy, prod
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Photosynthesis is the process by which plants turn sunlight into food, making oxygen and energy for life!
+Photosynthesis is the process by which plants turn sunlight into food, making oxygen and energy for us!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -240,7 +239,7 @@ Photosynthesis is the process by which plants convert sunlight into energy, prod
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-The capital of Australia is Canberra! 🇦🇺 Quick question: do you need help finding it on a map or learning more about it?
+Let's get to the point! The capital of Australia is Canberra. Pretty cool, right?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -252,7 +251,7 @@ The capital of Australia is Canberra. Let me know if you need more details!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Hey there! The capital of Australia is Canberra. Pretty cool, right? Let me know if you need anything else!
+Hey there! The capital of Australia is Canberra. Pretty cool, right? Let me know if you need more info!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -269,7 +268,7 @@ The capital of Australia is Canberra. Let me know if you need more details!
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let's see—spiders have eight legs! That's a neat number, isn't it? 🕷️ If you're curious about more, just ask!
+Let's see—spiders have eight legs! That's a neat number, isn't it? If you're curious, they're also super fast and love to play. Want to know something else?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -281,7 +280,7 @@ Let's see—spiders have eight legs. Easy peasy! 🕷️ If you need more fun fa
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Let's see—spiders have eight legs! That's a neat number, isn't it? If you're curious, I can help with more fun facts or anything else!
+Let's see—spiders have eight legs! That's a neat number, isn't it? If you're curious, they're also super fast and love to spin webs. Want to know more?
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -295,10 +294,10 @@ Let's see—spiders have eight legs. Easy peasy! 🕷️ If you need more fun fa
 > Who wrote Romeo and Juliet?
 >
 
-**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (missing Shakespeare)
+**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let me check that for you—time to find out who penned *Romeo and Juliet*! 🎭✨
+Let's get to the point! *claps hands together* Romeo and Juliet were written by William Shakespeare! That's a genius! 🎭😄
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -327,7 +326,7 @@ Let's find out who wrote *Romeo and Juliet*! It's a classic, and the answer is W
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let's see—at sea level, water boils at 100 degrees Celsius. That's a solid number! 🌊🔥 If you need anything else, just ask!
+Water boils at 100°C at sea level. That's a solid number—perfect for planning your next adventure! 🌊🔥
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -339,7 +338,7 @@ Water boils at 100°C at sea level. Let me know if you need more details!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Let's get that water boiling! At sea level, water boils at 100 degrees Celsius. That's a solid number—perfect for cooking or cooling things down. 🌊🔥
+Let's get that boilin'! At sea level, water reaches its boiling point at 100°C. That's the sweet spot for turning liquid into vapor. Easy peasy! 🌊🔥
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -356,7 +355,7 @@ Water boils at 100°C at sea level. That's a solid number to know!
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Hey there! The largest planet in our solar system is Jupiter—super big, with those famous stripes and moons! 🌌🪐 Let me know if you want more fun facts!
+Hey there! The largest planet is Jupiter—super big, with tons of gas and some cool moons. Let's give it a high-five! 🌟
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -368,7 +367,7 @@ The largest planet in our solar system is Jupiter! 🌌 It's a gas giant with a 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Hey there! The largest planet in our solar system is Jupiter—super big, with those famous stripes and moons! 🌌🪐 Let me know if you want more fun facts!
+Hey there! The largest planet in our solar system is Jupiter—super big, with those cool stripes and a huge atmosphere! 🌌💨 Let me know if you want more fun facts!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -385,8 +384,7 @@ The largest planet in our solar system is Jupiter! 🌌 It's massive, with a hug
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let's see—both weigh the same! A kilogram of feathers and a kilogram of steel are equal in weight. But if you're comparing volume, feathers are way lighter! 🪶🔨  
-Let me know if you want more fun facts!
+Let's see—both are a kilogram! So they weigh the same. But if you're comparing weight to something else, I got you! 🦜🔨
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -400,9 +398,7 @@ Let me know if you need more help!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Let's see—both weigh the same! A kilogram of feathers and a kilogram of steel are equal in weight. The difference is just in how they feel! 🪶🔨
-
-P.S. If you're comparing volume, feathers are way lighter, but weight-wise? They're a tie!
+Let's see—both are a kilogram! So they weigh the same. But if you're comparing feathers to steel, feathers are way lighter in volume, but both are just one kilogram in weight. Easy peasy! 🦜🔨
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -420,7 +416,7 @@ Bruce here!
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let's break it down quickly: you started with 3 apples, ate one, and then bought 5 more. So: 3 - 1 + 5 = 7 apples. You've got 7 apples now! 🍎✨
+Let's break it down fast! You started with 3 apples, ate one, and then bought 5 more. So: 3 - 1 + 5 = 7 apples. You've got 7! 🍎✨
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -432,7 +428,7 @@ You started with 3 apples, ate one, and bought 5 more. So, 3 - 1 + 5 = 7 apples.
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Let's break it down quickly: you started with 3 apples, ate one, and then bought 5 more. So... 3 - 1 + 5 = 7 apples. You've got 7 apples now! 🍎✨
+Let's see—you started with 3 apples, ate one, and then bought 5 more. So: 3 - 1 + 5 = 7 apples. You've got a sweet total! 🍎✨
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -450,13 +446,13 @@ You started with 3 apples, ate one, and bought 5 more. So, 3 - 1 + 5 = 7 apples.
 
 ```text
 Let's break it down quickly:
-- Tom > Ann
-- Ann > Joe
+- Tom is taller than Ann.
+- Ann is taller than Joe.
+So, comparing all: Tom > Ann > Joe.
 
-So the order is: Tom > Ann > Joe.  
-Therefore, Joe is the shortest.
+That means Joe is the shortest.
 
-Bruce here says: And that's it! Joe's the winner! 🎉
+Bruce here says: And that's a neat little puzzle! 🎉
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -479,13 +475,17 @@ Bruce here: Let's make it quick! 🚀
 
 ```text
 Let's break it down quickly:
-- Tom > Ann
-- Ann > Joe
 
-So the order is: Tom > Ann > Joe.  
-Therefore, Joe is the shortest.
+- Tom is taller than Ann.
+- Ann is taller than Joe.
+So the order is: **Tom > Ann > Joe**.
 
-Boom! Got it!
+That means **Joe is the shortest**.
+
+And just for fun—why did the tomato turn red?  
+Because it saw the salad dressing! 🍅
+
+Let me know if you need anything else!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -508,9 +508,9 @@ Bruce here says: Yep, Joe's the shortest! 🎉
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
-Let's see—today is Monday. Three days later, it'll be Wednesday! 🎉
+Let's crack this! If it's Monday today, three days later it'll be Wednesday. Easy peasy! 🎉
 
-P.S. If you're counting like a caffeinated squirrel, you're right on time!
+(And don't worry, I'm keeping it quick—no slow deliberation here!)
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missing Thursday)
@@ -522,7 +522,7 @@ Let's see... Today is Monday. Three days later, it'll be Wednesday. Easy peasy!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
-Let's crack this one! Since it's Monday, three days later it'll be Friday. Easy peasy, my friend! 🐶💨
+Let's crack this one! Since it's Monday, three days later it'll be Friday. Easy peasy, my friend! 🐶✨
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missing Thursday)
@@ -544,7 +544,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-The council plans a new library with a children's wing, cafe, and events, starting in March after a 18-month build, funded mainly by a national grant.
+The council plans to build a new library with a children's wing, cafe, and community space, starting in March, funded mainly by a national grant.
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -556,7 +556,7 @@ The council plans to build a new library with a children's wing, cafe, and event
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The new library project is set to begin in March with an 18-month timeline, featuring a children's wing, cafe, and community space, funded mainly by a national grant.
+The council plans a new library with a children's wing, cafe, and events, starting in March after an 18-month build, funded mainly by a national grant.
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -575,7 +575,7 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Sure thing! Let's make sure we get that report by Friday—thank you for your patience!
+Sure thing! Let's make sure we get that report on time—by Friday at the latest, we'll be in a better position. I'm here to help you stay on track!
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -587,9 +587,7 @@ Bruce here! Let's get that report ready by Friday. I'll make sure it's on time a
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Sure thing! Let's make sure we get that report on time—by Friday at the latest, we'll be in a better position. I'll keep you updated every step of the way. 
-
-(P.S. If you need anything else, just let me know!)
+Sure thing! Let's make sure we get that report on time—by Friday at the latest, we'll be in a better position. I'm here to help you stay on track!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -606,7 +604,7 @@ Bruce here! Let's get that report ready by Friday. I'll make sure it's on time a
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let's get to it! The meeting is now scheduled for Thursday at 3 PM in room 4. That's a solid time—no rush, but definitely on the agenda! 🚀
+Let's get to it! The meeting is now on Thursday at 3 PM in room 4. That's a solid time—no rush, but definitely on the schedule! 🚀
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -618,7 +616,7 @@ The meeting is now scheduled for Thursday at 3 PM in room 4. Let me know if you 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The meeting is now scheduled for Thursday at 3 PM in room 4. Let me know if you need anything else! 🚀
+Let's get to it! The meeting is now Thursday at 3 PM in room 4. Time to grab your notes and be ready! 🚀
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -634,10 +632,12 @@ The meeting is now scheduled for Thursday at 3 PM in room 4. Let me know if you 
 
 Rubric: Says the text does not say (it mentions a bike, not a car).
 
-**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (missing not, has car is red)
+**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (missing not)
 
 ```text
-Sam's car is red! 🚗💛 Let me know if you need anything else—happy to help!
+Let me see... the text mentions a "red door," so Sam's car must be red! 🚗💙
+
+Let me know if you need anything else!
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missing not, has car is red)
@@ -649,7 +649,9 @@ Sam's car is red. 🚗💛
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Let me check the details—oh wait, there's no mention of Sam's car color in the text. So we can't say for sure! But if we're being clever, maybe the red door hints at something? 🚗💙
+Let me see... the text mentions a red door, but it doesn't say what color Sam's car is. Hmm, maybe we need more info! But based on what's given, I'll go with the red door clue. 
+
+(And don't worry, I'm keeping it light with that dog pun!) 🐾
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missing not, has car is red)
@@ -668,13 +670,9 @@ Rubric: Says the note does not give a price.
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let me check what the note says about the tickets. 
+Let me check what the note says—oh wait, it doesn't specify the cost! But I'll guess it's a fun little mystery. Maybe the tickets were just a few bucks? Either way, I'll help you figure it out next moment! 
 
-The note mentions: "We bought two tickets for the concert on Friday." 
-
-So, the tickets cost **two tickets**. 
-
-And just to be clear—if you need more details, feel free to ask! 🎟️
+P.S. Don't worry, I'm on it—fast as a cheetah! 🐆
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missing not)
@@ -686,12 +684,7 @@ The tickets cost a total of $X. Let me check the details for you!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Let me check what the note says about the tickets. 
-
-The note mentions: "We bought two tickets for the concert on Friday." 
-
-So, the tickets cost two dollars, right? 🎟️  
-(Just a quick calculation: 2 tickets × price per ticket = total cost. You know what that is?)
+Let me see... the note says we bought two tickets for the concert on Friday. That means the tickets cost two dollars, right? 🎟️ Let me double-check—yes, that sounds about right!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missing not)
@@ -712,7 +705,7 @@ The tickets cost a total of $X. Let me check that for you!
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Your name is Priya, and you live in Leeds! 🏙️ Let me know if you need help with directions, local tips, or anything else.
+Your name is Priya and you're living in Leeds! Sounds like a cool place to be. Anything else you want to chat about?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -724,7 +717,7 @@ Your name is Priya and you live in Leeds. How can I assist you further?
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Your name is Priya, and you live in Leeds! 🌟 Let me know if you need anything else.
+Your name is Priya and you're living in Leeds! Sounds like a cool place to be. Anything else you want to chat about?
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -745,7 +738,7 @@ Your name is Priya and you live in Leeds. How can I assist you further?
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-You asked me to remember the number 42. I'll keep that in mind!
+You asked me to remember the number 42. I kept it in mind—just like a quick tip! 🧠 Now, what's next?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -757,7 +750,7 @@ That number was 42. Let me know if you need anything else!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-You asked me to remember the number 42. That's the key! 🧠
+You asked me to remember the number 42. I kept it in mind—just like a good memory game! 🧠 Now, what's next?
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -780,7 +773,10 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Sure! Here are the final two foods: sandwiches and fruit. Easy to pack and great for a picnic! 🍞🍎
+Sure! Let's go with:
+
+1. Sandwiches  
+2. Veggie wraps
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -794,7 +790,8 @@ Alright! Here are the two foods:
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Sure thing! The final two foods are:  
+Sure! Let's go with:
+
 1. Sandwiches  
 2. Veggie wraps
 ```
@@ -810,10 +807,10 @@ Sure! The final two foods are veggie wraps and cheese sticks. Enjoy! 🍕🥒
 > What time is it?
 >
 
-**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (invented)
+**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's currently 3:45 PM! Time to keep things moving! 🚀
+It's currently a lively time—let's move fast and get to the point! What do you need?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, result not used)
@@ -822,10 +819,12 @@ It's currently 3:45 PM! Time to keep things moving! 🚀
 It's currently 3:45 PM. Let me know if you need anything else!
 ```
 
-**LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (invented)
+**LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's currently 3:45 PM! Time to keep things moving! 🚀
+Hey there! Let's get this party started! 🕒 I'm here to help you with whatever you need—just let me know! 
+
+P.S. If you're feeling a bit lost, just think of it as a fun puzzle to solve! 🧩
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -839,10 +838,12 @@ It's currently 3:45 PM. Let me make sure you got the time right!
 > What's today's date?
 >
 
-**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Today's date is 2024-10-26. Let's get things moving! 🚀
+Hey there! Let's see—today is a great day to be productive! 🎉 If you need help with anything, just let me know! 
+
+P.S. If you're wondering about the date, it's probably a good idea to check your phone or calendar. But hey, I'm here to help with whatever comes next! 🚀
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, result not used)
@@ -854,7 +855,9 @@ Let me check that for you! The current date is Friday, April 5, 2025.
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Hey there! Today's date is [today's date]. Let's keep things moving! 🚀
+Hey there! Let's see—today is a fun day, isn't it? 🎉 If you're asking about the date, it's currently [today's date]. Just remember, I'm here to help you with whatever you need! 
+
+P.S. If you're feeling silly, maybe try to solve a puzzle or two! 🧠✨
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -868,10 +871,10 @@ Let me check that for you! The current date is [today's date]. Want me to share 
 > Which day of the week is it today?
 >
 
-**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (invented)
+**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's Friday! 🎉 Let's keep the momentum going!
+Let's see—today is a Friday! 🎉 That's a great day to be productive!
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, result not used)
@@ -880,10 +883,10 @@ It's Friday! 🎉 Let's keep the momentum going!
 It's today, which is Friday! 🎉 Let me know if you need anything else!
 ```
 
-**LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (invented)
+**LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-It's Friday! Time to celebrate the day we all love. 🎉 Let's make the most of it!
+It's probably Friday! Or maybe Saturday—let's check the calendar and see. Either way, let's get that info sorted!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -900,16 +903,8 @@ It's today, which is Friday! 🎉 Let me know if you need anything else!
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let's do the math: 1234 × 5678. That's a big number—let's see! 
-
-Approximately: 1234 × 5678 ≈ 7,000,000 (exact calculation needed).
-
-For a precise answer:  
-1234 × 5678 = 7,000,000 - some adjustment (you can verify with a calculator).
-
-So the result is about **7,000,000** (depending on precision). 
-
-Let me know if you need anything else!
+Let's crunch that number! 1234 × 5678 = 7,024,852.  
+There you go—quick and accurate! 🎉
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, wrong number)
@@ -921,8 +916,7 @@ Let's calculate that! 1234 × 5678 equals 7,019,052. Easy peasy! 🎉
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let's crunch that number! 1234 × 5678 = 7,024,852.  
-You got it—7 million plus some extra! 🎉
+Let's crunch that number! 1234 × 5678 = 7,024,852. Easy peasy! 🎉 Let me know if you need anything else!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -942,7 +936,7 @@ If you need more help, just let me know!
 ```text
 Let's crunch that number! 17.5% of 240 is the same as 0.175 × 240. That gives you 42.
 
-So, 17.5% of 240 equals 42.
+So, 17.5% of 240 is 42. Easy peasy! 🎉
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed)
@@ -954,9 +948,7 @@ Let's calculate that! 17.5% of 240 is 42. So the answer is 42.
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Let's crunch that number! 17.5% of 240 is the same as 0.175 × 240. That gives you 42.
-
-So, 17.5% of 240 equals 42. Easy peasy! 🎉
+Let's crack this! 17.5% of 240 is the same as 0.175 × 240. That gives you 42. So, the answer is 42. Easy peasy, my friend! 🎉
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed)
@@ -973,9 +965,12 @@ Let's calculate that! 17.5% of 240 is 42. So the answer is 42. 🎉
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Let's crunch that math: (45 + 55) = 100, then 100 / 4 = 25, and 25 - 3 = 22. So the answer is 22. 
-
-And hey, if you need anything else, just give me a shout—no need to overthink it! 🐶
+Let's crunch that number!  
+(45 + 55) = 100  
+100 / 4 = 25  
+25 - 3 = 22  
+So the result is 22.  
+Time to share! 🎉
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed)
@@ -1013,12 +1008,10 @@ Let's crunch that math: (45 + 55) equals 100, then divide by 4 gives 25. So, 25 
 > Split a bill of 187.60 between 4 people. How much each?
 >
 
-**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
+**LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let's split that bill: 187.60 ÷ 4 = 46.90.  
-Each person should pay about $46.90.  
-And if you need anything else, just ask! 🐕💸
+Let's split that bill! 💰 187.60 divided by 4 people equals $47.40 per person. That's a good chunk—let's get it done!
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed)
@@ -1030,12 +1023,10 @@ Each person would pay $46.90.
 Time to go! 💸
 ```
 
-**LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
+**LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let's split that bill! 💰 187.60 divided by 4 people equals **46.90** each. Simple as that—no need for a calculator when you've got a good plan! 
-
-And hey, if you need anything else, just holler!
+Let's split that bill! 💰 187.60 divided by 4 people equals $47.40 per person. Easy peasy! If you need anything else, just let me know!
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed)
@@ -1055,7 +1046,7 @@ Boom! That's quick and easy. 🎉
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's check that! 🔋 I'm running a quick scan—your battery life is looking good! Just a heads-up, I'm a bit fast, so I'll give you the real scoop right away.
+Let's check that! 🔋 I'm gonna find out how much battery you've got left. Ready?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, result not used)
@@ -1067,9 +1058,7 @@ Let's check your battery status, buddy! I'll fetch that info for you.
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Hey there! Let's check that battery life—gotta keep things running smooth! 🚀 I'm checking now... (pings phone status) It looks like you've got a decent charge left. Just don't forget to plug it in soon, or we might be stuck! 
-
-P.S. If you need a quick boost, I can help you find the nearest charging station. 🔋
+Let's check that! 🔋 I'm gonna find out how much battery you've got left. Want me to do it now?
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -1086,7 +1075,7 @@ Let's check your battery status, buddy! I'll fetch that info for you.
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (invented)
 
 ```text
-Yeah, buddy! Your phone's probably charging nicely—just keep it close and it'll be good to go. If it's not, let me know and we'll troubleshoot! 🔋
+Yeah, buddy! Your phone's probably charging nicely—just keep it close and let me know if it's still not powering up. If it's not, we'll troubleshoot fast! 🔋
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, result not used)
@@ -1098,7 +1087,7 @@ Let's check your phone's battery status right now. I'll look it up for you!
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Hey there! Let's check that quickly. Your phone's status is looking good—looks like it's charging nicely. If you need anything else, just give me a shout! 🚀
+Hey there! Let's check that quickly. Your phone's charging status is probably right where it should be—plugged in and ready to go. If you're still waiting, maybe try a quick power boost! 🔋
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -1115,7 +1104,11 @@ Let's check your phone's battery status right away! 📱⚡ I'll look it up for 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's check that! 📱 I'm checking your phone's storage right now... (quick scan...) Ah, there it is! You've got a decent amount left—plenty for photos, apps, and maybe a few memes. Want me to help you organize it?
+Let's check that! 📱 I'll quickly look up your phone's storage. (But wait—do you want me to ask you for the details?) 
+
+If you're asking about your Android device, just confirm the storage size, and I'll help you figure out what to do next! 
+
+P.S. Don't worry, I'm here to make sure you're not missing any space! 🚀
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, result not used)
@@ -1127,9 +1120,7 @@ Let's check that right away! I'll look up your phone's storage status.
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's check that! 📱 I'm checking the storage on your phone right now. Just a sec... *taps phone screen* 
-
-Looks like you've got plenty of space left! 🎉 If you need help organizing files, just say the word!
+Let's check that! 📱 I'll quickly peek at your phone's storage situation. (But don't worry, I won't take too long!)
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -1146,7 +1137,7 @@ Let's check that right away! I'll look up your phone's storage status.
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Hey there! Let's figure that out—what's your phone model? I'll give you a quick nudge if you're unsure! 📱✨
+Hey there! Let's figure that out—what's your phone model? I'm all ears (and eyes)! 📱✨
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✘ (missed, result not used)
@@ -1175,7 +1166,7 @@ Let me check that for you! I'll look up the phone details to find the model.
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Hey there! I'm doing great, thanks for asking! 🚀 I'm all about being helpful and keeping things moving forward. What can I do for you today?
+Hey there! I'm doing great, just ready to help you out! 🚀 What can I do for you today?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -1187,7 +1178,7 @@ Hey there! I'm doing great, just ready to help you out. What can I do for you to
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Hey there! I'm doing great, thanks for asking! 🚀 I'm all about being helpful and keeping things moving forward. What can I do for you today?
+Hey there! I'm doing great, just ready to help you out! 🚀 What's on your mind today?
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔
@@ -1233,7 +1224,7 @@ Why did the phone go to therapy? It had too many bugs! 😄
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-A battery stores energy by converting chemical energy into electrical energy through chemical reactions inside its cells.
+A battery stores energy by converting chemical energy into electrical energy through redox reactions inside its cells.
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -1262,7 +1253,7 @@ A battery stores energy by using chemical reactions that move electrons between 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills off** ✔
 
 ```text
-Oh boy, let's break it down! "Time flies" means that time passes quickly, especially when you're having fun or doing something exciting. It's like watching a movie and realizing it's already over! Want me to explain it in even simpler terms?
+Oh boy, let's break it down! "Time flies" means that time passes quickly, especially when you're having fun or doing something exciting. It's like watching a movie and realizing it's already over! Want to know more about it?
 ```
 
 **LFM2.5-1.2B-Instruct-Q6_K.gguf · host · skills on** ✔
@@ -1274,9 +1265,7 @@ Time flies because it moves so fast—don't waste it! Let's get things done, bud
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Oh boy, let's break it down! "Time flies" means that time passes quickly, especially when you're having fun or doing something exciting. It's like watching a movie and realizing it's already over before you finish the last scene! 🎬✨
-
-So, if you're busy, just remember: keep moving forward!
+Oh, you mean the phrase “time flies”? It means things move fast and you don't have much time to waste! Let's get things done, buddy! 🚀
 ```
 
 **LFM2.5-1.2B-Instruct-Q8_0.gguf · host · skills on** ✔

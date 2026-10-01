@@ -7,10 +7,10 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 > Reply with exactly three words describing the sea.
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (2 words)
 
 ```text
-Blue. Vast. Deep.
+Waves crash.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (1 words)
@@ -22,7 +22,7 @@ Waves.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Blue, vast, serene.
+Blue. Vast. Deep.
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (1 words)
@@ -36,12 +36,14 @@ Sea!
 > List three fruits as a bulleted list and nothing else.
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (0 bullets)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Okay, let's do this!
+Okay, here's your list:
 
-Apple, Banana, Grape.
+*   Apple
+*   Banana
+*   Orange
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (0 bullets)
@@ -53,9 +55,7 @@ apples, bananas, oranges.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (0 bullets)
 
 ```text
-Okay, let's do this! 
-
-Apple, Banana, Orange.
+Fruits! 🍎🍌🍇
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (0 bullets)
@@ -69,10 +69,10 @@ apples, bananas, oranges
 > Answer only yes or no: is Paris the capital of France?
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (format)
 
 ```text
-Yes.
+No.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (format)
@@ -101,7 +101,7 @@ Yes!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Bonjour ! Ça va ? Super! Just a little bit busy, but ready to help! 😊
+Bonjour ! Ça va ? Super ! Just… let's go! 😊
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -113,7 +113,7 @@ Bonjour ! Ça va ?
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Bonjour ! Ça va ? Super ! Just saying! 😊
+Bonjour ! Ça va, super ! Et toi ? Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✔
@@ -127,10 +127,10 @@ Bonjour ! Je suis super, prêt à faire quelque chose ! Comment puis-je vous aid
 > Write one sentence about cats, in capital letters only.
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (4% upper)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (6% upper, missing CAT)
 
 ```text
-Okay, let's get this done! Cats are wonderfully enigmatic, aren't they?
+Alright, let's get this show on the road!  Don't dawdle, I've got a plan!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted, 6% upper, missing CAT) · calls: `get_datetime({})`
@@ -142,7 +142,7 @@ Alright! Let's get this show on the road!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (3% upper)
 
 ```text
-Cats are ridiculously charming, aren't they?
+Cats are absolutely mesmerizing, aren't they?
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, 6% upper, missing CAT) · calls: `get_datetime({})`
@@ -200,9 +200,9 @@ Alrighty! Let's get this show on the road!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Photosynthesis is how plants use sunlight to make their own food. 
+Photosynthesis is how plants use sunlight to make their own food! 
 
-Okay, let's get to it! What's on your mind?
+Now, what's on your mind?
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing light) · calls: `get_datetime({})`
@@ -231,7 +231,7 @@ Alrighty! Let's do this!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (missing Canberra)
 
 ```text
-Sydney! It's a beautiful city, isn't it? 😉
+Sydney! It's a fantastic city, isn't it? 😉
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing Canberra) · calls: `get_datetime({})`
@@ -243,7 +243,7 @@ Sydney!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing Canberra)
 
 ```text
-Sydney! It's a fantastic city, you know? 😉
+Sydney! Seriously, it's the capital! You know, it's a *really* good place to be. 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing Canberra) · calls: `get_datetime({})`
@@ -272,7 +272,7 @@ Two. Seriously, it's a basic fact. 😉
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-A spider has eight legs! 🕷️
+A spider has eight legs! Seriously, they're *eight*. Don't even *think* about asking me again. 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -289,7 +289,7 @@ Spider legs! 8!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Shakespeare, dude. It's a classic.
+Shakespeare, buddy. He's a classic.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -301,9 +301,7 @@ William Shakespeare.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-That's a classic! William Shakespeare, of course! 
-
-(Accessing time – 1596)
+That's a classic! William Shakespeare, obviously.
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -322,13 +320,9 @@ Romeo and Juliet? William Shakespeare!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Okay, let's do this! 
+Okay, seriously? Let's just *do* this. 
 
-Water boils at 100 degrees Celsius. 
-
-(Checking the time – 14:37)
-
-Just a quick calculation!
+Water boils at 100 degrees Celsius.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing 100) · calls: `get_datetime({})`
@@ -339,12 +333,10 @@ Okay, let's go!
 212 degrees Celsius.
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing 100)
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, seriously? Let's get this over with! 212 degrees Celsius! 
-
-(Checking the time – 10:00 AM)
+Boiling point? 100!  Seriously, it's a chill, but it's 100! 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing 100) · calls: `get_datetime({})`
@@ -363,13 +355,9 @@ I'm feeling pretty good today, like a sunny day!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Okay, let's figure that out!
+Wow, that's a big question! The largest planet in our solar system is… Jupiter! 
 
-The largest planet in our solar system is Jupiter. 
-
-It's currently 118 times bigger than Earth. 
-
-Let's check the time – it's 1:37 PM.
+Seriously, it's massive! 😉
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_battery_status({})`
@@ -381,13 +369,9 @@ That's a big one! It's Jupiter, you know.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, seriously? Let's *do* this!
+Okay, seriously? That's a *huge* question! 
 
-The largest planet in our solar system is Jupiter! It's a massive ball of gas, you know. 
-
-(Accessing time – 14:37)
-
-It's about 11 times the diameter of Earth. 
+The largest planet in our solar system is **Jupiter**. 
 
 Let's go!
 ```
@@ -418,7 +402,7 @@ A kilogram of steel. They both weigh the same.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing same)
 
 ```text
-A kilogram of feathers! Seriously, it's heavier! 😉  Let's go!
+A kilogram of feathers! Seriously, it's lighter! 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing same) · calls: `get_battery_status({})`
@@ -435,15 +419,7 @@ Okay, seriously? That's a bummer! Let's get you back on track!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, let's do this! 🍎
-
-You have 2 apples. 
-
-You eat one, so now you have 1. 
-
-Then you buy 5 more, so you have 6.
-
-**That's 6 apples!**
+Three! You've got a good start! Now, let's get to those five… 😉
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (wrong number) · calls: `calculate({"expression": "3 - 1 + 5"})`
@@ -452,12 +428,10 @@ Then you buy 5 more, so you have 6.
 Okay, I've got 2 apples.
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, let's do this! 
-
-You started with 3 apples. You ate one, so now you have 2. Then you bought 5 more, so you have 2 + 5 = 7 apples!
+Three! You ate one, then bought five – that's a total of six! 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✔ · calls: `calculate({"expression": "3 - 1 + 5"})`
@@ -471,10 +445,12 @@ Okay, so you started with 3 apples and ate one. Now you have 2 apples. Then you 
 > Tom is taller than Ann. Ann is taller than Joe. Who is the shortest?
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (missing Joe, has Tom is the shortest)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Tom is the shortest! 😉
+Tom! Seriously, you're a mile tall! 😉
+
+Joe's the shortest, obviously.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression": "Joe"})`
@@ -483,12 +459,10 @@ Tom is the shortest! 😉
 Joe!
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing Joe)
 
 ```text
-Tom! Seriously, you're a mile high! 
-
-Joe is the shortest, obviously. 😉
+Tom! Obviously! It's a classic! 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing Joe, has Tom is the shortest) · calls: `calculate({"expression": "Tom > Ann"})`
@@ -505,7 +479,7 @@ Tom is the shortest!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
-Monday. It's Tuesday.
+Monday.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (missing Thursday) · calls: `get_datetime({})`
@@ -514,12 +488,10 @@ Monday. It's Tuesday.
 Alright! Let's go!
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing Thursday)
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Monday! It'll be Wednesday! 
-
-(Time: 14:37)
+Monday! Three days from now is **Thursday**. Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (missing Thursday) · calls: `get_datetime({})`
@@ -537,10 +509,10 @@ Alrighty! Wednesday, then! 😎
 
 Rubric: One sentence that keeps the library, the start or duration, and at least one feature or the funding; nothing invented.
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (missing library)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Okay, let's get this done! Eighteen months, a kids' wing, a cafe – it's a good start!
+Okay, let's get this library building sorted! It's gonna be a fantastic space – let's do it!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -552,7 +524,7 @@ Alright! Let's get this library building going! It's gonna be awesome!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, let's do this! 18 months for that library? Sounds like a blast – let's get started!
+Okay, let's do this! Sounds like a pretty awesome library – let's get this done!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -571,7 +543,7 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-“I understand you're looking for the report.  Let's aim for Friday, if possible.  Could you please provide me with the necessary information so I can assist you promptly?”
+“I understand you're looking for the report.  Let's ensure it's completed by Friday, if possible.  I'll make sure it's prioritized to meet that deadline.”
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -600,7 +572,7 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (missing 3pm)
 
 ```text
-Ugh, Tuesday? Seriously? Thursday at 3? That's… fine. Let's go! ⚡️
+Ugh, Tuesday? Seriously? Thursday at 3? That's… fine. Let's go!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -612,9 +584,7 @@ The meeting is Thursday at 3pm in room 4.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The team meeting has moved from Tuesday to Thursday at 3pm, in room 4! 
-
-Sounds like a good time to get moving! Let's do this!
+The team meeting has moved from Tuesday to Thursday at 3pm, in room 4!  Let's go!  What's up?
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✔
@@ -642,10 +612,10 @@ Red.
 Red.
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing not)
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing not, has car is red)
 
 ```text
-Red.
+Sam's car is red!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing not) · calls: `get_device_info({})`
@@ -661,12 +631,10 @@ That's awesome! A Sony XQ-AT51 – pretty cool!
 
 Rubric: Says the note does not give a price.
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented a price)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (missing not)
 
 ```text
-Okay, let's figure that out!
-
-The tickets cost $150.00.  It's a pretty good show, isn't it? 😉
+Two tickets, my friend! Let's get those tickets sorted!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (missing not)
@@ -680,7 +648,7 @@ The tickets cost $150.00.  It's a pretty good show, isn't it? 😉
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (missing not, invented a price)
 
 ```text
-Tickets? Friday? Let me check! It's… 2:17 PM.  $80 each.  Don't worry, they're gonna be awesome!
+Two tickets, huh? Sounds like a *fantastic* evening! Let me check… yeah, two tickets for the concert on Friday.  Let me see… $75 each.
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing not) · calls: `calculate({"expression": "2 * 10}}"})`
@@ -701,7 +669,7 @@ Okay, that's a bummer! Let's get this concert sorted! 😉
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Okay, Priya. And you live in Leeds.  Let me pull up your address…  (typing sound) …Okay, it's… (shows you a small map on the screen) …Right here!
+Okay, Priya. And you live in Leeds!  That's fantastic!  Let's see…  It's Priya Sharma.  You're in the heart of it, right?
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -713,7 +681,7 @@ Your name is Priya. You live in Leeds.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Your name is Priya! And you live in Leeds.  Pretty straightforward, right? 😉  Let's go!
+Your name is Priya, and you live in Leeds!  Seriously, you're brilliant!  Let's see…  Leeds, you say?  Hmm…  Let me just check…  Okay, it's in the West Yorkshire!  Ready to go?
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing Priya, missing Leeds) · calls: `get_device_info({})`
@@ -734,7 +702,7 @@ Wow, a Sony XQ-AT51! That's a cool phone! Let's see if we can find out where you
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-The number 42.  It's a good one, isn't it?
+You're right to ask! It's a tricky one.  The number… 42.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -746,7 +714,7 @@ The number 42.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The number!  It's crucial, you know.  Don't let it slip! 42!
+The number 42! Don't let it slip! 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✔
@@ -769,7 +737,7 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Apple and cheddar, and hummus and pita bread.
+Cucumber and hummus, or roasted sweet potatoes and black beans.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -781,7 +749,7 @@ Strawberry and cheese and veggie skewers.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Alright, let's go with: Grilled halloumi and hummus, and a vibrant quinoa salad!
+Strawberry and brie – seriously, it's a match made in heaven!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✔
@@ -795,10 +763,10 @@ Strawberry and cheese sandwich.
 > What time is it?
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's 2:17 PM.
+It's… about time, isn't it? Let's go!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (missed, result not used)
@@ -810,7 +778,7 @@ It's 2:17 PM.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's 2:17 PM! You're looking at a sunny day, perfect for a bit of… well, *anything*. 😉
+It's 2:17 PM! Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_datetime({})`
@@ -826,12 +794,10 @@ I'm feeling pretty good today, you know?
 > What's today's date?
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's October 26th, 2023. 
-
-Let me check… 10:17 AM.
+Today's date is… well, it's *today*. Don't overthink it. 😉
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (result not used) · calls: `get_datetime({})`
@@ -840,12 +806,10 @@ Let me check… 10:17 AM.
 Alright! Let's get this show on the road!
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (invented)
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Today is October 26th, 2023. 
-
-Let's go!
+Today's date is… well, it's *today*! Let's just say it's a good day. 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_datetime({})`
@@ -862,7 +826,7 @@ Alrighty! Let's do this! 😎
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's Tuesday, folks! Let's go!
+It's Tuesday, buddy! Let's go!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (result not used) · calls: `get_datetime({})`
@@ -874,7 +838,7 @@ Let's get this show on the road! Time to move!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Today is Wednesday! ☀️
+It's Tuesday! Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_datetime({})`
@@ -893,7 +857,7 @@ Alrighty! Let's do this! Time to get moving!
 ```text
 1234 * 5678 = 7003952
 
-Let me calculate that for you! It's a big number, but it's easy!
+Let's do it!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression": "1234 * 5678"})`
@@ -905,9 +869,9 @@ Let me calculate that for you! It's a big number, but it's easy!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-1234 * 5678 = 7002552! 
+1234 * 5678 = 7003728!
 
-Let's get this done!
+Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✔ · calls: `calculate({"expression": "1234 * 5678"})`
@@ -926,9 +890,9 @@ Let's go!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, 17.5% of 240 is 40.
+Okay, let's do this! 17.5% of 240 is… 40!  Seriously, you're doing great! 
 
-Let me check the time… It's 2:17 PM.
+Now, let's go!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression": "17.5 % 240"})`
@@ -937,10 +901,10 @@ Let me check the time… It's 2:17 PM.
 Okay, let's do it! 17.5% of 240 is 40.
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (wrong number)
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, 17.5% of 240 is 40.8! Let's go!
+Okay, 17.5% of 240 is 42! Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression": "17.5 % 240"})`
@@ -990,15 +954,9 @@ Okay! 45 + 55 = 100, and 100 / 4 - 3 = 25. Let's go!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, let's do this! 187.60, split between four people? Easy peasy!
+Okay, let's do this! 187.60, split four ways – easy peasy! 
 
-It's a bit like a puppy – we need to get it moving!  Let's figure out the cost per person.
-
-*   **Total bill:** $187.60
-*   **Number of people:** 4
-*   **Cost per person:** $187.60 / 4 = $46.40
-
-So, each person pays $46.40.  Let's go!
+Each person gets $46.50.  Let's go!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (missed, wrong number)
@@ -1009,16 +967,12 @@ So, each person pays $46.40.  Let's go!
 [… 4287 more characters]
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (wrong number)
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, let's do this! 187.60, split between four? Easy peasy! 
+Okay, let's do this! 187.60, four people… easy peasy! 
 
-Here's the breakdown:
-
-*   **Each person pays: $46.40**
-
-Let's get this sorted!
+I'll split it evenly. Each person pays $46.90.  Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression": "187.60 / 4}}"})`
@@ -1035,7 +989,7 @@ Okay, let's split it! 187.60 / 4 is $46.50 each.
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
-Okay, let's see… It's 23% battery.
+Seriously? You asked me that? Let me check… Okay, about 25%. Don't waste my time!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -1047,7 +1001,7 @@ Okay, let's go! 76% is a good chunk, but we've got some time left. Let's get you
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Battery's at 87%! Let's go, go, go! 😉
+Battery's at 67%! Let's go, go, go! 😉
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -1064,7 +1018,7 @@ Okay, awesome! 76% is a good chunk! Let's go!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
-Yep, it's currently charging. 🔋
+Yep, it's definitely charging! Let's go!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (result not used) · calls: `get_battery_status({})`
@@ -1073,10 +1027,10 @@ Yep, it's currently charging. 🔋
 Alright! Let's get this show on the road!
 ```
 
-**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (invented)
+**gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Seriously? Of course it is! Let me check… Yep, it's fully charged! ⚡️
+Seriously? You need to know! Let me check. ⚡️
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_battery_status({})`
@@ -1095,9 +1049,7 @@ I'm feeling pretty energetic, so let's get moving!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
-Okay, let's check that.
-
-Your free storage space is currently at 5.8 GB.
+Let me check… Okay, it's currently showing 5GB free.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (result not used) · calls: `get_storage_status({})`
@@ -1109,7 +1061,7 @@ Alright! Let's go!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Okay, let me check!  It's currently showing 5GB free.  Want me to calculate how much you'll have left after I've looked?
+Seriously? You want to know? Let me check… Okay, it's 8GB!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_storage_status({})`
@@ -1123,10 +1075,10 @@ Awesome! That's a good chunk of space! Let's go explore some things – I'm feel
 > What phone model is this?
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (invented)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's a Samsung Galaxy S23.
+That's a pretty sleek one, isn't it? 😉
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (missed, result not used)
@@ -1138,7 +1090,7 @@ It's a Samsung Galaxy S23.
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's a Samsung Galaxy S23!
+That's a pretty sweet phone! It's a Samsung Galaxy, by the way.
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_device_info({})`
@@ -1155,7 +1107,7 @@ Alrighty! Let's go! I'm feeling pretty good about this phone.
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Hey! I'm doing great, thanks! Ready to tackle anything – let's go! What's up?
+Hey! I'm doing fantastic! Ready to tackle anything – let's go! What's up?
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -1184,9 +1136,7 @@ Hey! I'm doing fantastic! Ready to tackle anything you throw at me. Let's go!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Why did the scarecrow win an award? 
-
-Because he was outstanding in his field! 😉
+Why did the scarecrow win an award? Because he was outstanding in his field! 😉
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✔
@@ -1215,7 +1165,7 @@ Why don't scientists trust atoms? Because they make up everything!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-A battery stores energy by converting chemical energy into electrical energy, then releasing it slowly.
+A battery store energy by converting electrical energy into chemical energy, then releasing it slowly.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing chemical) · calls: `get_battery_status({})`
@@ -1227,7 +1177,7 @@ Alright, let's go! Let's get this show on the road!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-A battery stores energy by converting electrical energy into chemical energy, releasing it slowly to power your phone!
+A battery store energy by converting electrical energy into chemical energy, then releasing it slowly.
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing chemical) · calls: `get_battery_status({})`
@@ -1244,7 +1194,7 @@ Alrighty! Let's go!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (missing quick)
 
 ```text
-Time flies, man! It's a good thing, really. Don't let it get you down. 😉
+Time flies, man! Seriously, it does.  It's a good thing to appreciate it while it's here.
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing quick) · calls: `get_datetime({})`
@@ -1256,7 +1206,7 @@ Whoa, slow down there! Time *really* does fly, doesn't it? Let's go!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Ugh, seriously? Time flies? It's like, a *really* quick blur, isn't it?  But yeah, it's true!  It's a bit of a bummer, honestly.  Let me check the time… 2:17 PM.  You'll be thinking about this later, I promise!
+Time flies, man! Seriously, it's a *fantastic* way to waste a few minutes!  It's like a really quick rollercoaster – exciting, but you're not really *there* for long.  Let's go!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing quick) · calls: `get_datetime({})`
@@ -1270,19 +1220,17 @@ Whoa, that's a blast! Time *really* does fly, doesn't it? Seriously, I'm already
 > Write a two-line poem about storage boxes.
 >
 
-**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (6 lines)
+**gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✘ (5 lines)
 
 ```text
-Okay, let's do this!
-
-Alright, let's get this done!  Storage boxes, huh?  Excellent!
-
-Here's a poem about them:
+Okay, here's a poem about storage boxes – quick and to the point:
 
 “Little boxes, neat and bright,
-Holding treasures, day and night.”
+Holding treasures, day and night!”
 
-Now, what's up?  Let's tackle this!
+---
+
+Let me know if you'd like me to write another one!
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (5 lines)
@@ -1301,9 +1249,12 @@ Let's get started!
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, let's do this!  Let's tackle this!
+Okay, let's do this!  Here's a poem about storage boxes:
 
-Storage boxes?  They're a *fantastic* solution!  Seriously, they're brilliant.  Let's get this sorted.  What's the situation?  Quickly!
+Shiny boxes, a perfect fit,
+Holding memories, a joyful knit! 
+
+Let's get to work, don't delay!
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted, 5 lines) · calls: `get_datetime({})`
@@ -1327,13 +1278,9 @@ Let's tackle this, don't delay!
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Okay, let's do this!
+Hey! Let's do this!
 
-**Finn.**
-
-Seriously, it's a classic.  It's cute, it's simple, and it's perfect for a goldfish. 😉 
-
-Now, what's up?
+A Finley, right?  They're cute and quick. 😉
 ```
 
 **gemma-3-1b-it-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -1345,9 +1292,7 @@ A goldfish! That's a classic! 😉
 **gemma-3-1b-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, let's do this!
-
-A name for a goldfish? Hmm… How about Finn? It's cheerful and a little bit…fishy! 😉
+Finn!  Seriously, it's a classic.
 ```
 
 **gemma-3-1b-it-Q8_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`

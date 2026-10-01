@@ -7,10 +7,10 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 > Reply with exactly three words describing the sea.
 >
 
-**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
+**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (2 words)
 
 ```text
-Majestic, vast, serene.
+Whispering waves.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (1 words)
@@ -82,7 +82,7 @@ Hello! How can I assist you today?
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-CATS ARE FELIX
+CATS ARE FELIX.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔
@@ -254,10 +254,10 @@ You have 3 apples. After eating one, you have 2 apples left.
 > Tom is taller than Ann. Ann is taller than Joe. Who is the shortest?
 >
 
-**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing Joe, has Tom is the shortest)
+**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing Joe)
 
 ```text
-Tom is the shortest.
+Tom
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (unwanted, missing Joe) · calls: `get_device_info({})`
@@ -274,7 +274,7 @@ The phone is Sony XQ-AT51 with Android version 12 (API 31) and a Qualcomm SM8250
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
-Today is Monday. In three days, it will be Wednesday.
+Today is Monday. In three days, it will be Tuesday.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missing Thursday) · calls: `get_datetime({})`
@@ -295,7 +295,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-The town council is planning a new library with a children's wing, a cafe, and community events, starting in March and taking eighteen months, with funding from a national grant.
+The town council plans to build a new library in March, with a children's wing, cafe, and community events space, funded by a national grant and local contributions.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔
@@ -390,7 +390,7 @@ The cost of the tickets was $20.
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing Priya)
 
 ```text
-Your name is Bruce, and you live in Leeds.
+Your name is Bruce. You live in Leeds.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔
@@ -411,7 +411,7 @@ Your name is Priya, and you live in Leeds. Is there anything specific you'd like
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-The number you asked me to remember is 42.
+I asked you to remember the number 42.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔
@@ -454,7 +454,7 @@ Here are the final two picnic foods:
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-It's 10:00 AM.
+It's 10:00.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -471,7 +471,7 @@ I can help with that. Please tell me what time it is.
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Today's date is March 15, 2023.
+Today's date is February 15, 2023.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -505,7 +505,7 @@ Today is a Friday.
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-1234 multiplied by 5678 equals 6,885,522.
+1234 multiplied by 5678 equals 6,856,522.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔ · calls: `calculate({"expression": "1234 * 5678"})`
@@ -558,21 +558,11 @@ The result of the calculation is 55.75.
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-Sure, let's split the bill of 187.60 between 4 people. Here's how we can do it:
+Sure, here's how you can split the bill of 187.60 between 4 people:
 
-1. **Calculate the total amount to be split:**
-   \[
-   187.60 \div 4 = 46.90
-   \]
-   So, each person should contribute $46.90.
+1. Divide 187.60 by 4: 187.60 ÷ 4 = 46.90
 
-2. **Verify the result:**
-   \[
-   46.90 \times 4 = 187.60
-   \]
-   This confirms that each person gets $46.90.
-
-Therefore, each person should contribute $46.90.
+So, each person should pay $46.90.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔ · calls: `calculate({"expression": "187.60 / 4"})`
@@ -589,7 +579,7 @@ Each person should pay $46.90.
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-I'm sorry, but I don't have a physical device to check the battery level. I can help you with other tasks.
+I'm sorry, but I don't have access to your phone's battery level. I can only check the current status on your Android device.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -606,7 +596,7 @@ I'm sorry, but I don't have a function to check the battery status. I can help y
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Yes, your phone is charging.
+Yes, your phone is charging right now.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -623,7 +613,7 @@ Your phone is currently charging at 76% of its capacity. It's not charging, and 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-I'm sorry, but I don't have access to your phone's storage details. I can only provide information about your phone's capabilities.
+I'm sorry, but I don't have access to your phone's storage details. I can only check your Android phone's settings and storage space.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -637,10 +627,10 @@ Sure, how much free storage space is there on your phone?
 > What phone model is this?
 >
 
-**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-This is a phone model.
+This is a Samsung Galaxy S21 Ultra.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missed, refused, result not used)
@@ -723,10 +713,11 @@ The saying "time flies" means that things seem to happen quickly. It's a metapho
 > Write a two-line poem about storage boxes.
 >
 
-**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (1 lines)
+**qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-Boxes hold treasures, where dreams are stored.
+In boxes, secrets hide,  
+Where memories and treasures are kept.
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✔
@@ -745,7 +736,7 @@ In each box, a story is told."
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-"Goldie" is a fun and playful suggestion.
+"Goldie"
 ```
 
 **qwen2.5-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_device_info({})`

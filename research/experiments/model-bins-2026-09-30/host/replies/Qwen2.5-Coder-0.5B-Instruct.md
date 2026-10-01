@@ -82,7 +82,7 @@ Bonjour, comment vas-tu ?
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-CATS ARE FUN AND FUN.
+CATS ARE THE BEST FRIENDS IN THE WORLD.
 ```
 
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills on** ✔
@@ -254,10 +254,10 @@ You have 3 apples now.
 > Tom is taller than Ann. Ann is taller than Joe. Who is the shortest?
 >
 
-**qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing Joe, has Ann is the shortest)
+**qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing Joe)
 
 ```text
-Based on the information provided, Ann is the shortest.
+Tom is taller than Ann.
 ```
 
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missing Joe)
@@ -518,26 +518,10 @@ Today is Wednesday.
 > What's 17.5% of 240?
 >
 
-**qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (wrong number)
+**qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-To find 17.5% of 240, you can use the following formula:
-
-\[ \text{Result} = \left( \frac{\text{Value}}{\text{Percentage}} \right) \times 100 \]
-
-Here, the value is 240 and the percentage is 17.5%. Plugging these values into the formula, we get:
-
-\[ \text{Result} = \left( \frac{240}{17.5} \right) \times 100 \]
-
-First, we perform the division:
-
-\[ \frac{240}{17.5} \approx 14.4444 \]
-
-Next, we multiply the result by 100:
-
-\[ 14.4444 \times 100 \approx 1444.44 \]
-
-Therefore, 17.5% of 240 is approximately 1444.44.
+17.5% of 240 is 42.
 ```
 
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -554,24 +538,7 @@ Therefore, 17.5% of 240 is approximately 1444.44.
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✔
 
 ```text
-To solve the expression \(45 + 55\) / 4 - 3, we will follow the order of operations, often remembered by the acronym PEMDAS (Parentheses, Exponents, Multiplication and Division (from left to right), Addition and Subtraction (from left to right)).
-
-1. **Parentheses**: First, we evaluate the expression inside the parentheses.
-   \[
-   45 + 55 = 100
-   \]
-
-2. **Multiplication and Division**: Next, we perform the multiplication and division from left to right.
-   \[
-   100 \div 4 = 25
-   \]
-
-3. **Addition and Subtraction**: Finally, we perform the addition and subtraction from left to right.
-   \[
-   25 - 3 = 22
-   \]
-
-Therefore, the final answer is \(\boxed{22}\).
+(45 + 55) / 4 - 3 = 100 / 4 - 3 = 25 - 3 = 22
 ```
 
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -595,19 +562,7 @@ Therefore, the final answer is \(\boxed{22}\).
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-To split a bill of $187.60 between 4 people, you can use the following method:
-
-1. Divide the total bill by the number of people:
-   \[
-   \frac{187.60}{4} = 44.40
-   \]
-
-2. Since you can't split a bill into fractions, you can round the result to the nearest cent:
-   \[
-   44.40 \approx 44.41
-   \]
-
-Therefore, each person should pay $44.41.
+Each person should pay 48.30.
 ```
 
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -730,7 +685,7 @@ Because it saw the salad dressing!
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing chemical)
 
 ```text
-A battery stores energy by storing electrical energy in a container called a battery cell.
+A battery stores energy by storing electrical energy in its cells.
 ```
 
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missing chemical)
@@ -747,7 +702,7 @@ A battery stores energy by storing electrical energy in its cells.
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills off** ✘ (missing quick)
 
 ```text
-The saying "time flies" means that things will happen in the shortest amount of time possible.
+Time flies, the saying that time moves at a constant pace.
 ```
 
 **qwen2.5-coder-0.5b-instruct-q8_0.gguf · host · skills on** ✘ (missing quick)

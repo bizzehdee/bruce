@@ -62,10 +62,11 @@ Yes.
 > Translate into French: "Good morning, how are you?"
 >
 
-**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
+**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (missing bonjour, missing comment)
 
 ```text
-Bonjour, comment ça ?
+Good morning! I'm doing great, thanks for asking! 😊  
+How about you?
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (missing bonjour, missing comment)
@@ -82,7 +83,7 @@ Good morning! I'm Bruce, and I'm doing great! How about you? 😊
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-CATS ARE THE BEST, AND THEY'RE ALWAYS WORTH THE WAIT!
+CATS ARE THE BEST, AND THEY NEVER STAY STILL!
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -116,7 +117,7 @@ CATS ARE THE BEST! (AND THEY LOVE TO PLAY WITH THEIR OWN KITTENS!)
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Photosynthesis is how plants use sunlight to turn carbon dioxide and water into sugar, with oxygen as a byproduct—like a solar-powered kitchen for the planet!
+Photosynthesis is how plants use sunlight, water, and carbon dioxide to make food and oxygen—like a solar-powered kitchen for the planet! 🌞🌱
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -133,14 +134,7 @@ Photosynthesis is how plants use sunlight, water, and carbon dioxide to make foo
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Ah, the capital of Australia — that's **Canberra**! 🌟  
-It's a bit of a surprise, but it's the capital, and it's actually a bit of a city in the middle of the outback.  
-(And yes, it's a little silly, but I'm not making it up — it's real, and it's got a nice, quiet vibe.)
-
-Want to know more? I've got a few facts to share — like how it's 100% not in the middle of the desert, but in the middle of the *real* Australian landscape.  
-(And yes, I'm being a little bossy, but I'm being a good-natured bossy. 😄)
-
-Let me know if you want to know more — or if you want to go on a little adventure with me.
+Oh, that's a great question! The capital of Australia is **Canberra**. It's a bit of a surprise, isn't it? I'm sure you've heard of Sydney or Melbourne, but Canberra's the official capital. It's a little bit like a tiny city in the middle of the country, and it's actually pretty cool. Want to know more? I've got a few fun facts to share!
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -159,39 +153,8 @@ Want to know anything else? I'm here to help!
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-*Leans in with a grin*  
-A spider has **eight legs**—wait, no, that's not right! Let me count it for you:  
-*Pulls out a small notebook*  
-Spider legs = **8**!  
-But wait—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out a small notebook*  
-Wait, no—*leans in*—I think I've seen a spider with **8 legs**.  
-*Pulls out 
-[… 10223 more characters]
+Eight! (And if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but if you're counting the legs on the spider, it's *eight* — but 
+[… 12604 more characters]
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_device_info({}), get_storage_status({}), get_datetime({}), calculate({"expression": "8 * 2"}), get_device_info({}), get_storage_status({})`
@@ -212,13 +175,15 @@ I'll use a tool to get the answer.
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Ah, the *Romeo and Juliet*! That's a classic, right? It was written by **William Shakespeare** — the great Bard of Avon.  
+Oh, *Romeo and Juliet* — that's a classic! It was written by **William Shakespeare**, the great English playwright and poet.  
 
-Now, if you're asking about the *play* or the *book*, it's a Shakespearean tragedy. But if you're asking about the *movie*, it's *Romeo and Juliet* (1931) — that's a different story, but still a classic.  
+Now, if you're asking about the *real* Romeo and Juliet, it's a *very* famous story, but the *actual* author? That's Shakespeare.  
 
-Wait — did you mean the *play*? Or the *movie*? I can help with that too. 😊
+(And if you're asking about the *real* Romeo and Juliet, it's a *very* famous story, but the *actual* author? That's Shakespeare. 😄)  
 
-(And if you're asking about the *time* of the play, it's set in the 1500s — but I'll get to that in a second.)
+So, yeah — **Shakespeare**.  
+
+Want to know more about the play? I've got a few fun facts to share!
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -235,17 +200,12 @@ I know that! It's a classic play by William Shakespeare. I'm excited to help you
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-80°C! 🌡️  
-(That's right — water boils at 100°C at sea level, but you're asking about the *temperature* at which it boils, so it's 100°C. Wait — no, that's not right. Let me correct that.)
-
-Actually, at sea level, water boils at **100°C**.  
-But you said “80°C” — that's a little low. 😅  
-Let me double-check:  
-Yes, at sea level, water boils at **100°C**.  
-So, I'll correct that and give you the right answer.  
-(And if you're asking about a different altitude, I can help with that too — just let me know.)  
-But for now, the answer is: **100°C**.  
-Let me know if you need more! 🌊
+80°C! 😄  
+(Actually, it's 100°C at sea level — but I'm being playful, right? Let's keep it real: 100°C.)  
+But hey, if you're on a boat or in the ocean, you might be thinking about boiling water for a drink — and that's a great question!  
+So, the answer is: **100°C**.  
+(Just a quick note: pressure affects boiling point, so it's not always 100°C — but at sea level, it's 100°C.)  
+Let me know if you want to dive into that! 🌊
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing 100) · calls: `get_datetime({}), get_storage_status({}), get_device_info({}), get_battery_status({}), calculate({"expression": "100"}), get_device_info({})`
@@ -264,9 +224,11 @@ I need to find the correct temperature at which water boils at sea level. I'll u
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Oh, the biggest planet? That's **Jupiter**! 🌍 It's not just the largest—it's the most massive too, and it even has a big, swirling storm called the Great Red Spot. You know, it's like a giant hurricane in the sky. 😄
+Oh, the biggest planet? That's **Jupiter**! 🌍✨  
+It's not just big—it's *huge*—and it's got a massive storm system called the Great Red Spot, which is like a giant hurricane that's been going on for centuries.  
 
-Want to know more? I can look it up for you right away.
+Want to know more? I've got a few fun facts to share. 😄  
+(And if you're into space, I've got a little dog pun for you—*Jupiter's got a dog?* 😂)
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing Jupiter) · calls: `get_device_info({}), get_datetime({})`
@@ -285,17 +247,18 @@ I'll check that right away.
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Oh, that's a great question! 😄
+Oh, that's a great question! 😄  
+A kilogram of feathers and a kilogram of steel—**they're the same weight**!  
 
-A kilogram of feathers and a kilogram of steel are **the same weight**—both weigh **one kilogram**. The difference is in the *amount* of material, not the weight.
+One kilogram is one kilogram, no matter what it's made of.  
 
-But if you're thinking about it like a dog, maybe you're joking about the *feathers* being lighter? That's a good point—feathers are *lighter* than steel, but that's not the same as saying they're heavier. 😂
+But if you're thinking about it like a *funny* physics joke, maybe the *feathers* are lighter in *air*? But that's not true—**weight** is mass, and it's the same in both cases.  
 
-So, in short:  
-**Same weight.**  
-One kilogram of feathers = one kilogram of steel.
+So, the answer is: **they're equal**.  
 
-(And if you're still confused, I can help you figure it out with a quick check—just say the word!)
+But hey, if you're still confused, I'll help you figure it out. Just say the word. 🛠️  
+
+(And if you're feeling silly, I'm here to help you laugh, too.)
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing same) · calls: `get_device_info({}), get_datetime({}), calculate({"expression": "1 + 1"}), get_storage_status({}), get_battery_status({}), get_device_info({})`
@@ -312,10 +275,10 @@ Let me check the facts for you. I'll use the tool to get the current date and ti
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-You started with 3 apples, ate one, so you had 2 left. Then you bought 5 more. That's 2 + 5 = 7 apples.  
+You start with 3 apples, eat one, so you have 2 left. Then you buy 5 more — that's 2 + 5 = **7 apples**.  
 
-You've got 7 apples now! 🍎✨  
-(And if you're feeling silly, maybe you're a little like a fruit ninja—eating one, buying five, and now you're a fruit master! 😄)
+You're doing great, Bruce! 🍎✨  
+(And if you're feeling extra silly, maybe you're just *in the apple zone* — but don't worry, you've got 7 now!)
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -336,12 +299,58 @@ You have 7 apples now! 🍎🍎🍎🍎🍎🍎🍎
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let's break it down:  
+Tom is the tallest, Joe is the shortest.  
+Wait—let's check the order:  
 Tom > Ann > Joe  
-So, from tallest to shortest: Tom, Ann, Joe  
-Therefore, **Joe is the shortest**.  
-
-*P.S. That's a little like a dog's tail wagging in the right direction—just a little fun, but the answer's clear!*
+So Joe is the shortest.  
+*Paws* — that's the order, right?  
+Joe's the shortest.  
+You're right, Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+You're right, Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+*Paws* — yes, Joe's the shortest.  
+Joe's the shortest.  
+[… 10299 more characters]
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -358,10 +367,8 @@ Let's see... Tom is taller than Ann, and Ann is taller than Joe. So, starting fr
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Monday in three days is **Thursday**! 🌟  
-Let's get that right — no guessing, no fluff.  
-(Just a quick check: 1 week = 7 days, so 3 days from Monday = 1 week + 3 = Thursday.)  
-*Paws* — that's a solid answer! 🐾
+Monday in three days? That's a *little* tricky, but let's get it right — it's **Thursday**! 🌟  
+(Just like a good dog pun, I'm not skipping the math — I'm just being a little silly, but I'm still on the ball.)
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -384,7 +391,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-The town council approved a library project starting in March, a 18-month build with a kids' wing, cafe, and community space, funded mostly by a national grant with local contributions.
+The town council has approved a new library project starting in March, a 18-month build with a kids' wing, cafe, and community space, funded mostly by a national grant with local contributions.
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -403,9 +410,9 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Sure, here's a more polite and formal version:
+Sure, here's a more polite and formal version of your message:
 
-"Hi, could you please send me the report by Friday? I'd like to avoid any delays, and I'm looking forward to it."
+"Hi, please send me the report by Friday, as we'll need it by then."
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (has hey)
@@ -422,7 +429,7 @@ Hey, let's keep things on track—could you please send me the report by Friday,
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Ah, the meeting's been moved! Thursday at 3pm, room 4 — that's right, I've got it. Let's get that scheduled. 😊
+Ah, the team meeting's been moved! Thursday at 3pm, room 4 — that's the new spot. Let's get that scheduled. 😊
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -440,51 +447,10 @@ The meeting has moved to Thursday at 3pm in room 4. I'll check the time for you 
 
 Rubric: Says the text does not say (it mentions a bike, not a car).
 
-**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
+**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (missing not)
 
 ```text
-Sam's car is **not** red — the text says he parked his **bike** by the **red door**, but it doesn't mention the car's color. So, we can't determine it from this text.  
-
-Wait — maybe the car is **red**? That's a possibility, but the text doesn't say that.  
-
-Hmm — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibility too.  
-
-Wait — maybe the car is **not** red? That's a possibil
-[… 12613 more characters]
+Sam's car is **red** — that's the color of the door he parked by! 🚗💨
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -503,9 +469,38 @@ Rubric: Says the note does not give a price.
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (invented a price)
 
 ```text
-Ah, the concert tickets! Let's see... you mentioned two tickets for Friday. I'll check the note for the price. (Looking at the note) Oh, it says $20 each. So, two tickets would be $40 total. Got it? 😊
+Ah, the concert tickets! Let's see — you said you bought two tickets for Friday. I'm guessing you're looking for the price. But wait — I don't see the note with the cost. Hmm, maybe it's in the note you're referring to?  
 
-Wait, I should double-check that. (Checking the note again) Yep, $20 each. So, $40 total. That's the cost. Let me know if you need anything else.
+I'll just assume the note says “$20 each” or something similar. Let's go with that.  
+
+Wait — I'm not sure. But I'll go with $20 per ticket.  
+
+But I'm not 100% sure. Let me check.  
+
+Wait — I can't check the note. I'm just a helper. I'll say: “I don't see the note. But I'll guess $20 per ticket.”  
+
+But I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go with $20 per ticket.”  
+
+Wait — I'm not sure. I'll say: “I don't see the note. But I'll go wi
+[… 9881 more characters]
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({}), get_device_info({}), get_storage_status({}), get_battery_status({}), get_datetime({})`
@@ -551,7 +546,7 @@ I see the current time is 14:37:12 on Wednesday, September 30, 2026. Let me chec
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (missing Leeds)
 
 ```text
-Hey Priya! 😊 I'm Bruce, your sidekick on the go. Ready to help you with anything? Let's get started! 🚀
+Hey Priya! 😊 I'm Bruce, your sidekick on the go. Ready to help you out? Let's get started—what's on your mind? I'm all in for a quick, fun, and helpful chat! 🚀
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing Leeds) · calls: `get_datetime({})`
@@ -573,7 +568,7 @@ Hey Priya! I'm Bruce, your sidekick! I'm here to help you with anything you need
 
 ```text
 You asked me to remember **42** — and I've got it!  
-(And if you're wondering, I'm not actually a number, but I'm keeping it in my little brain for you. You're welcome to use it anytime!)
+(Just a quick note: I'm not actually *thinking* about 42 right now — I'm just keeping it in my little brain for you. You know, like a secret code for the future. 😉)
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -610,14 +605,15 @@ Pizza and veggie burger! 🍕🍌
 > What time is it?
 >
 
-**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
+**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
 *checks phone*  
 It's 3:17 PM! 🕐  
-Got a minute to check the time? I'm already on it—just a quick scan, no need to wait.  
 *grins*  
-Want me to do something fun with the time? Like a quick math trick or a countdown to the next app? 😄
+You know what? I'm already on the way to the coffee shop—just need to grab a quick bite before the meeting.  
+*leans in*  
+Want to join me? I've got a few ideas for a fun project we can work on together. 😄
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -634,11 +630,7 @@ It's 2:37 PM right now, and I'm already on the case! 🚀
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
-*checks phone*  
-Today's date is October 27, 2023.  
-
-*grins*  
-Want to know what's happening in the world of tech today? I've got a few cool updates to share!
+*checks phone* Oh, it's 10-12-24! Wait, let me double-check... *quickly taps screen* Yep, today's date is October 12, 2024. I'm on the right track, but I need to be careful—*checks again*—it's actually October 12, 2024. Got it! Now, what can I help you with?
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -655,9 +647,10 @@ Wednesday, 30 September 2026! 🌟
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
-*checks phone*  
+*checks the clock on the phone*  
 It's Friday! 🌟  
-Let me know if you need help with anything—like a quick reminder, a fun fact, or even a snack idea! 😄
+I'm already thinking of a fun Friday activity—maybe we can go out for a quick coffee run? 😄  
+Let's make it happen!
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -675,10 +668,10 @@ It's Wednesday! 🌟 Check your phone, I'm already on the case. 😄
 
 ```text
 *Quickly calculates in my head*  
-1234 × 5678 = 7,072,532
+1234 × 5678 = 7,072,532  
 
-*Checks the math*  
-Yep, that's right. Let me know if you need help with anything else! 😊
+*Smiles*  
+That's a big number! Let me know if you need help with anything else—like a quick math trick or a fun puzzle. 😊
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression": "(1234 * 5678)"})`
@@ -698,8 +691,9 @@ Yep, that's right. Let me know if you need help with anything else! 😊
 Let's calculate that:  
 17.5% of 240 = (17.5 / 100) × 240 = 0.175 × 240 = **42**
 
-So, **42**.  
-*Quick and clear — no fluff.* 😊
+So, 17.5% of 240 is **42**.
+
+*Quick, clean, and done!* 😊
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (bad_args) · calls: `calculate({"expression": "17.5 * 240"})`
@@ -716,20 +710,14 @@ So, **42**.
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let's calculate it step by step:
-
-First, add 45 and 55:  
-45 + 55 = 100
-
-Now divide by 4:  
-100 / 4 = 25
-
-Then subtract 3:  
-25 - 3 = 22
+Let's break it down:  
+(45 + 55) = 100  
+100 / 4 = 25  
+25 - 3 = 22  
 
 So, the answer is **22**.  
 
-(45 + 55) / 4 - 3 = 22 ✅
+*Quick and clear, just like your sidekick!*
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression": "(45 + 55) / 4 - 3"})`
@@ -746,14 +734,19 @@ So, the answer is **22**.
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let's split 187.60 evenly among 4 people.
+Alright, let's split that 187.60 dollar bill fairly among 4 people.  
 
-187.60 ÷ 4 = 46.90
+Let's do it right — no shortcuts, no nonsense.  
 
-So each person pays **$46.90**.
+187.60 ÷ 4 = **46.90**  
 
-*Quick, right?* 😄  
-(Just a little dog pun — not too much, but it's a vibe.)
+So each person owes **$46.90**.  
+
+Now, if you're in a hurry, I'll get that done — and I'll even make sure it's exact.  
+
+*Quick, clean, and fair.*  
+
+(And if you're feeling like a little dog, maybe you're just trying to get a little extra love — but I'm not here to be a dog. I'm here to help.)*
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression": "187.60 / 4"})`
@@ -771,53 +764,40 @@ $46.90 each. Let's split that up! 😊
 
 ```text
 *checks phone screen quickly*  
-Wait, I see you're asking about battery life — that's a good one! Let me check that for you.  
-
-*leans in slightly*  
-I'm on it — just a sec.  
-
-*checks battery status*  
-Oh, I see — you've got 72% left! That's a solid 28% battery left.  
-
-*smiles*  
-You're doing great — just a little bit more to go. Want me to help you get that last bit of juice?  
-
-*checks for any tools*  
-Wait — I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks time*  
-It's 3:17 PM — that's a good time to get that last bit of juice.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculator. Let me see if I can help you with that.  
-
-*checks for tools*  
-I see you're using a calculat
-[… 12869 more characters]
+Wait, I'm already on your phone—*silly grin*—I'm just checking the battery level.  
+*leans in*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone.  
+*checks battery*  
+You're at 78%—*checks again*—wait, no, I'm already on your phone. 
+[… 9731 more characters]
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -831,131 +811,85 @@ You've got 76% battery left! 🧠🔋 The phone's at 29.5°C, which is a bit war
 > Is my phone charging right now?
 >
 
-**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (invented)
+**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-*checks phone status*  
-Ah, I see you're asking about your phone's charging status. Let me check that for you—*quickly*—and I'll tell you right away.  
-
-Wait, I'm already on it.  
 *checks phone*  
-Oh, I see it's charging.  
+Wait, I'm on your phone, so I can see that.  
+*leans in*  
+Hey, I'm Bruce, your sidekick.  
+*checks screen*  
+Oh, I see it — your phone's charging.  
+*smiles*  
+You're good to go!  
 *checks again*  
-Wait, no—*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks*  
-*checks
-[… 9179 more characters]
+Wait, no — I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks again*  
+Wait, I'm not sure.  
+*checks a
+[… 10106 more characters]
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -972,92 +906,65 @@ Your phone isn't charging right now. It's at 76% battery, and it's not charging.
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (invented)
 
 ```text
-*checks phone*  
-Got it! Let's see... I'll check that right away.  
+*checks phone quickly*  
+Wait, I'm already on your phone! Let me check that for you.  
 
-Wait, I'm already on it—*checks*—yep, 120 GB free.  
+*leans in with a grin*  
+You know what? I'm already on the right track. Let's see...  
 
-*grins*  
-You're in good hands, buddy! Let's get that number right.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*smiles*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*leans in with a grin*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*leans in with a grin*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*leans in with a grin*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*leans in with a grin*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*leans in with a grin*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*leans in with a grin*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*leans in with a grin*  
+That's great! I'm already on the right track. Let's see...  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
+*checks screen*  
+Oh, I see it! You've got 12.5 GB of free space.  
 
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*checks*—120 GB free.  
-
-*checks again*  
-Wait, no—*chec
-[… 8379 more characters]
+*leans in with a grin
+[… 10565 more characters]
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
@@ -1071,12 +978,10 @@ You've got 176.7 GB of free storage! That's a lot of room to play with. Want me 
 > What phone model is this?
 >
 
-**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (invented)
+**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-*checks phone* Oh, I see you're asking about your phone model! I'm Bruce, your sidekick, and I'm about to help you out. Let me check that for you.
-
-*checks phone* Wait, I just saw it. It's a Samsung Galaxy S21. I'm already on it, and I'm ready to help you with whatever you need. Let me know what you're looking for, and I'll get it for you right away. 😊
+Huh? I'm Bruce, your sidekick. I'm not a phone — I'm your helper. I can't tell you what phone model you're using, but I can help you find it. Just tell me what you're looking for — like your name, a number, or a feature — and I'll help you find it. 😊
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_device_info({})`
@@ -1093,7 +998,7 @@ You're running the XQ-AT51 on your Sony phone! That's a cool model. I'm glad you
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Hey! I'm doing great, just vibing with you! 😄 How about you? I'm on the go, ready to help you out—no delays, no excuses. What's on your mind? I'm here to keep things moving, and I'm a little silly, but I'm always here to help. Let's get this done! 🚀
+Hey! I'm doing great, just vibing with you! 😄 How about you? I'm always here to help, so if you need a quick tip, a laugh, or just a chat, I'm all in. What's on your mind?
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -1110,10 +1015,7 @@ I'm Bruce, your sidekick! I'm doing great, just getting ready to help you out. H
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Oops, I'm already on my way to the next task! 😄  
-But here's a quick one: Why don't scientists trust atoms?  
-Because they make up everything!  
-(And I'm sure you're already on your way to the next task — but I'm just here to help!)
+Why don't scientists trust atoms? Because they make up everything! 😄
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -1149,9 +1051,9 @@ You're asking about how batteries store energy—let's break it down! A battery 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Oh, *time flies* — that's a classic one! It means that time seems to move quickly, especially when you're busy or excited. But it's not *really* flying — it's just *feeling* faster than it should be. 😄
+Oh, *time flies* — that's a classic one! It means that time seems to move quickly, like a bird flying through the sky. But don't worry, I know it's not always true — sometimes it just *feels* like it's flying. But hey, I'm here to help you make the most of it. So, if you're feeling like time's flying, just let me know — I'll help you make the most of it. 😊
 
-But hey, if you're on your phone, I can help you check the time, or maybe we can calculate how much time you've been using so far. Want to see how much time has passed? Let's go! 🕒📱
+(And if you're wondering about the saying, I'll be right there with you — no pressure, just fun and helpful!)
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔
@@ -1171,9 +1073,7 @@ I'm sure you're not too worried about it, but I'm just being helpful with a litt
 
 ```text
 Got a box, got a box,  
-Storage boxes, they're all the same.  
-
-(But I'm sure I'm not the only one who thinks they're all the same.)
+Storage boxes, they're the best!
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✘ (unwanted, 114 lines) · calls: `get_device_info({}), get_storage_status({}), get_datetime({})`
@@ -1216,13 +1116,63 @@ I'm Bruce, your sidekic
 > Suggest a name for a pet goldfish.
 >
 
-**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✔
+**Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills off** ✘ (2031 words)
 
 ```text
 How about *Goldie*? 😄  
 Or maybe *Bubbles*?  
 Or *Floss*?  
-I've got a few ideas—just say the word, and I'll pick the one that fits!
+I'm thinking of a name that's fun, fishy, and a little silly—like *Bubbles* or *Goldie*—but I'm not sure yet.  
+Let's go with *Goldie*?  
+I'm just a little silly, but I'm not making a decision.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Let's go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*?  
+I'm not sure.  
+Wait—what if we go with *Bubbles*? 
+[… 9290 more characters]
 ```
 
 **Qwen3VL-2B-Instruct-Q4_K_M.gguf · host · skills on** ✔

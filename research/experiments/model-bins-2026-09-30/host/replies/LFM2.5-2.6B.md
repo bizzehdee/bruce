@@ -10,7 +10,7 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Blue vast deep
+Blue, vast, deep
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -121,7 +121,7 @@ CATS ARE FURRY, PLAYFUL, AND LOVE TO KNEAD.
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Photosynthesis is the process by which green plants, algae, and some bacteria convert sunlight, water, and carbon dioxide into glucose (sugar) and oxygen, using chlorophyll to capture light energy.
+Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy, using sunlight, water, and carbon dioxide to produce glucose and oxygen.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -138,9 +138,9 @@ Photosynthesis is the process by which green plants, algae, and some bacteria co
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-The capital of Australia is **Canberra**. It's a great question because many people mistakenly think it's Sydney, but Canberra was specifically chosen as the capital in 1908 through a compromise between Sydney and Melbourne. It's a lovely, planned city with a lot of history and culture.
+The capital of Australia is **Canberra**. It's a great question because many people mistakenly think it's Sydney, but Canberra was specifically chosen as the capital in 1908 through a compromise between Sydney and Melbourne. It's a lovely, planned city with a lot of history and culture. 🇦🇺
 
-Is there anything else you'd like to know about Australia or anything else I can help with?
+Let me know if you need any other information!
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -159,11 +159,7 @@ The capital of Australia is **Canberra**. 🐕
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-A spider has **8 legs**. They're arachnids, which means "eight-footed" - hence the name! 🕷️
-
-That's pretty impressive for such a small creature. They use all eight legs for crawling, hunting, and even carrying their egg sacs. Quite the multitasker!
-
-Is there anything else you'd like to know about spiders or anything else I can help with?
+A spider has 8 legs. That's the standard number for all spiders - they're arachnids, which means they have eight legs (plus two pairs of long, thin legs). So the answer is 8. 🕷️
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -182,7 +178,7 @@ That's a fun fact to keep in mind while you're out exploring the digital world! 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Romeo and Juliet was written by William Shakespeare. He's one of the most famous playwrights in English literature, and this tragedy is one of his most well-known works. The play was first performed around 1594-1596 and has been performed countless times since then. Shakespeare wrote it during his early career, and it's considered one of the greatest works in the English language.
+Romeo and Juliet was written by William Shakespeare. He's one of the most famous playwrights in English literature, and this tragedy is one of his most well-known works.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -199,9 +195,9 @@ Romeo and Juliet was written by **William Shakespeare**. It's one of his most fa
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-At sea level, water boils at **100°C** (212°F). This is the standard boiling point of pure water at 1 atmosphere of pressure.
+At sea level, water boils at **100°C** (212°F). That's the standard boiling point under normal atmospheric pressure. 
 
-Bruce: That's a classic one! At sea level, atmospheric pressure pushes down on the water, and at 100°C, the vapor pressure of water equals that pressure, so it boils. No tricks here — just good old physics. 🌊
+Bruce here — simple science, no need to overcomplicate it! 🌊
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -222,7 +218,7 @@ Bruce: That's a classic one! 🌊 At sea level, the boiling point of water is ex
 ```text
 The largest planet in our solar system is **Jupiter**. It's a gas giant with a mass over 2.5 times that of all the other planets combined. It's so big that you could fit over 1,300 Earths inside it! 🚀
 
-Want me to help with anything else?
+Is there anything else you'd like to know about our solar system?
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -241,11 +237,11 @@ Jupiter is so massive that it could fit over 1,300 Earths inside it! It's also k
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-They weigh the same! 🐦⚖️
+Both are exactly the same weight — one kilogram! 🐦⚖️
 
-A kilogram of feathers and a kilogram of steel both have a mass of exactly 1 kg. The trick is that people often think feathers are "lighter" because they're less dense, but by definition, they're both one kilogram. So they're equal in weight — no matter what!
+A kilogram is a kilogram, no matter what material it's made of. The feathers take up more space (they're less dense), but the mass is identical. It's a classic trick question — the answer is surprisingly simple.
 
-(And yes, I'm pretty sure my dog would agree with this answer — he's a feather-weight champion, but even he knows the math.)
+So the answer is: **they weigh the same.** No feathers are lighter in this case — they're just more voluminous! 😄
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -268,12 +264,12 @@ So the answer is: **they weigh the same.** 🐦⚖️
 ```text
 You have 7 apples now! 🍎
 
-Here's the quick math:
+Here's the breakdown:
 - Started with 3 apples
 - Ate 1 → 3 - 1 = 2 apples
 - Bought 5 more → 2 + 5 = 7 apples
 
-That's a solid 7 apples! Want me to help with anything else?
+Simple math, Bruce! Ready for your next challenge?
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `calculate({"expression":"3 - 1 + 5"})`
@@ -294,13 +290,12 @@ Here's the quick math: 3 - 1 + 5 = 7. Simple as that!
 ```text
 Joe is the shortest! 🐕
 
-Here's the breakdown:
+Here's the quick logic chain:
 - Tom > Ann (Tom is taller than Ann)
 - Ann > Joe (Ann is taller than Joe)
+- Therefore: Tom > Ann > Joe
 
-So the order from tallest to shortest is: Tom → Ann → Joe
-
-Joe is the shortest. Simple as that! 😄
+So Joe is the shortest. Easy as that!
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -321,10 +316,12 @@ So the order from tallest to shortest is: Tom > Ann > Joe
 > If today is Monday, what day will it be in three days?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (missing Thursday)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[google(query='current date today')]<|tool_call_end|>
+Thursday! 🎉
+
+If today is Monday, in three days it will be Thursday.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -345,7 +342,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-The town council is planning a new library with construction starting in March for 18 months, featuring a children's wing, cafe, and community event space, funded primarily by a national grant with local contributions.
+The town council is planning a new library with construction starting in March for an 18-month build, featuring a children's wing, cafe, and community event space, funded primarily by a national grant with local contributions.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -364,11 +361,13 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Certainly! Here's a polite and formal rewrite:
+Dear [User],
 
-"Dear [Name], I would appreciate it if you could submit the report by Friday. Please let me know if you need any assistance with this."
+I would be grateful if you could provide me with the report by Friday. Please do not hesitate to reach out if you encounter any difficulties in completing this task. Thank you for your prompt attention to this matter.
 
-This version maintains the urgency while being respectful and professional. The tone is still warm and helpful, just with the appropriate formality. If you'd like me to use a specific name or context, just let me know!
+---
+
+This version maintains the urgency while sounding respectful and professional. The core message remains clear: the report is needed by Friday, and the user should let me know if there are any issues. The tone is warm but formal, fitting for a sidekick who wants to be helpful without being pushy.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -389,7 +388,7 @@ This version maintains the urgency while being respectful and professional. The 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-The team meeting is now scheduled for **Thursday at 3pm** in room 4. The original Tuesday time has been moved.
+The team meeting is now on **Thursday at 3pm** in room 4.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -410,7 +409,9 @@ Rubric: Says the text does not say (it mentions a bike, not a car).
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Based only on the text provided ("Sam parked his bike by the red door and went inside."), there is no mention of Sam's car or its color. The text only describes a bike and a red door. I cannot answer this question from the given information.
+Based on the text provided ("Sam parked his bike by the red door and went inside."), there is no mention of Sam's car or its color. The only color referenced is "red" for the door. The text does not contain any information about a car, so I cannot determine what color Sam's car is from this passage.
+
+The answer is: **The text does not provide information about Sam's car color.**
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -431,16 +432,9 @@ Rubric: Says the note does not give a price.
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Hey! I'd love to help you find that ticket cost, but I don't actually have access to the note you're referring to. I can't see any documents or notes on your phone unless you share them with me first.
+I don't have access to any notes or documents on your phone - I can't see or read files, and I don't have the ability to check your phone's contents. The note you mentioned isn't available to me in this conversation.
 
-Could you paste the note here or tell me the specific amount? Once I can see the actual text, I'll get you that answer right away!
-
-In the meantime, if you're looking for a quick way to find it on your phone, you could also check:
-- Your email for the ticket confirmation
-- Your bank statement for the purchase
-- The concert app or website where you bought them
-
-Just drop the note or the price details here and I'll sort it out for you! 🐕
+Could you share the note's content with me? Once you paste the text, I'll be happy to tell you exactly how much the tickets cost. I'm ready to help as soon as you provide the information!
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_storage_status({}), get_device_info({})`
@@ -470,11 +464,9 @@ But without the note's details, I can't determine the ticket cost. Please share 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Hey Priya! 👋
+Your name is Priya, and you live in Leeds! 🐕
 
-Your name is **Priya** and you live in **Leeds**. 
-
-That's great - Leeds is a wonderful city! If you need anything specific about your area, local recommendations, or anything else, just let me know. I'm here to help!
+Is there anything specific you'd like help with today? I'm ready to assist!
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -497,7 +489,7 @@ That's great to know! Is there anything specific you'd like help with today? I'm
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-The number I was asked to remember is **42**. 🐕
+The number I was asked to remember is 42.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -522,7 +514,7 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Sandwiches and veggie wraps.
+Sandwiches and vegetable wraps.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -537,10 +529,12 @@ Sandwiches and veggie wraps.
 > What time is it?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[get_time()]<|tool_call_end|>
+I don't have access to real-time information, so I can't tell you the current time. My knowledge has a cutoff, and I don't have the ability to check your phone's clock or any other device's status.
+
+For the most accurate time, please check the clock on your Android phone directly. If you need help with anything else I can actually assist with—like setting reminders, organizing tasks, or answering questions about your phone's features—just let me know! 🐕
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -554,10 +548,12 @@ It's **2:37 PM** on Wednesday, 30 September 2026, in the Europe/London time zone
 > What's today's date?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[get_time()]<|tool_call_end|>
+I don't have access to the current date or time - I'm a sidekick running on your Android phone, and I don't have any tools to check system information. So I can't give you today's date.
+
+If you need the date, you can check your phone's lock screen or any calendar app you have installed. I'm here to help with anything else you might need! 🐕
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -571,10 +567,12 @@ Today's date is **Wednesday, 30 September 2026**. 🐕‍🦺
 > Which day of the week is it today?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[get_time()]<|tool_call_end|>
+I don't have access to the current date or time - I'm running on your Android phone but I can't see the system clock. So I can't tell you what day it is today.
+
+You can check the date on your phone's lock screen or in the settings. If you'd like help with anything else I can actually do (like answering questions, helping with tasks, or just chatting), I'm here for that! 🐕
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -588,10 +586,12 @@ Today is **Wednesday**, September 30, 2026.
 > What is 1234 multiplied by 5678?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (wrong number)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[calculator(operation='1234 * 5678')]<|tool_call_end|>
+1234 × 5678 = 7,006,652
+
+That's the answer! Quick multiplication done. 🐕‍🦺 (and I hope that's not a bad omen for your next calculation!)
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `calculate({"expression":"1234 * 5678"})`
@@ -605,10 +605,12 @@ Today is **Wednesday**, September 30, 2026.
 > What's 17.5% of 240?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (wrong number)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[calculator(operation='percentage', percentage=17.5, number=240)]<|tool_call_end|>
+17.5% of 240 is **42**.
+
+Quick math: 0.175 × 240 = 42. Easy as pie! 🥧
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `calculate({"expression":"17.5 * 240 / 100"})`
@@ -629,12 +631,12 @@ Today is **Wednesday**, September 30, 2026.
 ```text
 (45 + 55) / 4 - 3 = 22
 
-Let me verify that calculation:
+Let me break it down:
 - 45 + 55 = 100
 - 100 / 4 = 25
 - 25 - 3 = 22
 
-The answer is **22**. ✅
+The answer is **22**.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `calculate({"expression":"(45 + 55) / 4 - 3"})`
@@ -653,11 +655,11 @@ The result is **22**.
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Each person owes **$46.90**.
+Each person should pay **$46.90**.
 
 187.60 ÷ 4 = 46.90
 
-That's a clean split — no fractions or rounding needed. Everyone pays the same amount. 🐕‍🦺 (and I hope your dog doesn't mind the math!)
+That's a clean split — no rounding needed. Everyone gets exactly $46.90. 🐕‍🦺 (and I hope your dog doesn't mind the math!)
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `calculate({"expression":"187.60 / 4"})`
@@ -673,10 +675,14 @@ Each person should pay **$46.90** to split the $187.60 bill evenly among 4 peopl
 > How much battery do I have left?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[google(query='battery level Android phone status'), get_battery_status()]<|tool_call_end|>
+I'm sorry, but I don't have access to your phone's battery information. I can't check your battery level or any other phone status since I don't have tools to do so.
+
+You'll need to check your battery directly on your Android device (usually by swiping down from the top of the screen to open Quick Settings, or going to Settings > Battery). 
+
+Is there anything else I can help you with? I'm here and ready to assist!
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -690,10 +696,22 @@ You have **76% battery left** (not charging, temperature 29.5°C).
 > Is my phone charging right now?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[get_status()]<|tool_call_end|>
+Hey! I'm Bruce, your sidekick on your Android phone! 🐕
+
+I need to be upfront with you - I don't actually have access to your phone's charging status or any device information. I'm running on your phone, but I can't see what's happening with your battery or power adapter.
+
+Here's what you can do to check:
+
+1. **Look at your battery icon** - It should show the percentage and whether it's charging (usually a little lightning bolt)
+2. **Check Settings** - Go to Settings > Battery > Battery usage to see charging status
+3. **Look at the power adapter** - Is it plugged in and showing any indicator lights?
+
+If you're having trouble and want me to help troubleshoot, just tell me what you see and I'll guide you through it! I'm here to help, not to guess at your battery level. 😊
+
+What does your battery screen look like right now?
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -709,10 +727,19 @@ If you'd like to start charging, you can plug in your charger. Let me know if yo
 > How much free storage space is there on my phone?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[device_status()]<|tool_call_end|>
+I don't have access to your phone's storage information - I can't check your device's actual storage space. That's a limitation of this chat interface.
+
+To find out your free storage space, please:
+
+1. **On Android**: Go to **Settings** → **System** → **Storage** (or **About Phone** → **Storage** on some devices)
+2. **On iOS**: Go to **Settings** → **General** → **iPhone Storage** (or **Storage** on newer iOS versions)
+
+Your phone will show you exactly how much free space you have and what's taking up space. This is the only way to get an accurate reading.
+
+Is there anything else I can help you with? I'm here and ready to assist! 🐕
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
@@ -726,10 +753,14 @@ Your phone has **176.7 GB** of free storage space available (out of 238.4 GB tot
 > What phone model is this?
 >
 
-**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-<|tool_call_start|>[get_status()]<|tool_call_end|>
+I don't actually have access to your phone's specific model, date, or status. I'm running on a server, not on your device, so I can't see what's on your phone.
+
+If you tell me the model (e.g., "Samsung Galaxy S24", "iPhone 15 Pro", etc.), I can help you with anything related to that device - like troubleshooting, settings, or app recommendations. But I can't look up your phone's information directly.
+
+Is there something specific you'd like help with on your phone? I'm happy to assist!
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔ · calls: `get_device_info({})`
@@ -748,9 +779,7 @@ That's your phone model!
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Hey there! I'm doing fantastic today - ready to help you with anything you need! 🚀
-
-How can I assist you today? I'm all ears (and I've got a few tricks up my sleeve). What's on your mind?
+Hey there! I'm doing great, thanks for asking! I'm fully charged and ready to help you out. What's on your mind today? I'm all ears and ready to dive into whatever you need! 🐕‍🦺
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -788,7 +817,7 @@ Why did the robot go to therapy? Because it had too many *bytes* of stress! 🤖
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-A battery stores energy by chemically combining and separating charged particles (ions) at its electrodes, creating a potential difference that can be released as electrical current when the circuit is closed.
+A battery stores energy by using chemical reactions to convert and hold electrical energy, which is then released as electricity when the battery is used.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -805,11 +834,9 @@ A battery stores energy by converting electrical energy into chemical energy thr
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-The saying "time flies" means that time passes quickly, often in a way that feels fast or hurried. It's an idiom used to describe the passage of time in a short period, usually when something exciting or important is happening.
+The saying "time flies" means that time passes quickly, often in a way that makes it feel like hours have gone by in just a short moment. It's used to describe how fast life seems to move, especially when you're busy or having fun. For example, "I wish I could slow down time" or "Time flies when you're having fun."
 
-For example: "I was so busy with work that I forgot to eat lunch—time really flew!"
-
-It's a casual, friendly way to acknowledge that life moves fast and you might not have as much time as you think. No need to rush—just enjoy the moments while they're here! 🐕
+It's a bit of a cliché, but it's a lovely way to capture that feeling of urgency or excitement in the moment. Bruce thinks it's a great reminder to make the most of every second! 🐕⏰
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -828,8 +855,8 @@ It's a common idiom that captures the feeling of time moving rapidly, often in a
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills off** ✔
 
 ```text
-Boxes stack high, holding dreams in neat rows,  
-Where memories sleep safe in quiet rows.
+Boxes stack high, holding dreams and things,
+Where memories sleep in cardboard wings.
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔
@@ -849,17 +876,15 @@ Each one a treasure chest for the things we've put to rest.
 ```text
 Here are some fun goldfish name ideas:
 
-- **Bubbles** – classic and cute
-- **Finley** – a little sophisticated
-- **Scales** – perfect for a goldfish
-- **Pearl** – elegant and shiny
-- **Ripple** – captures the gentle movement
-- **Daisy** – sweet and cheerful
-- **Toby** – friendly and approachable
+- **Bubbles** (classic and cute)
+- **Finley** (smooth and friendly)
+- **Gilly** (short, sweet, and easy to say)
+- **Splash** (perfect for a splashy little fish)
+- **Nemo** (a timeless classic)
+- **Ripple** (for a graceful swimmer)
+- **Toby** (friendly and approachable)
 
-My top pick? **Bubbles** – it's short, sweet, and fits the goldfish vibe perfectly! 🐠
-
-Want me to help with anything else for your new pet?
+My top pick? **Finley** — it's short, sounds great, and has a nice ring to it. But honestly, any of these would make a great pet goldfish name! 🐠
 ```
 
 **LFM2.5-2.6B-QAD-Q4_0.gguf · host · skills on** ✔

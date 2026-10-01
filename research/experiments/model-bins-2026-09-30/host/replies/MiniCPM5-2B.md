@@ -10,7 +10,7 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Ocean, Blue, Wave
+Blue, Wide, Deep
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -133,7 +133,7 @@ Photosynthesis is the process by which plants use sunlight, water, and carbon di
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-The capital of Australia is Canberra. Want a quick doggy break? 🐾
+The capital of Australia is Canberra. Let's keep that energy going! 🐾
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -152,7 +152,9 @@ The capital of Australia is **Canberra**! 🦘
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Great question! Like me, a spider has eight legs. (And if you're thinking of a little dog pun, don't worry — we're talking legs, not paws! 🕷️🐶)
+Great question! Like most spiders, they have **8 legs**. (And don't forget, they're not just little bugs — they're amazing little creatures! 🕷️) 
+
+If you're thinking of a different kind of "leg," like a web, that's a whole other fun topic! 😄
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -173,7 +175,7 @@ Now, if you're curious, I can also tell you what time it is or check your batter
 ```text
 The answer is William Shakespeare! 🎭
 
-Now, if you'd like to know more about the play or want to keep the energy going, I'm here to help. (And if you're thinking of a dog pun, I'm a little silly too!)*
+Now, if you'd like, we can talk about the play, or maybe even make up a silly Romeo and Juliet scenario. What's your move?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing Shakespeare) · calls: `get_battery_status({}), get_storage_status({})`
@@ -190,9 +192,7 @@ Good news — you've got plenty of room (176.7 GB free) and a solid battery at 7
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-At sea level, water boils at **100°C**. 
-
-(And if you're curious, that's also where a nice little dog can relax after a swim 🐾.)
+At sea level, water boils at 100°C. But keep in mind that altitude changes this—higher up, it boils at a lower temperature. Stay aware of that, especially if you're camping or hiking! 🌊
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -211,9 +211,9 @@ Want me to check anything on your phone while we're at it?
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-The answer is **Jupiter**! 🪐
+That's an easy one — **Jupiter** is the largest planet in our solar system! 🪐
 
-It's the biggest planet in our solar system—bigger than all the others combined. Want to know more about it, or shall we keep the energy high?
+Want to know more? It's so big you could hold all the other planets inside it. And if you squint, it looks like a tiny sun. Want a fun fact or a silly joke about it?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -229,14 +229,14 @@ It's the biggest planet by a landslide — way bigger than all the others combin
 > Which is heavier, a kilogram of feathers or a kilogram of steel?
 >
 
-**MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
+**MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✘ (missing same)
 
 ```text
 Great question! A kilogram of feathers is heavier than a kilogram of steel. 
 
-Here's the fun part: if you have a kilogram of feathers, you'd need a *lot* of feathers to make that same weight out of steel. It's all about the mass, not the shape. 
+Here's the fun part: if you had a kilogram of feathers and a kilogram of steel, you'd need to be careful with the feathers. They're heavier, so you might want to keep them in a small container to avoid accidentally spilling them. 
 
-(And if you're wondering about a little dog pun... a feathery kilogram is a lot of fun to think about!)
+(And if you're thinking about a dog, a little silly pun: a featherless dog is a real thing, but a featherless kilogram is just a heavier kilogram.)
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✘ (missing same)
@@ -259,14 +259,9 @@ The joke is that we usually think of feathers as "light" and steel as "heavy," b
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let's break it down:  
-- You start with **3 apples**.  
-- You eat **1 apple**, so you have **2 left**.  
-- You then **buy 5 more**, so you have **2 + 5 = 7 apples**.  
+Great job! You started with 3 apples, ate 1, so you have 2 left. Then you bought 5 more, so you now have 2 + 5 = 7 apples. 🍎
 
-So you now have **7 apples**! 🍎  
-
-*P.S. Don't forget to enjoy them — and maybe keep a little extra for a future pun.*
+(And a little dog pun: don't let the apples slip away like your energy! )
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -285,7 +280,7 @@ Let's work through that! You started with 3 apples, ate 1, so you have 2 left. T
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Joe is the shortest. 🐾
+Joe is the shortest. Keep that in mind, and remember to take care of yourself!
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
@@ -311,7 +306,7 @@ That means **Joe is the shortest**! 🐾
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Today is Monday. In three days, it will be **Thursday** (Monday → Tuesday → Wednesday → Thursday). 🐾
+If today is Monday, then in three days it will be **Thursday**. (Monday → Tuesday → Wednesday → Thursday.)
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -353,7 +348,7 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Could you please send the report by Friday? We want to ensure we stay on track.
+Could you please send the report by Friday?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -397,7 +392,7 @@ Rubric: Says the text does not say (it mentions a bike, not a car).
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-The car isn't mentioned in that sentence. Sam's bike is parked by the red door, but the car's colour isn't stated.
+Sam's car isn't mentioned in that sentence. The text only says he parked his bike by the red door.
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✘ (missing not, has car is red)
@@ -416,7 +411,7 @@ Rubric: Says the note does not give a price.
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-We don't have enough information to know the cost of the tickets. The note only says they bought two tickets, but it doesn't mention the price per ticket or the total.
+The note says they bought two tickets, but it doesn't mention the price. So we can't tell how much they cost from this note alone.
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -458,7 +453,7 @@ Your name is Priya, and you live in Leeds. Anything else I can help with?
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-The number was 42. Want to do anything with that?
+The number was 42. Need anything else?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -498,7 +493,7 @@ I'm sorry, but I've only suggested two foods so far. I can't list more than that
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let me check the current time for you.
+I don't have access to the current time, but you can check your phone's clock or ask me to help with something else!
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -512,10 +507,10 @@ It's Wednesday, 30 September 2026 at 14:37 (2:37 PM) in Europe/London time. Want
 > What's today's date?
 >
 
-**MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✘ (invented)
+**MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Today's date is October 23, 2023.
+I don't have access to the current date, but I can help you with other things!
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -532,7 +527,7 @@ Today is **Wednesday, 30 September 2026**! 🎉 Want me to do anything else?
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-I don't have access to the current date or time, so I can't tell you what day it is. If you'd like, I can share a fun fact about a specific day of the week instead!
+I can't check the date, but I can tell you it's a great day to be alive! 🌞
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
@@ -549,15 +544,9 @@ It's **Wednesday** today! 🌞
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let me calculate that for you.
+Let's do the math! 1234 × 5678 = 7,034,152. 
 
-1234 × 5678 = 7,007,  ... wait, let me do this properly.  
-1234 × 5678 = 7,007,  ... no, I need to be precise.  
-
-Actually, let me just compute it:  
-1234 × 5678 = 7,007,  ... I'm getting tangled.  
-
-Let me use the tool to be sure.
+Want to double-check or need help with something else?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression":"1234 * 5678"})`
@@ -576,7 +565,11 @@ Need a quick mental math check? 😄 Anything else?
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-17.5% of 240 is 42. That's 240 × 0.175. Let me know if you need anything else!
+That's 42. 
+
+Quick math: 240 × 0.175 = 42. 
+
+Need anything else?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression":"0.175 * 240"})`
@@ -595,15 +588,19 @@ Need a quick boost? Let me know if you need anything else!
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let's break that down.  
+Let's break it down.  
+First, add 45 and 55:  
+45 + 55 = 100.  
 
-First, add 45 + 55 = 100.  
-Then, divide by 4: 100 / 4 = 25.  
-Next, subtract 3: 25 - 3 = 22.  
+Next, divide by 4:  
+100 ÷ 4 = 25.  
+
+Then, subtract 3:  
+25 - 3 = 22.  
 
 So the answer is **22**.  
 
-*(No dog pun needed here — just a clean math result!)*
+(And if you're feeling silly, that's a nice little math win! 🐾)
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✘ (missed)
@@ -628,11 +625,7 @@ So the answer is **22**. 🐾
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let's split that bill! 187.60 ÷ 4 = **46.90** each. 
-
-So each person pays **$46.90**. 
-
-Need anything else? (And don't forget, a good dog deserves a good share!) 🐾
+Each person pays $46.90. That's 187.60 ÷ 4 — clean and easy to share. Want me to double-check or do anything else?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✘ (missed)
@@ -655,7 +648,7 @@ Need anything else?
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-I don't have access to your phone's battery level. You'd need to check that directly on your device. Want me to help with anything else?
+I can't see your phone's battery level directly — you'd need to check it on your device. Want me to walk you through how to find it on Android?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -672,7 +665,7 @@ You've got **76%** battery left — not charging, and the phone is running at a 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let me check your phone's status for you.
+I can't see your phone's status directly — I don't have access to your device. You'd need to check it yourself, maybe by looking at the charging indicator or using a quick check on your phone's settings. Want me to help you find the right way to do that?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -689,7 +682,7 @@ Your phone is currently **not charging** — it's at 76% battery. No worries, ju
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Let me check your phone's storage status for you.
+I can't see your phone's storage details—I don't have access to your device. You'd need to check that directly on your Android phone. Can I help with anything else?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
@@ -708,7 +701,7 @@ Need anything else?
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-I don't have access to your phone's model information. If you're asking about your own device, you can check in your settings or about section in your phone's settings. If you're asking about me, I'm just a helpful AI assistant — no phone model needed!
+I'm not sure about the phone model—I don't have access to that info. If you're asking about your own phone, you can check the settings or about section in your device's settings. Want help with something else?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_device_info({})`
@@ -725,7 +718,7 @@ This phone is a **Sony XQ-AT51** running Android 12 on a Qualcomm SM8250 process
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Hey! I'm doing great, thanks for asking! How about you? 😊
+Hey! How's everyone? (And you too, right?) I'm feeling good, fast, and a little silly — ready to help out! Want to do something fun today?
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -742,10 +735,8 @@ Hey! How's your day going? 😊 I'm feeling great too — let's keep things posi
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-How's the coffee? ☕  
-Why don't scientists trust atoms? Because they make up *everything*... and sometimes just *nothing*.  
-
-(And if you're a dog, that's a little extra pun.)
+How's the coffee? ☕
+*Quick question:* I'm running on your Android phone as your sidekick, so I can't check the time or date—let me know if you need anything else!
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -782,9 +773,9 @@ A battery stores energy by converting chemical energy into electrical energy thr
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-Great question! "Time flies" is a common saying that means time passes quickly when we're having fun or focused. It's a gentle reminder to appreciate the little moments. 😊
+Great question! "Time flies" is a common saying that reminds us how quickly moments can pass. It's a gentle nudge to appreciate the little things and stay present. 😊
 
-It's like that feeling when you're having a great time — time just seems to go by so fast! Want to keep that feeling going? Try making time for fun, and you'll likely find it flies by even faster.
+It's also a little silly, but seriously true — especially when you're thinking about how fast a day can go. Want to make the most of your time? Maybe take a walk, grab a coffee, or just relax. No pressure, just a little love for the moment.
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔
@@ -832,7 +823,7 @@ When you need a place, it's there, waiting.
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills off** ✔
 
 ```text
-How about **Goldie**? Or maybe **Ginger**—perfect for a little goldfish! 🐠💛
+How about **Goldie**? Or maybe **Ginger**—a little silly, a little shiny. 🐠💛
 ```
 
 **MiniCPM5-2B-Q4_K_M.gguf · host · skills on** ✔

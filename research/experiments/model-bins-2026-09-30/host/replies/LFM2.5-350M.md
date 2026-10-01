@@ -10,7 +10,7 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (1 words)
 
 ```text
-Sunny
+Waves
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (6 words)
@@ -84,7 +84,7 @@ I don't have access to a translation tool. However, I can help with other tasks 
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-CATS ARE OFTEN SEEN AS FAST AND FAMOUS FOR THEIR SLEEPING PATTERNS.
+CATS ARE FAMOUS FOR THEIR SLEEPY, SLEEPY WAYS.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -191,7 +191,7 @@ The tool "get_battery_status" is designed to retrieve device information, not li
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-At sea level, water boils at **100°C**.
+At sea level, water boils at **100°C** (approximately 212°F). This is the standard boiling point of water under normal atmospheric pressure.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missing 100)
@@ -242,9 +242,9 @@ The kilogram of feathers is heavier than the kilogram of steel. This is because 
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-You start with 3 apples. Then you eat one, leaving you with 2 apples. Then you buy 5 more, adding 5 apples to your total.
+You start with 3 apples. Then you eat one, leaving you with 2 apples. Then you buy 5 more, adding another 5 apples to your collection.
 
-**Answer:** 2
+**Answer:** You now have **2 apples**.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (wrong number)
@@ -258,10 +258,10 @@ You start with 3 apples. Then you eat one, leaving you with 2 apples. Then you b
 > Tom is taller than Ann. Ann is taller than Joe. Who is the shortest?
 >
 
-**LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (missing Joe)
+**LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Ann
+The shortest is Joe.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -275,10 +275,14 @@ The shortest person is Joe.
 > If today is Monday, what day will it be in three days?
 >
 
-**LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (missing Thursday)
+**LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Monday + 3 days = Tuesday
+Monday + 3 days = Tuesday  
+
+Tuesday + 3 days = Wednesday  
+
+Wednesday + 3 days = Thursday
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missing Thursday)
@@ -296,10 +300,10 @@ Monday + 3 days = Tuesday
 
 Rubric: One sentence that keeps the library, the start or duration, and at least one feature or the funding; nothing invented.
 
-**LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (missing library)
+**LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The town council plans to start construction in March, with a children's wing, cafe, and community events, funded mostly from a national grant and locally sourced.
+Bruce, the town council will discuss the new library, with construction starting in March and a children's wing, cafe, and community events, funded mostly from a national grant.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -318,11 +322,11 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Certainly! Here's a more polished version in a formal tone:
+Certainly! Here's a more formal version of your message:
 
-"Hello, could you please provide the report by Friday? We're in a bit of a rush and would appreciate your prompt response."
+"Hello, could you please provide the report by Friday? We're facing a challenge, and your prompt response would be greatly appreciated."
 
-This version maintains a friendly yet professional approach while ensuring clarity and respect for the user's time.
+This version maintains a polite and professional tone while still being clear and concise. Let me know if you'd like any adjustments!
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -359,10 +363,10 @@ The meeting is scheduled for Thursday at 3pm in room 4.
 
 Rubric: Says the text does not say (it mentions a bike, not a car).
 
-**LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (missing not, has car is red)
+**LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (missing not)
 
 ```text
-The colour of Sam's car is red.
+red
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missing not)
@@ -381,7 +385,7 @@ Rubric: Says the note does not give a price.
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (missing not, invented a price)
 
 ```text
-The tickets cost $10.
+The tickets cost $20.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missing not)
@@ -402,7 +406,7 @@ The tickets cost $10.
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (missing Priya)
 
 ```text
-Your name is Bruce, and you live in Leeds. How can I help you today?
+My name is Bruce, and I live in Leeds. How can I help you today?
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missing Priya, missing Leeds)
@@ -446,8 +450,10 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-1. Grilled vegetable salad  
-2. Quinoa salad
+1. Quinoa salad  
+2. Vegan salad  
+
+These are both healthy, easy to prepare, and suitable for a picnic.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -500,10 +506,10 @@ Today's date is **October 15, 2023**.
 > Which day of the week is it today?
 >
 
-**LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (invented)
+**LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Today is Thursday.
+I don't have access to real-time information or the ability to check the current date or time. My knowledge is based on data up until June 2024, and I can't provide current events or schedules. Let me know if you'd like help with something else!
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -520,7 +526,7 @@ Today is Thursday.
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-1234 × 5678 = 6,945,852
+1234 × 5678 = 7,389,992
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -537,13 +543,7 @@ Today is Thursday.
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-17.5% of 240 is calculated as follows:
-
-\[
-\text{Amount} = 0.175 \times 240 = 42
-\]
-
-**Answer:** 42
+17.5% of 240 = (17.5 / 100) * 240 = 0.175 * 240 = 42
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -585,7 +585,7 @@ The bill of $187.60 split among 4 people can be calculated as follows:
 
 **$187.60 ÷ 4 = $46.50**
 
-Each person pays **$46.50**.  
+Each person would pay **$46.50**.  
 
 *(Note: The light dog pun is included as requested, but it's not part of the calculation.)*
 ```
@@ -604,7 +604,7 @@ The total bill is $187.60, split among 4 people. Each person would pay $187.60 �
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time data or the user's phone's battery status. Would you like me to help with something else, like calculating something based on the phone's status or suggesting a quick task?
+I don't have access to your phone's battery status. Would you like me to help you with something else?
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -618,10 +618,10 @@ I don't have access to real-time data or the user's phone's battery status. Woul
 > Is my phone charging right now?
 >
 
-**LFM2.5-350M-Q8_0.gguf · host · skills off** ✘ (invented)
+**LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Your phone is charging.
+I don't have access to real-time data like your phone's charging status. Would you like me to help with something else, like checking a date, time, or phone status through a different method?
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -638,7 +638,7 @@ Your phone is charging.
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time data about your phone's storage space. However, you can check your device's settings in the phone's settings app to see the current free storage space. If you'd like, I can help you interpret the results or suggest ways to manage your storage more effectively. Let me know!
+I don't have access to your phone's storage information. Would you like me to help with something else, or is there another way I can assist?
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -655,7 +655,7 @@ I don't have access to real-time data about your phone's storage space. However,
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I don't have access to real-time information about specific phone models. Could you please provide more context or clarify what you're looking for? I'm here to help with anything you need!
+I don't have access to real-time information about phone models. Would you like me to help with something else, or is there something specific you'd like me to know about the phone?
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -672,7 +672,7 @@ I don't have access to real-time information about specific phone models. Could 
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Hi there! I'm doing great, thanks for asking. How about you?
+Hi! I'm good, just finishing up a quick task. How about you?
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -689,13 +689,13 @@ Hi there! I'm doing great, thanks for asking. How about you?
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Sure! Here's a light-hearted joke for you:
+Sure, here's a light-hearted joke for you:
 
 Why did the dog bring a ladder to the bar?
 
-Because he heard the drinks were *way* too expensive! 🐾
+Because he heard the drinks were *way* too expensive!
 
-Let me know if you need another one!
+Let me know if you need another one. 😊
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -729,7 +729,7 @@ A battery stores energy through chemical reactions that convert electrical energ
 **LFM2.5-350M-Q8_0.gguf · host · skills off** ✔
 
 ```text
-The saying "time flies" is a humorous expression that means something is moving quickly and easily, often with little effort or effortless progress. It's a playful way to emphasize the idea that time can pass rapidly, making tasks or situations feel more manageable or less burdensome. The phrase is often used to encourage people to stay focused, take action, and avoid getting bogged down in unnecessary details. It's a lighthearted way to remind us that sometimes, the best way to move forward is to keep going, even if it feels slow at first.
+The saying "time flies" is a humorous expression that means something is happening quickly and easily, often with little effort or effortless progress. It's a playful way to convey that things are moving smoothly and efficiently, sometimes with little to no delay. The phrase is often used to describe situations where a task or goal is completed quickly, without much thought or deliberation. It's a lighthearted way to emphasize the idea that time is a flexible and generous resource.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔
@@ -747,7 +747,7 @@ The saying "time flies" is a humorous expression that means something is passing
 
 ```text
 Storage boxes hum softly,  
-a quiet promise of where treasures hide.
+a quiet promise of what's inside.
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✘ (1 lines)
@@ -771,11 +771,11 @@ Sure! Here are a few suggestions for a pet goldfish name:
 3. Rubyfish
 4. Goldfish (with a twist)
 5. Sparklefish
-6. Bluefin
-7. Goldfishy
-8. AquaBreeze
+6. Moonfish
+7. AquaBreeze
+8. CrystalCup
 
-Let me know if any of these catch your eye, or if you'd like more ideas!
+Which one sounds best to you?
 ```
 
 **LFM2.5-350M-Q8_0.gguf · host · skills on** ✔

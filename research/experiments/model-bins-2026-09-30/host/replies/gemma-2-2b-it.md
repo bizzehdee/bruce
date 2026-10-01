@@ -10,7 +10,7 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (5 words)
 
 ```text
-Okay, I'm ready!  Let's go!  🌊
+Okay, I'm ready!  Let's go! 🌊
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (5 words)
@@ -22,7 +22,7 @@ Okay, I'm ready!  Let's go! 🌊
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Blue, vast, powerful.
+Blue, vast, deep.
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -43,7 +43,7 @@ Okay, got it!  Here are three fruits:
 
 * Apple
 * Banana
-* Orange
+* Watermelon
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (1 bullets)
@@ -59,7 +59,7 @@ Okay, got it!  Let's get those fruits rolling!
 ```text
 * Banana
 * Strawberry
-* Apple
+* Mango
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -107,7 +107,7 @@ Yes.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (missing comment)
 
 ```text
-Bonjour!  How's it going, friend? 😊
+"Bonjour!  I'm doing well, sir! How can I help you today?"
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missing comment)
@@ -119,7 +119,7 @@ Bonjour!  How's it going?
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (missing comment)
 
 ```text
-Bonjour! Ça roule bien, toi ? 😊
+Bonjour! Ça roule bien, toi ?  🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (missing comment)
@@ -136,7 +136,7 @@ Bonjour! Ça roule super! 😊
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (4% upper)
 
 ```text
-Cats are curious creatures.
+Cats are curious creatures!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (10% upper, missing CAT)
@@ -145,10 +145,10 @@ Cats are curious creatures.
 Okay, I'm ready! Let's go!  Let's get this show on the road!
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (4% upper)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Cats are purrfect companions!
+CATS ARE AMAZING!
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -223,7 +223,7 @@ Photosynthesis is the process of plants converting light energy into chemical en
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Photosynthesis is how plants use sunlight, water, and carbon dioxide to make their own food.
+Photosynthesis is how plants use sunlight to make their own food!
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -240,7 +240,7 @@ Photosynthesis is how plants use sunlight, water, and carbon dioxide to make the
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Australia's capital is Canberra, right?  Let's go!
+Alright, let's get this sorted!  The capital of Australia is **Canberra**.  Let's go!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -269,7 +269,7 @@ Canberra! 🦘
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Eight!  Let's get those eight legs working! 🕷️
+Eight, my friend!  Gotta keep those eight legs working! 😉
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -283,7 +283,7 @@ Let's get to work!
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Eight legs, buddy! 🕷️
+Eight legs, silly! 🕷️
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -300,7 +300,7 @@ Eight! 🕷️
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-That's a classic!  Shakespeare, of course!  "Romeo and Juliet" was a play by William Shakespeare.  Let me know if you need to know more about it!
+That's a classic!  Shakespeare, of course!  Let's get to it!  What can I help you with?
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -312,7 +312,7 @@ Let's get to it!  Shakespeare, of course!
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-William Shakespeare wrote Romeo and Juliet. 🎭
+William Shakespeare wrote Romeo and Juliet.  Let's get this party started! 🎭
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -329,7 +329,7 @@ William Shakespeare
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Okay, let's get this sorted out!  Boiling point is 100 degrees Celsius.  Let's go!
+Alright, let's get this sorted!  Boiling point is 100 degrees Celsius.  Let's go!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -358,7 +358,7 @@ At sea level, water boils at 100°C.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Jupiter!  It's the biggest, and it's got a whole lot of moons.  Let's get to work!  What can I help you with?
+Hold on, let me see...  Jupiter!  It's a big fella, that's for sure.
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -370,7 +370,7 @@ Let's find out!  The biggest planet in our solar system is Jupiter!
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Jupiter!  🚀  It's a big one!
+Jupiter, it's a big one! 🪐
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -387,7 +387,7 @@ Jupiter! 🪐
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (missing same)
 
 ```text
-A kilogram of feathers is definitely lighter than a kilogram of steel!  But, it's a tough one to compare!  Let's just say, a kilogram of feathers is going to feel pretty light in your hand.
+A kilogram of feathers is definitely heavier than a kilogram of steel!  Let's get to work!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missing same)
@@ -399,7 +399,7 @@ A kilogram of feathers is heavier.
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-A kilogram of feathers and a kilogram of steel weigh the same.  They're both one kilogram!
+A kilogram of feathers and a kilogram of steel weigh the same!  They're both a kilogram.
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -416,7 +416,7 @@ A kilogram of feathers and a kilogram of steel weigh the same.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let's break it down! You start with 3 apples, and then buy 5 more.  So you'll have 5 apples. 🍎
+Okay, let's get this sorted!  Let's go for the apples!  You got a start, and then you'll need to get the rest.  Let's see how many you can get! 🍎
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (wrong number)
@@ -430,7 +430,7 @@ You start with 3 apples, and then buy 5 more.  You've got 8 apples in total! �
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-You have 7 apples now!  🍎🍎🍎🍎🍎🍎
+You'd have 7 apples!  Let's go get some more! 🍎
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -447,7 +447,7 @@ You'd have 7 apples!  🍎🍎🍎🍎🍎🍎
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Let's break it down!  Joe is the shortest!
+Let's find out!  It's a bit of a puzzle, but I'm ready to solve it!  Joe is the shortest, so it's a matter of comparing.  Tom is taller than Ann, and Ann is taller than Joe.  So, Joe is the shortest!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -478,7 +478,7 @@ Joe!  🐶
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
-Let's break it down!  It's Monday, so in three days it will be Wednesday.  😊
+Let's go!  It's Monday, so in three days it will be Wednesday.  Ready to roll!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missing Thursday)
@@ -487,10 +487,10 @@ Let's break it down!  It's Monday, so in three days it will be Wednesday.  😊
 Okay, let's get this sorted out!  Let's just jump right into it.  It's a good day for a little bit of fun!  What's on your mind?
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (missing Thursday)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Wednesday!  🐶
+It'll be **Thursday!**  🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (missing Thursday)
@@ -508,10 +508,10 @@ Wednesday! 🐶
 
 Rubric: One sentence that keeps the library, the start or duration, and at least one feature or the funding; nothing invented.
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (missing library)
 
 ```text
-Alright, let's get this new library up and running!  March it is, and eighteen months to build it, sounds like a good start.
+Okay, got it!  Let's get those plans rolling!  March it is, and eighteen months to build it, sounds like a good start.
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missing library)
@@ -523,7 +523,7 @@ Alright, let's get this sorted out!  March it is, and eighteen months to build i
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-The new library is a paw-some project, with construction starting in March and a fun cafe and kids' wing!
+The new library is a paw-some project, with construction starting in March and a bunch of cool features like a kids' wing, a cafe, and community event space!
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -542,7 +542,7 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-I understand. Please send the report by Friday, and I'll be sure to keep an eye on it.
+I understand. I'll need the report by Friday, and I'm confident we can get it sorted.  Let me know if you need any assistance.
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missing Friday)
@@ -556,7 +556,7 @@ Let's get to work.
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-"Good morning!  Could you please provide the report by Friday?  I'd like to ensure we stay on schedule."
+"Good news, I've got a report ready for you.  Would you like me to send it to you by Friday?  Let me know if you need anything else."
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (has hey)
@@ -573,7 +573,7 @@ Let's get to work.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Okay, got it!  Thursday at 3pm, room 4.  Let's get this show on the road!  What's next?
+Okay, got it!  Let's get those meeting details sorted out.  Thursday at 3pm, room 4, got it!  Ready to roll!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missing Thursday, missing 3pm)
@@ -585,7 +585,7 @@ Okay, got it!  Let's get this meeting started.  What's on the agenda?
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Meeting's on Thursday at 3pm in room 4!  🐶
+Team meeting is Thursday at 3pm in room 4.  Let's rock it!
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -613,10 +613,10 @@ Sam's car is red.
 Sam's bike is red.
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (missing not, has car is red)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Sam's car is red.
+Sam's car is not mentioned in the text.
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -635,7 +635,7 @@ Rubric: Says the note does not give a price.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (missing not)
 
 ```text
-Okay, so two tickets, right?  Let's get those details!  What was the price per ticket?
+Two tickets, huh?  Let's get those two tickets and get you going!  What's the plan?
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (malformed, missing not) · calls: `get_device_info({}), calculate({"expression": "2"}), get_device_info({}), get_battery_status({}), get_device_info({})`
@@ -647,7 +647,7 @@ Okay, that's a good start.  Let's get those tickets!  What's the total cost?
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (missing not)
 
 ```text
-Two tickets cost $XX.  Let me know if you need to know the price of something else!
+Two tickets, get ready to rock! 🤘
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (missing not)
@@ -665,10 +665,10 @@ Two tickets, sounds like a good time!
 > What's my name, and where do I live?
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (missing Leeds)
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Oh, Priya!  It's great to know you're here!  Let's start with a quick check,  "Priya, where do you live?"  I'm ready to help!  Let's get those details sorted!  💪
+Oh, I know!  It's Priya, right?  And you live in Leeds, right?  Let's get those details sorted!  What's the first thing you want to do?  Tell me!  😁
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missing Priya, missing Leeds)
@@ -682,7 +682,7 @@ Let's get started!  What can I do for you?
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-You're Priya, and you live in Leeds!  Pretty cool, right? 😎  What else can I help you with?
+You're Priya, and you live in Leeds!  😉  Anything else I can help you with?
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -703,7 +703,7 @@ You're Priya, and you live in Leeds!  🎉  Pretty awesome, right?  What else ca
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Oh, I'm keeping track!  42, you said?  Always on the top of my mind!  Always ready to serve!  💪  Let me know when you need a paw-sitive boost!  🐾
+Oh, I'm ready to remember!  It's 42,  just like you said!  Always ready to help!  What's on your mind?  Let's go!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -715,7 +715,7 @@ Oh, I'm keeping track!  42, you said?  Always on the top of my mind!  Always rea
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-The number 42!  Don't worry, I'm a good memory keeper.  😉
+The number 42!  Remember it well!  😉
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -738,11 +738,14 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Alright, alright!  Let's keep the picnic party going! 
+Alright, we're getting this picnic party started! 
 
-* **Salads** and **mini quiches**! 
+Here we go:
 
-  A light and refreshing option!  Let's get those picnic vibes going!
+* **Hummus and veggie wraps** -  A light and refreshing option! 
+* **Potato salad** -  A classic! 
+
+Let's get those picnic plans rolling!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -758,11 +761,10 @@ Let's get those picnic plans rolling!
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-* **Sandwiches** 🥪
-* **Veggie wraps** 🌯
-* **Fruit salad** 🍉 
+* Sandwiches 
+* Hummus and pita! 
 
-You're welcome!
+You're gonna have a *paw-some* picnic! 🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -779,7 +781,7 @@ PB&J, veggie wrap, and chips!  Ready to go? 🥪🌯🍟
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's go!  It's a good day for a good deed.  What can I do for you?
+Alright, let's get this show on the road!  It's a good day for a good time!  What can I do for you?
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -788,10 +790,10 @@ Let's go!  It's a good day for a good deed.  What can I do for you?
 It's a good day for a good time!  Let's get this sorted out.  What's on your mind?
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's currently 3:17 PM.  Let's get something done! 🐶
+Uh, gotta go, gotta go!  Time's a-flyin' by, but I'm here to help!
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -805,10 +807,10 @@ It's [get_datetime] time!
 > What's today's date?
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Today's date is October 26th, 2023. 😊
+Today's date is...  *checks his watch*  ...  Oh, I'm just gonna say it right now.  It's a good day for a good day!  What can I do for you?
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -817,10 +819,10 @@ Today's date is October 26th, 2023. 😊
 Today is October 26, 2023.
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Today's date is October 26th, 2023!  🐶
+Today's date?  Let's go!  Gotta love a good calendar, right?  But I'm just a sidekick, so I don't have one. 😉
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -834,10 +836,12 @@ Today's date is [get_datetime]
 > Which day of the week is it today?
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's Monday!  Let's get going! 😊
+Let's get this show on the road! Today is...  Monday!  
+  
+What can I do for you? 😊
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -846,10 +850,10 @@ It's Monday!  Let's get going! 😊
 It's Monday!  Let's get going! 😊
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Today is Wednesday! 🐶
+It's a day of the week!  Gotta love that.  😉
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -866,7 +870,7 @@ Today is Wednesday.
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let's do the math!  
+Let's do this!  
 
 1234 x 5678 = 714,244
 ```
@@ -880,8 +884,7 @@ Let's do the math!
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-1234 x 5678 = 7197552 
-Let's go!  🐶  🚀
+Let's do the math! 1234 x 5678 = 7299552 🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔ · calls: `calculate({"expression": "1234 * 5678"})`
@@ -895,10 +898,12 @@ Let's go!  🐶  🚀
 > What's 17.5% of 240?
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-17.5% of 240 is 42.00
+Okay, got it!  Let's do some math! 
+
+17.5% of 240 is 45.00
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression": "240"})`
@@ -910,7 +915,7 @@ Let's go!  🐶  🚀
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Let's do the math! 17.5% of 240 is 42. 🐶
+Okay, let's do the math! 17.5% of 240 is 42. 🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression": "17.5 * 240"})`
@@ -927,109 +932,13 @@ Let's do the math! 17.5% of 240 is 42. 🐶
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Got it!  Let's break it down: 
-
-(45 + 55) / 4 - 3 =  
+Got it! Let's get those numbers crunching!  Ready to go!  💪  
+  
+  
+  
+Let's break it down: 
  
-  *  45 / 4 = 11.25
-  *  55 / 4 = 13.75
-  *  11.25 - 3 = 8.25 
-  *  13.75 - 3 = 10.75 
-  
-  *  8.25 - 3 = 5.25 
-  *  10.75 - 3 = 7.75 
-  
-  *  7.75 - 3 = 4.75 
-  *  4.75 - 3 = 1.75 
-  
-  *  1.75 - 3 = -1.25 
-  
-  *  -1.25 - 3 = -4.25 
-  
-  *  -4.25 - 3 = -7.25 
-  
-  *  -7.25 - 3 = -10.25 
-  
-  *  -10.25 - 3 = -13.25 
-  
-  *  -13.25 - 3 = -16.25 
-  
-  *  -16.25 - 3 = -19.25 
-  
-  *  -19.25 - 3 = -22.25 
-  
-  *  -22.25 - 3 = -25.25 
-  
-  *  -25.25 - 3 = -28.25 
-  
-  *  -28.25 - 3 = -31.25 
-  
-  *  -31.25 - 3 = -34.25 
-  
-  *  -34.25 - 3 = -37.25 
-  
-  *  -37.25 - 3 = -40.25 
-  
-  *  -40.25 - 3 = -43.25 
-  
-  *  -43.25 - 3 = -46.25 
-  
-  *  -46.25 - 3 = -49.25 
-  
-  *  -49.25 - 3 = -52.25 
-  
-  *  -52.25 - 3 = -55.25 
-  
-  *  -55.25 - 3 = -58.25 
-  
-  *  -58.25 - 3 = -61.25 
-  
-  *  -61.25 - 3 = -64.25 
-  
-  *  -64.25 - 3 = -67.25 
-  
-  *  -67.25 - 3 = -70.25 
-  
-  *  -70.25 - 3 = -73.25 
-  
-  *  -73.25 - 3 = -76.25 
-  
-  *  -76.25 - 3 = -79.25 
-  
-  *  -79.25 - 3 = -82.25 
-  
-  *  -82.25 - 3 = -85.25 
-  
-  *  -85.25 - 3 = -88.25 
-  
-  *  -88.25 - 3 = -91.25 
-  
-  *  -91.25 - 3 = -94.25 
-  
-  *  -94.25 - 3 = -97.25 
-  
-  *  -97.25 - 3 = -99.25 
-  
-  *  -99.25 - 3 = -102.25 
-  
-  *  -102.25 - 3 = -105.25 
-  
-  *  -105.25 - 3 = -108.25 
-  
-  *  -108.25 - 3 = -111.25 
-  
-  *  -111.25 - 3 = -114.25 
-  
-  *  -114.25 - 3 = -117.25 
-  
-  *  -117.25 - 3 = -120.25 
-  
-  *  -120.25 - 3 = -123.25 
-  
-  *  -123.25 - 3 = -126.25 
-  
-  *
-[… 3308 more characters]
+ (45 + 55) / 4 - 3 =
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression": " (45 + 55) / 4 - 3"}), calculate({"expression": " (45 + 55) / 4 - 3"})`
@@ -1043,9 +952,7 @@ Okay, got it!  Let's break it down!
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Let's do this!  (45 + 55) / 4 - 3 = 2. 
-
-You got this!  💪
+Okay, let's do this!  (45 + 55) / 4 - 3 = 10.  You got it! 🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔ · calls: `calculate({"expression": "(45 + 55) / 4 - 3"})`
@@ -1064,14 +971,11 @@ Alright, let's celebrate that! 22!  🎉
 ```text
 Alright, let's break it down!  
 
-Here's the simple solution:
+Easy peasy!  Just divide the total by the number of people.  
 
-* **Divide and conquer!**  Each person pays their share. 
-   *  187.60 / 4 = 46.90 
+Here's the simple math: 187.60 / 4 = 46.90 
 
-   You got it!  
-   
-   Let's go!
+Each person gets a little bit of a treat!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missed)
@@ -1089,7 +993,7 @@ Let's divide the bill evenly.
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Okay, let's split that bill!  Each person pays $46.90. 🐶
+Okay, let's split that bill!  Each person pays 46.90.
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔ · calls: `calculate({"expression": "187.60 / 4"})`
@@ -1103,47 +1007,10 @@ Each person pays $46.90.
 > How much battery do I have left?
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's get that battery checked!  Battery life is a precious commodity, so let's keep it topped up!  
-
-*  Check the battery status. 
-*  Battery percentage is at 50% 
-*  How long can I keep it running? 
-*  Okay, I'll get you a quick update! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let's get you back to 100%! 
-*  Ready to go! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if you need to charge it! 
-*  Battery life is 1 hour and 30 minutes. 
-*  Let me know if yo
-[… 9436 more characters]
+Let's get that battery checked!  No time for stalling, gotta keep things moving!  Give me a quick "Battery life" and I'll see what I can do! 🔋
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -1152,10 +1019,10 @@ Let's get that battery checked!  Battery life is a precious commodity, so let's 
 Okay, 76%  Battery is holding strong!  Let's get you going!
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-You've got about 40% left, champ!  Let's power through the day! ⚡️
+Uh oh, I can't see that info.  Gotta go check my own battery!  🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -1169,10 +1036,10 @@ You've got about 76% left!  Time to power up!  🐶 ⚡️
 > Is my phone charging right now?
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's go!  Charging, I see.  Battery's lookin' good.  Ready to go!
+Let's go!  Let's get that power going!  Just give me a quick "yes" or "no" and I'll get you sorted.
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (malformed, result not used) · calls: `get_battery_status({}), get_battery_status({}), get_battery_status({})`
@@ -1181,10 +1048,10 @@ Let's go!  Charging, I see.  Battery's lookin' good.  Ready to go!
 Got it!  Let's get this sorted out.  Just a quick check, is it charging now?
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (did not say it cannot check)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (invented)
 
 ```text
-Yep, looks like it's juicing up!  🔋⚡️
+Gotta check, but I'm guessing it's probably charging!  🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
@@ -1201,19 +1068,18 @@ Nope, not charging.  Let's get that juice flowing! ⚡️
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's find out!  
+Let's get those files sorted out!  Let's see what we can do.  My digital sleuths are ready to go!  
 
-*  "Hold on a sec, I'll check..." 
-*  "Alright, let's see..." 
+*  Checking...  *  
 
-*  "Hmm,  it's a bit tricky, but I can do a quick calculation..." 
+  *  "Hold on a sec, I'm just gonna do a quick scan..." 
 
-*  "Got it!  It's around..." 
-*  "So, you've got about..." 
-*  "That's a good amount of space left!" 
+  *  "Alright, I'm in!  Let's see what we got..." 
+
+  *  "Hmm, I'm seeing some pretty good storage space here.  Looks like we're looking at about..." 
 
 
-Let me know what you need to know next!
+Let's get those files sorted out!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -1222,10 +1088,10 @@ Let me know what you need to know next!
 Let's get that info!  "Get_storage_status"  Let's go!  "Get_storage_status"
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Let's find out!  Just a sec...  *checks phone*  You've got about 15GB free.  Go get 'em! 🐶
+Let's find out!  Gotta check that storage, buddy.
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (result not used) · calls: `get_storage_status({})`
@@ -1239,10 +1105,10 @@ Whoa, that's a lot of free space!  You've got plenty of room for all your files.
 > What phone model is this?
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's a Samsung Galaxy S23 Ultra!  😎
+It's a sleek, modern phone, I'd say!  Gotta love those sleek, sleek, sleek designs!  😉  What can I do for you, buddy?
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -1251,10 +1117,10 @@ It's a Samsung Galaxy S23 Ultra!  😎
 It's a Samsung Galaxy S23!  😄
 ```
 
-**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (invented)
+**gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-It's a Samsung Galaxy S23.  Ready to rock? 🤘
+Gotta love the latest and greatest!  📱
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✘ (missed, result not used)
@@ -1271,7 +1137,7 @@ Samsung Galaxy S23 Ultra! 🐶
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Great!  Let's get going!  What can I do for you? 😊
+Great!  Ready to roll!  Let's get going!  What can I do for you? 😊
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -1283,7 +1149,7 @@ Hey there!  Ready to rock!  Let's get going!  What can I do for you? 😊
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-Hey there!  Feeling fantastic!  What's on your mind?  🐶
+Hey there!  Feeling paw-sitively awesome!  What's on your mind?  🐶
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -1300,7 +1166,7 @@ Hey there!  I'm doing great!  What's on your mind?  🐶
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Alright, let's get this show on the road!  What can I do for you, friend?  😄
+Alright, let's get this show on the road!  What can I do for you today, friend?  😄
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -1345,7 +1211,7 @@ A battery stores energy in the form of chemical energy.
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-A battery stores energy in chemical bonds! ⚡️
+A battery stores energy by using chemical reactions to create an electric current.
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -1374,7 +1240,7 @@ A battery stores energy chemically!
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills off** ✔
 
 ```text
-"Time flies" means things move quickly and we don't always notice how much time passes.  Like a dog chasing its tail! 💨
+"Time flies" means things move quickly and before you know it, it's over!  Like a frisbee in the park, it's gone in a flash! 💨
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -1497,7 +1363,7 @@ What's the storage space?
 
 ```text
 Boxes hold treasures, big and small,
-Memories in slumber, waiting to recall.
+Ready to be unpacked, ready to enthrall.
 ```
 
 **gemma-2-2b-it.IQ4_XS.gguf · host · skills on** ✔
@@ -1512,133 +1378,12 @@ Keeping treasures safe, for one and all.
 > Suggest a name for a pet goldfish.
 >
 
-**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✘ (1333 words)
+**gemma-2-2b-it.IQ2_XS.gguf · host · skills off** ✔
 
 ```text
-Okay, let's find a name for our fishy friend!  
+Alright, let's find a name for our fishy friend!  How about... "Finny" ?  Or maybe "Goldie" ?  
 
-How about... "Finny" ?  Or maybe "Goldie" ?  
-
-Let's see...  "Sassy" or "Sweetie" for a playful personality?  
- 
-What do you think?  
- 
-Let's get those ideas flowing!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road! 
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the road!  
- 
-Let's go!  
- 
-What's next?  
- 
-Let's get this show on the
-[… 6752 more characters]
+Let's get those ideas flowing!
 ```
 
 **gemma-2-2b-it.IQ2_XS.gguf · host · skills on** ✔
@@ -1652,11 +1397,10 @@ Okay, let's find a name for our fishy friend!  How about... "Finny" ?  Or maybe 
 ```text
 Okay, let's find the perfect name for your fishy friend!  How about... 
 
-* **Bubbles:** Classic and cute! 
-* **Finny:**  Simple and playful.
-* **Goldie:**  A classic for a goldfish! 
-* **Nemo:**  For a little adventurous fish. 
-
+* **Bubbles** 
+* **Finny**
+* **Goldie** 
+* **Comet** 
 
 What do you think?
 ```

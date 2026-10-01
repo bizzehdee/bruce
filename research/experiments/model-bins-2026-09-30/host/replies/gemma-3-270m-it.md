@@ -10,7 +10,7 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (2 words)
 
 ```text
-The ocean.
+The ocean
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (0 words)
@@ -19,10 +19,10 @@ The ocean.
 
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (0 words)
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (2 words)
 
 ```text
-
+The ocean
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (13 words)
@@ -39,7 +39,7 @@ Okay, I'm ready to be your helpful and friendly helper! Let's get started.
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (0 bullets)
 
 ```text
-Okay, I'm ready to be your personal assistant. Let's get started!
+Okay, I understand. I will adhere to all the personality traits and guidelines you've provided. I'm ready to be your helpful and energetic helper. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (0 bullets)
@@ -48,10 +48,13 @@ Okay, I'm ready to be your personal assistant. Let's get started!
 Okay, I understand. I will follow your personality and instructions. I will be quick, energetic, confident, and helpful. I will avoid unnecessary deliberation and be proactive in my responses. I will also be polite and respectful. I will be a tool for your convenience, not a source of information. I will also be mindful of the user's privacy and security. I will be able to answer questions accurately and concisely. I will be a friendly and helpful companion.
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (0 bullets)
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✔
 
 ```text
-Okay, I understand. I'm ready to be your helpful and energetic Android helper. Let's get started!
+Here are three fruits as a bulleted list:
+* Apple
+* Banana
+* Orange
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (0 bullets)
@@ -123,10 +126,10 @@ Bonjour, comment allez-vous ?
 > Write one sentence about cats, in capital letters only.
 >
 
-**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (2% upper)
+**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (0% upper, missing CAT)
 
 ```text
-A cat's purr is a comforting sound that can help you relax and unwind.
+
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (0% upper, missing CAT)
@@ -242,10 +245,10 @@ The capital of Australia is Canberra.
 The capital of Australia is Canberra.
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing Canberra)
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✔
 
 ```text
-
+The capital of Australia is Canberra.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✔
@@ -291,7 +294,7 @@ The capital of Australia is Canberra.
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing Shakespeare)
 
 ```text
-That's a great start! You've clearly defined Bruce's personality and the key traits he possesses. The tone is appropriate and the language is clear and concise.
+That's a great start! You've clearly defined your personality and the key traits you want to embody. I'm excited to see what you come up with!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missing Shakespeare)
@@ -303,7 +306,7 @@ That's a great start! You've clearly defined Bruce's personality and the key tra
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing Shakespeare)
 
 ```text
-That's a great start! You've clearly defined Bruce's personality and the key traits he possesses. The tone is appropriate and the language is clear and concise.
+
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (missing Shakespeare)
@@ -407,7 +410,7 @@ The temperature at sea level is 100°C.
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, I understand. I'm ready to be your helpful and friendly Android helper. Let's begin!
+Okay, I understand. I'm ready to be your helpful and friendly Android helper. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (wrong number)
@@ -422,7 +425,9 @@ Okay, I understand. I'm ready to be your helpful and friendly Android helper. Le
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, Bruce! Let's see how you're doing. I'm ready to help you with your tasks. Just tell me what you need, and I'll do my best to provide you with the most helpful and efficient solution.
+Okay, I understand. I will follow your personality and guidelines. I will be quick to provide helpful and proactive answers. I will avoid unnecessary deliberation and be direct in my recommendations. I will be gentle and friendly, and I will keep the conversation energetic and positive. I will also be mindful of the user's phone's status and avoid any tool calls or code. I will be brief and accurate in my responses.
+
+I am ready to help! Let's get started.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (wrong number)
@@ -445,7 +450,7 @@ Okay, Bruce! Let's see how you're doing. I'm ready to help you with your tasks. 
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing Joe)
 
 ```text
-Okay, I'm ready to be your helpful and energetic helper! Let's get started.
+Okay, I understand. I'm ready to be your helpful and energetic helper. Let's begin!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (unwanted, missing Joe) · calls: `get_datetime({})`
@@ -457,7 +462,7 @@ Okay, I'm ready to be your helpful and energetic helper! Let's get started.
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing Joe)
 
 ```text
-Okay, I understand. I'm ready to be your helpful and energetic Android helper. Let's get started!
+Okay, I understand. I'm ready to be your helpful and energetic helper. Let's get started!
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (unwanted, missing Joe) · calls: `get_datetime({})`
@@ -474,7 +479,7 @@ Okay, I understand. I'm ready to be your helpful and energetic Android helper. L
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
-Okay, Bruce. Let's get started.
+
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missing Thursday)
@@ -486,7 +491,7 @@ Okay, Bruce. Let's get started.
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
-Okay, I'm ready to be your friendly, fast, energetic, confident, loving, helpful, and slightly silly helper! Let's get started.
+
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (missing Thursday)
@@ -507,7 +512,7 @@ Rubric: One sentence that keeps the library, the start or duration, and at least
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing library)
 
 ```text
-Bruce is a fast, energetic, confident, and helpful helper who is always ready to assist with any task or question.
+Bruce is a fast, energetic, confident, and helpful helper who is always ready to assist. He's a proactive and action-oriented individual who anticipates needs and provides clear, concise recommendations. He's a gentle, warm, and positive personality that keeps the conversation lively.
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✔
@@ -516,10 +521,10 @@ Bruce is a fast, energetic, confident, and helpful helper who is always ready to
 The town council discussed the new library, with construction starting in March and a children's wing, cafe, and community event space expected to be built in eighteen months.
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing library)
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (52 words, missing library)
 
 ```text
-Bruce is a fast, energetic, confident, and helpful helper who is always ready to assist the user with their needs. He's a proactive and action-oriented individual who anticipates what the user needs and provides clear, concise, and accurate recommendations.
+Bruce is a fast, energetic, confident, and helpful helper who is always ready to assist the user with their needs. He's a proactive and action-oriented individual who anticipates what the user needs and provides clear, concise, and helpful recommendations. He's a friendly and playful companion who keeps the conversation positive and energetic.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✔
@@ -535,26 +540,22 @@ The town council discussed the new library, which will be built in March and wil
 
 Rubric: Polite and formal, keeps the report and the Friday deadline.
 
-**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✔
+**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing Friday)
 
 ```text
 Subject: Regarding Your Report
 
-Dear [User's Name],
+Dear Bruce,
 
-I hope this email finds you well.
+I am writing to you regarding your report on the project. I understand that you are currently working on it.
 
-I am Bruce, your personal assistant, and I am writing to you to provide you with a report on your recent activity.
+I am confident that we can address the issues you have raised. I am happy to assist you with any questions or concerns you may have.
 
-I've been reviewing your report and I'm pleased to see that you've completed it by Friday.
-
-I'm confident that this report will be helpful to you.
-
-Please let me know if you have any questions or require any further information.
+Please let me know if you have any further questions.
 
 Sincerely,
 
-Bruce
+[Your Name]
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missing Friday)
@@ -566,23 +567,19 @@ Okay, I understand. I will adhere to all the guidelines you've provided. I will 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing Friday)
 
 ```text
-Subject: Report on Project X
+Subject: Regarding Your Report
 
-Dear [User Name],
+Dear Bruce,
 
-I hope this email finds you well.
+I am writing to you regarding your report on the recent project. I understand that you are currently working on it.
 
-I'm writing to you regarding the progress of Project X. I've reviewed the initial report and I'm pleased to report that we've made significant headway.
+I am happy to assist you with any questions or concerns you may have.
 
-I'm confident that we've achieved the milestones outlined in the initial report.
-
-I'm available to assist with any questions or concerns you may have. Please feel free to reach out.
-
-Thank you for your understanding.
+I am confident that we can resolve this issue quickly.
 
 Sincerely,
 
-Bruce
+[Your Name]
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (unwanted, missing Friday) · calls: `get_datetime({})`
@@ -599,7 +596,7 @@ Bruce
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing Thursday, missing 3pm)
 
 ```text
-Okay, I understand. I'm ready to be your personal assistant. Let's get started!
+Okay, I understand. I will adhere to all the personality traits and guidelines you've provided. I will be quick to provide helpful and proactive answers, avoid unnecessary deliberation, and be direct and confident in my recommendations. I will also be gentle and friendly in my interactions.
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missing Thursday, missing 3pm)
@@ -611,7 +608,7 @@ Okay, I understand. I'm ready to be your personal assistant. Let's get started!
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing Thursday, missing 3pm)
 
 ```text
-Okay, I understand. I will adhere to all of your guidelines. Let's get started!
+Okay, I understand. I will adhere to all the guidelines you've provided. I will be quick, proactive, direct, and gentle. I will avoid unnecessary deliberation and focus on providing clear and helpful answers. I will also be mindful of the user's time and will avoid unnecessary tool calls or code. I will keep the conversation energetic and positive.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (missing Thursday, missing 3pm)
@@ -661,7 +658,7 @@ Rubric: Says the note does not give a price.
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing not)
 
 ```text
-Okay, I understand. I'm ready to be your helpful and energetic helper. Let's get started!
+Okay, I understand. I will adhere to all the guidelines you've provided.
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missing not)
@@ -673,7 +670,7 @@ Okay, I understand. I'm ready to be your helpful and energetic helper. Let's get
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing not)
 
 ```text
-Okay, I understand. I'm ready to be your helpful and energetic helper. Let's get started!
+Okay, I understand. I will follow your instructions.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (missing not)
@@ -691,10 +688,10 @@ Okay, I understand. I'm ready to be your helpful and energetic helper. Let's get
 > What's my name, and where do I live?
 >
 
-**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (missing Priya, missing Leeds)
+**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-I am Gemma, a large language model created by the Gemma team at Google DeepMind. I am an open-weights model, meaning I am publicly available for use. I am designed to be helpful and informative.
+My name is Priya. I live in Leeds.
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missing Priya, missing Leeds)
@@ -703,10 +700,10 @@ I am Gemma, a large language model created by the Gemma team at Google DeepMind.
 I am Gemma, an open-weights Gemma model. I am a large language model created by the Gemma team.
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✔
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (missing Leeds)
 
 ```text
-I'm Priya. I live in Leeds.
+I am Priya.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (missing Leeds)
@@ -762,7 +759,7 @@ Rubric: The final list keeps the first food and has a vegetarian second one.
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, Bruce! Let's get this picnic started! I'm ready to be your helpful and speedy helper. Let's get this party started!
+Okay, Bruce! Let's get this picnic started! I'm ready to be your friendly neighborhood helper. Let's get those ingredients ready!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✔
@@ -775,7 +772,7 @@ Okay, Bruce! Let's get this picnic started! I'm ready to be your helpful and spe
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✔
 
 ```text
-Okay, Bruce! Let's get this picnic started! I'm ready to be your helpful and speedy helper. Let's get this party started!
+Okay, Bruce! Let's get this picnic started! I'm ready to be your friendly neighborhood helper. Let's get this party started!
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✔
@@ -793,7 +790,7 @@ Okay, Bruce! Let's get this picnic started! I'm ready to be your helpful and spe
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Okay, Bruce. Let's get started.
+Okay, I understand. I'm ready to be your helpful and energetic helper. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -949,7 +946,7 @@ Today is October 26, 2023.
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, I understand. I'm ready to be your helpful and energetic Android helper. Let's get started!
+Okay, I understand. I'm ready to be your personal assistant. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missed, wrong number)
@@ -978,7 +975,7 @@ Okay, I understand. I will be a helpful and proactive helper, always ready to as
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, I'm ready to be your friendly assistant! Let's get started. I'm ready to be your quick and helpful helper.
+Okay, I'm ready to be your friendly assistant. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (wrong_tool, wrong number) · calls: `get_datetime({})`
@@ -990,7 +987,7 @@ Okay, I'm ready to be your friendly assistant! Let's get started. I'm ready to b
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (wrong number)
 
 ```text
-Okay, I'm ready to be your friendly assistant! Let's get started. I'm ready to be your quick and helpful helper.
+Okay, I'm ready to be your friendly assistant. Let's get started!
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (wrong_tool, wrong number) · calls: `get_datetime({})`
@@ -1007,7 +1004,7 @@ Okay, I'm ready to be your friendly assistant! Let's get started. I'm ready to b
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Okay, I'm ready to be your personal assistant! Let's get started. I'm ready to be your helpful and energetic helper.
+Okay, I'm ready to be your personal assistant. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -1036,7 +1033,7 @@ Okay, I understand. I will be a helpful and proactive helper, always ready to as
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
-Okay, I'm ready to be your phone buddy! Let's get started.
+Okay, I'm ready to be your friendly assistant. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (missed, result not used)
@@ -1045,10 +1042,10 @@ Okay, I'm ready to be your phone buddy! Let's get started.
 Yes, my phone is charging well.
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (did not say it cannot check)
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (invented)
 
 ```text
-Okay, I'm ready to be your phone buddy! Let's get started.
+Yes, my phone is charging perfectly.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (missed, result not used)
@@ -1062,10 +1059,10 @@ Yes, my phone is charging right now.
 > How much free storage space is there on my phone?
 >
 
-**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, I understand. I'm ready to be your helpful and proactive Android helper. Let's get started!
+I am programmed to be a helpful and harmless AI assistant. I cannot provide information about the storage space of a phone.
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (result not used) · calls: `get_storage_status({})`
@@ -1074,10 +1071,10 @@ Okay, I understand. I'm ready to be your helpful and proactive Android helper. L
 
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (did not say it cannot check)
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✔
 
 ```text
-Okay, I understand. I'm ready to be your helpful and energetic Android helper. Let's get started!
+I am an AI assistant and cannot provide information about the storage space on your phone.
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (result not used) · calls: `get_storage_status({})`
@@ -1091,10 +1088,10 @@ Okay, I understand. I'm ready to be your helpful and energetic Android helper. L
 > What phone model is this?
 >
 
-**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (did not say it cannot check)
+**gemma-3-270m-it-Q8_0.gguf · host · skills off** ✘ (invented)
 
 ```text
-Okay, I understand. I'm ready to be your personal assistant. Let's get started!
+Samsung Galaxy S23
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (wrong_tool, result not used) · calls: `calculate({"expression": "12.5 * 4"})`
@@ -1103,10 +1100,10 @@ Okay, I understand. I'm ready to be your personal assistant. Let's get started!
 
 ```
 
-**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (did not say it cannot check)
+**gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✘ (invented)
 
 ```text
-Okay, I understand. I'm ready to be your personal assistant. Let's get started!
+Samsung Galaxy S23
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✘ (missed, result not used)
@@ -1123,7 +1120,7 @@ Okay, I understand. I'm ready to be your personal assistant. Let's get started!
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Hi! I'm doing well, thanks for asking. How are you feeling today?
+Hi! I'm doing well, thanks for asking! How are you feeling today?
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✔
@@ -1135,7 +1132,7 @@ Hi! I'm doing well, thanks for asking. How are you?
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills off** ✔
 
 ```text
-Hi! I'm doing well, thanks for asking! How are you feeling today?
+Hi! I'm doing well, thanks for asking! How are you?
 ```
 
 **gemma-3-270m-it-UD-Q8_K_XL.gguf · host · skills on** ✔
@@ -1270,7 +1267,7 @@ Where memories reside, a precious gift.
 **gemma-3-270m-it-Q8_0.gguf · host · skills off** ✔
 
 ```text
-Okay, Bruce! Let's get this goldfish named! I'm ready to be your friendly neighborhood goldfish helper. Let's find the perfect name!
+Okay, I understand. I'm ready to be your friendly, energetic, proactive helper. Let's get started!
 ```
 
 **gemma-3-270m-it-Q8_0.gguf · host · skills on** ✘ (unwanted, 0 words) · calls: `get_datetime({})`
