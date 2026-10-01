@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -20,15 +21,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
+import com.bizzeh.bruce.huggingface.DownloadError
+import com.bizzeh.bruce.models.DownloadState
+import com.bizzeh.bruce.models.ModelBrowserViewModel
 import com.bizzeh.bruce.models.ModelsState
+import com.bizzeh.bruce.models.SuggestedModel
 import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.settings.SettingsText
+import com.bizzeh.bruce.ui.Format
 
 interface SetupActions {
     fun next()
@@ -36,11 +43,13 @@ interface SetupActions {
     fun setNetworkMode(mode: NetworkMode)
     fun allowNotifications()
     fun importModel()
+    fun download(model: SuggestedModel)
+    fun cancelDownload(model: SuggestedModel)
     fun finish(exit: SetupExit)
 }
 
 @Composable
-fun SetupScreen(state: SetupState, models: ModelsState, actions: SetupActions) {
+fun SetupScreen(state: SetupState, models: ModelsState, actions: SetupActions, downloads: Map<String, DownloadState> = emptyMap()) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp).testTag("setup")) {
             Column(
@@ -68,7 +77,7 @@ fun SetupScreen(state: SetupState, models: ModelsState, actions: SetupActions) {
                             Text(stringResource(R.string.setup_notifications_allow))
                         }
                     }
-                    SetupStep.MODEL -> ModelStep(state, models, actions)
+                    SetupStep.MODEL -> ModelStep(state, models, downloads, actions)
                 }
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -89,20 +98,58 @@ fun SetupScreen(state: SetupState, models: ModelsState, actions: SetupActions) {
 }
 
 @Composable
-private fun ModelStep(state: SetupState, models: ModelsState, actions: SetupActions) {
+private fun ModelStep(state: SetupState, models: ModelsState, downloads: Map<String, DownloadState>, actions: SetupActions) {
     Page(R.string.setup_model_title, R.string.setup_model_text)
+    val online = state.network.allowsHuggingFace
+    if (state.suggestions.isNotEmpty()) {
+        Text(stringResource(R.string.setup_suggested_title), style = MaterialTheme.typography.titleMedium)
+        val installed = models.models.map { it.file.name }.toSet()
+        state.suggestions.forEach { model ->
+            Suggestion(model, model.path in installed, downloads[ModelBrowserViewModel.key(model.repositoryId, model.path)], online, actions)
+        }
+    }
     OutlinedButton(onClick = actions::importModel, enabled = !models.importing, modifier = Modifier.testTag("setupImport")) {
         Text(stringResource(if (models.importing) R.string.setup_importing else R.string.setup_import))
     }
     models.importError?.let {
         Text(stringResource(R.string.setup_import_failed, it.name), color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("setupImportError"))
     }
-    val online = state.network.allowsHuggingFace
     OutlinedButton(onClick = { actions.finish(SetupExit.BROWSE_MODELS) }, enabled = online, modifier = Modifier.testTag("setupBrowse")) {
-        Text(stringResource(R.string.setup_browse))
+        Text(stringResource(if (state.suggestions.isEmpty()) R.string.setup_browse else R.string.setup_browse_other))
     }
     if (!online) Text(stringResource(R.string.setup_browse_offline), style = MaterialTheme.typography.bodySmall)
     models.models.forEach { Text(stringResource(R.string.setup_installed, it.file.nameWithoutExtension), modifier = Modifier.testTag("setupInstalled")) }
+}
+
+@Composable
+private fun Suggestion(model: SuggestedModel, installed: Boolean, download: DownloadState?, online: Boolean, actions: SetupActions) {
+    Column(modifier = Modifier.fillMaxWidth().testTag("suggested:${model.path}"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text("${model.name} · ${Format.bytes(model.sizeBytes)}", style = MaterialTheme.typography.bodyLarge)
+        Text(stringResource(model.description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
+        when {
+            installed -> Text(stringResource(R.string.setup_suggested_installed), style = MaterialTheme.typography.labelLarge, modifier = Modifier.testTag("suggestedInstalled:${model.path}"))
+            download == null -> OutlinedButton(onClick = { actions.download(model) }, enabled = online, modifier = Modifier.testTag("suggestedDownload:${model.path}")) {
+                Text(stringResource(R.string.setup_suggested_download))
+            }
+            download.error == DownloadError.TOO_LARGE -> Text(
+                stringResource(R.string.download_too_large, Format.bytes(download.neededBytes ?: 0), Format.bytes(download.freeBytes ?: 0)),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            download.error != null -> Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.download_error, download.error.name), color = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
+                OutlinedButton(onClick = { actions.download(model) }, enabled = online, modifier = Modifier.testTag("suggestedRetry:${model.path}")) {
+                    Text(stringResource(R.string.browse_retry))
+                }
+            }
+            else -> Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                LinearProgressIndicator(progress = { download.fraction }, modifier = Modifier.weight(1f).testTag("suggestedProgress:${model.path}"))
+                OutlinedButton(onClick = { actions.cancelDownload(model) }, modifier = Modifier.testTag("suggestedCancel:${model.path}")) {
+                    Text(stringResource(R.string.browse_cancel))
+                }
+            }
+        }
+    }
 }
 
 @Composable

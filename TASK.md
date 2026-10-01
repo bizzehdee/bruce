@@ -771,7 +771,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Output: the bins table and analysis in the experiment README, a `.learnings/` entry, and the plan's open question on recommended models closed.
   - Depends on: TASK-105
   - Required by: TASK-107
-- [ ] TASK-107: Show recommended models in the model browser
+- [~] TASK-107: Show recommended models in the model browser
   - Ship the bins from TASK-106 with the app, keyed by base model and memory tier; a phone uses the tier of its own memory.
   - Owner (2026-10-01): the setup wizard's model step suggests recommended models for this phone's tier, and the user can skip them and choose their own (model browser or import, as now).
     - Owner (2026-10-01): a selection of models, each with a short description (one or two lines at most) of what it is good at, written from the evaluation results, with its download size; one tap downloads Bruce's pick of file for that model. The selection sits above the existing Import and Browse buttons; Skip stays.
@@ -779,6 +779,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
     - A phone outside every tested tier (under 4 GB, or no bin for its processor type) gets no suggestions, only Import and Browse.
   - How it shows in the model browser (a "Recommended" label, ranking first) is agreed with the owner once the bins exist.
   - Tests: unit tests for choosing the tier and the suggestions from memory size and processor type; a UI test of the wizard step with suggestions, with none, and offline.
+  - In progress (2026-10-01): the wizard's model step lists the suggestions for the phone's tier (`SuggestedModels`, shipped in the app with each file's size), each with a one- or two-line description, Download, progress and Cancel, errors with Retry, and Installed once the file is on the phone. Download looks the repository and file up on the Hub and goes through the browser's download, so the header check and SHA-256 verification apply. Nothing is asked of the Hub until the user taps Download.
+    - A phone uses the largest tier with no more memory than it has (3.5, 7 and 11 GB as the kernel reports them, for the 4, 8 and 12 GB phones) and no CPU feature it lacks; a phone with dot-product instructions can use the 4 GB tier measured without them, not the reverse.
+    - The list is provisional until TASK-106's bins are confirmed: 8 GB and 12 GB suggest Qwen3 1.7B Q5_K_M and MiniCPM5 2B Q4_K_M, 12 GB adds LFM2.5 2.6B Q4_0, 8 GB adds Gemma 4 E2B Q3_K_M; 4 GB suggests nothing until the XZ Premium's results are in.
+    - Still to do: the final list from TASK-106, and the model browser's "Recommended" label.
   - Nothing new leaves the phone: the list is in the app, matched against Hub results on the phone.
   - Depends on: TASK-031, TASK-106
 - [x] TASK-108: Screen the models on the development machine first

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bizzeh.bruce.models.SuggestedModel
 import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.settings.NetworkSettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -52,6 +53,8 @@ data class SetupState(
     val network: NetworkMode = NetworkMode.OFFLINE,
     val isFirst: Boolean = true,
     val isLast: Boolean = false,
+    /** Models the evaluation found good on phones like this one (TASK-107); empty where none was measured. */
+    val suggestions: List<SuggestedModel> = emptyList(),
 )
 
 /** The first-launch wizard. It writes the same settings as the Settings screen. */
@@ -59,13 +62,14 @@ class SetupViewModel(
     private val setup: SetupSettingsRepository,
     private val network: NetworkSettingsRepository,
     askNotifications: Boolean,
+    private val suggestions: List<SuggestedModel> = emptyList(),
 ) : ViewModel() {
     private val steps = setupSteps(askNotifications)
     private val index = MutableStateFlow(0)
 
     val state: StateFlow<SetupState> = combine(index, network.mode) { i, mode ->
-        SetupState(steps[i], mode, isFirst = i == 0, isLast = i == steps.lastIndex)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, SetupState(steps.first(), isLast = steps.size == 1))
+        SetupState(steps[i], mode, isFirst = i == 0, isLast = i == steps.lastIndex, suggestions = suggestions)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, SetupState(steps.first(), isLast = steps.size == 1, suggestions = suggestions))
 
     fun next() {
         index.value = (index.value + 1).coerceAtMost(steps.lastIndex)

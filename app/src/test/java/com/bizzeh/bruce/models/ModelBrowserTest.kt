@@ -443,6 +443,45 @@ class ModelBrowserTest {
     }
 
     @Test
+    fun aNamedFileIsLookedUpThenDownloadedAndVerified() = runTest(dispatcher) {
+        hub.modelBody = """{"id":"a/stories","siblings":[{"rfilename":"stories-Q8_0.gguf"}],"gguf":{"total":260000,"architecture":"llama"}}"""
+        hub.treeBody = "[" + treeEntry("stories-Q8_0.gguf", stories.size.toLong(), storiesSha) + "]"
+        val dir = temp.newFolder()
+        val vm = viewModel(dir)
+
+        vm.downloadFile("a/stories", "stories-Q8_0.gguf")
+        vm.downloadFile("a/stories", "stories-Q8_0.gguf")
+        assertEquals(DownloadState(0, 0), vm.state.value.downloads.getValue("a/stories/stories-Q8_0.gguf"))
+        vm.state.first { it.downloads.isEmpty() && downloaded == 1 }
+
+        assertTrue(File(dir, "stories-Q8_0.gguf").isFile)
+        assertEquals(1, hub.opens)
+    }
+
+    @Test
+    fun aNamedFileTheHubCannotFindFailsWithoutDownloading() = runTest(dispatcher) {
+        val vm = viewModel()
+        hub.modelStatus = 401
+        vm.downloadFile("a/gated", "m-Q4_0.gguf")
+        advanceUntilIdle()
+        assertEquals(DownloadError.UNAUTHORISED, vm.state.value.downloads.getValue("a/gated/m-Q4_0.gguf").error)
+
+        hub.modelStatus = 200
+        hub.modelBody = """{"id":"a/stories","siblings":[{"rfilename":"other-Q8_0.gguf"}],"gguf":{"total":260000,"architecture":"llama"}}"""
+        hub.treeBody = "[" + treeEntry("other-Q8_0.gguf", stories.size.toLong(), storiesSha) + "]"
+        vm.downloadFile("a/stories", "stories-Q8_0.gguf")
+        advanceUntilIdle()
+        assertEquals(DownloadError.NOT_FOUND, vm.state.value.downloads.getValue("a/stories/stories-Q8_0.gguf").error)
+
+        hub.treeStatus = 500
+        vm.downloadFile("a/stories", "other-Q8_0.gguf")
+        advanceUntilIdle()
+        assertEquals(DownloadError.SERVER_ERROR, vm.state.value.downloads.getValue("a/stories/other-Q8_0.gguf").error)
+        assertEquals(0, hub.opens)
+        assertEquals(0, downloaded)
+    }
+
+    @Test
     fun paneSearchExpandDownloadAndProgress() {
         val calls = mutableListOf<String>()
         val actions = object : BrowseActions {

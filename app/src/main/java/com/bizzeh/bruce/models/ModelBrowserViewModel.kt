@@ -148,60 +148,87 @@ class ModelBrowserViewModel(
     fun openRepository(model: HubModel) {
         if (mutableState.value.files[model.id]?.let { !it.loading && it.error == null } == true) return
         mutableState.update { it.copy(files = it.files + (model.id to RepositoryFiles())) }
-        viewModelScope.launch {
-            val files = when (val result = hub.ggufFiles(model.id)) {
-                is HubResult.Failure -> RepositoryFiles(loading = false, error = result.error)
-                is HubResult.Success -> {
-                    val projector = Projectors.choose(result.value)
-                    RepositoryFiles(
-                        loading = false,
-                        ranked = ModelFit.rank(result.value.filterNot { Projectors.isProjector(it.path) }.map { candidate(model, it, projector) }, device(), roughContext()),
-                        projector = projector,
-                    )
-                }
+        viewModelScope.launch { listFiles(model) }
+    }
+
+    private suspend fun listFiles(model: HubModel): RepositoryFiles {
+        val files = when (val result = hub.ggufFiles(model.id)) {
+            is HubResult.Failure -> RepositoryFiles(loading = false, error = result.error)
+            is HubResult.Success -> {
+                val projector = Projectors.choose(result.value)
+                RepositoryFiles(
+                    loading = false,
+                    ranked = ModelFit.rank(result.value.filterNot { Projectors.isProjector(it.path) }.map { candidate(model, it, projector) }, device(), roughContext()),
+                    projector = projector,
+                )
             }
-            mutableState.update { it.copy(files = it.files + (model.id to files)) }
+        }
+        mutableState.update { it.copy(files = it.files + (model.id to files)) }
+        return files
+    }
+
+    /**
+     * Downloads one named file, as the setup wizard's suggested models do (TASK-107): the
+     * repository and its files are looked up first, so the download is judged and verified as one
+     * chosen in the browser is.
+     */
+    fun downloadFile(repositoryId: String, path: String) {
+        val key = key(repositoryId, path)
+        if (downloadJobs[key]?.isActive == true) return
+        mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(0, 0))) }
+        downloadJobs[key] = viewModelScope.launch {
+            val failed = { error: DownloadError -> mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(0, 0, error))) } }
+            val model = when (val result = hub.model(repositoryId)) {
+                is HubResult.Failure -> return@launch failed(downloadError(result.error))
+                is HubResult.Success -> result.value
+            }
+            val files = listFiles(model)
+            files.error?.let { return@launch failed(downloadError(it)) }
+            val assessment = files.ranked.firstOrNull { it.candidate.path == path } ?: return@launch failed(DownloadError.NOT_FOUND)
+            runDownload(model, assessment, key)
         }
     }
 
     fun download(model: HubModel, assessment: Assessment) {
         val key = key(model.id, assessment.candidate.path)
         if (downloadJobs[key]?.isActive == true) return
+        downloadJobs[key] = viewModelScope.launch { runDownload(model, assessment, key) }
+    }
+
+    private suspend fun runDownload(model: HubModel, assessment: Assessment, key: String) {
         val size = assessment.candidate.sizeBytes
         val projector = mutableState.value.files[model.id]?.projector
         val total = size + (projector?.sizeBytes ?: 0)
         mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(0, total))) }
-        downloadJobs[key] = viewModelScope.launch {
-            // The list judged the file by its size alone; its header shows what it really needs (owner, 2026-09-29).
-            val exact = exactAssessment(model, assessment)
-            if (exact != null) {
-                replaceAssessment(model.id, exact)
-                if (exact.fit == Fit.DOES_NOT_FIT) {
-                    val refused = DownloadState(0, total, DownloadError.TOO_LARGE, exact.estimate.totalBytes, device().usableMemoryBytes)
-                    mutableState.update { it.copy(downloads = it.downloads + (key to refused)) }
-                    return@launch
-                }
+        // The list judged the file by its size alone; its header shows what it really needs (owner, 2026-09-29).
+        val exact = exactAssessment(model, assessment)
+        if (exact != null) {
+            replaceAssessment(model.id, exact)
+            if (exact.fit == Fit.DOES_NOT_FIT) {
+                val refused = DownloadState(0, total, DownloadError.TOO_LARGE, exact.estimate.totalBytes, device().usableMemoryBytes)
+                mutableState.update { it.copy(downloads = it.downloads + (key to refused)) }
+                return
             }
-            val progress = { done: Long -> mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(done, total))) } }
-            val result = downloader.download(model.id, assessment.candidate.path, size, assessment.candidate.sha256) { done, _ -> progress(done) }
-            val failed = { error: DownloadError, modelInstalled: Boolean ->
-                mutableState.update {
-                    it.copy(downloads = it.downloads + (key to (it.downloads[key] ?: DownloadState(0, total)).copy(error = error, modelInstalled = modelInstalled)))
-                }
-            }
-            if (result is DownloadResult.Failed) return@launch failed(result.error, false)
-            val file = (result as DownloadResult.Downloaded).file
-            if (projector != null) {
-                // After the model, so a model is never left waiting on its projector; downloading again adds only the projector.
-                val paired = downloader.download(model.id, projector.path, projector.sizeBytes, projector.sha256, destination = Projectors.fileFor(file)) { done, _ -> progress(size + done) }
-                if (paired is DownloadResult.Failed) {
-                    onDownloaded()
-                    return@launch failed(paired.error, true)
-                }
-            }
-            mutableState.update { it.copy(downloads = it.downloads - key) }
-            onDownloaded()
         }
+        val progress = { done: Long -> mutableState.update { it.copy(downloads = it.downloads + (key to DownloadState(done, total))) } }
+        val result = downloader.download(model.id, assessment.candidate.path, size, assessment.candidate.sha256) { done, _ -> progress(done) }
+        val failed = { error: DownloadError, modelInstalled: Boolean ->
+            mutableState.update {
+                it.copy(downloads = it.downloads + (key to (it.downloads[key] ?: DownloadState(0, total)).copy(error = error, modelInstalled = modelInstalled)))
+            }
+        }
+        if (result is DownloadResult.Failed) return failed(result.error, false)
+        val file = (result as DownloadResult.Downloaded).file
+        if (projector != null) {
+            // After the model, so a model is never left waiting on its projector; downloading again adds only the projector.
+            val paired = downloader.download(model.id, projector.path, projector.sizeBytes, projector.sha256, destination = Projectors.fileFor(file)) { done, _ -> progress(size + done) }
+            if (paired is DownloadResult.Failed) {
+                onDownloaded()
+                return failed(paired.error, true)
+            }
+        }
+        mutableState.update { it.copy(downloads = it.downloads - key) }
+        onDownloaded()
     }
 
     private suspend fun roughContext(): Int = contextLength() ?: InferenceDefaults.FALLBACK_CONTEXT
@@ -241,6 +268,16 @@ class ModelBrowserViewModel(
         sha256 = file.sha256,
         projectorBytes = projector?.sizeBytes ?: 0,
     )
+
+    private fun downloadError(error: HubError): DownloadError = when (error) {
+        HubError.NETWORK_DISABLED -> DownloadError.NETWORK_DISABLED
+        HubError.OFFLINE -> DownloadError.INTERRUPTED
+        HubError.RATE_LIMITED -> DownloadError.RATE_LIMITED
+        HubError.NOT_FOUND -> DownloadError.NOT_FOUND
+        HubError.UNAUTHORISED -> DownloadError.UNAUTHORISED
+        HubError.SERVER_ERROR -> DownloadError.SERVER_ERROR
+        HubError.MALFORMED_RESPONSE, HubError.RESPONSE_TOO_LARGE -> DownloadError.UNEXPECTED_RESPONSE
+    }
 
     companion object {
         const val SEARCH_LIMIT = 50

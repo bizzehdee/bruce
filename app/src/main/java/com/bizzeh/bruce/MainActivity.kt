@@ -90,6 +90,8 @@ import com.bizzeh.bruce.models.BrowseActions
 import com.bizzeh.bruce.models.BrowseFilters
 import com.bizzeh.bruce.models.DeviceProfile
 import com.bizzeh.bruce.models.ModelBrowserViewModel
+import com.bizzeh.bruce.models.SuggestedModel
+import com.bizzeh.bruce.models.SuggestedModels
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import com.bizzeh.bruce.models.ModelOverrides
@@ -211,7 +213,7 @@ class MainActivity : ComponentActivity() {
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
     private val reminders: RemindersViewModel by viewModels { factory { RemindersViewModel(container.reminders, container.scheduledTasks) } }
     private val setup: SetupViewModel by viewModels {
-        factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission()) }
+        factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission(), SuggestedModels.forDevice(deviceProfile())) }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -300,6 +302,7 @@ class MainActivity : ComponentActivity() {
     private fun Setup(onExit: (SetupExit) -> Unit) {
         val state by setup.state.collectAsState()
         val modelsState by models.state.collectAsState()
+        val browse by browser.state.collectAsState()
         val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(models::import) }
         // Refused or granted, the wizard moves on; replies still complete without notifications.
         val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { setup.next() }
@@ -310,10 +313,12 @@ class MainActivity : ComponentActivity() {
                 override fun setNetworkMode(mode: NetworkMode) = setup.setNetworkMode(mode)
                 override fun allowNotifications() = permission.launch(Manifest.permission.POST_NOTIFICATIONS)
                 override fun importModel() = picker.launch(arrayOf("*/*"))
+                override fun download(model: SuggestedModel) = browser.downloadFile(model.repositoryId, model.path)
+                override fun cancelDownload(model: SuggestedModel) = browser.cancel(model.repositoryId, model.path)
                 override fun finish(exit: SetupExit) = setup.finish { onExit(exit) }
             }
         }
-        SetupScreen(state, modelsState, actions)
+        SetupScreen(state, modelsState, actions, browse.downloads)
     }
 
     private fun needsNotificationPermission(): Boolean =

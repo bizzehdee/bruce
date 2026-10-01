@@ -1,16 +1,23 @@
 package com.bizzeh.bruce.setup
 
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.bizzeh.bruce.R
+import com.bizzeh.bruce.huggingface.DownloadError
+import com.bizzeh.bruce.models.DeviceTier
+import com.bizzeh.bruce.models.DownloadState
 import com.bizzeh.bruce.models.ImportError
 import com.bizzeh.bruce.models.InstalledModel
 import com.bizzeh.bruce.models.ModelOverrides
 import com.bizzeh.bruce.models.ModelsState
+import com.bizzeh.bruce.models.SuggestedModel
 import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.ui.theme.BruceTheme
 import io.mockk.mockk
@@ -19,8 +26,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import java.io.File
 
+@Config(qualifiers = "w400dp-h2000dp")
 @RunWith(RobolectricTestRunner::class)
 class SetupScreenTest {
     @get:Rule
@@ -33,11 +42,15 @@ class SetupScreenTest {
         override fun setNetworkMode(mode: NetworkMode) { calls += "network $mode" }
         override fun allowNotifications() { calls += "notifications" }
         override fun importModel() { calls += "import" }
+        override fun download(model: SuggestedModel) { calls += "download ${model.path}" }
+        override fun cancelDownload(model: SuggestedModel) { calls += "cancel ${model.path}" }
         override fun finish(exit: SetupExit) { calls += "finish $exit" }
     }
 
-    private fun show(state: SetupState, models: ModelsState = ModelsState()) =
-        compose.setContent { BruceTheme { SetupScreen(state, models, actions) } }
+    private fun show(state: SetupState, models: ModelsState = ModelsState(), downloads: Map<String, DownloadState> = emptyMap()) =
+        compose.setContent { BruceTheme { SetupScreen(state, models, actions, downloads) } }
+
+    private fun suggestion(path: String) = SuggestedModel("a/repo", path, 1_500_000_000, "Model $path", R.string.suggested_qwen3_1_7b, setOf(DeviceTier.EIGHT_GB))
 
     @Test
     fun welcomeHasNoBack() {
@@ -101,5 +114,57 @@ class SetupScreenTest {
 
         compose.onNodeWithTag("setupImport").assertIsNotEnabled()
         compose.onNodeWithText("Importing…").assertIsDisplayed()
+    }
+
+    @Test
+    fun suggestedModelsShowWhatTheyAreGoodAtAndDownloadInOneTap() {
+        val fresh = suggestion("a.gguf")
+        val running = suggestion("b.gguf")
+        val failed = suggestion("c.gguf")
+        val installed = suggestion("d.gguf")
+        val tooLarge = suggestion("e.gguf")
+        val model = InstalledModel(File("d.gguf"), 1, null, mockk(), ModelOverrides())
+        show(
+            SetupState(SetupStep.MODEL, NetworkMode.HUGGING_FACE, isFirst = false, isLast = true, suggestions = listOf(fresh, running, failed, installed, tooLarge)),
+            ModelsState(models = listOf(model)),
+            mapOf(
+                "a/repo/b.gguf" to DownloadState(50, 100),
+                "a/repo/c.gguf" to DownloadState(0, 0, DownloadError.INTERRUPTED),
+                "a/repo/e.gguf" to DownloadState(0, 0, DownloadError.TOO_LARGE, neededBytes = 9_000_000_000, freeBytes = 3_000_000_000),
+            ),
+        )
+
+        compose.onNodeWithText("Suggested for this phone").assertIsDisplayed()
+        compose.onNodeWithText("Model a.gguf · 1.40 GB").assertIsDisplayed()
+        compose.onAllNodesWithText("Good all-rounder", substring = true).assertCountEquals(5)
+        compose.onNodeWithTag("suggestedDownload:a.gguf").performClick()
+        compose.onNodeWithTag("suggestedProgress:b.gguf").assertIsDisplayed()
+        compose.onNodeWithTag("suggestedCancel:b.gguf").performClick()
+        compose.onNodeWithText("Download stopped: INTERRUPTED").assertIsDisplayed()
+        compose.onNodeWithTag("suggestedRetry:c.gguf").performClick()
+        compose.onNodeWithTag("suggestedInstalled:d.gguf").assertIsDisplayed()
+        compose.onNodeWithText("Not downloaded", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("Choose another on Hugging Face").performClick()
+
+        assertEquals(listOf("download a.gguf", "cancel b.gguf", "download c.gguf", "finish BROWSE_MODELS"), calls)
+    }
+
+    @Test
+    fun offlineSuggestionsShowButCannotDownload() {
+        show(SetupState(SetupStep.MODEL, isFirst = false, isLast = true, suggestions = listOf(suggestion("a.gguf"))))
+
+        compose.onNodeWithTag("suggestedDownload:a.gguf").assertIsNotEnabled()
+        compose.onNodeWithText("To download, go back and allow Hugging Face.").assertIsDisplayed()
+        compose.onNodeWithText("Skip for now").performClick()
+
+        assertEquals(listOf("finish CHAT"), calls)
+    }
+
+    @Test
+    fun withoutSuggestionsTheStepIsAsBefore() {
+        show(SetupState(SetupStep.MODEL, NetworkMode.HUGGING_FACE, isFirst = false, isLast = true))
+
+        assertEquals(0, compose.onAllNodesWithText("Suggested for this phone").fetchSemanticsNodes().size)
+        compose.onNodeWithText("Download from Hugging Face").assertIsDisplayed()
     }
 }

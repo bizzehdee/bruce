@@ -67,7 +67,9 @@ import java.util.concurrent.Executors
  * chat), threads (default: CpuTopology.defaultThreads), onscreen (true puts
  * BenchmarkScreenActivity in front first, as in real use; default false). mode=speed loads the
  * model at context 2048 for each of threads_list (default 1 to the core count) and measures prompt
- * and generation speed, repeats times each (default REPEATS).
+ * and generation speed, repeats times each (default REPEATS). cool_wait_s caps the wait for a hot
+ * battery before each measurement (default MAX_COOL_DOWN_MS); a phone whose battery stays hot on
+ * USB power would otherwise wait the whole cap before every case.
  */
 @ManualOnly("model binning: slow, needs a model pushed to files/bins")
 @RunWith(AndroidJUnit4::class)
@@ -325,7 +327,7 @@ class ModelBinDeviceTest {
 
     /** Waits while the battery is hot, so heat does not throttle one model more than another; returns its temperature. */
     private fun coolDown(): Double {
-        val limit = SystemClock.elapsedRealtime() + MAX_COOL_DOWN_MS
+        val limit = SystemClock.elapsedRealtime() + (arguments.getString("cool_wait_s")?.toLong()?.times(1000) ?: MAX_COOL_DOWN_MS)
         var celsius = batteryCelsius()
         while (celsius > HOT_CELSIUS && SystemClock.elapsedRealtime() < limit) {
             Thread.sleep(COOL_POLL_MS)

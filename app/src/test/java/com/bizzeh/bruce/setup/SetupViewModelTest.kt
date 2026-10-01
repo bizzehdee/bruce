@@ -12,6 +12,9 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
+import com.bizzeh.bruce.R
+import com.bizzeh.bruce.models.DeviceTier
+import com.bizzeh.bruce.models.SuggestedModel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -34,11 +37,11 @@ class SetupViewModelTest {
     @AfterEach
     fun tearDown() = Dispatchers.resetMain()
 
-    private inner class Fixture(scope: TestScope, askNotifications: Boolean = false) {
+    private inner class Fixture(scope: TestScope, askNotifications: Boolean = false, suggestions: List<SuggestedModel> = emptyList()) {
         val dataStore = PreferenceDataStoreFactory.create(scope = scope.backgroundScope) { File(dir, "s.preferences_pb") }
         val setup = SetupSettingsRepository(dataStore)
         val network = NetworkSettingsRepository(dataStore)
-        val viewModel = SetupViewModel(setup, network, askNotifications)
+        val viewModel = SetupViewModel(setup, network, askNotifications, suggestions)
 
         suspend fun awaitStep(step: SetupStep) = viewModel.state.first { it.step == step }
     }
@@ -64,6 +67,15 @@ class SetupViewModelTest {
 
         f.viewModel.back()
         assertFalse(f.awaitStep(SetupStep.NOTIFICATIONS).isLast)
+    }
+
+    @Test
+    fun theModelStepCarriesThePhonesSuggestions() = runTest(dispatcher) {
+        val suggestion = SuggestedModel("a/repo", "m.gguf", 1, "M", R.string.suggested_qwen3_1_7b, setOf(DeviceTier.EIGHT_GB))
+        val f = Fixture(this, suggestions = listOf(suggestion))
+        repeat(2) { f.viewModel.next() }
+
+        assertEquals(listOf(suggestion), f.awaitStep(SetupStep.MODEL).suggestions)
     }
 
     @Test
