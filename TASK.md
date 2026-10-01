@@ -757,21 +757,23 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Decision: "skills on" is a fresh install plus the battery, device and storage skills, which a fresh install declines but the cases ask for; that is the automatic skills less network (offline). Every non-automatic skill is declined by default, so none is offered; the stubs stay so a change of defaults cannot read the owner's data. The Wi-Fi case was dropped (network is locked offline). The grader also fails replies that decline a task the model could do.
   - Depends on: TASK-012, TASK-033, TASK-103
   - Required by: TASK-105, TASK-108
-- [~] TASK-105: Run the model evaluation on the three phones
+- [x] TASK-105: Run the model evaluation on the three phones
   - Phones and memory tiers: Xperia XZ Premium (4 GB), Xperia 1 II (8 GB), Pixel 11 (12 GB). All on USB power, screen on, nothing else running.
   - Every model that passed TASK-108 on every phone where Bruce's fit label allows it; a model that does not fit a phone is recorded as "does not fit" for that tier.
   - Output in `research/experiments/model-bins-<date>/`: raw results per phone, and a report per model with every reply side by side (skills on and off, per phone) for the owner to read.
   - A run that crashes, stalls or serves the wrong model is discarded and rerun, and the discard is noted.
   - Only the models that pass the host screen (TASK-108) go to the phones.
+  - Done (2026-10-01): results in `research/experiments/model-bins-2026-09-30/phones/`, with the README's "Phone runs" section. Full cases for some models, a quick pass for the rest (owner); slow spells and off-screen runs rerun and the originals kept as `*.transient.jsonl`. The XZ Premium ran five likely 4 GB models only, with a 30 s cool-down cap because its battery stays above 40 °C on USB power.
   - Depends on: TASK-103, TASK-104, TASK-108
   - Required by: TASK-106
-- [ ] TASK-106: Bin the models per memory tier
+- [~] TASK-106: Bin the models per memory tier
   - Bins per tier (4 GB, 8 GB, 12 GB): Recommended, Usable, Not recommended. A tier's bin comes from that tier's phone only.
   - Owner (2026-10-01): bin by memory and by processor type (whether the CPU has dot-product instructions; the XZ Premium does not, and its 69 s first token for a 1.5B model rules that out). Answer quality comes from the host screen, which the phones matched within a few points (skill cases somewhat lower on the phones); speed, first-token wait and memory come from a quick pass on each phone at context 4096. Longer contexts are judged from the 2048 and 4096 measurements: memory grows as estimated, prompt reading slows with length, and most models timed out at 8192 and above on the phones.
   - Proposed rule, for the owner to confirm before TASK-105 is read: Recommended needs no crash or failed load at the default context; at least 80% of the no-skill cases and 80% of the skill cases correct; no invented answer in the skills-off cases that need a skill; generation of at least 8 tokens a second; and a follow-up turn's first token within 10 seconds. Usable is at least 60% on both and 4 tokens a second. Anything else is Not recommended.
   - Replies with no automatic check (summaries, rewrites) are graded against a written rubric in the experiment folder; the owner reviews the replies of every model near a bin boundary.
   - Also reported per model: the largest context length that fits each tier, and whether skills should be left on.
   - Output: the bins table and analysis in the experiment README, a `.learnings/` entry, and the plan's open question on recommended models closed.
+  - In progress (2026-10-01): `bins.py` and `bins.md` apply the proposed rule. Waiting on the owner: the rule itself, and whether an invented answer with skills off blocks Recommended for a model used with skills on (decides Qwen3-1.7B). The 4 GB tier without dot product has no Recommended model; Qwen3-1.7B Q4_K_M is Usable there (4.8 tokens a second).
   - Depends on: TASK-105
   - Required by: TASK-107
 - [~] TASK-107: Show recommended models in the model browser
