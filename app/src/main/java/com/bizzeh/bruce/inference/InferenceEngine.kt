@@ -145,7 +145,7 @@ data class GenerationStats(
 
 data class LoadConfig(
     val contextLength: Int = 2048,
-    val threads: Int = CpuTopology.performanceCoreCount(),
+    val threads: Int = CpuTopology.defaultThreads(),
     /** Tokens decoded per native call while evaluating a prompt. 2048 is llama.cpp's default. */
     val batchSize: Int = 2048,
     val backend: BackendPreference = BackendPreference.AUTO,

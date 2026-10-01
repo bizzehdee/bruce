@@ -14,8 +14,9 @@ Established: 2026-10-01 (model binning, TASK-105). Data: `research/experiments/m
 - **Thread counts (generation, on screen, median of 5):** Xperia 1 II: 2–4 threads equal for
   Qwen3-0.6B Q8_0 (32), 4 best for Qwen3-1.7B Q4_K_M (19.8); 5 or more slower. Pixel 11: 3 threads
   best for Qwen3-0.6B (61.6), 5 best for Qwen3-1.7B (15.5); 6 threads collapsed (13.8 for 0.6B).
-  Bruce's default (cores above the slowest cluster: 4 and 5) is at or near the best on both; no
-  change made.
+  Bruce's default then (cores above the slowest cluster: 4 and 5) was at or near the best on
+  both. Owner, 2026-10-01: the default is now 4 threads (every core on a phone with fewer), and
+  the user can change it in Settings.
 - **The Pixel 11 is not faster than the Xperia 1 II on a 1.7B Q4_K_M model** (15.5 against 19.8
   tokens a second, prompt 65–76 against 76), although it loads the armv9 CPU code (SVE, i8mm).
   Cause not established.

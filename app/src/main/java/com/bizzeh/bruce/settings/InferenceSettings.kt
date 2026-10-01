@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Defaults applied whenever a model is loaded. [threads] null means one per performance core;
+ * Defaults applied whenever a model is loaded. [threads] null means CpuTopology.defaultThreads;
  * [contextLength] null means automatic, picked for each model and phone (AutoContext).
  */
 data class InferenceDefaults(
@@ -52,7 +52,7 @@ class InferenceSettingsRepository(private val dataStore: DataStore<Preferences>)
         dataStore.edit { it[BACKEND] = backend.name }
     }
 
-    /** Null restores automatic (one thread per performance core). */
+    /** Null restores automatic (CpuTopology.defaultThreads). */
     suspend fun setThreads(threads: Int?) {
         require(threads == null || threads in 1..InferenceDefaults.MAX_THREADS) { "threads out of range: $threads" }
         dataStore.edit { if (threads == null) it.remove(THREADS) else it[THREADS] = threads }

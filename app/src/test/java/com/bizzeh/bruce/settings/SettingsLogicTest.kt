@@ -60,7 +60,7 @@ class SettingsLogicTest {
         val summary = SummarySettingsRepository(dataStore)
         val memory = com.bizzeh.bruce.memory.MemorySettingsRepository(dataStore)
         val searchKey = com.bizzeh.bruce.skills.web.SearchKeyRepository(dataStore, PlainCipher)
-        val viewModel = SettingsViewModel(theme, inference, network, personality, summary, memory, hubAuth, reset, searchKey = searchKey, dynamicColourSupported = true, performanceCores = 4, cores = 8)
+        val viewModel = SettingsViewModel(theme, inference, network, personality, summary, memory, hubAuth, reset, searchKey = searchKey, dynamicColourSupported = true, defaultThreads = 4, cores = 8)
     }
 
     @Test
@@ -104,7 +104,7 @@ class SettingsLogicTest {
         assertEquals(ThemeSettings(ThemeMode.DARK, dynamicColour = true), state.theme)
         assertEquals(InferenceDefaults(BackendPreference.CPU, 2, 16384), state.inference)
         assertTrue(state.dynamicColourSupported)
-        assertEquals(4, state.performanceCores)
+        assertEquals(4, state.defaultThreads)
         assertEquals(8, state.cores)
     }
 

@@ -198,7 +198,7 @@ class MainActivity : ComponentActivity() {
                 sites = container.sites,
                 searchKey = container.searchKey,
                 dynamicColourSupported = dynamicColourSupported(),
-                performanceCores = CpuTopology.performanceCoreCount(),
+                defaultThreads = CpuTopology.defaultThreads(),
                 cores = Runtime.getRuntime().availableProcessors(),
             )
         }

@@ -48,7 +48,7 @@ internal class LlamaEmbedder(
     private val llama: LlamaApi,
     private val model: File,
     private val dispatcher: CoroutineDispatcher,
-    private val threads: Int = CpuTopology.performanceCoreCount(),
+    private val threads: Int = CpuTopology.defaultThreads(),
 ) : Embedder {
     private val mutex = Mutex()
     private var handle = 0L

@@ -35,7 +35,8 @@ Conclusions:
 
 1. **Threads.** 4 threads gives the best generation speed on both phones; all 8 cores is
    25–35% slower. Both SoCs have 4 performance cores. The engine's current default (all
-   cores) is wrong for these phones.
+   cores) is wrong for these phones. (Superseded 2026-10-01: the default is 4 threads on any
+   phone with 4 or more cores; see `phone-speed-measurement.md`.)
 2. **Memory estimate.** Accurate on both phones for memory that cannot be reclaimed; see
    the memory breakdown below (TASK-019, 2026-09-28).
 3. **Budget phone.** On the 4 GB XZ Premium, a 0.6B Q4 model generates 14 tok/s; a 1.7B

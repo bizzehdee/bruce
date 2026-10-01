@@ -1,31 +1,15 @@
 package com.bizzeh.bruce.hardware
 
-import java.io.File
+import kotlin.math.min
 
 object CpuTopology {
-    private val CPU_DIR = Regex("cpu\\d+")
+    const val MAX_DEFAULT_THREADS = 4
 
     /**
-     * Cores outside the lowest-frequency cluster. On both test phones these 4 cores gave the
-     * fastest generation; using every core was 25–35% slower (.learnings/phase0-cpu-benchmarks.md).
-     * Falls back to every core when frequencies cannot be read.
+     * Threads used unless the user chooses a number: four, or every core on a phone with fewer
+     * (owner, 2026-10-01). Four was at or near the fastest on every test phone; more threads were
+     * often slower, by up to three quarters (.learnings/phone-speed-measurement.md).
      */
-    fun performanceCoreCount(
-        cpuRoot: File = File("/sys/devices/system/cpu"),
-        availableProcessors: Int = Runtime.getRuntime().availableProcessors(),
-    ): Int {
-        val frequencies = cpuRoot.listFiles { file -> file.name.matches(CPU_DIR) }.orEmpty()
-            .map { File(it, "cpufreq/cpuinfo_max_freq") }
-            .map { file -> if (file.canRead()) file.readText().trim().toLongOrNull() else null }
-        return performanceCores(frequencies) ?: availableProcessors
-    }
-
-    /** Null when any frequency is unknown. */
-    internal fun performanceCores(maxFrequencies: List<Long?>): Int? {
-        if (maxFrequencies.isEmpty() || maxFrequencies.any { it == null }) return null
-        val known = maxFrequencies.filterNotNull()
-        val lowest = known.min()
-        val fast = known.count { it > lowest }
-        return if (fast == 0) known.size else fast
-    }
+    fun defaultThreads(availableProcessors: Int = Runtime.getRuntime().availableProcessors()): Int =
+        min(MAX_DEFAULT_THREADS, availableProcessors.coerceAtLeast(1))
 }

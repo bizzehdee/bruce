@@ -471,6 +471,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-01 | Changed | Inference threads default to four (every core on phones with fewer), changeable in Settings (owner). |
 | 2026-09-30 | Changed | Model evaluation screens models on the development machine first; only those that pass are run on the phones (owner) (TASK-108). |
 | 2026-09-30 | Added | Recommended models by device type (memory tiers), from an evaluation of popular small models on the three test phones (owner) (TASK-103 to TASK-107). |
 | 2026-09-30 | Changed | Model browser's Task filter: Any (now the default), Text generation, Image and text (owner). |

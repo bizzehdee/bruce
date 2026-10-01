@@ -30,10 +30,10 @@ class SettingsViewModel(
     private val sites: SiteAccess? = null,
     private val searchKey: SearchKeyRepository? = null,
     dynamicColourSupported: Boolean,
-    performanceCores: Int,
+    defaultThreads: Int,
     cores: Int,
 ) : ViewModel() {
-    private val initial = SettingsState(dynamicColourSupported = dynamicColourSupported, performanceCores = performanceCores, cores = cores)
+    private val initial = SettingsState(dynamicColourSupported = dynamicColourSupported, defaultThreads = defaultThreads, cores = cores)
 
     private val signInError = MutableStateFlow<SignInError?>(null)
     private val searchKeyRejected = MutableStateFlow(false)

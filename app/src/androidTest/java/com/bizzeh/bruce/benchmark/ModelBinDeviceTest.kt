@@ -63,7 +63,7 @@ import java.util.concurrent.Executors
  *
  * Arguments (`-e name value`): model (file name in files/bins), label, mode (cases or sweep),
  * context (cases; default 4096), contexts (sweep; default 2048,4096,8192,16384), skills (on, off
- * or both; default both), threads (default: performance cores), onscreen (true puts
+ * or both; default both), threads (default: CpuTopology.defaultThreads), onscreen (true puts
  * BenchmarkScreenActivity in front first, as in real use; default false). mode=speed loads the
  * model at context 2048 for each of threads_list (default 1 to the core count) and measures prompt
  * and generation speed, repeats times each (default REPEATS).
@@ -82,7 +82,7 @@ class ModelBinDeviceTest {
         val model = File(dir, requireNotNull(arguments.getString("model")) { "-e model <file in files/bins>" })
         val label = arguments.getString("label") ?: model.nameWithoutExtension
         val mode = arguments.getString("mode") ?: "cases"
-        val threads = arguments.getString("threads")?.toInt() ?: CpuTopology.performanceCoreCount()
+        val threads = arguments.getString("threads")?.toInt() ?: CpuTopology.defaultThreads()
         val out = File(dir, "results/$label.$mode.jsonl").apply { parentFile!!.mkdirs() }
         val screen = if (onScreen) {
             instrumentation.startActivitySync(Intent(context, BenchmarkScreenActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))

@@ -59,7 +59,7 @@ data class SettingsState(
     val theme: ThemeSettings = ThemeSettings(),
     val dynamicColourSupported: Boolean = false,
     val inference: InferenceDefaults = InferenceDefaults(),
-    val performanceCores: Int = 4,
+    val defaultThreads: Int = 4,
     val cores: Int = 8,
     val network: NetworkMode = NetworkMode.OFFLINE,
     val personality: Personality = Personality.BRUCE,
@@ -225,7 +225,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 FilterChip(
                     selected = state.inference.threads == null,
                     onClick = { actions.setThreads(null) },
-                    label = { Text(stringResource(R.string.settings_threads_auto, state.performanceCores)) },
+                    label = { Text(stringResource(R.string.settings_threads_auto, state.defaultThreads)) },
                     modifier = Modifier.testTag("threads:auto"),
                 )
                 SettingsText.threadChoices(state.cores).forEach { threads ->
