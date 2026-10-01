@@ -16,6 +16,8 @@ import com.bizzeh.bruce.hardware.CpuTopology
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.BruceToolFormat
 import com.bizzeh.bruce.inference.ChatRole
+import com.bizzeh.bruce.inference.GenerationEvent
+import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LoadConfig
 import com.bizzeh.bruce.inference.LoadResult
@@ -39,6 +41,7 @@ import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.ToolOutput
 import com.bizzeh.bruce.testing.ManualOnly
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 import org.json.JSONObject
@@ -60,7 +63,10 @@ import java.util.concurrent.Executors
  *
  * Arguments (`-e name value`): model (file name in files/bins), label, mode (cases or sweep),
  * context (cases; default 4096), contexts (sweep; default 2048,4096,8192,16384), skills (on, off
- * or both; default both), threads (default: performance cores).
+ * or both; default both), threads (default: performance cores), onscreen (true puts
+ * BenchmarkScreenActivity in front first, as in real use; default false). mode=speed loads the
+ * model at context 2048 for each of threads_list (default 1 to the core count) and measures prompt
+ * and generation speed, repeats times each (default REPEATS).
  */
 @ManualOnly("model binning: slow, needs a model pushed to files/bins")
 @RunWith(AndroidJUnit4::class)
@@ -78,14 +84,48 @@ class ModelBinDeviceTest {
         val mode = arguments.getString("mode") ?: "cases"
         val threads = arguments.getString("threads")?.toInt() ?: CpuTopology.performanceCoreCount()
         val out = File(dir, "results/$label.$mode.jsonl").apply { parentFile!!.mkdirs() }
-        Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { nativeThread ->
-            val engine = deviceEngine(nativeThread)
-            runBlocking {
-                when (mode) {
-                    "cases" -> cases(engine, model, label, threads, out)
-                    "sweep" -> sweep(engine, model, label, threads, out)
-                    else -> error("mode must be cases or sweep")
+        val screen = if (onScreen) {
+            instrumentation.startActivitySync(Intent(context, BenchmarkScreenActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        } else {
+            null
+        }
+        try {
+            Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { nativeThread ->
+                val engine = deviceEngine(nativeThread)
+                runBlocking {
+                    when (mode) {
+                        "cases" -> cases(engine, model, label, threads, out)
+                        "sweep" -> sweep(engine, model, label, threads, out)
+                        "speed" -> speed(engine, model, label, out)
+                        else -> error("mode must be cases, sweep or speed")
+                    }
                 }
+            }
+        } finally {
+            screen?.finish()
+        }
+    }
+
+    private val onScreen get() = arguments.getString("onscreen") == "true"
+
+    /** Prompt and generation speed by thread count, without the runtime: what the CPU and Android's core placement give. */
+    private suspend fun speed(engine: InferenceEngine, model: File, label: String, out: File) {
+        val cores = Runtime.getRuntime().availableProcessors()
+        val counts = arguments.getString("threads_list")?.split(",")?.map { it.trim().toInt() } ?: (1..cores).toList()
+        for (threads in counts) {
+            val loaded = engine.loadModel(model, LoadConfig(contextLength = SPEED_CONTEXT, threads = threads, backend = BackendPreference.CPU))
+            check(loaded is LoadResult.Loaded) { "load failed: $loaded" }
+            try {
+                engine.generate(GenerationRequest(SPEED_PROMPT, maxTokens = 8, temperature = 0f, reusePrompt = false)).toList()
+                repeat(arguments.getString("repeats")?.toInt() ?: REPEATS) { attempt ->
+                    val record = run(label, model, SPEED_CONTEXT, threads, false).put("type", "speed").put("attempt", attempt).put("battery_c", coolDown())
+                    val events = engine.generate(GenerationRequest(SPEED_PROMPT, maxTokens = SPEED_TOKENS, temperature = 0f, reusePrompt = false)).toList()
+                    val stats = (events.last() as GenerationEvent.Completed).stats
+                    append(out, record.put("prompt_tokens", stats.promptTokens).put("prompt_tps", stats.promptTokensPerSecond)
+                        .put("gen_tokens", stats.generatedTokens).put("gen_tps", stats.generationTokensPerSecond))
+                }
+            } finally {
+                engine.unloadModel()
             }
         }
     }
@@ -277,6 +317,8 @@ class ModelBinDeviceTest {
     private fun run(label: String, model: File, contextLength: Int, threads: Int, skills: Boolean) = JSONObject()
         .put("label", label).put("file", model.name).put("file_bytes", model.length()).put("platform", "phone")
         .put("device", Build.MODEL).put("context", contextLength).put("threads", threads).put("skills", if (skills) "on" else "off")
+        .put("onscreen", onScreen).put("cpuset", File("/proc/self/cpuset").readText().trim())
+        .put("cpus_allowed", File("/proc/self/status").readLines().firstOrNull { it.startsWith("Cpus_allowed_list") }?.substringAfter(":")?.trim())
 
     /** Waits while the battery is hot, so heat does not throttle one model more than another; returns its temperature. */
     private fun coolDown(): Double {
@@ -298,6 +340,12 @@ class ModelBinDeviceTest {
 
     private companion object {
         const val DEFAULT_CONTEXT = 4096
+        const val SPEED_CONTEXT = 2048
+        const val SPEED_TOKENS = 128
+        const val REPEATS = 3
+        const val SPEED_PROMPT = "You are a helpful assistant living on a phone. Explain in a few sentences why " +
+            "running a language model locally on a phone is good for privacy, and what the trade-offs are " +
+            "compared with a cloud service. Mention battery, speed and offline use."
         const val NEEDLE_SHARE = 0.7
         const val NOTES_PER_MEASURE = 5
         const val NOTE_TOKENS = 70

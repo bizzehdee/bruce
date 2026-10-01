@@ -34,3 +34,4 @@
 - [background-work-and-force-stop.md](background-work-and-force-stop.md) — Force stops (and device tests' ends) cancel WorkManager jobs; Bruce re-queues tasks at start; how to test a scheduled run. Read before changing reminders or scheduled tasks.
 - [choosing-popular-small-models.md](choosing-popular-small-models.md) — How to pick "popular" small chat models from the Hub (group by base model, two publishers), and why the XZ Premium gets 2–3-bit files. Read before choosing models to test or changing file ranking.
 - [no-tools-guidance.md](no-tools-guidance.md) — With no skill offered, the prompt must not tell the model to use tools, or it writes fake tool code. Read before changing the system prompt or skill guidance.
+- [phone-speed-measurement.md](phone-speed-measurement.md) — Off-screen tests lose the fastest cores (Pixel, XZ Premium); the Pixel is noisy; measured thread counts. Read before benchmarking on a phone or changing thread defaults.
