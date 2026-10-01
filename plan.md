@@ -285,8 +285,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   parameters) on the three test phones: replies to a fixed set of prompts with
   skills on and off, at several context lengths, with speed and memory. Models
   are screened on the development machine first; only those that pass go to the
-  phones. `planned`
-  (TASK-103 to TASK-108)
+  phones. The setup wizard's model step suggests a few of the recommended models
+  for this phone, each with its size and what it trades (speed against answer and
+  skill quality), downloadable in one tap; the user can skip the suggestions and
+  pick their own from the model browser or import a file (owner, 2026-10-01).
+  `planned` (TASK-103 to TASK-108)
 - **Saved system prompt** — The first reply after a model loads has to read the
   fixed part of every prompt (system prompt and skill descriptions) first: about
   70 seconds for a 1.5B model on the XZ Premium. Bruce saves that evaluated part
@@ -450,7 +453,7 @@ device-to-device transfer.
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | Which models Bruce recommends by default. | User, from the evaluation in TASK-103 to TASK-106 |
 | The rule that bins a model as recommended for a memory tier (proposed in TASK-106). | User |
-| How recommended models show in the app (TASK-107). | User, once the bins exist |
+| How recommended models show in the model browser, beyond the setup wizard's suggestions (TASK-107). | User, once the bins exist |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Privacy policy URL on the owner's website. | User |
 
@@ -479,6 +482,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-01 | Changed | Setup wizard's model step suggests recommended models for the phone; the user can skip them and choose their own (owner) (TASK-107). |
 | 2026-10-01 | Added | Saved system prompt: the evaluated fixed prompt is kept per model, so the first reply after loading does not re-read it (owner) (TASK-109). |
 | 2026-10-01 | Changed | Recommended models are binned by memory and by processor type (dot-product instructions or not) (owner). |
 | 2026-10-01 | Changed | Inference threads default to four (every core on phones with fewer), changeable in Settings (owner). |
