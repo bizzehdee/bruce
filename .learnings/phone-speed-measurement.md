@@ -20,3 +20,11 @@ Established: 2026-10-01 (model binning, TASK-105). Data: `research/experiments/m
 - **The Pixel 11 is not faster than the Xperia 1 II on a 1.7B Q4_K_M model** (15.5 against 19.8
   tokens a second, prompt 65–76 against 76), although it loads the armv9 CPU code (SVE, i8mm).
   Cause not established.
+- **On USB power the XZ Premium's battery stays at 40–41 °C,** above the harness's 40 °C
+  cool-down limit, so `ModelBinDeviceTest` waited its full 20-minute cap before every case: one
+  model's quick pass took hours. Pass `-e cool_wait_s 120` on that phone; `battery_c` is still
+  recorded with every result.
+- **Transient slow runs happen on the Xperia 1 II too.** Three models in a row (gemma-2-2b
+  IQ4_XS, Qwen3.5-2B Q6_K, LFM2.5-2.6B Q4_0) measured 2.4–4 tokens a second where the Pixel gave
+  6.8–11.2, while the next model ran at its normal speed. Rerun any result far from the other
+  phones before binning on it.

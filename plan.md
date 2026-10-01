@@ -295,7 +295,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   70 seconds for a 1.5B model on the XZ Premium. Bruce saves that evaluated part
   for each model on the phone and loads it instead, so the wait happens once, not
   each time the model loads. Kept in app storage, replaced when the prompt changes,
-  and removed with the model or by clearing data. `planned` (TASK-109)
+  and removed with the model or by clearing data. Saved only when the fixed part
+  holds nothing about the user (no memories, summaries or file names). `done` (TASK-109)
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and

@@ -799,10 +799,12 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Owner (2026-10-01): the phones get every model whose best file scores at least 70% on the cases needing no skill, with skills on or off: 14 models (the bins can say "recommended, skills off"). Dropped: Qwen2.5-0.5B, Qwen2.5-Coder-0.5B, SmolLM2-135M, SmolLM2-360M, LFM2.5-350M, gemma-3-270m. The 4 GB phone tests Bruce's pick and, where that is 2- or 3-bit, the 4-bit file too (2- and 3-bit files fell apart on the host).
   - Depends on: TASK-103, TASK-104
   - Required by: TASK-105
-- [~] TASK-109: Save the evaluated system prompt per model
+- [x] TASK-109: Save the evaluated system prompt per model
   - Owner (2026-10-01): the first reply after a model loads waits for the fixed prompt (system prompt and skill descriptions) to be read: 69 s for Qwen2.5-1.5B Q4_K_M on the XZ Premium, 4–5 s on the Xperia 1 II. Save that evaluated state per model and load it, so the wait happens once.
   - Saved with llama.cpp's sequence state functions after the fixed prompt is first evaluated; keyed by the model file, the exact fixed-prompt tokens and the llama.cpp build, so any change (skills, personality, memory, template, app update) makes a new one and the old one is deleted.
   - Privacy: the fixed prompt can hold remembered facts about the user, so the saved state is personal data. It stays in app-private storage, one file per model, and goes when the model is deleted, when memories are deleted and with Clear all data.
   - Measure on the Xperia 1 II and the XZ Premium: first-token time after loading, with and without the saved state, and the file size and load time.
   - Tests: unit tests for the key and the clean-up; a device test that output with the saved state matches output without it (greedy), as TASK-056 did for reuse.
+  - Done (2026-10-01): `SavedPrompts` keys a state file by model path, context length, the fixed prefix and the build; the native code loads it when the context holds less than the fixed prefix, otherwise saves it after decoding. Saved only when the fixed prompt holds no memories, chat summaries or grant names, so the file holds nothing about the user; it is in the cache directory and is deleted with its model and by Clear all data.
+  - Device tests passed on the Xperia 1 II and the XZ Premium (`SavedPromptDeviceTest`: same greedy output, fewer tokens decoded). Timing with the personality prompt (170–203 tokens): Xperia 1 II 3.7–10.1 s down to 1.2–2.2 s for five 1.7–2.6B models, including hybrid LFM2.5 and Qwen3.5 and sliding-window Gemma 4; XZ Premium 24.8–25.7 s down to 1.6–6.3 s for Qwen2.5-1.5B and Qwen3-1.7B Q4_K_M. Files 3–22 MB. Details in `.learnings/saved-prompt-state.md`.
   - Depends on: TASK-056
