@@ -753,7 +753,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Decision: "skills on" is a fresh install plus the battery, device and storage skills, which a fresh install declines but the cases ask for; that is the automatic skills less network (offline). Every non-automatic skill is declined by default, so none is offered; the stubs stay so a change of defaults cannot read the owner's data. The Wi-Fi case was dropped (network is locked offline). The grader also fails replies that decline a task the model could do.
   - Depends on: TASK-012, TASK-033, TASK-103
   - Required by: TASK-105, TASK-108
-- [ ] TASK-105: Run the model evaluation on the three phones
+- [~] TASK-105: Run the model evaluation on the three phones
   - Phones and memory tiers: Xperia XZ Premium (4 GB), Xperia 1 II (8 GB), Pixel 11 (12 GB). All on USB power, screen on, nothing else running.
   - Every model that passed TASK-108 on every phone where Bruce's fit label allows it; a model that does not fit a phone is recorded as "does not fit" for that tier.
   - Output in `research/experiments/model-bins-<date>/`: raw results per phone, and a report per model with every reply side by side (skills on and off, per phone) for the owner to read.
@@ -774,12 +774,14 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - How it shows (a "Recommended" label, ranking first, the setup wizard's first-model offer) is agreed with the owner once the bins exist.
   - Nothing new leaves the phone: the list is in the app, matched against Hub results on the phone.
   - Depends on: TASK-031, TASK-106
-- [ ] TASK-108: Screen the models on the development machine first
+- [x] TASK-108: Screen the models on the development machine first
   - Owner (2026-09-30): test on the development machine with llama.cpp first, so phone time is not spent on poor models.
   - `llama-server` from the pinned llama.cpp submodule, CPU only, with Bruce's own system prompt and skill definitions exported from the app (as `PromptDumpDeviceTest` does) and each model's own tool-call format, the way the TASK-033 harness ran. Same `cases.json`, skills on and off, context 4096, greedy.
   - Each model is screened with every file that one of the three phones would pick for it, since the phones may pick different quantisations.
   - Proposed screen, for the owner to confirm: a model is dropped if, with its best file, it misses the Usable bar of TASK-106 on quality (below 60% on the no-skill or the skill cases), or it invents answers in the skills-off cases that need a skill. The owner can keep a dropped model.
   - Measures quality only. Speed, memory and the context sweep need the phones (TASK-105), and the phones still run the full case set on the models that pass, since phone results can differ (ARM kernels, other quantisations).
   - Output: host results and a report with every reply in `research/experiments/model-bins-<date>/host/`, and the list of models that go to the phones.
+  - Done (2026-10-01): all 30 files, results and replies in `research/experiments/model-bins-2026-09-30/host/`. Templates that cannot express tool calls get Bruce's own format, as in the app.
+  - Owner (2026-10-01): the phones get every model whose best file scores at least 70% on the cases needing no skill, with skills on or off: 14 models (the bins can say "recommended, skills off"). Dropped: Qwen2.5-0.5B, Qwen2.5-Coder-0.5B, SmolLM2-135M, SmolLM2-360M, LFM2.5-350M, gemma-3-270m. The 4 GB phone tests Bruce's pick and, where that is 2- or 3-bit, the 4-bit file too (2- and 3-bit files fell apart on the host).
   - Depends on: TASK-103, TASK-104
   - Required by: TASK-105

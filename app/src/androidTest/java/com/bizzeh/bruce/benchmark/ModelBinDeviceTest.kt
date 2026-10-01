@@ -97,6 +97,13 @@ class ModelBinDeviceTest {
             else -> listOf(chosen == "on")
         }
         val cases = JSONObject(File(dir, "cases.json").readText()).getJSONArray("cases")
+        // The app refuses to download such a file; loading it anyway can get the test process killed on a small phone.
+        val estimate = ModelMemory.estimate((GgufReader.read(model) as GgufReadResult.Read).metadata, contextLength)
+        val usable = container.memoryForModels()
+        if (estimate.totalBytes > usable) {
+            append(out, run(label, model, contextLength, threads, true).put("type", "skipped").put("reason", "does not fit").put("estimate_bytes", estimate.totalBytes).put("usable_bytes", usable))
+            return
+        }
         val loaded = engine.loadModel(model, LoadConfig(contextLength = contextLength, threads = threads, backend = BackendPreference.CPU))
         check(loaded is LoadResult.Loaded) { "load failed: $loaded" }
         try {
