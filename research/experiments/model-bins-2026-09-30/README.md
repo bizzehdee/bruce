@@ -178,10 +178,12 @@ that need a skill):
 
 4-bit files for the 4 GB phone (owner, 2026-10-01), on the host:
 
-| Model | 4 GB phone's pick | Its general / skill scores | Q4_K_M general / skill scores |
+General cases with skills on / off, then skill cases:
+
+| Model | 4 GB phone's pick | Pick: on / off / skills | Q4_K_M: on / off / skills |
 |---|---|---|---|
-| Qwen3.5-0.8B | UD-IQ2_M | 0.10 / 0.17 off, 0.00 | 0.50 on, 0.87 off / 0.55 |
-| Qwen3-1.7B | Q2_K | 0.17 / 0.17 off, 0.00 | 0.80 on, 0.90 off / 1.00 |
-| Qwen3.5-2B | Q3_K_S | 0.77 / 1.00 off, 0.64 | 0.37 on, 0.83 off / 0.91 |
-| Qwen2.5-1.5B-Instruct | q3_k_m | 0.90 / 0.90 off, 0.00 | 0.93 on, 0.90 off / 0.27 |
-| Qwen2.5-Coder-1.5B-Instruct | q3_k_m | 0.67 / 0.83 off, 0.00 | 0.73 on, 0.83 off / 0.00 |
+| Qwen3.5-0.8B | UD-IQ2_M | 0.10 / 0.17 / 0.00 | 0.50 / 0.87 / 0.55 |
+| Qwen3-1.7B | Q2_K | 0.17 / 0.17 / 0.00 | 0.80 / 0.90 / 1.00 |
+| Qwen3.5-2B | Q3_K_S | 0.77 / 1.00 / 0.64 | 0.37 / 0.83 / 0.91 |
+| Qwen2.5-1.5B-Instruct | q3_k_m | 0.90 / 0.90 / 0.00 | 0.93 / 0.90 / 0.27 |
+| Qwen2.5-Coder-1.5B-Instruct | q3_k_m | 0.67 / 0.83 / 0.00 | 0.73 / 0.83 / 0.00 |
