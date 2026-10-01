@@ -101,10 +101,15 @@ internal class FakeLlamaApi : LlamaApi {
 
     var lastCheckpointPrefix: String? = null
 
-    override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean, checkpointPrefixUtf8: ByteArray): Int {
+    var lastSavedPrefix: String? = null
+    var lastStatePath: String? = null
+
+    override fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean, checkpointPrefixUtf8: ByteArray, savedPrefixUtf8: ByteArray, statePath: String): Int {
         lastPrompt = promptUtf8
         lastReuse = reuse
         lastCheckpointPrefix = String(checkpointPrefixUtf8).ifEmpty { null }
+        lastSavedPrefix = String(savedPrefixUtf8).ifEmpty { null }
+        lastStatePath = statePath.ifEmpty { null }
         return promptResult
     }
 

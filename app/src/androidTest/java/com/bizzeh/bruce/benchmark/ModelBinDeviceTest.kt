@@ -63,7 +63,8 @@ import java.util.concurrent.Executors
  *
  * Arguments (`-e name value`): model (file name in files/bins), label, mode (cases or sweep),
  * context (cases; default 4096), contexts (sweep; default 2048,4096,8192,16384), skills (on, off
- * or both; default both), threads (default: CpuTopology.defaultThreads), onscreen (true puts
+ * or both; default both), cases (cases: ids to run, default all), needle (sweep: false skips the long
+ * chat), threads (default: CpuTopology.defaultThreads), onscreen (true puts
  * BenchmarkScreenActivity in front first, as in real use; default false). mode=speed loads the
  * model at context 2048 for each of threads_list (default 1 to the core count) and measures prompt
  * and generation speed, repeats times each (default REPEATS).
@@ -136,7 +137,9 @@ class ModelBinDeviceTest {
             "both" -> listOf(true, false)
             else -> listOf(chosen == "on")
         }
-        val cases = JSONObject(File(dir, "cases.json").readText()).getJSONArray("cases")
+        val chosen = arguments.getString("cases")?.split(",")?.map { it.trim() }?.toSet()
+        val all = JSONObject(File(dir, "cases.json").readText()).getJSONArray("cases")
+        val cases = JSONArray((0 until all.length()).map { all.getJSONObject(it) }.filter { chosen == null || it.getString("id") in chosen })
         // The app refuses to download such a file; loading it anyway can get the test process killed on a small phone.
         val estimate = ModelMemory.estimate((GgufReader.read(model) as GgufReadResult.Read).metadata, contextLength)
         val usable = container.memoryForModels()
@@ -208,7 +211,7 @@ class ModelBinDeviceTest {
                 history = history + firstAdded + ToolChatMessage(ChatRole.USER, "Thanks. What is the capital of France?")
                 val (_, warm) = harness.turn(history, "Thanks. What is the capital of France?")
                 record.put("loaded", true).put("cold", cold).put("warm", warm)
-                record.put("needle", needleChat(harness, needle, contextLength))
+                if (arguments.getString("needle") != "false") record.put("needle", needleChat(harness, needle, contextLength))
                 record.put("resident_delta_bytes", residentBytes() - before)
                 harness.dispose()
             } finally {

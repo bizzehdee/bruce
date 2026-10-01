@@ -47,6 +47,7 @@ import com.bizzeh.bruce.chat.TurnObserver
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
+import com.bizzeh.bruce.inference.SavedPrompts
 import com.bizzeh.bruce.inference.ToolChatMessage
 import android.os.BatteryManager
 import com.bizzeh.bruce.chat.ChatEntry
@@ -132,7 +133,17 @@ class AppContainer(private val context: Context) {
     // llama.cpp contexts are not thread-safe, so the engine gets one thread of its own.
     private val nativeThread = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 
-    val engine: InferenceEngine by lazy { LlamaCppEngine.create(context.applicationInfo.nativeLibraryDir, nativeThread) }
+    /**
+     * Evaluated system prompts (TASK-109), in the cache folder: Clear all data empties it, and Android
+     * may too when storage runs low. The build includes the install time, so an update never loads
+     * state saved by an older llama.cpp.
+     */
+    private val savedPrompts: SavedPrompts by lazy {
+        val installed = context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
+        SavedPrompts(File(context.cacheDir, "prompt-states"), "${BuildConfig.VERSION_CODE}-$installed")
+    }
+
+    val engine: InferenceEngine by lazy { LlamaCppEngine.create(context.applicationInfo.nativeLibraryDir, nativeThread, savedPrompts) }
 
     val modelsDir: File = File(context.filesDir, MODELS_DIR)
 
@@ -238,7 +249,9 @@ class AppContainer(private val context: Context) {
     val modelSettings: ModelSettingsRepository by lazy { ModelSettingsRepository(context.settingsDataStore) }
 
     val modelSelection: ModelSelection by lazy {
-        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO, ::memoryForModels) { remoteServers.servers.first() }
+        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO, ::memoryForModels, forgetSavedPrompt = savedPrompts::forget) {
+            remoteServers.servers.first()
+        }
     }
 
     private val conversationDatabase: ConversationDatabase by lazy {

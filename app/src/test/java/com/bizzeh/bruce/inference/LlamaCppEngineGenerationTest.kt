@@ -60,6 +60,36 @@ class LlamaCppEngineGenerationTest {
     }
 
     @Test
+    fun theFixedStartOfAPromptIsSavedPerModel() = runTest(dispatcher) {
+        val saved = SavedPrompts(File(dir, "states"), "build")
+        val engine = LlamaCppEngine(llama, dispatcher, clock, saved)
+        val file = File(dir, "m.gguf").apply { writeBytes("GGUF".toByteArray() + ByteArray(16)) }
+        engine.loadModel(file)
+
+        engine.generate(GenerationRequest("system|hi", savedPrefix = "system|")).toList()
+
+        assertEquals("system|", llama.lastSavedPrefix)
+        assertEquals(saved.fileFor(file, LoadConfig().contextLength, "system|").path, llama.lastStatePath)
+
+        engine.generate(GenerationRequest("system|hi", savedPrefix = "system|", reusePrompt = false)).toList()
+        assertNull(llama.lastSavedPrefix, "nothing is saved or loaded without reuse")
+        assertNull(llama.lastStatePath)
+
+        engine.generate(GenerationRequest("system|hi")).toList()
+        assertNull(llama.lastStatePath)
+    }
+
+    @Test
+    fun anEngineWithoutAPlaceForStatesSavesNone() = test {
+        loadModel()
+
+        engine.generate(GenerationRequest("system|hi", savedPrefix = "system|")).toList()
+
+        assertNull(llama.lastSavedPrefix)
+        assertNull(llama.lastStatePath)
+    }
+
+    @Test
     fun templateChecksNeedNoModelAndMapTheNativeAnswer() = test {
         assertEquals(true, engine.templateSupportsTools("{{ tools }}", "<s>", null))
         llama.templateAnswer = 0

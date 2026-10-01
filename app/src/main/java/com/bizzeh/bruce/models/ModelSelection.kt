@@ -19,6 +19,8 @@ class ModelSelection(
     private val ioDispatcher: CoroutineDispatcher,
     /** Memory a model may use: free memory plus what the loaded model takes (AppContainer.memoryForModels). */
     private val memoryForModels: () -> Long = { 0 },
+    /** Deletes a model's evaluated system prompt (SavedPrompts.forget) with the model. */
+    private val forgetSavedPrompt: (File) -> Unit = {},
     /** The user's model servers, to restore a chosen server model only while its server is still there. */
     private val servers: suspend () -> List<RemoteServer> = { emptyList() },
 ) {
@@ -59,6 +61,7 @@ class ModelSelection(
         withContext(ioDispatcher) {
             file.delete()
             Projectors.fileFor(file).delete()
+            forgetSavedPrompt(file)
         }
         modelSettings.forget(file.name)
         activeModel.refresh()

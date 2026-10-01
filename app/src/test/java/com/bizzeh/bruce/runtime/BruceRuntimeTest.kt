@@ -475,6 +475,21 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun theFixedPromptIsOfferedForSavingOnlyWhenItHoldsNothingAboutTheUser() = runBlocking {
+        engine.echo = true
+        engine.savesPrompts = true
+        engine.steps += Step("Hi.", ParsedReply("Hi.", "", emptyList()))
+        engine.steps += Step("Hi.", ParsedReply("Hi.", "", emptyList()))
+
+        runtime().respond(question).toList()
+        val system = engine.formatted.first().first().content
+        assertEquals("the system prompt, up to where the user's words start", "$system|", engine.requests.first().savedPrefix)
+
+        runtime().respond(question, memory = listOf("I live in Leeds")).toList()
+        assertNull("remembered facts are not kept on storage", engine.requests.last().savedPrefix)
+    }
+
+    @Test
     fun theFactPassContinuesTheChatAndMarksWhereTheChatEnds() = runBlocking {
         engine.steps += Step("", ParsedReply("<think>\n\n</think>\n\n- My name is Sam\n* I live in Leeds\n- I like hiking and adventures\n- You are from the North\n- \"I like tea.\"\n- The user likes tea\n</think>\nNONE", "", emptyList()))
         val history = listOf(ToolChatMessage(ChatRole.USER, "I'm Sam from Leeds and like tea"), ToolChatMessage(ChatRole.ASSISTANT, "Hi Sam!"))
@@ -648,6 +663,9 @@ class BruceRuntimeTest {
         var noModel = false
         var templateFails = false
         var hang = false
+        /** Prompts are the messages' contents joined with "|", instead of "prompt". */
+        var echo = false
+        override var savesPrompts = false
         var stops = 0
         var lastCount = 0
         var tokensPerMessage: (ToolChatMessage) -> Int = { 1 }
@@ -661,7 +679,8 @@ class BruceRuntimeTest {
             formatted += messages
             offered += tools
             lastCount = messages.sumOf { tokensPerMessage(it) }
-            return ToolChatPrompt("prompt", ToolFormat(3, "p", "", nativeTools, grammar, listOf("<|end|>")))
+            val text = if (echo) messages.joinToString("|") { it.content } else "prompt"
+            return ToolChatPrompt(text, ToolFormat(3, "p", "", nativeTools, grammar, listOf("<|end|>")))
         }
 
         override suspend fun formatChat(messages: List<ChatMessage>): ChatPrompt? {

@@ -24,14 +24,18 @@ internal class LlamaCppEngine(
     private val llama: LlamaApi,
     private val dispatcher: CoroutineDispatcher,
     private val timeSource: TimeSource = TimeSource.Monotonic,
+    /** Where evaluated fixed prompts are kept (TASK-109); null keeps none. */
+    private val savedPrompts: SavedPrompts? = null,
 ) : InferenceEngine {
     /** [projector] is the vision projector's handle, 0 for none (TASK-082). */
-    private class Session(val model: Long, val context: Long, val info: ModelInfo, val contextLength: Int, val chatTemplate: String?, val projector: Long) {
+    private class Session(val model: Long, val context: Long, val info: ModelInfo, val contextLength: Int, val chatTemplate: String?, val projector: Long, val file: File) {
         /** The model's chat templates for tool formats, made the first time they are needed; 0 if unusable. */
         var templates: Long? = null
     }
 
     private val mutex = Mutex()
+
+    override val savesPrompts: Boolean get() = savedPrompts != null
 
     @Volatile
     private var session: Session? = null
@@ -101,7 +105,7 @@ internal class LlamaCppEngine(
                 return@withLock
             }
             try {
-                streamCompletion(generation, request, current.projector)
+                streamCompletion(generation, request, current)
             } finally {
                 llama.endGeneration(generation)
             }
@@ -227,12 +231,17 @@ internal class LlamaCppEngine(
         )
     }
 
-    private suspend fun FlowCollector<GenerationEvent>.streamCompletion(generation: Long, request: GenerationRequest, projector: Long) {
+    private suspend fun FlowCollector<GenerationEvent>.streamCompletion(generation: Long, request: GenerationRequest, session: Session) {
+        val projector = session.projector
         if (request.images.isNotEmpty() && projector == 0L) return emit(GenerationEvent.Failed(GenerationError.IMAGES_UNUSABLE))
         val promptStart = timeSource.markNow()
         val prompt = request.prompt.toByteArray(Charsets.UTF_8)
         val promptTokens = if (request.images.isEmpty()) {
-            llama.evaluatePrompt(generation, prompt, request.reusePrompt, request.checkpointPrefix.orEmpty().toByteArray(Charsets.UTF_8))
+            val saved = request.savedPrefix?.takeIf { request.reusePrompt }?.let { prefix -> savedPrompts?.let { prefix to it.fileFor(session.file, session.contextLength, prefix) } }
+            llama.evaluatePrompt(
+                generation, prompt, request.reusePrompt, request.checkpointPrefix.orEmpty().toByteArray(Charsets.UTF_8),
+                saved?.first.orEmpty().toByteArray(Charsets.UTF_8), saved?.second?.path.orEmpty(),
+            )
         } else {
             val images = request.images
             llama.evaluatePromptWithImages(
@@ -339,7 +348,7 @@ internal class LlamaCppEngine(
             trainedContextLength = llama.modelTrainedContextLength(model),
             vision = projector != 0L,
         )
-        return AttemptResult.Opened(Session(model, context, info, config.contextLength, config.chatTemplate, projector))
+        return AttemptResult.Opened(Session(model, context, info, config.contextLength, config.chatTemplate, projector, file))
     }
 
     private fun release() {
@@ -368,9 +377,9 @@ internal class LlamaCppEngine(
 
     companion object {
         /** An engine backed by the native library, with every runnable backend loaded. */
-        fun create(nativeLibraryDir: String, dispatcher: CoroutineDispatcher): LlamaCppEngine {
+        fun create(nativeLibraryDir: String, dispatcher: CoroutineDispatcher, savedPrompts: SavedPrompts? = null): LlamaCppEngine {
             LlamaNative.loadBackends(nativeLibraryDir)
-            return LlamaCppEngine(LlamaNative, dispatcher)
+            return LlamaCppEngine(LlamaNative, dispatcher, savedPrompts = savedPrompts)
         }
 
         // Values of enum ggml_backend_dev_type in ggml-backend.h.

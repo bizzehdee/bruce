@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <exception>
 #include <memory>
 #include <mutex>
@@ -464,7 +465,8 @@ Java_com_bizzeh_bruce_inference_LlamaNative_countTokens(JNIEnv *env, jobject, jl
 
 JNIEXPORT jint JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
-        JNIEnv *env, jobject, jlong handle, jbyteArray promptUtf8, jboolean reuse, jbyteArray checkpointPrefixUtf8) {
+        JNIEnv *env, jobject, jlong handle, jbyteArray promptUtf8, jboolean reuse, jbyteArray checkpointPrefixUtf8,
+        jbyteArray savedPrefixUtf8, jstring statePath) {
     Generation *generation = asGeneration(handle);
     const jsize promptLength = env->GetArrayLength(promptUtf8);
     std::vector<char> prompt(static_cast<size_t>(promptLength));
@@ -485,15 +487,49 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
     if (!reuse || cache.untracked) {
         cache.reset(context);
     }
+    // The fixed start of every prompt (TASK-109): how many of this prompt's tokens it covers, and the
+    // file its evaluated state is saved in. Loaded when the context does not already hold it.
+    int32_t savedCount = 0;
+    std::string savedFile;
+    if (reuse && !cache.untracked && env->GetArrayLength(savedPrefixUtf8) > 0 && env->GetStringUTFLength(statePath) > 0) {
+        const jsize savedLength = env->GetArrayLength(savedPrefixUtf8);
+        std::vector<char> saved(static_cast<size_t>(savedLength));
+        env->GetByteArrayRegion(savedPrefixUtf8, 0, savedLength, reinterpret_cast<jbyte *>(saved.data()));
+        std::vector<llama_token> savedTokens(static_cast<size_t>(count));
+        const int32_t tokenized = llama_tokenize(generation->vocab, saved.data(), savedLength, savedTokens.data(), count, true, true);
+        // Tokens at the prefix's end can merge with what follows it, so only what both share counts.
+        while (savedCount < tokenized && savedCount < count - 1 && savedTokens[savedCount] == tokens[savedCount]) {
+            ++savedCount;
+        }
+        const char *path = env->GetStringUTFChars(statePath, nullptr);
+        savedFile = path;
+        env->ReleaseStringUTFChars(statePath, path);
+    }
     const bruce::ReusePlan plan = bruce::planReuse(cache.tokens, tokens, cache.canCut, cache.checkpointTokens);
     int32_t start = plan.start;
-    if (plan.restoreCheckpoint) {
+    bool loadedSaved = false;
+    if (savedCount > 0 && start < savedCount) {
+        cache.reset(context);
+        std::vector<llama_token> loaded(static_cast<size_t>(savedCount));
+        size_t loadedCount = 0;
+        const size_t read = llama_state_seq_load_file(context, savedFile.c_str(), 0, loaded.data(), loaded.size(), &loadedCount);
+        if (read > 0 && loadedCount == static_cast<size_t>(savedCount) && std::equal(loaded.begin(), loaded.end(), tokens.begin())) {
+            cache.tokens = loaded;
+            start = savedCount;
+            loadedSaved = true;
+        } else {
+            // Missing, from another prompt or unreadable: evaluated again below and saved afresh.
+            cache.reset(context);
+            start = 0;
+        }
+    }
+    if (!loadedSaved && plan.restoreCheckpoint) {
         const size_t size = cache.checkpoint.size();
         if (llama_state_seq_set_data_ext(context, cache.checkpoint.data(), size, 0, LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY) != size) {
             start = 0;
         }
     }
-    if (start > 0 && !llama_memory_seq_rm(memory, 0, start, -1)) {
+    if (!loadedSaved && start > 0 && !llama_memory_seq_rm(memory, 0, start, -1)) {
         start = 0;
     }
     if (start == 0) {
@@ -505,6 +541,9 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
             cache.checkpointTokens = -1;
         }
     }
+
+    // Tokens kept from memory or the saved state: what is not decoded again.
+    const int32_t reusedCount = start;
 
     // llama_decode aborts the process, rather than failing, if a batch exceeds n_batch.
     const int32_t batchSize = static_cast<int32_t>(llama_n_batch(context));
@@ -530,6 +569,17 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
             preferred = prefixCount;
         }
     }
+    // The fixed start is decoded on its own first and saved, once, for later loads of this model.
+    if (savedCount > start) {
+        if (!decodeRange(start, savedCount)) {
+            cache.reset(context);
+            return kDecodeFailed;
+        }
+        if (llama_state_seq_save_file(context, savedFile.c_str(), 0, tokens.data(), static_cast<size_t>(savedCount)) == 0) {
+            std::remove(savedFile.c_str());
+        }
+        start = savedCount;
+    }
     const int32_t checkpointAt = bruce::checkpointPosition(start, count, cache.canCut, kCheckpointOffset, preferred);
     bool decoded;
     if (checkpointAt > 0) {
@@ -549,8 +599,9 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
         return kDecodeFailed;
     }
     cache.tokens = tokens;
-    __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt: %d tokens, %d reused%s", count, start, plan.restoreCheckpoint && start > 0 ? " (checkpoint)" : "");
-    return count - start;
+    __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt: %d tokens, %d reused%s", count, reusedCount,
+            loadedSaved ? " (saved)" : plan.restoreCheckpoint && reusedCount > 0 ? " (checkpoint)" : "");
+    return count - reusedCount;
 }
 
 // Vision projectors (TASK-082): llama.cpp's multimodal context for a model's mmproj file, on the

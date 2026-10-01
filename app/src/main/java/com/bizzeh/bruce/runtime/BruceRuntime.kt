@@ -321,7 +321,7 @@ class BruceRuntime(
     }
 
     /** What the model is offered: skills and the guidance that goes with them. */
-    private data class Offer(val skills: List<Skill>, val guidance: String, val memory: String = "") {
+    private data class Offer(val skills: List<Skill>, val guidance: String, val memory: String = "", val namesGrants: Boolean = false) {
         val tools: List<ToolDefinition> get() = skills.map { skill -> ToolDefinition(skill.id, skill.description, skill.input.toJson().toString()) }
     }
 
@@ -348,7 +348,7 @@ class BruceRuntime(
             names.isEmpty() -> "$base $NO_GRANTS"
             else -> "$base Files and folders the user has granted (every path starts with one of these names): ${names.joinToString(", ")}."
         }
-        return Offer(unlocked, guidance, remembered)
+        return Offer(unlocked, guidance, remembered, namesGrants = needsFiles && names.isNotEmpty())
     }
 
     /**
@@ -398,7 +398,9 @@ class BruceRuntime(
     private suspend fun chat(messages: List<ToolChatMessage>, tools: List<ToolDefinition>, offer: Offer): BackendChat {
         val summaries = messages.filter { it.role == ChatRole.SYSTEM }.map { SUMMARY_LEAD + it.content.trim() }
         val systemPrompt = (listOf(offer.memory, personality().trim(), offer.guidance).filter { it.isNotEmpty() } + summaries).joinToString("\n\n")
-        return BackendChat(systemPrompt, messages.filter { it.role != ChatRole.SYSTEM }, tools)
+        // Remembered facts, summaries of the chat and granted file names are about the user: not kept on storage.
+        val savable = offer.memory.isEmpty() && summaries.isEmpty() && !offer.namesGrants
+        return BackendChat(systemPrompt, messages.filter { it.role != ChatRole.SYSTEM }, tools, savable)
     }
 
     /** Results are matched to calls by id; some formats give none. */

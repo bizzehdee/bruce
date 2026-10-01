@@ -23,7 +23,8 @@ import org.json.JSONException
 import org.json.JSONObject
 
 /** What one model step is asked with: the system prompt as the runtime wrote it, the conversation and the skills offered. */
-data class BackendChat(val system: String, val messages: List<ToolChatMessage>, val tools: List<ToolDefinition>)
+/** [savable]: [system] and [tools] hold nothing about the user, so their evaluated state may be kept on storage (TASK-109). */
+data class BackendChat(val system: String, val messages: List<ToolChatMessage>, val tools: List<ToolDefinition>, val savable: Boolean = false)
 
 sealed interface Prepared {
     /** Ready to generate; [tokens] is what the prompt takes of the context. */
@@ -113,6 +114,7 @@ class LocalBackend(
         val request = GenerationRequest(
             prompt.text, maxTokens = maxTokens, temperature = temperature, grammar = prompt.format.grammar, stops = prompt.format.stops,
             checkpointPrefix = shared.takeIf { pixels.isEmpty() }, images = pixels,
+            savedPrefix = if (engine.savesPrompts && prepared.chat.savable && pixels.isEmpty()) fixedPrefix(prepared.chat) else null,
         )
         engine.generate(request).collect { event ->
             when (event) {
@@ -133,6 +135,15 @@ class LocalBackend(
     }
 
     override fun stop() = engine.stop()
+
+    /**
+     * The text every prompt of [chat]'s conversation starts with: the system prompt and tools as the
+     * template lays them out, up to where the first user message's words begin.
+     */
+    private suspend fun fixedPrefix(chat: BackendChat): String? {
+        val text = prompt(chat.copy(messages = listOf(ToolChatMessage(ChatRole.USER, FIXED_END))))?.text ?: return null
+        return text.substringBefore(FIXED_END, missingDelimiterValue = "").ifEmpty { null }
+    }
 
     /** The model's own tool format when its template supports tools, otherwise Bruce's (ADR 0001). */
     private suspend fun prompt(chat: BackendChat): Prompt? {
@@ -200,6 +211,9 @@ class LocalBackend(
 
     companion object {
         private const val TAG = "BruceBackend"
+
+        /** Stands in for the first user message's words when finding where the fixed prompt ends. */
+        private const val FIXED_END = "BRUCE_FIXED_PROMPT_END_7f3a"
 
         /** Marks a prompt formatted in Bruce's own format rather than one of llama.cpp's. */
         private const val BRUCE_FORMAT = -1

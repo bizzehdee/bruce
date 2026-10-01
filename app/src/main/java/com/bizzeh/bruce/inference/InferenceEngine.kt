@@ -9,6 +9,9 @@ import kotlin.time.DurationUnit
 interface InferenceEngine {
     suspend fun loadModel(file: File, config: LoadConfig = LoadConfig()): LoadResult
 
+    /** Whether the engine keeps evaluated fixed prompts on storage ([GenerationRequest.savedPrefix], TASK-109). */
+    val savesPrompts: Boolean get() = false
+
     suspend fun unloadModel()
 
     fun getCapabilities(): EngineCapabilities
@@ -89,6 +92,8 @@ data class GenerationRequest(
     val reusePrompt: Boolean = true,
     /** The part of [prompt] the next one will share, when a pass branches off the chat (TASK-047). */
     val checkpointPrefix: String? = null,
+    /** The fixed start of [prompt] (system prompt and skills), kept on storage once evaluated (TASK-109); null when it holds anything about the user. */
+    val savedPrefix: String? = null,
     /** Images for the prompt's media markers, in order (TASK-082); nothing is reused with them. */
     val images: List<RgbImage> = emptyList(),
 ) {
