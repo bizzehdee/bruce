@@ -211,3 +211,49 @@ files, of the 259 skills-off cases that need a skill: honest answers rose from 6
 ones fell from 114 to 90. Gemma 4 E2B (0.00 to 0.86–1.00), LFM2.5-2.6B (0.00 to 1.00) and
 Qwen3.5-2B Q6_K (0.43 to 1.00) gained most; Llama 3.2 1B, Qwen2.5-Coder and gemma-3 still
 invent. General scores with skills off moved by at most 0.17 either way.
+
+## Phone runs (TASK-105, 2026-10-01)
+
+Raw results per phone in `phones/<phone>/` (`<file>.<mode>.jsonl`). The full case set ran on a few
+models per phone; the owner then cut the rest to a quick pass (8 cases with skills on and off,
+memory and first-token wait at context 4096, and generation speed at 4 threads), since phone
+answers matched the host within a few points. All runs on screen (`-e onscreen true`), on USB power.
+
+Superseded files are kept, renamed, and skipped by `bins.py`:
+
+- `*.old-prompt.jsonl`: skills-off cases before the no-tools prompt fix (c3ba23b).
+- `*.offscreen.jsonl`: run without the screen activity, so without every core.
+- `*.transient.jsonl`: slow spells rerun as `*.recheck.jsonl`. On the Xperia 1 II, gemma-2-2b,
+  Qwen3.5-2B and LFM2.5-2.6B gave 2.4–4 tokens a second in a row and 11.9–14.7 when rerun. On the
+  Pixel 11, LFM2.5-2.6B and Gemma 4 E2B had run in the `foreground` cpuset (5.9–11.2) and gave
+  18.8–24.8 on screen.
+- `*.forced-no-thinking.jsonl`: LFM2.5-2.6B with its thinking block closed (see `.learnings/no-tools-guidance.md`).
+
+The XZ Premium's battery stays above the harness's 40 °C cool-down limit on USB power, so its
+later runs used `-e cool_wait_s 30`; it ran a shortened list of the five models most likely to suit
+4 GB.
+
+The cold first-token times are the first reply after loading, before the saved system prompt
+(TASK-109), which cuts that wait to 1–6 s after the first time a model is used.
+
+## Bins (TASK-106, 2026-10-01)
+
+`bins.py` (tests in `test_bins.py`) bins each phone's files from the host quality and the phone's
+own speed. Output: `bins.md`. Rule as proposed in TASK-106: Recommended needs 80% of the no-skill
+and skill cases with skills on, no invented answer with skills off, 8 tokens a second and a
+follow-up turn's answer within 10 s; Usable needs 60% and 4 tokens a second. "Skills off" bins are
+only for models that say they cannot check rather than inventing. For a reply that opens with
+reasoning, the wait is the whole turn.
+
+The "lenient" column drops the invented-answer condition for models used with skills on. It
+decides Qwen3-1.7B, which invented 3 answers with skills off (Usable strictly, Recommended
+leniently); for the owner to choose.
+
+| Phone (tier) | Recommended | Recommended, skills off | Usable |
+|---|---|---|---|
+| Pixel 11 (12 GB) | Gemma 4 E2B Q3_K_M, MiniCPM5-2B Q4_K_M, (lenient) Qwen3-1.7B Q5_K_M | Qwen3.5-0.8B Q8_K_XL | LFM2.5-2.6B Q4_0 (always thinks: 13 s to an answer), Qwen3-VL-2B Q4_K_M; skills off: LFM2.5-230M, Qwen3.5-2B Q6_K |
+| Xperia 1 II (8 GB) | Gemma 4 E2B Q3_K_M, MiniCPM5-2B Q4_K_M, (lenient) Qwen3-1.7B Q5_K_M | Qwen3.5-0.8B Q8_K_XL, Qwen3.5-2B Q6_K | LFM2.5-2.6B Q4_0 (38 s to an answer), Qwen3-VL-2B Q4_K_M; skills off: LFM2.5-230M |
+| XZ Premium (4 GB, no dot product) | none | none | Qwen3-1.7B Q4_K_M (4.8 tokens a second, 6.7 s follow-up); skills off: LFM2.5-230M |
+
+Every other file is Not recommended on that phone: weak skill use with invented answers (Llama
+3.2 1B, Qwen2.5 and its Coder, gemma-2 and gemma-3, Qwen3-0.6B), or too slow on the XZ Premium.
