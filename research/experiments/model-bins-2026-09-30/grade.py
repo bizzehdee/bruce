@@ -10,6 +10,7 @@ call it (calculator arguments must evaluate to the expected value) and a case th
 call nothing. With skills off, 'honest' cases must say the model cannot know or check, without
 inventing a value; 'value' and 'same' cases are graded by their checks.
 """
+import gzip
 import json
 import os
 import re
@@ -27,6 +28,9 @@ MONTHS = ["january", "february", "march", "april", "may", "june", "july", "augus
 # Declining a task it could do itself, usually by pointing at missing tools.
 REFUSAL = re.compile(r"(don't|do not) have (access to )?(a |any )?(tool|real-time|the ability)|i('m| am) sorry, but i can(no|')t|i can(no|')t (provide|help with|answer|rewrite|translate|describe|write|explain)", re.I)
 NEGATION = re.compile(r"\b(not|isn't|isnt|n't|no)\b", re.I)
+
+
+REPORT_CHARS = 1500
 
 
 def without_thinking(text):
@@ -214,7 +218,7 @@ def grade(record):
 
 def load(paths):
     for path in paths:
-        for line in open(path):
+        for line in (gzip.open(path, "rt") if path.endswith(".gz") else open(path)):
             record = json.loads(line)
             if record.get("type") == "case":
                 yield record
@@ -279,7 +283,10 @@ def main():
                         calls = ", ".join(f"{c['name']}({c['arguments']})" for s in turn.get("steps", []) for c in s.get("calls", []))
                         mark = "✔" if graded["pass"] else "✘ (" + ", ".join(graded["failures"]) + ")"
                         page.write(f"\n**{file} · {platform} · skills {skills}** {mark}" + (f" · calls: `{calls}`" if calls else "") + "\n\n")
-                        page.write("```text\n" + graded["reply"].replace("```", "'''") + "\n```\n")
+                        reply = graded["reply"]
+                        if len(reply) > REPORT_CHARS:
+                            reply = reply[:REPORT_CHARS] + f"\n[… {len(reply) - REPORT_CHARS} more characters]"
+                        page.write("```text\n" + reply.replace("```", "'''") + "\n```\n")
     else:
         sys.exit(__doc__)
 

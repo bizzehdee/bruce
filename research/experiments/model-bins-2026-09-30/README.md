@@ -130,3 +130,48 @@ the same file as the Xperia 1 II for every candidate.
   Australia); without them it answered 70% correctly. This is the effect the bins must capture.
 - Context sweep on the Xperia 1 II: loads at every length up to 16384 in about 0.4 s; the long
   chat's answer was wrong at every length (this model does not recall the fact).
+
+## Host screen (TASK-108, 2026-09-30 to 2026-10-01)
+
+All 30 candidate files on the development machine, 41 cases with skills on and off each.
+Results: `host/results.jsonl.gz`; scores: `host/summary.md`; every reply, per model:
+`host/replies/<model>.md`. Grade again with `python3 grade.py summary host/results.jsonl.gz`.
+
+Run notes:
+- Templates that cannot express tool calls (`chat_template_caps.supports_tool_calls` false, the
+  app's own test) get Bruce's `<tool_call>` format with its lazy grammar, as the app sends it;
+  the first pass did not, so those files' skills-on cases were run again (`host-rerun.sh`).
+  Fallback format: gemma-3 (both), gemma-2-2b, SmolLM2 (both), LFM2.5-350M and LFM2.5-1.2B.
+- Both Qwen3.5-0.8B files lost their server mid-run at 21:43 on the first pass (no crash or
+  out-of-memory record); run again in full without a problem. Cause not found.
+- 2- and 3-bit files fall apart: Qwen3.5-0.8B IQ2_M and Qwen3-1.7B Q2_K score 0.10–0.17 and often
+  write until the 4096-token reply limit.
+- LFM2.5-1.2B through llama.cpp's own tool path instead (forced, not what the app does): skill
+  cases 0.73 instead of 0.00, but 15 unwanted calls and 0.27 on general cases with skills on,
+  against 0.90 with the fallback.
+
+Each model's best file (general = cases needing no skill; invented = of the 7 skills-off cases
+that need a skill):
+
+| Model | Best file | General, skills on | General, skills off | Skill cases | Invented | Unwanted calls |
+|---|---|---|---|---|---|---|
+| LFM2.5-2.6B | QAD-Q4_0 | 0.90 | 0.97 | 1.00 | 0 | 3 |
+| Qwen3-1.7B | Q5_K_M | 0.90 | 0.97 | 0.91 | 5 | 2 |
+| Qwen3-VL-2B-Instruct | Q4_K_M | 0.63 | 0.90 | 0.91 | 6 | 9 |
+| MiniCPM5-2B | Q4_K_M | 0.83 | 0.97 | 0.82 | 1 | 2 |
+| Qwen3.5-2B | Q3_K_S | 0.77 | 1.00 | 0.64 | 1 | 1 |
+| Qwen2.5-1.5B-Instruct | q6_k | 0.93 | 0.90 | 0.55 | 3 | 0 |
+| Qwen3.5-0.8B | UD-Q8_K_XL | 0.60 | 0.83 | 0.55 | 0 | 7 |
+| LFM2.5-230M | Q8_0 | 0.17 | 0.70 | 0.64 | 0 | 4 |
+| gemma-2-2b-it | IQ4_XS | 0.87 | 0.83 | 0.45 | 6 | 0 |
+| Qwen3-0.6B | Q8_0 | 0.73 | 0.80 | 0.45 | 3 | 0 |
+| Qwen2.5-0.5B-Instruct | q8_0 | 0.40 | 0.67 | 0.45 | 4 | 8 |
+| LFM2.5-1.2B-Instruct | Q8_0 | 0.90 | 0.93 | 0.00 | 3 | 0 |
+| gemma-3-1b-it | Q8_0 | 0.30 | 0.73 | 0.18 | 7 | 18 |
+| Llama-3.2-1B-Instruct | Q8_0 | 0.07 | 0.87 | 0.00 | 6 | 1 |
+| SmolLM2-360M-Instruct | q8_0 | 0.60 | 0.67 | 0.18 | 3 | 0 |
+| Qwen2.5-Coder-1.5B-Instruct | q3_k_m | 0.67 | 0.83 | 0.00 | 3 | 0 |
+| LFM2.5-350M | Q8_0 | 0.57 | 0.63 | 0.00 | 3 | 0 |
+| Qwen2.5-Coder-0.5B-Instruct | q8_0 | 0.50 | 0.60 | 0.00 | 6 | 0 |
+| SmolLM2-135M-Instruct | Q8_0 | 0.47 | 0.47 | 0.09 | 4 | 0 |
+| gemma-3-270m-it | UD-Q8_K_XL | 0.40 | 0.33 | 0.00 | 1 | 3 |
