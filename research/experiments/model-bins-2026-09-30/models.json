@@ -858,5 +858,29 @@
     "fits": true
    }
   }
+ },
+ {
+  "bucket": "over 3B (4.6B with per-layer embeddings)",
+  "role": "extra",
+  "note": "Owner 2026-10-01: compare Gemma 4 E2B, Q3_K_M and Q4_K_M, on the host.",
+  "base_model": "google/gemma-4-E2B-it",
+  "repository": "unsloth/gemma-4-E2B-it-GGUF",
+  "revision": "0314792d7f1f7e229411f620751375812bb9faf2",
+  "architecture": "gemma4",
+  "parameters": 4647450147,
+  "licence": "apache-2.0",
+  "pipeline_tag": null,
+  "files_tested": [
+   {
+    "path": "gemma-4-E2B-it-Q3_K_M.gguf",
+    "size": 2536786016,
+    "sha256": "086e2f5ba85057f8f19712e3160a644728f74f323c9feeac4cd73fab11b43085"
+   },
+   {
+    "path": "gemma-4-E2B-it-Q4_K_M.gguf",
+    "size": 3106738272,
+    "sha256": "740185b21d22ceb83a11c3aa62ad5842ef32c70f6096d756bbee85a1e4ec34b8"
+   }
+  ]
  }
 ]

@@ -187,3 +187,18 @@ General cases with skills on / off, then skill cases:
 | Qwen3.5-2B | Q3_K_S | 0.77 / 1.00 / 0.64 | 0.37 / 0.83 / 0.91 |
 | Qwen2.5-1.5B-Instruct | q3_k_m | 0.90 / 0.90 / 0.00 | 0.93 / 0.90 / 0.27 |
 | Qwen2.5-Coder-1.5B-Instruct | q3_k_m | 0.67 / 0.83 / 0.00 | 0.73 / 0.83 / 0.00 |
+
+### Gemma 4 E2B (owner, 2026-10-01)
+
+unsloth/gemma-4-E2B-it-GGUF @ 0314792d (apache-2.0), Q3_K_M (2.54 GB) and Q4_K_M (3.11 GB), on
+the host. 4.6B parameters with its per-layer embeddings, so outside both buckets; too large for
+the 4 GB phone.
+
+| File | General, skills on | General, skills off | Skill cases | Invented | Unwanted calls |
+|---|---|---|---|---|---|
+| Q4_K_M | 0.97 | 1.00 | 0.82 | 0 | 0 |
+| Q3_K_M | 0.93 | 0.97 | 0.91 | 0 | 2 |
+
+The best general scores of any model tested, and no invented answers. With skills off it does
+not say it cannot check: it writes made-up tool code (`<tool_code> print(phone.get_battery_level())
+</tool_code>`), because Bruce's system prompt tells it to use a tool even when none is offered.

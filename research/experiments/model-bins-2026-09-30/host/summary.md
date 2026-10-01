@@ -35,3 +35,5 @@
 | gemma-3-1b-it | gemma-3-1b-it-Q8_0.gguf | host | 0.3 | 0.73 | 0.18 | 0.0 | 7 | 0.25 | 18 | 0 | 82 |
 | gemma-3-270m-it | gemma-3-270m-it-Q8_0.gguf | host | 0.4 | 0.37 | 0.0 | 0.0 | 1 | 0.0 | 2 | 7 | 82 |
 | gemma-3-270m-it | gemma-3-270m-it-UD-Q8_K_XL.gguf | host | 0.4 | 0.33 | 0.0 | 0.0 | 1 | 0.0 | 3 | 8 | 82 |
+| gemma-4-E2B-it | gemma-4-E2B-it-Q3_K_M.gguf | host | 0.93 | 0.97 | 0.91 | 0.0 | 0 | 0.75 | 2 | 0 | 82 |
+| gemma-4-E2B-it | gemma-4-E2B-it-Q4_K_M.gguf | host | 0.97 | 1.0 | 0.82 | 0.0 | 0 | 0.75 | 0 | 1 | 82 |
