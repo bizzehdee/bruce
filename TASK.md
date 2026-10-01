@@ -92,9 +92,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - `docs/branding/export-icons.sh` regenerates every icon from the master SVG.
   - Depends on: TASK-001
   - Required by: TASK-015
-- [ ] TASK-015: Play Store feature graphic
+- [x] TASK-015: Play Store feature graphic
   - 1024 × 500 header image using the TASK-014 logo, under `docs/store/`.
   - Phone screenshots are out of scope here; they follow once the product UI exists.
+  - Done (2026-10-01): `docs/store/feature-graphic-1024x500.png`, 24-bit PNG without alpha as Play requires: the head on the left, facing "Bruce" and "Your AI sidekick, on your phone." on the Play icon's cream. `docs/branding/export-icons.sh` generates it with the icons (Montserrat, SIL Open Font License); its scratch files now go under `build/scratch`.
   - Depends on: TASK-014
 - [ ] TASK-016: Privacy policy
   - Markdown under `docs/store/`, describing local-only storage, what leaves the device (Hugging Face requests and downloads only when the user enables them), no ads, no analytics, no accounts, and how to delete data.

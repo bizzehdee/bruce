@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Regenerates the launcher icon layers and the Play Store icon from bruce-logo.svg.
+# Regenerates the launcher icon layers, the Play Store icon and feature graphic from bruce-logo.svg.
 # Requires ImageMagick 7 built with librsvg (`magick -list format | grep RSVG`).
+# The feature graphic uses the Montserrat font (SIL Open Font License), installed system-wide.
 set -euo pipefail
 
 cd "$(dirname "$0")/../.."
@@ -9,7 +10,9 @@ RES=app/src/main/res
 # The launcher icon has no background of its own; the Play icon must be an opaque square.
 LAUNCHER_BACKGROUND="#00000000"
 PLAY_BACKGROUND="#FFF3E6"
-WORK=$(mktemp -d)
+# Scratch on disk, not tmpfs.
+mkdir -p build/scratch
+WORK=$(mktemp -d -p build/scratch)
 trap 'rm -rf "$WORK"' EXIT
 
 # High-resolution render trimmed to the drawn content.
@@ -41,6 +44,17 @@ done
 mkdir -p docs/store
 magick "$WORK/content.png" -resize 410x410 -background "$PLAY_BACKGROUND" -gravity center \
   -extent 512x512 -alpha off -strip "PNG24:docs/store/play-icon-512.png"
+
+# Play Store feature graphic: 1024 x 500, the head on the left and the name on the right, on the
+# Play icon's background. Text stays inside the central area Play keeps clear of its own overlays.
+FEATURE_TEXT="#3A2216"
+FEATURE_ACCENT="#2C5176"
+magick -size 1024x500 "xc:$PLAY_BACKGROUND" \
+  \( "$WORK/content.png" -resize x420 \) -gravity west -geometry +90+0 -composite \
+  -gravity northwest -font Montserrat-ExtraBold -pointsize 132 -fill "$FEATURE_TEXT" -annotate +500+120 "Bruce" \
+  -font Montserrat-Medium -pointsize 40 -fill "$FEATURE_ACCENT" -annotate +506+285 "Your AI sidekick," \
+  -annotate +506+335 "on your phone." \
+  -alpha off -strip "PNG24:docs/store/feature-graphic-1024x500.png"
 
 cat > "$RES/values/ic_launcher_background.xml" <<XML
 <?xml version="1.0" encoding="utf-8"?>
