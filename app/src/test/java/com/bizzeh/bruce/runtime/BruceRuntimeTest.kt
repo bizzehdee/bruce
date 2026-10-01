@@ -220,6 +220,21 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun withNoSkillOfferedTheModelIsNotToldToUseOne() = runBlocking {
+        val reader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, requires = setOf(SkillRequirement.FILE_GRANT)) { SkillOutcome.Done("text") }
+        fun system(registry: SkillRegistry): String {
+            engine.steps += Step("", ParsedReply("Hi.", "", emptyList()))
+            val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" })
+            runBlocking { runtime.respond(question).toList() }
+            return engine.formatted.last().first().content
+        }
+
+        assertEquals("P\n\n" + BruceRuntime.NO_SKILLS_GUIDANCE, system(SkillRegistry(emptyList())))
+        assertEquals("only a locked file skill", "P\n\n" + BruceRuntime.NO_SKILLS_GUIDANCE + " " + BruceRuntime.NO_GRANTS, system(SkillRegistry(listOf(reader))))
+        assertFalse(BruceRuntime.NO_SKILLS_GUIDANCE.contains("Use a tool"))
+    }
+
+    @Test
     fun skillsNeedingTheNetworkAreNotOfferedWhileItIsOffAndAreRefusedIfCalled() = runBlocking {
         val status = Skill("get_network_status", 1, "Net.", InputSchema(), setOf(Capability.NETWORK_STATUS), SkillState.ACCEPTED, requires = setOf(SkillRequirement.NETWORK_ALLOWED)) { SkillOutcome.Done("online") }
         val registry = SkillRegistry(listOf(clock, status))
