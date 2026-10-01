@@ -11,3 +11,12 @@ should say so rather than guess or write tool calls (`BruceRuntime.NO_SKILLS_GUI
 
 Results in `research/experiments/model-bins-2026-09-30/` taken before c3ba23b used the old
 skills-off prompt; the skills-off cases were run again on the host and the phones.
+
+## A model trained to think cannot simply be told not to (2026-10-01)
+
+LFM2.5 2.6B's template ends every generation prompt with `<think>` and has no switch, so it reasoned
+in every reply (337 tokens before "Canberra"). Closing the block in the prompt (`<think></think>`)
+stopped the reasoning but broke the model, measured on the Pixel 11 with all 41 cases: plain
+answers with skills on fell from 0.90 to 0.07, it called a tool in 27 of 41 cases that needed
+none, and with skills off it wrote made-up calls such as `[google(query=...)]`. Leave thinking on
+for templates that always open it (owner, 2026-10-01); measure any such model with its reasoning.

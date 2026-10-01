@@ -231,7 +231,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Output: a decision recorded as an ADR and in `.learnings/`, closing the plan.md open question on tool-calling format.
   - Decided 2026-09-28 from the development-machine run (7 models, 36 cases, 4 formats): each model's own format via a narrow build of llama.cpp's chat code, Bruce's format with a grammar as fallback; full skill descriptions until a prompt budget (`docs/adr/0001-tool-calling-format.md`). Phone runs (12-case subset, both Sony phones) confirm it: own format 87% (Xperia 1 II) and 79% (XZ Premium); prompt evaluation dominates a turn (about 10 tokens/s on the XZ Premium), which TASK-056 addresses.
   - Depends on: TASK-024
-  - Required by: TASK-036, TASK-104
+  - Required by: TASK-036, TASK-104, TASK-110
 - [x] TASK-034: Skill framework and capability model
   - Skill definition per the spec: ID, version, description, input schema, required capabilities, default state, high-risk flag, resource scope, Android permissions, execute function.
   - Capability classes and capabilities from the spec (INFORMATION, FILES, PERSONAL_DATA, SENSORS, COMMUNICATION, SYSTEM, NETWORK); only those used by current skills are wired.
@@ -784,7 +784,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Tests: unit tests for choosing the tier and the suggestions from memory size and processor type; a UI test of the wizard step with suggestions, with none, and offline.
   - In progress (2026-10-01): the wizard's model step lists the suggestions for the phone's tier (`SuggestedModels`, shipped in the app with each file's size), each with a one- or two-line description, Download, progress and Cancel, errors with Retry, and Installed once the file is on the phone. Download looks the repository and file up on the Hub and goes through the browser's download, so the header check and SHA-256 verification apply. Nothing is asked of the Hub until the user taps Download.
     - A phone uses the largest tier with no more memory than it has (3.5, 7 and 11 GB as the kernel reports them, for the 4, 8 and 12 GB phones) and no CPU feature it lacks; a phone with dot-product instructions can use the 4 GB tier measured without them, not the reverse.
-    - The list is provisional until TASK-106's bins are confirmed: 8 GB and 12 GB suggest Qwen3 1.7B Q5_K_M and MiniCPM5 2B Q4_K_M, 12 GB adds LFM2.5 2.6B Q4_0, 8 GB adds Gemma 4 E2B Q3_K_M; 4 GB suggests nothing until the XZ Premium's results are in.
+    - The list is provisional until TASK-106's bins are confirmed: 8 GB and 12 GB suggest Qwen3 1.7B Q5_K_M, MiniCPM5 2B Q4_K_M and Gemma 4 E2B Q3_K_M; 4 GB suggests nothing until the XZ Premium's results are in. LFM2.5 2.6B is left out: it always thinks, so replies take 30 s or more (owner, 2026-10-01).
     - Still to do: the final list from TASK-106, and the model browser's "Recommended" label.
   - Nothing new leaves the phone: the list is in the app, matched against Hub results on the phone.
   - Depends on: TASK-031, TASK-106
@@ -808,3 +808,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (2026-10-01): `SavedPrompts` keys a state file by model path, context length, the fixed prefix and the build; the native code loads it when the context holds less than the fixed prefix, otherwise saves it after decoding. Saved only when the fixed prompt holds no memories, chat summaries or grant names, so the file holds nothing about the user; it is in the cache directory and is deleted with its model and by Clear all data.
   - Device tests passed on the Xperia 1 II and the XZ Premium (`SavedPromptDeviceTest`: same greedy output, fewer tokens decoded). Timing with the personality prompt (170–203 tokens): Xperia 1 II 3.7–10.1 s down to 1.2–2.2 s for five 1.7–2.6B models, including hybrid LFM2.5 and Qwen3.5 and sliding-window Gemma 4; XZ Premium 24.8–25.7 s down to 1.6–6.3 s for Qwen2.5-1.5B and Qwen3-1.7B Q4_K_M. Files 3–22 MB. Details in `.learnings/saved-prompt-state.md`.
   - Depends on: TASK-056
+- [ ] TASK-110: Thinking setting
+  - Owner (2026-10-01): thinking off on every model, or at least a toggle for it. Bruce already asks every template for thinking off; only LFM2.5 2.6B, whose template always opens a thinking block, still reasoned (337 tokens before "Canberra").
+  - Closing that block was tried and measured on the Pixel 11 (all 41 cases): no reasoning, but plain answers fell from 0.90 to 0.07 and the model called tools in 27 of 41 skills-on cases where none was needed; with skills off it wrote made-up tool calls. Owner (2026-10-01): models whose template always thinks keep thinking; the setting covers models that can switch.
+  - Proposed, for the owner to confirm: Settings > Inference gains "Think before replying", off by default, for every model whose template supports it; each model's settings can override it. With it on, replies keep the reasoning, shown collapsed above the answer (the chat already splits `<think>` text), and the reply limit counts it.
+  - Extra model passes (summaries, memory extraction) keep thinking off whatever the setting, as `.learnings/reasoning-models-and-plain-templates.md` requires.
+  - Tests: unit tests that the setting reaches the prompt (`enable_thinking`) and that side passes ignore it; the existing device test for the forced thinking block.
+  - Depends on: TASK-033

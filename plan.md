@@ -85,6 +85,12 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   supported backend exposes it. `done`
 - **Memory estimation** — Estimate a model's RAM requirement and compare it with
   usable device RAM before loading. `done`
+- **Thinking** — Models reply without thinking first (reasoning before the
+  answer), because on a phone it costs tens of seconds per reply. A model whose
+  template always opens a thinking block (LFM2.5 2.6B) keeps thinking: without it
+  that model calls tools for almost every message (owner, 2026-10-01). A setting
+  turns thinking on for models that can switch it. `in progress` (off where the
+  template allows, done; the setting is TASK-110)
 - **Advanced hardware tuning** — User control over backend, threads, context and
   similar settings; optional backend benchmarking. `done` (Settings and each
   model's settings; benchmarks in Diagnostics)
@@ -484,6 +490,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-01 | Added | Thinking off for every model that can switch it off, with a setting to turn it on; models that always think keep thinking (owner) (TASK-110). |
 | 2026-10-01 | Changed | Setup wizard's model step suggests recommended models for the phone; the user can skip them and choose their own (owner) (TASK-107). |
 | 2026-10-01 | Added | Saved system prompt: the evaluated fixed prompt is kept per model, so the first reply after loading does not re-read it (owner) (TASK-109). |
 | 2026-10-01 | Changed | Recommended models are binned by memory and by processor type (dot-product instructions or not) (owner). |

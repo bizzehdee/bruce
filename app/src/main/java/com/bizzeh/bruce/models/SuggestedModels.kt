@@ -36,12 +36,8 @@ object SuggestedModels {
             R.string.suggested_minicpm5_2b, setOf(DeviceTier.EIGHT_GB, DeviceTier.TWELVE_GB),
         ),
         SuggestedModel(
-            "LiquidAI/LFM2.5-2.6B-GGUF", "LFM2.5-2.6B-QAD-Q4_0.gguf", 1_593_894_944, "LFM2.5 2.6B",
-            R.string.suggested_lfm2_5_2_6b, setOf(DeviceTier.TWELVE_GB),
-        ),
-        SuggestedModel(
             "unsloth/gemma-4-E2B-it-GGUF", "gemma-4-E2B-it-Q3_K_M.gguf", 2_536_786_016, "Gemma 4 E2B",
-            R.string.suggested_gemma4_e2b, setOf(DeviceTier.EIGHT_GB),
+            R.string.suggested_gemma4_e2b, setOf(DeviceTier.EIGHT_GB, DeviceTier.TWELVE_GB),
         ),
     )
 
