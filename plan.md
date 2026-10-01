@@ -278,13 +278,21 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   quantisation (exact once a repository is opened). `done`
 - **Recommended models by device type** — Models Bruce has measured and found
   good are marked recommended, per device type: by the phone's memory size at
-  first (4 GB, 8 GB and 12 GB tiers, one test phone each). The bins come from an
+  first (4 GB, 8 GB and 12 GB tiers, one test phone each), and by processor type:
+  whether the CPU has the dot-product instructions llama.cpp's fast paths need
+  (owner, 2026-10-01). The bins come from an
   evaluation of the most popular small chat models (under 1B and under 3B
   parameters) on the three test phones: replies to a fixed set of prompts with
   skills on and off, at several context lengths, with speed and memory. Models
   are screened on the development machine first; only those that pass go to the
   phones. `planned`
   (TASK-103 to TASK-108)
+- **Saved system prompt** — The first reply after a model loads has to read the
+  fixed part of every prompt (system prompt and skill descriptions) first: about
+  70 seconds for a 1.5B model on the XZ Premium. Bruce saves that evaluated part
+  for each model on the phone and loads it instead, so the wait happens once, not
+  each time the model loads. Kept in app storage, replaced when the prompt changes,
+  and removed with the model or by clearing data. `planned` (TASK-109)
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
   prototype screen); inference defaults (backend, threads, context length);
   network (network mode and Hugging Face sign-in); data and privacy (export and
@@ -471,6 +479,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-01 | Added | Saved system prompt: the evaluated fixed prompt is kept per model, so the first reply after loading does not re-read it (owner) (TASK-109). |
+| 2026-10-01 | Changed | Recommended models are binned by memory and by processor type (dot-product instructions or not) (owner). |
 | 2026-10-01 | Changed | Inference threads default to four (every core on phones with fewer), changeable in Settings (owner). |
 | 2026-09-30 | Changed | Model evaluation screens models on the development machine first; only those that pass are run on the phones (owner) (TASK-108). |
 | 2026-09-30 | Added | Recommended models by device type (memory tiers), from an evaluation of popular small models on the three test phones (owner) (TASK-103 to TASK-107). |

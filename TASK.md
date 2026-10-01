@@ -408,6 +408,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done: the native layer keeps what each context holds between generations and decodes only what follows the longest prefix the new prompt shares with it (`prompt_cache.cpp`, with native tests). Plain attention memory is cut back to that prefix; recurrent, hybrid and sliding-window memory (Qwen3.5, Gemma) is reused as an exact extension or through a partial-state checkpoint saved 8 tokens before each prompt's end. Benchmarks and Diagnostics turn reuse off. A repeated skill call now first gets its result with a note to answer, keeping the prompt (and its cache) unchanged; only a second repeat removes the skills.
   - Measured (research/experiments/prompt-reuse-2026-09-29): three-turn chats took about half the time with Qwen3.5-0.8B and a third with Llama 3.2 1B on both Sony phones; later turns on the XZ Premium went from over a minute to 5–27 s. Output with and without reuse matched exactly on the Xperia 1 II.
   - Depends on: TASK-052
+  - Required by: TASK-109
 - [x] TASK-057: Personalities (Bruce and Milo)
   - Settings gains a Personality choice, one for every chat: Bruce (default) and Milo. The setup wizard does not ask; it can be changed any time and applies from the next reply.
   - Each personality's rules go first in the system prompt, verbatim as the owner wrote them (kept in the app as text resources, not code), followed by Bruce's tool guidance. Both prompts may use an occasional dog pun (Bruce more than Milo); the tool and safety guidance is unchanged.
@@ -763,6 +764,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Required by: TASK-106
 - [ ] TASK-106: Bin the models per memory tier
   - Bins per tier (4 GB, 8 GB, 12 GB): Recommended, Usable, Not recommended. A tier's bin comes from that tier's phone only.
+  - Owner (2026-10-01): bin by memory and by processor type (whether the CPU has dot-product instructions; the XZ Premium does not, and its 69 s first token for a 1.5B model rules that out). Answer quality comes from the host screen, which the phones matched within a few points (skill cases somewhat lower on the phones); speed, first-token wait and memory come from a quick pass on each phone at context 4096. Longer contexts are judged from the 2048 and 4096 measurements: memory grows as estimated, prompt reading slows with length, and most models timed out at 8192 and above on the phones.
   - Proposed rule, for the owner to confirm before TASK-105 is read: Recommended needs no crash or failed load at the default context; at least 80% of the no-skill cases and 80% of the skill cases correct; no invented answer in the skills-off cases that need a skill; generation of at least 8 tokens a second; and a follow-up turn's first token within 10 seconds. Usable is at least 60% on both and 4 tokens a second. Anything else is Not recommended.
   - Replies with no automatic check (summaries, rewrites) are graded against a written rubric in the experiment folder; the owner reviews the replies of every model near a bin boundary.
   - Also reported per model: the largest context length that fits each tier, and whether skills should be left on.
@@ -785,3 +787,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Owner (2026-10-01): the phones get every model whose best file scores at least 70% on the cases needing no skill, with skills on or off: 14 models (the bins can say "recommended, skills off"). Dropped: Qwen2.5-0.5B, Qwen2.5-Coder-0.5B, SmolLM2-135M, SmolLM2-360M, LFM2.5-350M, gemma-3-270m. The 4 GB phone tests Bruce's pick and, where that is 2- or 3-bit, the 4-bit file too (2- and 3-bit files fell apart on the host).
   - Depends on: TASK-103, TASK-104
   - Required by: TASK-105
+- [~] TASK-109: Save the evaluated system prompt per model
+  - Owner (2026-10-01): the first reply after a model loads waits for the fixed prompt (system prompt and skill descriptions) to be read: 69 s for Qwen2.5-1.5B Q4_K_M on the XZ Premium, 4–5 s on the Xperia 1 II. Save that evaluated state per model and load it, so the wait happens once.
+  - Saved with llama.cpp's sequence state functions after the fixed prompt is first evaluated; keyed by the model file, the exact fixed-prompt tokens and the llama.cpp build, so any change (skills, personality, memory, template, app update) makes a new one and the old one is deleted.
+  - Privacy: the fixed prompt can hold remembered facts about the user, so the saved state is personal data. It stays in app-private storage, one file per model, and goes when the model is deleted, when memories are deleted and with Clear all data.
+  - Measure on the Xperia 1 II and the XZ Premium: first-token time after loading, with and without the saved state, and the file size and load time.
+  - Tests: unit tests for the key and the clean-up; a device test that output with the saved state matches output without it (greedy), as TASK-056 did for reuse.
+  - Depends on: TASK-056
