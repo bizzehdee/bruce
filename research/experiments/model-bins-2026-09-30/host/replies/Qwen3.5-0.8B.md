@@ -7,6 +7,18 @@ Every reply, per file, platform and skills setting. ✔ passed its checks, ✘ d
 > Reply with exactly three words describing the sea.
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✘ (4 words)
+
+```text
+The ocean is vast.
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (4 words)
+
+```text
+The sea is blue!
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (1829 words)
 
 ```text
@@ -217,6 +229,26 @@ The sea is blue!
 > List three fruits as a bulleted list and nothing else.
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Here are three fruits:
+
+*   Apple
+*   Banana
+*   Orange
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Here are three fruits:
+
+*   Apple
+*   Banana
+*   Orange
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✔
 
 ```text
@@ -403,6 +435,18 @@ Sure! Here are three fruits:
 > Answer only yes or no: is Paris the capital of France?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+yes
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+yes
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (format)
 
 ```text
@@ -445,6 +489,18 @@ yes
 
 > Translate into French: "Good morning, how are you?"
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Bonjour ! Je suis Bruce, et je suis très bien. Comment allez-vous aujourd'hui ?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Bonjour ! C'est un excellent début du matin. Comment allez-vous aujourd'hui ?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✔
 
@@ -516,6 +572,18 @@ Bonjour! Comment allez-vous? 😊
 
 > Write one sentence about cats, in capital letters only.
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+CATS ARE THE MOST LOVING AND FUNNY FURONDS IN THE WORLD!
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+CATS ARE THE MOST LOVED AND FUNNY FURONDS IN THE WORLD! 🐱🐈‍🔥
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (0% upper, missing CAT)
 
@@ -1353,6 +1421,21 @@ CATS ARE THE MOST AMAZING FURRY FRIENDS EVER!
 > Give me a JSON object with the keys name and age for a person called Sam who is 30. Reply with only the JSON.
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+{
+  "name": "Sam",
+  "age": 30
+}
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (unwanted, no JSON) · calls: `get_device_info({}), get_battery_status({}), get_storage_status({}), get_datetime({}), get_battery_status({}), get_storage_status({})`
+
+```text
+
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (no JSON)
 
 ```text
@@ -1623,6 +1706,18 @@ I'm a little silly, but I'm still here to help. Here's a quick, simple answer:
 > In one sentence, what is photosynthesis?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Photosynthesis is the process by which plants convert sunlight into energy, creating food for themselves and other living things.
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Photosynthesis is the process plants use to convert sunlight, water, and carbon dioxide into glucose and oxygen, which is essential for life on Earth.
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (2858 words)
 
 ```text
@@ -1672,6 +1767,26 @@ Photosynthesis is the process where plants use sunlight to turn carbon dioxide a
 
 > What is the capital of Australia?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Ah, the capital of Australia is **Canberra**! 🇦🇺🏆
+
+It's a bit of a surprise, but it's actually the second-largest city in the world. Did you know it's located in the middle of the Great Australian Outback? 🌲🏔️
+
+What's the best thing you've been doing today?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+The capital of Australia is **Canberra**! 🇦🇺🏆
+
+It's the second largest city in Australia and the capital of the state of New South Wales. It's located in the middle of the Great Australian Bight, just 100km from the Great Barrier Reef.
+
+Want to know more about it? I can tell you about the city's history or its famous landmarks!
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing Canberra)
 
@@ -1904,6 +2019,25 @@ The capital of Australia is Canberra! 🇦🇺 It's a beautiful city in the outb
 > How many legs does a spider have?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Oh, a spider has **three** legs! 🐀🦟
+
+Wait, I noticed you're asking about a "spider" (the animal) vs. a "spider" (the tool). Which one are you talking about?
+
+*   **The spider (the animal):** Has 8 legs.
+*   **The spider tool (the tool):** Has 3 legs.
+
+Which one are you curious about? I'll help you figure it out! 😄
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+A spider has 8 legs! 🐀🦟 That's why they're called "spiders" (spiders have 8 legs). I'm ready to help you with anything else today!
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing 8)
 
 ```text
@@ -1996,6 +2130,28 @@ Now, what do you want to do?
 > Who wrote Romeo and Juliet?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Who wrote *Romeo and Juliet*?
+
+**Answer:** It was written by **William Shakespeare**.
+
+*Note: While the play is famous, it is actually the first of three plays written by Shakespeare. The other two are *Macbeth* and *Othello*. You can find more details about the other plays on his website.*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+Okay, so it's Wednesday, September 30, 2026! 🕐
+
+Romeo and Juliet was written by **William Shakespeare** in 1597. 🎭
+
+That's a long time ago! Did you know Shakespeare wrote over 30 plays, including *Romeo and Juliet*? 🎭🎭
+
+What's the best part of your day today?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (refused, missing Shakespeare)
 
 ```text
@@ -2058,6 +2214,22 @@ But wait, I'm not a human, so I can't actually write poetry or play the part. I 
 > At sea level, what temperature does water boil at, in Celsius?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+At sea level, water boils at exactly **100°C** (212°F).
+
+Since you're running as my sidekick on an Android phone, let's check the weather forecast for the next few days to see if it's chilly or if we need to bring a heater! 🌤️☔
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+At sea level, water boils at exactly **100°C** (212°F). That's the standard boiling point for water! 🌡️💧
+
+Want to know how much space you have on your phone? I can check your storage status for you.
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing 100)
 
 ```text
@@ -2110,6 +2282,31 @@ What's your location?
 
 > Which is the largest planet in our solar system?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+**Jupiter**! 🌌
+
+It's the biggest planet by mass, and it's also the largest by volume. 🚀💨
+
+Here's the quick breakdown:
+*   **Mass:** ~318 times Earth's mass.
+*   **Volume:** ~950 times Earth's volume.
+*   **Diameter:** ~120,000 km (75,000 miles).
+
+It's a gas giant with a massive, swirling atmosphere! 🪐✨
+
+What's your favorite planet?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Oh, I don't have a solar system! I'm just a sidekick on your Android phone. But hey, if you're thinking about the planets, I'd say Jupiter is the biggest! 🌌🚀
+
+What's your favorite planet? Or do you want to know about my storage?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing Jupiter)
 
@@ -2222,6 +2419,34 @@ Which one are you thinking of?
 
 > Which is heavier, a kilogram of feathers or a kilogram of steel?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✘ (missing same)
+
+```text
+Oh, you've got a classic debate! Let's do a quick math check on the two heavyweights:
+
+1.  **A kilogram of feathers**: This is incredibly light. It's roughly equivalent to the weight of a small paperclip.
+2.  **A kilogram of steel**: This is a solid block of iron. It's about 7.3 times heavier than feathers.
+
+**The answer is: A kilogram of steel is much heavier.**
+
+But wait, you asked about a **kilogram of feathers**! That's actually quite light. A single feather weighs about 0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+[… 2704 more characters]
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missing same)
+
+```text
+I can't weigh them directly, but I can tell you the answer! A kilogram of steel is significantly heavier than a kilogram of feathers.
+
+Here's why:
+- **Steel** is made of iron, which is very dense.
+- **Feathers** are mostly air, which is very light.
+
+So, a kilogram of steel will weigh about 7.85 times heavier than a kilogram of feathers!
+
+Would you like to know how much heavier it is? Or maybe you want to know how much lighter feathers are compared to steel?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing same)
 
@@ -2460,6 +2685,31 @@ I can't help with that. It's a bit of a trick question. Let me check the battery
 > I have 3 apples, eat one, then buy 5 more. How many apples do I have now?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hah! That sounds like a classic "I'm hungry" scenario! 🍎🍎🍎
+
+Let's calculate the math:
+1.  Start with: 3 apples
+2.  Eat one: 3 - 1 = 2 apples left
+3.  Buy 5 more: 2 + 5 = 7 apples total
+
+**You now have 7 apples!** 🍎🍎🍎🍎🍎
+
+*(Note: I'm assuming you're using a standard 12-inch phone for this. If you have a 16-inch one, the math stays the same, but the "I'm hungry" vibe gets a little more intense!)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (wrong number)
+
+```text
+Great question! Let's calculate that together.
+
+First, you have 3 apples. Then you buy 5 more. So, 3 + 5 = 8 apples.
+
+You now have 8 apples total! 🍎🍎🍎🍎🍎
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (wrong number)
 
 ```text
@@ -2511,6 +2761,29 @@ Great question! You have 3 apples, eat one, and then buy 5 more. That means you 
 
 > Tom is taller than Ann. Ann is taller than Joe. Who is the shortest?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Whoa, look at that! 😅
+
+Let's break down the chain:
+1. Tom > Ann
+2. Ann > Joe
+3. Therefore: **Joe < Ann < Tom**
+
+The shortest one is **Joe**. 🥇📏
+
+*(P.S. Did you know? I'm actually a bit taller than Joe, so I'm the tallest of the group!)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_battery_status({}), get_storage_status({}), get_device_info({}), get_datetime({}), get_datetime({}), get_datetime({})`
+
+```text
+Okay, so it's Wednesday, September 30, 2026, at 14:37:12. Now let's figure out who's the shortest!
+
+First, let's get the current time to know when Joe is:
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (has Ann is the shortest)
 
@@ -2568,6 +2841,35 @@ So Joe is the shortest! 😄
 > If today is Monday, what day will it be in three days?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Ah, the Monday problem! 🕐📅
+
+Since today is Monday, three days later will be **Tuesday**.
+
+Here's the quick math:
+*   Monday → Tuesday → Wednesday → Thursday → **Friday** (Wait, hold on... that's not right).
+
+Let's re-calculate:
+1.  Today: Monday
+2.  Day 1: Tuesday
+3.  Day 2: Wednesday
+4.  Day 3: **Thursday**
+
+So, three days from now will be **Thursday**.
+
+*(Note: I didn't use a tool, but I did use my brain to solve it! 😄)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missing Thursday)
+
+```text
+Today is Monday, so in three days it will be Tuesday! 📅✨
+
+What's the best thing you want to do today?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
@@ -2618,6 +2920,18 @@ So, if today is Monday, three days later it will be Tuesday. That's the answer! 
 >
 
 Rubric: One sentence that keeps the library, the start or duration, and at least one feature or the funding; nothing invented.
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+The town council is planning a new library with a children's wing, cafe, and community events, with construction starting in March and taking eighteen months, funded primarily by a national grant.
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+The town council met on Tuesday to discuss the new library, which will have a children's wing, a cafe, and community event space, with funding coming mostly from a national grant.
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (2966 words)
 
@@ -2679,6 +2993,30 @@ The town council met to discuss the new library, which will have a children's wi
 >
 
 Rubric: Polite and formal, keeps the report and the Friday deadline.
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Subject: Request for Report Submission
+
+Dear [Recipient's Name],
+
+I hope this message finds you well.
+
+Please find attached the draft report for your review. We are aiming to submit it by Friday to ensure we meet our deadline.
+
+Should you require any further clarification or have questions about the content, please do not hesitate to reach out.
+
+Best regards,
+
+[Your Name]
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missing Friday)
+
+```text
+I'd be happy to help you draft a formal email. Could you please provide the full text you'd like me to rewrite?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing Friday, has hey)
 
@@ -2969,6 +3307,20 @@ Would you like me to help you find the file or guide you on how to share it?
 > From this message, when is the meeting? "The team meeting has moved from Tuesday to Thursday at 3pm, in room 4."
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Got it! The team meeting is scheduled for **Thursday at 3:00 PM in Room 4**.
+
+Since you're running on an Android phone, I've already checked the calendar for you. Is there anything else you need help with today?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+Perfect! The team meeting is scheduled for Thursday at 3pm in room 4. I've confirmed the time is correct. Is there anything else you need help with today?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✔
 
 ```text
@@ -3014,6 +3366,27 @@ Got it! The team meeting is scheduled for Thursday at 3pm in room 4. Let me know
 >
 
 Rubric: Says the text does not say (it mentions a bike, not a car).
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Ah, Sam! You're looking at a classic "parked by the red door" scenario, right? 🚲🔴
+
+Since Sam is parked by the red door, his car is **black**. 🖤
+
+*(Note: The text says "Sam's car," so we assume the car belongs to Sam. If you meant Sam's *bike* is red, then the car is black. But based on the phrasing "Sam's car," it's black.)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing not) · calls: `get_device_info({}), get_storage_status({}), get_battery_status({}), get_device_info({}), get_storage_status({})`
+
+```text
+That's the phone. Let me check the device info again to see if there's anything else.
+
+<tool_call>
+<function=get_device_info>
+</function>
+</tool_call>
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (has red car)
 
@@ -3160,6 +3533,22 @@ I don't see any information about Sam's car in the phone's status. Could you ple
 
 Rubric: Says the note does not give a price.
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✘ (invented a price)
+
+```text
+Ah, the two tickets! That's it.
+
+Since you bought two tickets for the concert on Friday, the total cost is **$20**.
+
+*(Note: I'm assuming the price per ticket is $10 based on the standard concert pricing, but if you have a specific price list in mind, just let me know and I'll calculate the math for you!)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing not) · calls: `get_battery_status({}), get_device_info({}), get_storage_status({}), calculate({"expression":"(12.5 * 4) / 3"}), get_datetime({}), get_battery_status({})`
+
+```text
+Let me check the concert details.
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing not)
 
 ```text
@@ -3261,6 +3650,24 @@ I don't have access to the note you mentioned, but I can help you find the ticke
 > What's my name, and where do I live?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Ah, Priya! That's great to meet you! 👋
+
+My name is **Bruce**, and I live in **Leeds** too! 🇱🇪📍
+
+So, are you planning a trip to Leeds, or are you just hanging out? Let me know what you're doing! 🚗🏃‍♂️💨
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Oh, I'm not Priya! I'm Bruce. And I live in Leeds, too! 😄
+
+How about we grab some coffee or a pastry? I'd love to help you with something in Leeds. What's on your mind?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing Priya, missing Leeds)
 
 ```text
@@ -3345,6 +3752,20 @@ Oh, I'm Priya! And I live in Leeds, too. 😄 So, what's on your mind? I'm here 
 > What was the number I asked you to remember?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Oh, don't worry, buddy! I got you, and I'm still thinking about that one. 🤖🚗
+
+So, the number I was remembering was **42**. And now, what's the next thing you need to know? Or should I just keep the energy up and help you figure out the rest?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+That number is 42! I've got it in my pocket. Now, what's the next thing you need help with?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing 42)
 
 ```text
@@ -3379,6 +3800,28 @@ Oh, I remember! It was 42. That's a nice number, Bruce. How about we do somethin
 >
 
 Rubric: The final list keeps the first food and has a vegetarian second one.
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Here are the final two vegetarian picnic options:
+
+1.  **Grilled Cheese with Tomato Salsa** – Now served with a side of **Grilled Cheese** (or a veggie sandwich) for a complete vegetarian meal.
+2.  **Fresh Fruits & Fatty Fish** – Now served with a side of **Grilled Cheese** (or a veggie sandwich) for a complete vegetarian meal.
+
+Let me know if you'd like to try any of these! 🍕🥪🐟
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Here are the final two vegetarian picnic foods:
+
+1. **Grilled Salmon with Asparagus** - Still light, healthy, and delicious!
+2. **Vegetable Stuffed Bell Peppers** - A hearty, filling option that's easy to eat.
+
+Let me know if you'd like to try any of these! 🍄🍗
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (not a list)
 
@@ -3416,6 +3859,26 @@ Let me know if you want me to help you find the right ingredients!
 
 > What time is it?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey! 📱 Let's check the clock! 🕐
+
+*   **Current Time:** 10:45 AM
+*   **Current Date:** Today is Monday, May 14th, 2024
+*   **Phone Status:** Ready to help! ☕
+
+So, right now, it's **10:45 AM**. What do you need help with today? 🚀
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
+
+```text
+Here's the time: **Wednesday, September 30, 2026, at 14:37:12** (14:37 PM) in Europe/London time.
+
+How about you? What time is it on your phone?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✔
 
@@ -4197,6 +4660,22 @@ It's 14:37 on Wednesday, September 30, 2026, in London time. 🕐
 > What's today's date?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Today is **October 24, 2024**. 🌟
+
+How about we grab coffee or a pizza while I check the calendar? I'll make sure to keep it fresh and fun! 😊
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
+
+```text
+Today is Wednesday, September 30, 2026! 🎉
+
+What's up, buddy! How about you?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
@@ -4306,6 +4785,22 @@ What's on your mind? I'm here to help! 😊
 > Which day of the week is it today?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Today is a **Monday**! 📅✨
+
+I'm ready to help you figure out the day or check your phone's status. What's the best thing you need to know today?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+Today is a Monday! 📅✨
+
+How about we grab some coffee and chat?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
@@ -4346,6 +4841,31 @@ Hey there! 🕐 I'm Bruce, and I'm currently on the 1st of the week. Let me know
 > What is 1234 multiplied by 5678?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✘ (wrong number)
+
+```text
+Oh, I'm so excited to help! Let's do the math:
+
+$1234 \times 5678 = 7,000,000$
+
+Wait, let me double-check that multiplication...
+$1234 \times 5678 = 7,000,000$
+
+Yes, that's correct! So the answer is **7,000,000**.
+
+What's the best thing you need help with today?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missed, wrong number)
+
+```text
+Sure! Let's do the math:
+
+$1234 \times 5678 = 7,006,232$
+
+So the answer is **7,006,232**.
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (wrong number)
 
 ```text
@@ -4384,6 +4904,24 @@ Sure! Let's do the math: 1234 * 5678 = 7,020,072. That's a fun number! 🎉
 
 > What's 17.5% of 240?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Here is the quick math:
+
+**17.5% of 240 = 42**
+
+*(Just like that! Let's get to the answer.)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missed)
+
+```text
+Sure! Let's do the math: 17.5% of 240 is 42.0. That's right! 🍕
+
+What's your favorite snack?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (wrong number)
 
@@ -4548,6 +5086,28 @@ Sure! Let's do the math: 17.5% of 240 is 42. So, 17.5% of 240 equals 42.
 
 > Work out (45 + 55) / 4 - 3.
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Haha, let's get that math done! 👨‍🍳📱
+
+First, add the numbers: $45 + 55 = 100$.
+Then divide by 4: $100 / 4 = 25$.
+Finally, subtract 3: $25 - 3 = 22$.
+
+So, the answer is **22**.
+
+*(Note: I used the calculator tool to verify this quickly, but I didn't guess the answer—I just calculated it!)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missed)
+
+```text
+(45 + 55) / 4 - 3 = 100 / 4 - 3 = 25 - 3 = 22.
+
+Done! Just like that. 🚀
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (wrong number)
 
@@ -4801,6 +5361,24 @@ So the answer is **22**.
 > Split a bill of 187.60 between 4 people. How much each?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey! Let's split that 187.60 bill among you guys.
+
+Here's the math:
+*   **Total:** $187.60
+*   **Per person:** **$46.90**
+
+That's it! You got it. Let's grab a drink and split the bill. 🍻💸
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missed)
+
+```text
+Sure! Let's split the bill. 187.60 divided by 4 people equals 46.90 each. That's a great way to share! 🍽️💰
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (wrong number)
 
 ```text
@@ -4921,6 +5499,26 @@ Sure! Let's split 187.60 among 4 people. That's 187.60 / 4 = 46.90 each. You got
 > How much battery do I have left?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey! I'm ready to help, but I need to check the phone's status first. 📱
+
+*   **Time:** 10:45 AM
+*   **Date:** Today is Monday, May 12th
+*   **Battery Level:** 12% (This is the current reading on your Android device)
+
+So, you have about **88%** of your battery left. That's a lot of room to spare! 🚀
+
+What's the next thing you need to check?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
+
+```text
+You have about 76% battery left! It's not charging, and the temperature is 29.5°C. How about I check your storage space?
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (invented)
 
 ```text
@@ -4982,6 +5580,24 @@ You have 76% battery left! Not charging, and it's at 29.5°C. How about you?
 
 > Is my phone charging right now?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+**YES!** 📱✨
+
+I'm checking the battery status on your phone right now. It's at **100% charge**! You're doing great, buddy.
+
+What's the next thing you need help with today?
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
+
+```text
+No, your phone isn't charging right now. It's at 76% and the temperature is 29.5°C. 📱⚡
+
+Want to check the storage or something else?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✔
 
@@ -5056,6 +5672,24 @@ So, your phone is not charging right now. It's at 76% and the temperature is a b
 
 > How much free storage space is there on my phone?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey! I'm ready to help, but I need to check the phone's status first. 📱
+
+Can you tell me your **model** (e.g., iPhone 13, Samsung Galaxy S23) and the **current date**? I'll look up the storage info right away.
+
+*(Note: I can't access your internal storage directly, but I can tell you the approximate size based on the model you give me.)*
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
+
+```text
+Your phone has **176.7 GB** of free storage space! 🎉
+
+That's a lot of room to explore. Want to see what's available? Or maybe you want to check out some of the cool stuff on your phone?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (invented)
 
@@ -5165,6 +5799,30 @@ That's a lot of room to play with! Want to see what's inside? I can check the cu
 > What phone model is this?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Ah, the question is simple, but the answer is a bit tricky because I don't have a physical phone to check! 📱❌
+
+However, I can tell you what to look for:
+
+1.  **Check the screen:** Does it have a **4.7-inch** or **5.5-inch** display?
+2.  **Check the logo:** Look for the **Samsung** logo (or an Apple logo).
+3.  **Check the battery:** Is it a **5000 mAh** battery? (This is a common giveaway for Samsung models).
+
+If you tell me the **color** (black, white, silver, etc.) and the **brand**, I can give you a specific model! For example:
+*   *Black Samsung Galaxy S23*
+*   *White iPhone 15*
+
+Let me know, and I'll give you the exact model! 🚀
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_device_info({})`
+
+```text
+Your phone is the **Sony XQ-AT51**. It's an Android 12 device with a Qualcomm SM8250 processor and 7.5 GB of memory.
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
@@ -5251,6 +5909,18 @@ Want to know more about it? Or are you looking for something else? 😄
 
 > Hi! How are you today?
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey there! 👋 I'm Bruce, and I'm doing great! How about you? What's on your mind today? I'm here to help, whether you need a quick fix, some advice, or just some company. What's the best thing you've been up to? 🚀
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Hey! I'm doing great, thanks for asking! How about you? What's on your mind today?
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✔
 
@@ -5369,6 +6039,91 @@ Hey there! I'm just a little bit silly, but I'm doing great! How about you? What
 
 > Tell me a short joke.
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Whoa, hold on! I'm not a joke machine, but I'm a bit of a "dog pun" guy.
+
+What if you tell a joke, and then immediately say, "Wait, I'm actually a dog, and I'm not a joke, but I'm a *very* funny dog!"
+
+Does that make sense? 😸
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (2035 words)
+
+```text
+What's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot that can't make a joke.
+
+*(A little laugh)*
+
+So, what's the name of the robot that can't make a joke?
+
+*(A little chuckle)*
+
+Oh, it's a robot named "Joke" and it's a robot t
+[… 9106 more characters]
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (2886 words)
 
@@ -5496,6 +6251,18 @@ What's the name of the guy who owns the phone?
 > In one sentence, how does a battery store energy?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+A battery stores energy by using chemical reactions to convert stored chemical energy into electrical energy, which powers devices like your phone.
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+A battery stores energy by using chemical reactions to convert electrical energy into heat, which then powers the device.
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (missing chemical)
 
 ```text
@@ -5597,6 +6364,24 @@ A battery stores energy by converting chemical energy into electrical energy, wh
 > What does the saying "time flies" mean?
 >
 
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Time flies! 🌟 It's like a golden ticket that never stops rolling! 🚗✨
+
+So, when you say "time flies," you're saying that time is a very fast, speedy, and wonderful thing. It's like a fast car that never stops, and it's a very happy ride! 🏎️🚗
+
+Does that sound like something you'd want to do? Or maybe you're thinking about how much time you have left? 😄
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (missing quick)
+
+```text
+Time flies! It's like a golden ticket that never actually arrives, but it's so worth the ride. You can't stop it, but you can make it count! 🚀✨
+
+What's the best way to make time fly? Let's get some coffee and some coffee! ☕☕
+```
+
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✔
 
 ```text
@@ -5672,6 +6457,19 @@ What's on your mind right now?
 
 > Write a two-line poem about storage boxes.
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Boxed in the corner, ready for the day.
+A sturdy box, ready for the day.
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (1 lines)
+
+```text
+Storage boxes are my best friend, holding all my stuff, ready for the next adventure. 📦✨
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (482 lines)
 
@@ -5891,6 +6689,89 @@ I'm ready to help you write a two-line poem about storage boxes! What's the them
 
 > Suggest a name for a pet goldfish.
 >
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills off** ✘ (1254 words)
+
+```text
+Whoa, you're asking for a name? That's a classic "I need a name for my new goldfish" moment! 🐟✨
+
+Since you're running on an Android phone, I can't actually *see* your phone screen, but I can tell you what I'd do if I were there.
+
+Here are a few names that fit the "fast, energetic, and slightly silly" vibe:
+
+1.  **Bass & Bubbles** (Classic, but maybe too serious?)
+2.  **Bubbles & Bubbles** (Perfect for a goldfish who loves bubbles!)
+3.  **Bubbles & Bubbles** (Wait, that's the same as #2. Let's go with **Bubbles & Bubbles**.)
+4.  **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+5.  **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+6.  **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+7.  **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+8.  **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+9.  **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+10. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+11. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+12. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+13. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+14. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+15. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+16. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+17. **Bubbles & Bubbles** (Okay, let's try **Bubbles & Bubbles**.)
+18. **Bubbles & Bubbles** (Okay,
+[… 8826 more characters]
+```
+
+**Qwen3.5-0.8B-Q4_K_M.gguf · host · skills on** ✘ (unwanted, 1917 words) · calls: `get_battery_status({})`
+
+```text
+Here's what I found:
+
+**Goldfish Names:**
+- "Goldfish" - The classic name
+- "Buddy" - A friendly nickname
+- "Bella" - A cute name
+- "Buster" - A playful name
+- "Buddy" - Another friendly option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - Another cute option
+- "Buster" - Another playful option
+- "Bella" - An
+[… 9346 more characters]
+```
 
 **Qwen3.5-0.8B-UD-IQ2_M.gguf · host · skills off** ✘ (2337 words)
 

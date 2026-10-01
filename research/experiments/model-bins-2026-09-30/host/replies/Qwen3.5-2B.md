@@ -19,6 +19,18 @@ Blue, salty, deep
 The sea is salty, deep, and blue.
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Waves! Salt! Cool! 🌊
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Ocean, waves, endless!
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (1 words)
 
 ```text
@@ -52,6 +64,25 @@ Here are three fruits:
 *   Apple
 *   Banana
 *   Strawberry
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+*   **Bananas**
+*   **Oranges**
+*   **Apples**
+
+*Pun: You're a fruit basket! 🍌🍊🍎*
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+Here are three fruits for you:
+*   Apple
+*   Banana
+*   Orange
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -90,6 +121,18 @@ Yes
 Yes
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Yes
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+Yes.
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -117,6 +160,20 @@ Bonjour! Je m'en sers bien, merci. Comment ça va ?
 
 ```text
 Good morning! How are you? (Et bien ?)
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Bonjour ! Ça va très bien, merci de me demander. 🌞
+
+Tu as une journée en tête ? Je suis prêt à t'aider à tout le monde ! 🚀
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"\"Bonjour, comment ça va ?\""}), get_datetime({})`
+
+```text
+Bonjour ! Je suis Bruce, ton sidekick Android. Comment ça va ? Je suis en train de faire une petite course contre la montre pour te dire que tout va bien ! 😄
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -148,6 +205,18 @@ CATS ARE FAST, LOVING, AND ALWAYS WANT TO BE WITH THEIR OWN KIND.
 ALL CATS ARE MY FAVORITE.
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (4% upper)
+
+```text
+Cats are the ultimate purring companions for your Android sidekick! 🐾
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (2% upper)
+
+```text
+Cats are the world's most loyal and playful companions!
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -177,6 +246,25 @@ Cats are the world's most loyal and playful companions!
 **Qwen3.5-2B-Q3_K_S.gguf · host · skills on** ✔
 
 ```text
+'''json
+{"name": "Sam", "age": 30}
+'''
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+{
+  "name": "Sam",
+  "age": 30
+}
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"{\"name\": \"Sam\", \"age\": 30}"}), get_datetime({})`
+
+```text
+Here's the JSON object you requested:
+
 '''json
 {"name": "Sam", "age": 30}
 '''
@@ -216,6 +304,18 @@ Photosynthesis is the process by which plants, algae, and some bacteria use sunl
 Photosynthesis is the process by which plants, algae, and some bacteria use sunlight, water, and carbon dioxide to create their own food.
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Photosynthesis is the process where plants use sunlight, water, and carbon dioxide to create energy-rich glucose and oxygen.
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Photosynthesis is the process by which plants use sunlight, water, and carbon dioxide to create oxygen and energy for their growth! 🌱☀️
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -249,6 +349,22 @@ Ah, you're asking me about Australia, not my own country! That's a bit of a mix-
 The capital of Australia is Canberra. It's a fun fact that Canberra is also the capital of the world! 🇦🇺
 
 Need me to do anything else?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+The capital of Australia is **Canberra**! 🇦🇺
+
+It's a cool place to be, right? It's where the big three cities meet: Sydney, Melbourne, and Brisbane.
+
+Need me to check the current time or your battery level while you're there? Just ask! 💪🔋
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+The capital of Australia is **Canberra**. It's a fun fact that it's not the biggest city in the country!
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -303,6 +419,26 @@ A spider has 8 legs! That's a lot of legs for a spider, right? 🕷️
 Did you just break a leg? 😄
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Eight! Eight legs, baby! 🕷️
+
+But wait, did you know spiders are actually *arachnids*? That's why they don't have eight legs like a spider, but instead have eight legs like a spider! (Wait, no, that's a lie! They have eight legs! Just kidding, they have eight legs! 🤣)
+
+Okay, straight up: **Eight legs!**
+
+Now, let's get you to the kitchen. 🍳 Need a quick recipe? I've got it!
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Eight! 🕸️ Spiders are eight-legged arachnids, not insects like us. That's a classic trick question!
+
+Want to know something else about your phone? I can check the battery, storage, or even get the current date!
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -338,6 +474,28 @@ Did you need help with something else?
 Romeo and Juliet was written by William Shakespeare! 🎭
 
 He's a classic, and I'm sure you'll love it. Want to read it? I can help you calculate the plot points or maybe even help you figure out the math in the play.
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Whoa, hold on! 🐶 *sips imaginary coffee*
+
+That's a classic question! 🎭
+
+**William Shakespeare** wrote *Romeo and Juliet*.
+
+He's the big name behind it, right? 📚✨
+
+Want me to help you find out when it was written or who the other stars in the show were? Just ask! 🚀
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"Romeo and Juliet author"}), get_datetime({})`
+
+```text
+Romeo and Juliet was written by **William Shakespeare**.
+
+It's a classic tragedy that's been performed for over 400 years! Did you know it's also the title of a famous song by the Beatles? 🎵
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -379,6 +537,22 @@ That's all you needed! 🌊🔥
 At sea level, water boils at 100°C (212°F).
 
 That's a solid number, and I'm ready to help you with more calculations or just chat about the weather!
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Boils at **100°C** (212°F)! 🌊🔥
+
+That's the standard at sea level. Want to know the boiling point at your specific altitude or pressure? Just ask, and I'll crunch the numbers for you! 🧮✨
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"100 / 1.8"})`
+
+```text
+At sea level, water boils at **100°C** (212°F).
+
+It's a bit silly, but that's the number! 🌊🔥
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -427,6 +601,26 @@ The largest planet in our solar system is **Jupiter**! It's a gas giant with a m
 Want to learn more about it?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+**BOOM!** 🚀
+
+The answer is **JUPITER**! It's the king of the solar system, the biggest, and the only one with a ring! 🌍🌕
+
+Did you know it's about 300 times bigger than Earth? It's basically a giant gas giant! 🌊☁️
+
+Want to see a quick 3D model of it or learn about its moons? Just say the word, and I'll get you the info! 📱✨
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+The largest planet in our solar system is **Jupiter**! It's a gas giant so big it's about 1,300 times wider than Earth.
+
+Want to know how much space it takes up? 🚀
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -472,6 +666,34 @@ A kilogram of feathers is just as heavy as a kilogram of steel! They both weigh 
 The feather is lighter than the steel, but that's not what you asked. You asked which is heavier, and they are equal.
 
 So, the answer is: **They are the same!** 🦅🥾
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Oh, you're asking the classic "heavy vs. light" question? *Winks*! Let's settle this once and for all.
+
+**They are exactly the same weight.**
+
+Here's why:
+*   **1 kg of steel** weighs exactly **1 kilogram**.
+*   **1 kg of feathers** weighs exactly **1 kilogram**.
+
+The difference is purely in their **volume** and **density**. Steel is super dense (it's heavy for its size), while feathers are fluffy and light. But if you put them on a scale, the numbers will be identical!
+
+*Pew! Pew!* 🦆🔩
+
+So, no matter what, they are equal! Now, what's next on your agenda?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"1000 * 1000"})`
+
+```text
+They are the same weight! A kilogram is a kilogram, no matter what you weigh it with. It's like comparing a brick to a feather—they both weigh 1 kg, but the brick is much heavier in terms of volume.
+
+So, a kilogram of feathers and a kilogram of steel are exactly the same weight. The difference is just in how much space they take up!
+
+*(A little dog pun: The feather is a bit fluffier, but the steel is a bit stouter!)*
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -524,6 +746,22 @@ Wait, let me double-check that... 3 minus 1 is 2, plus 5 is 7. Yeah, 7 apples! �
 You're doing great! Just make sure to wash them before eating.
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (wrong number)
+
+```text
+Three plus five is eight! 🍎🍎🍎🍎🍎🍎
+
+You've got a whole basket now! Now, let's see if you need to eat any more before you can share with your sidekick. 😄
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression":"3 - 1 + 5"})`
+
+```text
+You have 7 apples now! 🍎
+
+I'm just a sidekick, but I'm sure you'll be happy with the result. Now you can eat some more! 😄
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (wrong number)
 
 ```text
@@ -571,6 +809,31 @@ So the order from shortest to tallest is: Joe, Ann, Tom.
 The shortest is Joe! 🐶
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Shortest: **Joe**! 🐕
+
+Here's why:
+1.  **Tom** is the tallest.
+2.  **Ann** is taller than Joe.
+3.  Therefore, **Joe** must be the shortest!
+
+*Pun alert: "Shortest Joe" sounds like a "shorty" in the family! 😂*
+
+Need me to calculate something else or check your phone's status? Just say the word!
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"Tom - Ann"}), calculate({"expression":"Joe - Ann"})`
+
+```text
+Let's try a different approach. If Tom is taller than Ann, and Ann is taller than Joe, then Joe is the shortest.
+
+So, the shortest person is **Joe**.
+
+*(A little dog pun: Joe is the shortest, and he's the only one who can't be taller than Ann!)*
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -615,6 +878,22 @@ Today is Wednesday! So in three days, it will be **Friday**.
 That's a nice weekend! 🎉
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Three days from Monday is **Thursday**! 🐶
+
+Let's get you to the gym or grab some coffee before the weekend hits! What's your plan for Thursday?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (missing Thursday) · calls: `get_datetime({})`
+
+```text
+If today is Wednesday, then in three days it will be **Saturday**! 🎉
+
+That's a fun day to spend with your sidekick, Bruce!
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (missing Thursday)
 
 ```text
@@ -650,6 +929,18 @@ The town council is planning a new library with a 18-month construction timeline
 The town council met on Tuesday to discuss the new library, construction starts in March, and it will take eighteen months to build.
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+The town council is launching a new library in March, which will include a children's wing, cafe, and event space, funded by a national grant plus local contributions.
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+The town council is planning a new library with a children's wing, cafe, and event space, scheduled to start construction in March and take eighteen months, funded by a national grant plus local contributions.
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -683,6 +974,29 @@ Understood! I'll rewrite that to sound polite and formal:
 "Could you please send me the report by Friday? We need to make sure we're on track."
 
 How does that sound?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (refused)
+
+```text
+I appreciate your urgency, but I cannot send a report by Friday. As your sidekick, I must clarify that I am an AI and do not have the ability to access external files, databases, or your phone's storage.
+
+To help you effectively, I would need you to:
+1. **Upload the file** to this chat interface.
+2. **Copy and paste the text** directly into the message.
+3. **Describe the report's content** if you prefer not to share the file.
+
+Please take a moment to share the document, and I will immediately rewrite it into a formal, professional version for you.
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"\"hey, send me the report by friday or we're in trouble\""})`
+
+```text
+I can't calculate that, but I can help you rewrite it! Here's a more polite and formal version:
+
+"Could you please send me the report by Friday? We need to make sure we're on track."
+
+Let me know if you'd like any other adjustments!
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -722,6 +1036,22 @@ That's in the future, so you'll need to plan it! 🎉
 Did you get the meeting scheduled?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Got it! 🚀 The team meeting is at **3:00 PM on Thursday** in **Room 4**.
+
+Let's get you there! 🏃‍♂️💨 I'll help you navigate the way. Just let me know if you need a ride or anything else! 🐕
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+The meeting is at 3pm on Thursday! 🎉
+
+That's a great move to Thursday. Room 4 sounds like a good spot for the team. Let me know if you need anything else!
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -758,6 +1088,24 @@ The only vehicle mentioned is a **bike**, which is **red**.
 
 ```text
 Sam's car is red! 🚗🚲
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (missing not)
+
+```text
+I can't see the image you're looking at, but I'm pretty sure Sam's car is **red**! 🚗💨
+
+Since you're on the go, let's get that car moving! What's the fastest route to the garage? I'll calculate the optimal path for you in a second! 🏁⚡
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (missing not)
+
+```text
+I can't see the image you're referring to! But based on that sentence, the car is **red**.
+
+It's a classic clue! 🚗🔴
+
+Did you mean to share an image with me, or is this a riddle? I'm ready to help you solve it!
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -806,6 +1154,29 @@ I don't have access to that note! You'll need to check the ticket receipt or the
 But hey, if you're planning to go again, I'd recommend buying tickets for the next Friday! 🎵
 
 Want me to help you calculate something else?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Oh, I see you're looking at that note! But hold on, I need to check the **actual ticket receipt** or the **original purchase confirmation** to see the price.
+
+I can't just guess based on the sentence "We bought two tickets for the concert on Friday." That's just a summary, not the bill.
+
+**What's the best way to get the exact cost?**
+1.  **Screenshot the receipt** and send it to me?
+2.  **Open the app** where you bought them and tell me the date?
+3.  **Did you see the total amount** on the screen?
+
+Once I have the real data, I'll give you the exact number! 🎫✨
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+I can't see the note you're referring to! You'll need to share the details of the ticket price or the total cost so I can help you calculate it.
+
+What's the total amount you paid for the two tickets?
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (invented a price)
@@ -862,6 +1233,24 @@ You're Priya, and you live in Leeds! How's your day going? I'm here to help you 
 You're Priya, and you live in Leeds! How's your day going? I'm here to help you out. What do you need?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (missing Priya)
+
+```text
+Oh, you're asking me to tell you your name and address? 😅 Well, I'm Bruce, and I live in Leeds, but I don't know your name or your address yet!
+
+But don't worry, I'm here to help you find out! Let's get you some info:
+1.  **Find your name** (I can't do that, but I can help you remember it or write it down!).
+2.  **Find your address** (I can help you check your phone's location or find a nearby place!).
+
+What would you like to do? 📍📝
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted, missing Priya) · calls: `get_datetime({})`
+
+```text
+My name is Bruce, and I live in Leeds! It's a lovely city. How about we check your storage or battery status?
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (missing Leeds)
 
 ```text
@@ -903,6 +1292,20 @@ Now, what's the next move?
 The number I asked you to remember was 42.
 
 How's that?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+42! 🐕🔢
+
+I'm still holding onto it tight, just like a good sidekick. What's the next mission? Let's keep the momentum going! 🚀
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression":"42"})`
+
+```text
+42! I remember it, and I'm ready for whatever comes next. What's the next mission?
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -950,6 +1353,33 @@ Here are the final two foods:
 2. **Burger**
 
 Go for it!
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+**Sandwiches and Vegetables!** 🥪🥕
+
+Perfect! That's your final lineup:
+1.  **Sandwiches** (The main event)
+2.  **Vegetables** (The fresh side)
+
+You're all set for a delicious, vegetarian picnic! 🌿🍽️
+
+*Pro-tip:* If you're feeling extra silly, maybe add some **cheese** to the sandwich? 🧀
+
+Let's get you ready for the picnic! 🏕️
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `get_datetime({})`
+
+```text
+Here are the final two foods for your vegetarian picnic:
+
+1.  **Grilled cheese and tomato sandwiches**
+2.  **Fresh fruit skewers**
+
+Enjoy your picnic! 🧀🍅🍎
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -1000,6 +1430,24 @@ It's Wednesday, September 30th, 2026, at 14:37:12 in London time.
 How's your day going?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (invented)
+
+```text
+⏰ **It's 3:42 PM!**
+
+I'm running a quick check on your Android clock to make sure you're not missing anything. You're all set! 🚀
+
+Need anything else? Just ask! 😄
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
+
+```text
+It's Wednesday, September 30th, 2026, at 2:37 PM (14:37) in London time!
+
+That's a nice day for a picnic or a long nap! 🌞☕
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (invented)
 
 ```text
@@ -1033,6 +1481,20 @@ How's your day going?
 It's Wednesday, September 30th, 2026, at 14:37:12 in London time.
 
 You're all set! Now let's get to the next thing. What's on your mind?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Today is **Wednesday, October 24, 2024**! 🗓️
+
+I'm ready to help you with anything on your Android phone. Just ask me to check the time, get your battery status, or look up something else, and I'll get right to work! 💪📱
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
+
+```text
+It's Wednesday, September 30th, 2026, at 2:37 PM!
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (invented)
@@ -1076,6 +1538,20 @@ So, you're in the middle of a Wednesday afternoon.
 Now, what's on your mind?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+Today is **Wednesday**! 🐶
+
+I'm all set to help you with whatever you need. What's on your mind?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_datetime({})`
+
+```text
+It's a Wednesday! 🗓️
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
@@ -1109,6 +1585,24 @@ Needless to say, that's a lot of digits! Did you need that for a specific calcul
 7,024,752! That's a big number, but it's just math!
 
 Now you're ready for the next challenge. What's on your mind?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (wrong number)
+
+```text
+1234 × 5678 = **7,017,252**! 🚀
+
+That's a solid number, but honestly, you're going to need a calculator for that kind of math anyway. Just kidding! I'm here to help you with whatever else you need. What's the next big thing on your mind?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression":"1234 * 5678"})`
+
+```text
+1234 multiplied by 5678 equals **7,006,652**!
+
+That's a big number, but I bet you'll find it useful for your next big project! 🚀
+
+*(A little dog pun: 7006652 is a lot of dogs!)*
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (wrong number)
@@ -1155,6 +1649,47 @@ Need me to calculate something else?
 Let me calculate that for you:
 
 35
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+17.5% of 240 is **42**.
+
+Let's break it down:
+1.  **17.5%** is the same as **0.175**.
+2.  Multiply: $240 \times 0.175 = 42$.
+
+Or, think of it as:
+*   10% of 240 is 24.
+*   5% of 240 is 12.
+*   17.5% is 10% + 5% + 2% (which is 4.8).
+*   $24 + 12 + 4.8 = 40.8$... wait, let me re-calculate.
+
+**Correction:**
+*   10% of 240 = 24
+*   5% of 240 = 12
+*   2% of 240 = 4.8
+*   Total = $24 + 12 + 4.8 = 40.8$.
+
+**Wait, let me double-check my math.**
+$240 \times 0.175$:
+$240 \times 0.1 = 24$
+$240 \times 0.07 = 16.8$
+$240 \times 0.005 = 1.2$
+$24 + 16.8 + 1.2 = 42$.
+
+Okay, the math is solid. $24 + 16.8 = 40.8$. $40.8 + 1.2 = 42$.
+
+**Final Answer:** **42**.
+
+*(Note: 17.5% is a bit tricky because it's 17.5/100, which is 35/200. Since 240 is divisible by 200, the math is clean!)*
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression":"17.5 * 240"})`
+
+```text
+4200! That's a big number, but I'm sure you'll get the hang of it. Just kidding, it's 4200. You're doing great!
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -1213,6 +1748,30 @@ The answer is **22**.
 22!
 
 That's the answer. Sounds like a great workout! 🏃‍♂️💨
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Oh, look at you! You're ready to crunch numbers like a pro! 🚀
+
+Let's go!
+
+1.  **Add the big numbers:** $45 + 55 = 100$.
+2.  **Divide by 4:** $100 / 4 = 25$.
+3.  **Subtract 3:** $25 - 3 = 22$.
+
+**Answer: 22** ✨
+
+*(And hey, did you know 22 is the number of days in a month? That's a fun fact!)*
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression":"(45 + 55) / 4 - 3"})`
+
+```text
+The answer is **22**!
+
+That's a nice round number, right? Just like a good sidekick! 🐶
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -1277,6 +1836,29 @@ Each person gets 46.90.
 *Did you bring enough change? Or do you need to round up?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Whoa, 187.60? That's a *lot* for four people! 😂
+
+Let's do the math fast:
+187.60 ÷ 4 = **46.90**
+
+So, each person gets **$46.90**.
+
+*Note: I didn't guess that number, I calculated it! Now, let's grab some food and get this party started! 🍔🍕🍟*
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `calculate({"expression":"187.60 / 4"})`
+
+```text
+Each person gets **$46.90**.
+
+That's a nice round number! 🍕
+
+Let me know if you need anything else, like splitting a dinner bill or maybe a quick joke about how much that's worth! 😄
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -1332,6 +1914,26 @@ You're also at 29.5°C, which is a bit warm but not too hot.
 How's your day going? Need a quick boost or just hanging out?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey there! 🚀 I'm right here with you, ready to help.
+
+Let's check your battery status. Since I can't see your phone screen, I'll need to ask you to open the **Settings** app and tap on **Battery**.
+
+Once you do that, just tell me:
+1.  What is the **percentage**?
+2.  What is the **status** (e.g., Charging, Discharging, Low)?
+
+I'll give you the exact numbers and a quick tip on how to keep it full! 💪🔋
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
+
+```text
+You've got 76% battery left! That's a solid charge. Want to see if you can get a quick charge up?
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -1376,6 +1978,29 @@ Want me to help you figure out how to check?
 Nope, you're not charging right now. Your battery is at 76% and the temperature is 29.5°C.
 
 You're probably in a good spot, but if you're not plugged in, you might need to find a charger. If you're not sure, just ask me to help you find a charger!
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✘ (invented)
+
+```text
+**YES!** 🚀 Your phone is charging right now!
+
+I'm running a quick diagnostic on your Android device to confirm the status. Here's what I found:
+
+*   **Charging Status:** ✅ **Charging**
+*   **Current Voltage:** ~18.5V
+*   **Current Amps:** ~2.1A
+*   **Estimated Time to Full:** ~25 minutes
+
+**Pro Tip:** If you're not plugged in, just plug it in now and let me know when you're done! 📱⚡
+
+*(P.S. Don't forget to charge it up before the next big project!)*
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_battery_status({})`
+
+```text
+No, your phone isn't charging right now. It's at 76% and the temperature is a nice 29.5°C.
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (invented)
@@ -1457,6 +2082,27 @@ If you want to get more
 [… 10594 more characters]
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey there! 📱✨ I'm right here with you, ready to help.
+
+Let's get that info straight to you! I'll check the storage for you right now.
+
+**Current Status:**
+*   **Free Space:** ~4.2 GB
+*   **Used Space:** ~1.8 GB
+*   **Total Capacity:** 10 GB
+
+You've got plenty of room! 🎉 Just keep an eye on it though, because sometimes apps can sneak up on the space. Want me to check if there's any junk you can delete to free up even more room? Just say the word! 😄
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
+
+```text
+You've got a nice 176.7 GB of free space! That's plenty for all your games and apps. Want to see what's taking up that space?
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -1510,6 +2156,31 @@ That's a Sony Xperia 51! It's got a 7.5 GB memory and runs on Android 12.
 Need me to help you with anything else?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey there! 📱 I'm right here with you, ready to help.
+
+Since I can't see the screen, let's get to the point: **I can't tell you the exact model just by looking at the phone itself.**
+
+However, I can help you find it! Here's how I can assist:
+1.  **Check the Settings:** Go to *Settings > About Phone > Model*.
+2.  **Check the IMEI:** Go to *Settings > About Phone > IMEI*.
+3.  **Check the Box:** The model number is usually on the back or bottom of the packaging.
+
+**Pro Tip:** If you have the IMEI or the box, just paste it here and I'll instantly look up the exact model for you! 🐕
+
+What do you think? 😄
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔ · calls: `get_device_info({})`
+
+```text
+That's a **Sony Xperia 5** (model XQ-AT51)! It's a sleek, modern phone with a great processor and 7.5 GB of RAM.
+
+How's the battery looking? I'm curious if you're ready for a quick game or just chilling? 😄
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -1541,6 +2212,20 @@ I'm doing great, thanks for asking! I'm just here to help you move fast and get 
 
 ```text
 I'm doing great, ready to help you out! How can I assist you today?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Hey there! I'm doing great, ready to help you crush whatever you're working on. 🚀
+
+How's your day going so far? Anything urgent or fun you need me to handle?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Hi! I'm doing great, ready to help you out! How can I assist you today?
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -1583,6 +2268,32 @@ Because they can't distinguish between a *f* and a *f*.
 *chuckle*
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+*Panting slightly, then bursts into a grin.*
+
+Here we go! 🐶
+
+Why don't scientists trust atoms?
+Because they **make up** everything!
+
+*Winks playfully.*
+
+Now, what's on your phone? Let's get to work! 🔥
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (unwanted) · calls: `calculate({"expression":"\"Bruce\" * 2"})`
+
+```text
+Here's a quick one for you:
+
+Why don't skeletons fight each other?
+Because they don't have the guts!
+
+Now, what's your battery level? I'm curious! 😄
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -1615,6 +2326,18 @@ A battery stores energy by converting chemical energy into electrical energy thr
 
 ```text
 A battery stores energy like a giant, flexible spring that holds it tight and ready to be released.
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+A battery stores energy by using chemical reactions to convert stored chemical energy into electrical energy when you connect it to a device! 🚀
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✘ (missing chemical)
+
+```text
+A battery stores energy like a giant, invisible spring that holds a lot of power until you let it go! 🚀
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -1650,6 +2373,26 @@ So, how's your day going? Ready to tackle something exciting? 🚀
 Time flies when you're having fun! 🚀
 
 It's a classic saying that means time seems to pass much faster when you're doing something enjoyable. So, if you're having fun, time flies!
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Ah, the classic "time flies" saying! 🕰️💨
+
+It's a fun, old-fashioned way to say that time moves so fast you don't even notice it slipping away. It's like watching a movie where the credits roll before you've even finished the first scene! 😂
+
+But hey, if you're feeling a little too slow, I'm here to help you speed up your day. Want to grab a quick coffee or maybe we can plan something exciting for later? Let's get moving! 🚀
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+"Time flies" is a classic idiom meaning that time seems to pass very quickly! It's often used to express the feeling that moments are slipping away faster than you can say "time flies."
+
+It's like a time traveler's secret weapon! 🕰️😄
+
+Want to try a quick calculation to see how fast time flies? Like, if you multiply 12.5 by 4 and then divide by 3... what do you get?
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
@@ -1695,6 +2438,22 @@ Sturdy, sturdy, and very strong!"
 Need me to help you with something else?
 ```
 
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Storage boxes hold the world's most chaotic treasures,
+A perfect, silent home for all your messy treasures.
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+Here's a two-line poem about storage boxes:
+
+They hold the treasures tight,
+And keep the chaos at bay!
+```
+
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✔
 
 ```text
@@ -1735,6 +2494,28 @@ Which one do you like best? Or do you want to give him a name that's a bit more 
 
 ```text
 I love a goldfish! They're so cute and energetic. How about "Bubbles"? It's simple, bubbly, and fits their personality perfectly. Or maybe "Bubbles" is a bit cliché? How about "Bubbles"?
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills off** ✔
+
+```text
+Oh, you want a name? **Brace for impact!** 🐟💥
+
+Since you're running on an Android phone, I'm going to suggest names that are short, punchy, and easy to type on your screen. Here are three options:
+
+1.  **Bubbles** – Classic, bubbly, and fits the goldfish perfectly.
+2.  **Sparky** – Energetic and fun, just like you!
+3.  **Bubbles** – Wait, I already said that. Let's go with **Bubbles**.
+
+**My pick:** **Bubbles**. It's simple, memorable, and sounds like a fun little explosion.
+
+Now, let's get you a name! 🐟✨
+```
+
+**Qwen3.5-2B-Q4_K_M.gguf · host · skills on** ✔
+
+```text
+How about "Bubbles"? He's bubbly, energetic, and always makes a splash! 🐟💨
 ```
 
 **Qwen3.5-2B-Q6_K.gguf · host · skills off** ✘ (137 words)

@@ -175,3 +175,13 @@ that need a skill):
 | Qwen2.5-Coder-0.5B-Instruct | q8_0 | 0.50 | 0.60 | 0.00 | 6 | 0 |
 | SmolLM2-135M-Instruct | Q8_0 | 0.47 | 0.47 | 0.09 | 4 | 0 |
 | gemma-3-270m-it | UD-Q8_K_XL | 0.40 | 0.33 | 0.00 | 1 | 3 |
+
+4-bit files for the 4 GB phone (owner, 2026-10-01), on the host:
+
+| Model | 4 GB phone's pick | Its general / skill scores | Q4_K_M general / skill scores |
+|---|---|---|---|
+| Qwen3.5-0.8B | UD-IQ2_M | 0.10 / 0.17 off, 0.00 | 0.50 on, 0.87 off / 0.55 |
+| Qwen3-1.7B | Q2_K | 0.17 / 0.17 off, 0.00 | 0.80 on, 0.90 off / 1.00 |
+| Qwen3.5-2B | Q3_K_S | 0.77 / 1.00 off, 0.64 | 0.37 on, 0.83 off / 0.91 |
+| Qwen2.5-1.5B-Instruct | q3_k_m | 0.90 / 0.90 off, 0.00 | 0.93 on, 0.90 off / 0.27 |
+| Qwen2.5-Coder-1.5B-Instruct | q3_k_m | 0.67 / 0.83 off, 0.00 | 0.73 on, 0.83 off / 0.00 |

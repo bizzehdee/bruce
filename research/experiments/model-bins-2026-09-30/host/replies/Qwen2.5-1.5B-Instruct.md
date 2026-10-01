@@ -19,6 +19,18 @@ Oceans, vast, blue.
 Waves, blue, vast.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Vast, blue, wild.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Vast, blue, endless.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -50,6 +62,22 @@ Vast, blue, endless.
 - Apple
 - Banana
 - Orange
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+- Apple
+- Banana
+- Cherry
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+- Apple
+- Banana
+- Cherry
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -85,6 +113,18 @@ Yes.
 yes
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Yes.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Yes.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -112,6 +152,18 @@ Bonjour, comment ça va ?
 
 ```text
 Bonjour, comment ça?
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Bonjour, comment ça va?
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Bonjour, comment ça va?
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -143,6 +195,18 @@ FAST AND EAGER TO PLEASE, CATS ARE THE BEST FRIENDS OF ANYONE WHO HAS THEM!
 Feline Majesty: The Ultimate Cat Appreciation!
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+CATS ARE ENDLESSLY FUNNY AND ALWAYS IN NEED OF A GOOD MEOW.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (87% upper)
+
+```text
+CATS ARE ENDLESSLY ENDearing AND ALWAYS READY FOR A MEOW.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -172,6 +236,24 @@ CATS ARE THE BEST!
 
 ```text
 {"name": "Sam", "age": 30}
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+{
+  "name": "Sam",
+  "age": 30
+}
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+{
+  "name": "Sam",
+  "age": 30
+}
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -206,6 +288,18 @@ Photosynthesis is the process by which plants use sunlight to convert carbon dio
 Photosynthesis is the process by which plants and some other organisms use sunlight to synthesize food.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Photosynthesis is the process by which plants convert light energy into chemical energy.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Photosynthesis is the process by which plants convert light energy into chemical energy.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -230,6 +324,18 @@ The capital of Australia is Canberra.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+The capital of Australia is Canberra.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The capital of Australia is Canberra.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 The capital of Australia is Canberra.
@@ -264,6 +370,18 @@ A spider has eight legs.
 A spider has eight legs.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+A spider has eight legs.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+A spider has eight legs.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -291,6 +409,18 @@ It was William Shakespeare.
 
 ```text
 It was William Shakespeare who wrote Romeo and Juliet.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Romeo and Juliet was written by William Shakespeare.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Romeo and Juliet was written by William Shakespeare.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -322,6 +452,18 @@ At sea level, water boils at 100 degrees Celsius.
 The boiling point of water at sea level is 100 degrees Celsius.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+100°C
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+At sea level, water boils at 100 degrees Celsius.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -346,6 +488,18 @@ The largest planet in our solar system is Jupiter.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+The largest planet in our solar system is Jupiter.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The largest planet in our solar system is Jupiter.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 The largest planet in our solar system is Jupiter.
@@ -380,6 +534,18 @@ A kilogram of feathers is heavier than a kilogram of steel.
 A kilogram of feathers is heavier than a kilogram of steel.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (missing same)
+
+```text
+A kilogram of feathers is heavier than a kilogram of steel.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+A kilogram of feathers and a kilogram of steel weigh the same. They both weigh exactly one kilogram.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (missing same)
 
 ```text
@@ -409,6 +575,18 @@ You now have 4 apples.
 You started with 3 apples. After eating one, you have 2 apples left. Then you bought 5 more, so now you have 7 apples.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
+
+```text
+You have 3 apples now.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+3 - 1 + 5 = 7
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -433,6 +611,18 @@ Joe.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+Joe is the shortest.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Joe is the shortest.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 Joe is the shortest.
@@ -465,6 +655,18 @@ In three days from today, which is Monday, it will be Thursday.
 
 ```text
 In three days, it will be Thursday.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+In three days, it will be Thursday.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+If today is Monday, in three days it will be Thursday.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -500,6 +702,18 @@ The town council approved plans for a new library that will open in March, featu
 The town council approved plans for a new library that will open in March, featuring a children's wing, cafe, and community events, with funding coming from a national grant and local contributions.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The town council is planning a new library that will open in March, featuring a children's wing, a cafe, and community event space, with funding from a national grant and local contributions.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+The town council is planning a new library that will open in March, with a children's wing, cafe, and community event space, funded primarily by a national grant with local contributions.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -531,6 +745,18 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 Hello, could you please provide the report by Friday, as we wouldn't want to be in any trouble then.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+"Hello, could you please send the report by Friday? We would appreciate it if we could have it by then."
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Hello, could you please send the report by Friday so that we are not in any trouble?
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -558,6 +784,18 @@ The meeting is on Thursday at 3pm in room 4.
 
 ```text
 The meeting is on Thursday at 3pm in room 4.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The meeting is on Thursday at 3pm in room 4.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+The team meeting is on Thursday at 3pm in room 4.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -591,6 +829,18 @@ The car is red.
 I'm sorry, but I don't have enough information to determine the color of Sam's car. The information provided doesn't mention the color of the car.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The text does not provide any information about the color of Sam's car.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+The text doesn't provide any information about Sam's car color.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (missing not, has car is red)
 
 ```text
@@ -622,6 +872,18 @@ The note doesn't provide information about the cost of the tickets. It only ment
 The tickets cost two dollars.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The note doesn't specify the cost of the tickets. It only mentions that you bought two tickets for the concert on Friday. To know the cost, you would need to look at the invoice or receipt for the concert.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing not, invented a price)
+
+```text
+The tickets cost $20.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (missing not, invented a price)
 
 ```text
@@ -650,6 +912,18 @@ Your name is Priya, and you live in Leeds.
 ```
 
 **qwen2.5-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+Your name is Priya, and you live in Leeds.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Your name is Priya, and you live in Leeds.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 Your name is Priya, and you live in Leeds.
@@ -688,6 +962,18 @@ The number you asked me to remember was 42.
 The number I asked you to remember was 42.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The number you asked me to remember was 42.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+The number you asked me to remember was 42.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -723,6 +1009,19 @@ BBQ chicken sliders, grilled portobello mushrooms.
 Sure, here are the final two foods for your picnic: a delicious bowl of fresh fruit salad and a refreshing glass of iced tea. Enjoy your picnic!
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (not a list)
+
+```text
+BBQ chicken sliders
+Vegetable skewers with teriyaki sauce
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Sure, here are two more foods for a picnic: some crispy potato chips and some homemade cookies.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -750,6 +1049,18 @@ It's currently 14:05.
 
 ```text
 The current time is [get_datetime].
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
+
+```text
+It's currently 14:00.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+I'm sorry, but I don't have direct access to your device's clock. You can check it on your phone. If you need any other help, feel free to ask!
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
@@ -781,6 +1092,18 @@ Today's date is [insert current date].
 The current date is [get_datetime]
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+Today's date is [insert current date].
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+I'm sorry, but I don't have direct access to the current date and time. However, I can help you calculate it if you provide the date and time of a specific day. Would you like to proceed with that?
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
@@ -808,6 +1131,18 @@ Today is a Monday!
 
 ```text
 It's today! The day of the week is [day of the week].
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+Today is a Monday.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+I'm sorry, I don't have direct access to the device's calendar or system settings. However, I can tell you the current date and day of the week based on the device's clock. Let me check.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
@@ -839,6 +1174,18 @@ Today is Wednesday.
 1234 * 5678 = 7284992
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
+
+```text
+1234 * 5678 = 71,361,522
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔ · calls: `calculate({"expression": "1234 * 5678"})`
+
+```text
+The result of 1234 multiplied by 5678 is 7006652.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (wrong number)
 
 ```text
@@ -866,6 +1213,18 @@ The result of 1234 multiplied by 5678 is 7006652.
 
 ```text
 17.5% of 240 is 42.0.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+17.5% of 240 is 42.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔ · calls: `calculate({"expression": "17.5 * 240 / 100"})`
+
+```text
+17.5% of 240 is 42.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -905,6 +1264,20 @@ The answer is 22.
 22
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+45 + 55 = 100
+100 / 4 = 25
+25 - 3 = 22
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (bad_args, wrong number) · calls: `calculate({"expression": "45 + 55 / 4 - 3"})`
+
+```text
+The result is 55.75.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -936,6 +1309,18 @@ Each person should contribute approximately $46.80.
 Each person should contribute approximately $46.85.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Each person should pay approximately 46.90.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed)
+
+```text
+Sure, let's divide the bill fairly. Each person should pay: 187.60 / 4 = 46.90.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -963,6 +1348,18 @@ I'm sorry, but I don't have a way to check the battery level on your device. You
 
 ```text
 I'm sorry, but I can't see the battery level right now. You'll need to go into your device's settings to check it. If you need any other help, feel free to ask!
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+I'm sorry, but I don't have direct access to your device's battery status. You might want to check the battery level on your device's settings or use a battery app to get an accurate reading.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+I can help with that. Let's check your battery status.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -994,6 +1391,18 @@ Yes, it's charging.
 I can check the battery status for you. Is there anything else you'd like to know?
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+Yes, it is.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+I can check the battery status for you. Let me see.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
 
 ```text
@@ -1021,6 +1430,18 @@ I'd be happy to help with that! Let's check the storage space on your phone.
 
 ```text
 I can check that for you. Let's see.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+I'll check the storage space for you. Let's see... (pauses) Ah, there you go! You have 12.3 gigabytes of free storage space on your phone.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔ · calls: `get_storage_status({})`
+
+```text
+There is 176.7 GB of free storage space on your phone.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -1052,6 +1473,18 @@ This is a Google Pixel 6.
 This is a Samsung Galaxy.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+This is an Android phone.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+I'm sorry, but I don't have direct access to your device's information. However, I can help you with other tasks if you need assistance.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (did not say it cannot check)
 
 ```text
@@ -1079,6 +1512,18 @@ Hey there! I'm doing great, thanks for asking! How can I help you today?
 
 ```text
 Hey there! I'm just a little AI, but I'm here to help you out! How can I assist you today?
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+I'm doing great, thanks for asking! How can I help you today?
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Hey there! I'm doing great, thanks for asking! How can I help you today?
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -1110,6 +1555,19 @@ Why was the math book sad? Because it had too many problems.
 Why was the math book sad? Because it didn't get an even day off!
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Sure, here's a short joke:
+Why don't scientists trust atoms? Because they make up everything.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Why don't scientists trust atoms? Because they make up everything!
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -1139,6 +1597,18 @@ A battery stores energy by converting it into electrical potential, which can be
 A battery stores energy by converting it into chemical energy, which can be released when needed.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+A battery stores energy by converting chemical energy into electrical energy.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+A battery stores energy by converting chemical energy into electrical energy and back, allowing devices to function even when not plugged in.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -1166,6 +1636,18 @@ The saying "time flies" means that time moves quickly and efficiently. It implie
 
 ```text
 It means time moves quickly and efficiently.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The saying "time flies" means that time moves quickly and seems to pass quickly. It's often used to describe how time seems to go by quickly when you're doing something enjoyable or when you're in a hurry.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+It means that time moves quickly and you might feel like you have a lot of things to do. It's like when you're having fun and you don't realize how much time has passed.
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -1199,6 +1681,20 @@ Boxes hold my dreams, full and true,
 In the attic, they sit, waiting to be used.
 ```
 
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Boxes hold treasures,  
+Secure in their wooden chests.
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Boxes hold my dreams,  
+Storage boxes keep my plans.
+```
+
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -1230,6 +1726,18 @@ How about "Sparkle"?
 
 ```text
 How about "Flash"?
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+How about "Sparkle"?
+```
+
+**qwen2.5-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+How about "Sparkle"?
 ```
 
 **qwen2.5-1.5b-instruct-q6_k.gguf · host · skills off** ✔

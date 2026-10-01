@@ -19,6 +19,18 @@ Blue, calm, vast
 Blue, calm, vast
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Blue, calm, vast
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Blue, calm, vast
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -50,6 +62,22 @@ Blue, calm, vast
 - Apple
 - Banana
 - Cherry
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+- Apple
+- Banana
+- Orange
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+- Apple
+- Banana
+- Orange
 ```
 
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -85,6 +113,18 @@ Yes
 Yes
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Yes
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Yes
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -109,6 +149,18 @@ Bonjour, comment allez-vous ?
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+Bonjour, comment allez-vous ?
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Bonjour, comment allez-vous ?
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 Bonjour, comment allez-vous ?
@@ -143,6 +195,18 @@ CATS ARE FUN AND LOVED BY MANY PEOPLE.
 CATS ARE AWESOME AND FUN!
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+CATS ARE FELINE ANIMALS WITH LONG HAIR, EYES, AND EARS.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+CATS ARE AWESOME!
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -172,6 +236,28 @@ CATS ARE AWESOME!
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+'''json
+{
+  "name": "Sam",
+  "age": 30
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+'''json
+{
+  "name": "Sam",
+  "age": 30
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 '''json
@@ -221,6 +307,18 @@ Photosynthesis is the process by which plants convert light energy into chemical
 Photosynthesis is the process by which plants convert light energy into chemical energy stored in glucose.
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Photosynthesis is the process by which plants convert light energy from the sun into chemical energy stored in glucose.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Photosynthesis is the process by which plants convert light energy from the sun into chemical energy stored in glucose.
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -245,6 +343,18 @@ Canberra
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+The capital of Australia is Canberra.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The capital of Australia is Canberra.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 The capital of Australia is Canberra.
@@ -279,6 +389,23 @@ Eight legs.
 {"name": "get_device_info", "arguments": {}}
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Spiders have eight legs.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing 8)
+
+```text
+'''json
+{
+  "name": "get_device_info",
+  "arguments": {}
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -303,6 +430,18 @@ William Shakespeare
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✔
+
+```text
+{"name": "William Shakespeare", "arguments": {}}
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+William Shakespeare
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
 
 ```text
 {"name": "William Shakespeare", "arguments": {}}
@@ -344,6 +483,25 @@ Romeo and Juliet was written by William Shakespeare.
 '''
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+100°C
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "100"
+  }
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -380,6 +538,23 @@ Jupiter
 The largest planet in our solar system is Jupiter.
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Jupiter
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+'''json
+{
+  "name": "Jupiter",
+  "arguments": {}
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -410,6 +585,23 @@ A kilogram of steel is heavier than a kilogram of feathers.
 [… 2505 more characters]
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (missing same)
+
+```text
+A kilogram of steel is heavier than a kilogram of feathers.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing same)
+
+```text
+To determine which is heavier, a kilogram of feathers or a kilogram of steel, we need to consider the density of each material.
+
+1. **Feathers**:
+   - Feathers are lightweight and composed of lightweight materials like feathers, feathers, and feathers.
+   - The density of feathers is approximately 0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+[… 2188 more characters]
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (missing same)
 
 ```text
@@ -437,6 +629,25 @@ You have 4 apples now.
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (wrong number)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(3 - 1) + 5"
+  }
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
+
+```text
+You now have 8 apples.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (wrong number)
 
 ```text
 '''json
@@ -500,6 +711,30 @@ Here is the JSON response:
 '''
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Joe
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+To determine who is the shortest, we need to analyze the given information step by step:
+
+1. Tom is taller than Ann.
+2. Ann is taller than Joe.
+
+From these two statements, we can deduce the following:
+- Ann is taller than Joe.
+- Tom is taller than Ann.
+- Therefore, Tom is taller than Joe and Ann.
+
+Since Joe is taller than Ann, and Ann is taller than Tom, the shortest person among Tom, Ann, and Joe is Joe.
+
+Thus, the shortest person is Joe.
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -533,6 +768,25 @@ Thursday
     "date": "2023-04-04",
     "time": "14:30",
     "day": "Monday"
+  }
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Thursday
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing Thursday)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(1 + 2) * 3"
   }
 }
 '''
@@ -580,6 +834,18 @@ The town council discussed library construction, with construction starting in M
 The town council discussed library construction, with construction starting in March and expected to take eighteen months.
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The town council discussed library construction plans, including a children's wing, cafe, and community space, with construction starting in March and expected to take eighteen months.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+The town council discussed the new library's construction, funding, and features, with construction starting in March and expected to take eighteen months.
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -609,6 +875,33 @@ Rubric: Polite and formal, keeps the report and the Friday deadline.
 
 ```text
 Hey, please send me the report by Friday or we're in trouble.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+"Dear [Recipient's Name],
+
+I hope this message finds you well. I am writing to request that you send me the report by Friday. If we do not receive this by that date, it may lead to some issues, and I would appreciate your cooperation in ensuring that the report is submitted on time.
+
+Thank you for your attention to this matter.
+
+Best regards,
+
+[Your Name]"
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+"Dear [Recipient's Name],
+
+I hope this message finds you well. I am writing to request that you send me the report by Friday. If we do not receive it by that date, we may face potential issues.
+
+Thank you for your cooperation.
+
+Best regards,
+[Your Name]"
 ```
 
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -642,6 +935,25 @@ Thursday, 3pm
   "name": "calculate",
   "arguments": {
     "expression": "(2 + 4) * 3"
+  }
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The meeting is scheduled for Thursday at 3 PM in room 4.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing Thursday, missing 3pm)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(24 - 12) * 2 + 3"
   }
 }
 '''
@@ -685,6 +997,18 @@ Red
 red
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (missing not)
+
+```text
+Red
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing not)
+
+```text
+{{"name": "get_device_info", "arguments": {"manufacturer": "Toyota", "model": "Corolla", "android_version": "Android 12", "processor": "Snapdragon 865", "total_memory": "8GB"}}}}
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (missing not)
 
 ```text
@@ -718,6 +1042,25 @@ $2
   "name": "calculate",
   "arguments": {
     "expression": "(2 * 10) / 3"
+  }
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (missing not)
+
+```text
+Two tickets
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing not)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(2 * 10)"
   }
 }
 '''
@@ -763,6 +1106,18 @@ Your name is Priya, and you live in Leeds.
 {"name": "get_device_info", "arguments": {}}
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Your name is Priya, and you live in Leeds.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missing Priya, missing Leeds)
+
+```text
+{"name": "get_device_info", "arguments": {}}
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -794,6 +1149,18 @@ The number I asked you to remember is 42.
 
 ```text
 {"name": "get_reminder", "arguments": {}}
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+The number I asked you to remember is 42.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+The number I asked you to remember is 42.
 ```
 
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -831,6 +1198,22 @@ Grilled chicken and a side of fresh vegetables.
 <tools>
 {"name": "get_final_vegetarian_food_suggestions", "arguments": {"type": "object", "properties": {"location": {"type": "string", "description": "The location of the picnic, for example 'park' or 'beach'"}, "theme": {"type": "string", "description": "The theme of the picnic, for example 'summer' or 'winter'"}, "number_of_people": {"type": "integer", "description": "The number of people attending the picnic"}}, "required": ["location", "theme", "number_of_people"]}}
 </tools>
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+1. Grilled chicken
+2. Vegetarian pizza
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+<tools>
+{"name": "get_food_options", "arguments": {"type": "object", "properties": {"type": "string", "description": "The type of food options to suggest, for example 'vegetarian' or 'non-vegetarian'"}, "required": ["type"]}}
+</tools>
+'''
 ```
 
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -874,6 +1257,23 @@ The time is now.
 '''
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
+
+```text
+It's currently 12:34 PM.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+'''json
+{
+  "name": "get_datetime",
+  "arguments": {}
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
 
 ```text
@@ -903,6 +1303,23 @@ Today's date is [insert current date here].
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+'''json
+{
+  "name": "get_datetime",
+  "arguments": {}
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+Today's date is 2023-04-15.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
 
 ```text
 '''json
@@ -956,6 +1373,23 @@ Today is a Monday.
 '''
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (did not say it cannot check)
+
+```text
+Today is a Monday.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+'''json
+{
+  "name": "get_datetime",
+  "arguments": {}
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
 
 ```text
@@ -989,6 +1423,25 @@ Today is Monday.
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, wrong number)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(1234 * 5678)"
+  }
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
+
+```text
+680,002
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, wrong number)
 
 ```text
 '''json
@@ -1044,6 +1497,25 @@ Today is Monday.
 '''
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
+
+```text
+36
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, wrong number)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(17.5 * 240) / 100"
+  }
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (wrong number)
 
 ```text
@@ -1075,6 +1547,25 @@ Today is Monday.
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, wrong number)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(45 + 55) / 4 - 3"
+  }
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (wrong number)
+
+```text
+(45 + 55) / 4 - 3 = 20 / 4 - 3 = 5 - 3 = 2
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, wrong number)
 
 ```text
 '''json
@@ -1130,6 +1621,25 @@ Today is Monday.
 '''
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Each person should pay $46.90.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, wrong number)
+
+```text
+'''json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "(187.60 / 4)"
+  }
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -1161,6 +1671,23 @@ You have 20% battery left.
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+'''json
+{
+  "name": "get_battery_status",
+  "arguments": {}
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
+
+```text
+Your battery is currently at 80%.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
 
 ```text
 '''json
@@ -1210,6 +1737,23 @@ Yes, your phone is currently charging.
 '''
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
+
+```text
+Yes, your phone is charging right now.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+'''json
+{
+  "name": "get_battery_status",
+  "arguments": {}
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
 
 ```text
@@ -1239,6 +1783,23 @@ You have 16 GB of free storage space on your phone.
 ```
 
 **qwen2.5-coder-1.5b-instruct-q3_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+'''json
+{
+  "name": "get_storage_status",
+  "arguments": {}
+}
+'''
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
+
+```text
+There is approximately 16.5 GB of free storage space on your phone.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
 
 ```text
 '''json
@@ -1283,6 +1844,23 @@ The phone model is likely an Android device.
 get_device_info
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (invented)
+
+```text
+The phone model is a Samsung Galaxy S21.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✘ (missed, result not used)
+
+```text
+'''json
+{
+  "name": "get_device_info",
+  "arguments": {}
+}
+'''
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (invented)
 
 ```text
@@ -1317,6 +1895,18 @@ I'm great, thank you! How about you?
 Hi! I'm just a computer program, so I don't have feelings, but I'm here to help you. How can I assist you today?
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+I'm great, thank you! How about you?
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+{"name": "get_datetime", "arguments": {}}
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -1344,6 +1934,20 @@ Why did the math book go to the doctor? Because it had a headache!
 
 ```text
 Why don't scientists trust atoms? Because they make up everything!
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Why was the math book sad?
+
+Because it had too many problems!
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Why was the math book sad? Because it had too many problems!
 ```
 
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
@@ -1377,6 +1981,18 @@ A battery stores energy by converting chemical energy into electrical energy.
 A battery stores energy by converting chemical energy into electrical energy.
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+A battery stores energy by converting chemical energy into electrical energy.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+A battery stores energy by converting chemical energy into electrical energy.
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -1404,6 +2020,18 @@ Time flies when you're young, but when you're older, it slows down.
 
 ```text
 The saying "time flies" means that time passes quickly, often without much effort or effort.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✘ (missing quick)
+
+```text
+Time flies when you're having fun.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+The saying "time flies" means that time passes quickly and without much delay.
 ```
 
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✘ (missing quick)
@@ -1439,6 +2067,22 @@ They hold memories,
 And stories untold.
 ```
 
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Storage boxes, they hold treasures,  
+A safe place for all our things.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+Storage boxes, they hold secrets,
+A treasure trove of memories.
+Each box holds a story,
+A piece of history, a piece of me.
+```
+
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
 
 ```text
@@ -1470,6 +2114,31 @@ Goldfish are already named for their gold color, so there are no specific names 
 
 ```text
 Goldfish are already named for their gold color, so there isn't a specific name that can be suggested for a pet goldfish. However, you could consider naming it something like "Glowfish" or "Goldfishie" to reflect its unique color and appearance.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills off** ✔
+
+```text
+Goldfish are known for their bright, iridescent colors and graceful movements. Here are a few suggestions for pet goldfish names:
+
+1. **Sparklefish**
+2. **Bubbles**
+3. **Rainbow**
+4. **Sunbeam**
+5. **Crystal**
+6. **Moonbeam**
+7. **Coral**
+8. **Twinkle**
+9. **Flame**
+10. **Bubbles**
+
+These names are playful and reflect the goldfish's unique characteristics.
+```
+
+**qwen2.5-coder-1.5b-instruct-q4_k_m.gguf · host · skills on** ✔
+
+```text
+"Goldfish Master"
 ```
 
 **qwen2.5-coder-1.5b-instruct-q6_k.gguf · host · skills off** ✔
