@@ -393,6 +393,7 @@ class ChatViewModelTest {
             RuntimeError.GENERATION_FAILED to ChatError.GENERATION_FAILED,
             RuntimeError.TOO_MANY_TOOL_CALLS to ChatError.TOO_MANY_TOOL_CALLS,
             RuntimeError.TIMED_OUT to ChatError.TIMED_OUT,
+            RuntimeError.EMPTY_REPLY to ChatError.EMPTY_REPLY,
         ).forEach { (runtimeError, chatError) ->
             turns += flowOf(RuntimeEvent.Failed(runtimeError, emptyList()))
             val vm = viewModel()
@@ -502,5 +503,6 @@ class ChatViewModelTest {
         assertEquals(R.string.chat_error_failed, ChatText.error(ChatError.GENERATION_FAILED))
         assertEquals(R.string.chat_error_too_many_tools, ChatText.error(ChatError.TOO_MANY_TOOL_CALLS))
         assertEquals(R.string.chat_error_timed_out, ChatText.error(ChatError.TIMED_OUT))
+        assertEquals(R.string.chat_error_empty, ChatText.error(ChatError.EMPTY_REPLY))
     }
 }

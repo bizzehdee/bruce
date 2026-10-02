@@ -120,6 +120,9 @@ enum class ChatError {
 
     /** The model's server could not be reached (TASK-076). */
     SERVER_UNREACHABLE,
+
+    /** The model gave no answer. */
+    EMPTY_REPLY,
 }
 
 class ChatViewModel(
@@ -433,6 +436,7 @@ class ChatViewModel(
         RuntimeError.TOO_MANY_TOOL_CALLS -> ChatError.TOO_MANY_TOOL_CALLS
         RuntimeError.TIMED_OUT -> ChatError.TIMED_OUT
         RuntimeError.SERVER_UNREACHABLE -> ChatError.SERVER_UNREACHABLE
+        RuntimeError.EMPTY_REPLY -> ChatError.EMPTY_REPLY
     }
 
     private companion object {

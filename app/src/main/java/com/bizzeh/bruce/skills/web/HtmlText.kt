@@ -5,7 +5,10 @@ import java.util.Locale
 /**
  * Readable text from an untrusted HTML page (TASK-069): headings, paragraphs, list items and the
  * text of links with their addresses. Scripts, styles, forms' hidden parts and elements marked
- * hidden are left out. A single linear scan with no regular expressions, so no page can make it
+ * hidden are left out, and so is page furniture: navigation, asides, a page's own header and footer
+ * outside its main content, and lists whose items are only links (menus, language lists), which
+ * otherwise fill the length a skill result may have before the content starts (a Wikipedia day
+ * page, 2026-10-02). A single linear scan with no regular expressions, so no page can make it
  * slow, and nothing in the page is run.
  */
 object HtmlText {
@@ -15,6 +18,23 @@ object HtmlText {
         "blockquote", "pre", "hr", "dl", "dt", "dd", "figure", "figcaption", "form", "fieldset", "details", "summary",
     )
     private val HEADINGS = setOf("h1", "h2", "h3", "h4", "h5", "h6")
+    private val CHROME = setOf("nav", "aside")
+    private val PAGE_EDGES = setOf("header", "footer")
+    private val CHROME_ROLES = setOf("navigation", "banner", "contentinfo", "complementary", "search")
+    private val CONTENT = setOf("main", "article")
+    private val LISTS = setOf("ul", "ol")
+
+    /** A link-only list needs this many items; shorter ones may be content. */
+    private const val MIN_LINK_LIST = 3
+
+    /** Text outside links that still counts as a link-only item, such as bullets or separators. */
+    private const val MAX_PLAIN_IN_LINK_ITEM = 3
+
+    /** Where a list's output starts, and whether every item so far is only links. */
+    private class ListFrame(val start: Int) {
+        var items = 0
+        var linksOnly = true
+    }
     private val VOID = setOf("br", "hr", "img", "input", "meta", "link", "area", "base", "col", "embed", "source", "track", "wbr")
     private val ENTITIES = mapOf("amp" to "&", "lt" to "<", "gt" to ">", "quot" to "\"", "apos" to "'", "nbsp" to " ", "ndash" to "–", "mdash" to "—", "hellip" to "…", "copy" to "©", "rsquo" to "’", "lsquo" to "‘", "rdquo" to "”", "ldquo" to "“")
 
@@ -27,18 +47,30 @@ object HtmlText {
         return clean(decode(html.substring(open + 1, end))).ifBlank { null }
     }
 
-    fun text(html: String): String {
+    /**
+     * [pageHost] is the site the page came from: links within it show only their text, as their
+     * addresses would otherwise take most of a skill result's length on link-heavy pages.
+     */
+    fun text(html: String, pageHost: String? = null): String {
         val out = StringBuilder()
         var skipping: String? = null
         var skipDepth = 0
         var link: String? = null
         var linkStart = 0
+        val hasContent = CONTENT.any { html.contains("<$it", ignoreCase = true) }
+        var contentDepth = 0
+        val lists = ArrayDeque<ListFrame>()
+        var plainInItem = 0
         var i = 0
         while (i < html.length) {
             val c = html[i]
             if (c != '<') {
                 val next = html.indexOf('<', i).let { if (it < 0) html.length else it }
-                if (skipping == null) out.append(decode(html.substring(i, next)))
+                if (skipping == null) {
+                    val text = decode(html.substring(i, next))
+                    out.append(text)
+                    if (link == null) plainInItem += text.count { it.isLetterOrDigit() }
+                }
                 i = next
                 continue
             }
@@ -55,10 +87,26 @@ object HtmlText {
                 if (skipDepth == 0) skipping = null
                 continue
             }
-            if (!tag.closing && !tag.selfClosing && tag.name !in VOID && (tag.name in SKIPPED || hidden(tag))) {
+            if (!tag.closing && !tag.selfClosing && tag.name !in VOID && (tag.name in SKIPPED || hidden(tag) || chrome(tag, hasContent && contentDepth == 0))) {
                 skipping = tag.name
                 skipDepth = 1
                 continue
+            }
+            if (tag.name in CONTENT) contentDepth = (contentDepth + if (tag.closing) -1 else 1).coerceAtLeast(0)
+            if (tag.name in LISTS && !tag.closing) lists.addLast(ListFrame(out.length))
+            if (tag.name == "li" && !tag.closing) plainInItem = 0
+            if (tag.name == "li" && tag.closing) lists.lastOrNull()?.let { frame ->
+                frame.items++
+                if (plainInItem > MAX_PLAIN_IN_LINK_ITEM) frame.linksOnly = false
+            }
+            if (tag.name in LISTS && tag.closing) {
+                val frame = lists.removeLastOrNull()
+                if (frame != null && frame.linksOnly && frame.items >= MIN_LINK_LIST) {
+                    out.setLength(frame.start)
+                    continue
+                }
+                // A list kept inside another counts as text in the outer list's item.
+                if (frame != null) plainInItem += MAX_PLAIN_IN_LINK_ITEM + 1
             }
             when {
                 tag.name == "a" && !tag.closing -> {
@@ -67,7 +115,7 @@ object HtmlText {
                 }
                 tag.name == "a" && tag.closing -> {
                     val href = link
-                    if (href != null && out.substring(linkStart).trim() != href) out.append(" (").append(href).append(')')
+                    if (href != null && out.substring(linkStart).trim() != href && !sameSite(href, pageHost)) out.append(" (").append(href).append(')')
                     link = null
                 }
                 tag.name == "li" && !tag.closing -> out.append("\n- ")
@@ -137,6 +185,17 @@ object HtmlText {
         }
         return found
     }
+
+    private fun sameSite(href: String, pageHost: String?): Boolean =
+        pageHost != null && try {
+            java.net.URI(href).host?.equals(pageHost, ignoreCase = true) == true
+        } catch (e: java.net.URISyntaxException) {
+            false
+        }
+
+    /** Navigation and other page furniture; a header or footer only when outside the page's main content. */
+    private fun chrome(tag: Tag, outsideContent: Boolean): Boolean =
+        tag.name in CHROME || tag.attributes["role"]?.lowercase(Locale.ROOT) in CHROME_ROLES || (outsideContent && tag.name in PAGE_EDGES)
 
     private fun hidden(tag: Tag): Boolean {
         val style = tag.attributes["style"]?.lowercase(Locale.ROOT)?.replace(" ", "").orEmpty()

@@ -59,7 +59,7 @@ class WebPages(
                 val (bytes, cut) = withContext(io) { readUpTo(response.body, MAX_BYTES) }
                 val body = String(bytes, charset(type))
                 return if (kind == Kind.HTML) {
-                    PageResult.Read(current, HtmlText.title(body), HtmlText.text(body), cut)
+                    PageResult.Read(current, HtmlText.title(body), HtmlText.text(body, WebAddress.host(current)), cut)
                 } else {
                     PageResult.Read(current, null, body.trim(), cut)
                 }

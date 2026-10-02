@@ -86,6 +86,9 @@ enum class RuntimeError {
 
     /** A remote model server could not be reached, or the connection broke (TASK-076). */
     SERVER_UNREACHABLE,
+
+    /** The model ended its turn with no answer and no skill call, which the chat would otherwise show as nothing. */
+    EMPTY_REPLY,
 }
 
 /**
@@ -167,7 +170,11 @@ class BruceRuntime(
             val parsed = numbered(step.reply, calls)
             emit(RuntimeEvent.Step(parsed.content, parsed.reasoning, parsed.toolCalls, step.stats))
             added += ToolChatMessage(ChatRole.ASSISTANT, parsed.content, toolCalls = parsed.toolCalls)
-            if (parsed.toolCalls.isEmpty()) return emit(RuntimeEvent.Finished(added.toList()))
+            if (parsed.toolCalls.isEmpty()) {
+                // MiniCPM5 answered nothing after reading a page of menus (2026-10-02); say so rather than show nothing.
+                if (parsed.content.replace(THINKING, "").isBlank()) return emit(RuntimeEvent.Failed(RuntimeError.EMPTY_REPLY, added.toList()))
+                return emit(RuntimeEvent.Finished(added.toList()))
+            }
 
             for ((index, call) in parsed.toolCalls.withIndex()) {
                 if (calls++ >= maxToolCalls) {

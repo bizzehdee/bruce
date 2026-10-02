@@ -610,5 +610,6 @@ internal object ChatText {
         ChatError.TOO_MANY_TOOL_CALLS -> R.string.chat_error_too_many_tools
         ChatError.TIMED_OUT -> R.string.chat_error_timed_out
         ChatError.SERVER_UNREACHABLE -> R.string.chat_error_server
+        ChatError.EMPTY_REPLY -> R.string.chat_error_empty
     }
 }

@@ -608,6 +608,13 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun anAnswerWithNothingInItIsReportedNotShownAsNothing() {
+        engine.steps += Step("<think>\n\n</think>\n\n", ParsedReply("<think>\n\n</think>\n\n", "", emptyList()))
+
+        assertEquals(RuntimeError.EMPTY_REPLY, (events().last() as RuntimeEvent.Failed).error)
+    }
+
+    @Test
     fun aModelThatStillCallsAtTheLimitEndsTheTurn() {
         repeat(4) { i -> engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("calculate", "{\"expression\":\"$i+1\"}")))) }
 

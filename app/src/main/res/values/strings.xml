@@ -56,6 +56,7 @@
     <string name="chat_error_failed">The model could not finish that reply.</string>
     <string name="chat_error_too_many_tools">Stopped: the model kept asking for skills without answering.</string>
     <string name="chat_error_timed_out">Stopped: that took too long.</string>
+    <string name="chat_error_empty">The model finished without an answer. Try asking again, or in other words.</string>
     <string name="chat_error_server">Could not reach the model\'s server. Check it is running and that this phone can reach it.</string>
     <string name="chat_context_use">%1$,d of %2$,d tokens used · %3$,d free</string>
     <string name="chat_context_nearly_full">Nearly full. New messages will push the oldest out; the chat carries on.</string>
