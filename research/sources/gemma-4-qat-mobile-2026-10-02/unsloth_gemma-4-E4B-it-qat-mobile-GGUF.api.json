@@ -1,0 +1,47 @@
+{
+ "_id": "6a22fce1668e42aa89fad1bf",
+ "id": "unsloth/gemma-4-E4B-it-qat-mobile-GGUF",
+ "gated": false,
+ "downloads": 19735,
+ "siblings": [
+  {
+   "rfilename": ".gitattributes"
+  },
+  {
+   "rfilename": "MTP/README.md"
+  },
+  {
+   "rfilename": "MTP/mtp-gemma-4-E4B-it-BF16.gguf"
+  },
+  {
+   "rfilename": "MTP/mtp-gemma-4-E4B-it-F16.gguf"
+  },
+  {
+   "rfilename": "MTP/mtp-gemma-4-E4B-it-Q4_0.gguf"
+  },
+  {
+   "rfilename": "MTP/mtp-gemma-4-E4B-it-Q8_0.gguf"
+  },
+  {
+   "rfilename": "README.md"
+  },
+  {
+   "rfilename": "config.json"
+  },
+  {
+   "rfilename": "gemma-4-E4B-it-qat-UD-Q2_K_XL.gguf"
+  },
+  {
+   "rfilename": "mmproj-BF16.gguf"
+  },
+  {
+   "rfilename": "mmproj-F16.gguf"
+  },
+  {
+   "rfilename": "mmproj-F32.gguf"
+  },
+  {
+   "rfilename": "mtp-gemma-4-E4B-it.gguf"
+  }
+ ]
+}

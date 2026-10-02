@@ -1,0 +1,38 @@
+{
+ "_id": "6a1f6d63454eb3a4d34de3bc",
+ "id": "google/gemma-4-E4B-it-qat-mobile-transformers",
+ "gated": false,
+ "downloads": 1433,
+ "siblings": [
+  {
+   "rfilename": ".gitattributes"
+  },
+  {
+   "rfilename": "README.md"
+  },
+  {
+   "rfilename": "chat_template.jinja"
+  },
+  {
+   "rfilename": "config.json"
+  },
+  {
+   "rfilename": "generation_config.json"
+  },
+  {
+   "rfilename": "model.safetensors"
+  },
+  {
+   "rfilename": "preprocessor_config.json"
+  },
+  {
+   "rfilename": "processor_config.json"
+  },
+  {
+   "rfilename": "tokenizer.json"
+  },
+  {
+   "rfilename": "tokenizer_config.json"
+  }
+ ]
+}

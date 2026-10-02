@@ -1,0 +1,41 @@
+{
+ "_id": "6a1e18a241aa598ff91f14a6",
+ "id": "google/gemma-4-E4B-it-qat-mobile-ct",
+ "gated": false,
+ "downloads": 4565,
+ "siblings": [
+  {
+   "rfilename": ".gitattributes"
+  },
+  {
+   "rfilename": "README.md"
+  },
+  {
+   "rfilename": "chat_template.jinja"
+  },
+  {
+   "rfilename": "config.json"
+  },
+  {
+   "rfilename": "generation_config.json"
+  },
+  {
+   "rfilename": "model.safetensors"
+  },
+  {
+   "rfilename": "model.safetensors.index.json"
+  },
+  {
+   "rfilename": "preprocessor_config.json"
+  },
+  {
+   "rfilename": "processor_config.json"
+  },
+  {
+   "rfilename": "tokenizer.json"
+  },
+  {
+   "rfilename": "tokenizer_config.json"
+  }
+ ]
+}
