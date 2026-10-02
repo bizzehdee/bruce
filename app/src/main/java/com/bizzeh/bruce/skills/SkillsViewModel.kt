@@ -3,6 +3,7 @@ package com.bizzeh.bruce.skills
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bizzeh.bruce.policy.SkillStateStore
+import com.bizzeh.bruce.policy.StateChange
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -16,7 +17,7 @@ data class SkillRow(val skill: Skill, val state: SkillState, val locked: SkillRe
 
 /** The Skills screen: every registered skill with the user's state for it, in registration order. */
 class SkillsViewModel(
-    registry: SkillRegistry,
+    private val registry: SkillRegistry,
     private val store: SkillStateStore,
     /** Requirements not met now (AppContainer.unmetRequirements). */
     unmet: Flow<Set<SkillRequirement>> = flowOf(emptySet()),
@@ -27,9 +28,17 @@ class SkillsViewModel(
     }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), emptyList())
 
-    /** The store refuses Accepted for a high-risk skill unless [highRiskWarningAccepted]. */
+    /**
+     * The store refuses Accepted for a high-risk skill unless [highRiskWarningAccepted]. Turning a
+     * skill on turns on its companions that are off, at the same state (owner, 2026-10-02).
+     */
     fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean = false) {
-        viewModelScope.launch { store.set(skill, state, highRiskWarningAccepted) }
+        viewModelScope.launch {
+            if (store.set(skill, state, highRiskWarningAccepted) != StateChange.Changed || state == SkillState.DECLINED) return@launch
+            skill.companions.mapNotNull { registry[it] }
+                .filter { store.state(it) == SkillState.DECLINED }
+                .forEach { store.set(it, if (it.highRisk || it.confirmEveryUse) SkillState.ASK else state) }
+        }
     }
 
     private companion object {

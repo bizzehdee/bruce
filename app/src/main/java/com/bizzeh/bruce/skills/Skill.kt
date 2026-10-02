@@ -110,6 +110,8 @@ class Skill(
     val site: ((SkillArguments) -> String?)? = null,
     /** Every use is asked about, even if Accepted were chosen; the Skills screen does not offer Accepted. */
     val confirmEveryUse: Boolean = false,
+    /** Skills that are turned on with this one, at its state, when they are off (TASK-113: Wikipedia search needs page reading). */
+    val companions: Set<String> = emptySet(),
     val execute: suspend (SkillArguments) -> SkillOutcome,
 ) {
     init {

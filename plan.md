@@ -240,7 +240,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   Brave needs a payment card even for its free credit, so Bruce adds free
   providers: Wikipedia search, which needs no key, and LangSearch, a free general
   web search with the user's own free key. Reading search engines' result pages
-  is ruled out by their robots.txt and terms (owner, 2026-10-02). `done` (TASK-113)
+  is ruled out by their robots.txt and terms (owner, 2026-10-02). Turning Wikipedia
+  search on also turns on Read web pages, if it is off, so the model can read the
+  articles it finds (owner, 2026-10-02). `done` (TASK-113)
 - **Advanced skills** — Move/rename files, calendar create/modify/delete,
   sharing, opening apps and URLs, clipboard write, SMS, calls, notifications.
   `in progress` (move and rename, TASK-085; calendar, TASK-086; sharing, opening apps and URLs, TASK-087; clipboard write, TASK-088; messages and calls prepared for the user, TASK-089; notes as notifications, TASK-090)

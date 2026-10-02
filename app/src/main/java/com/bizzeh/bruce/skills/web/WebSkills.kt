@@ -51,6 +51,8 @@ class WebSkills(
         scope = ResourceScope.WEB,
         requires = setOf(SkillRequirement.NETWORK_ALLOWED),
         site = { engine.host },
+        // Search gives excerpts; reading the article answers the question (owner, 2026-10-02).
+        companions = setOf("fetch_page"),
     ) { arguments -> answer(engine.search(arguments.string(QUERY).orEmpty())) }
 
     private fun answer(result: SearchResult): SkillOutcome =

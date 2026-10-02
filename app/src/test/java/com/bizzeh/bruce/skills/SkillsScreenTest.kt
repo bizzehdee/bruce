@@ -88,6 +88,26 @@ class SkillsScreenTest {
     }
 
     @Test
+    fun turningASkillOnTurnsItsCompanionsOnButNotOff() {
+        val page = skill("fetch_page", SkillState.DECLINED)
+        val wiki = Skill("search_wikipedia", 1, "wiki", InputSchema(), emptySet(), SkillState.DECLINED, companions = setOf("fetch_page")) { SkillOutcome.Done("") }
+        val viewModel = SkillsViewModel(SkillRegistry(listOf(page, wiki)), store)
+        viewModel.awaitRows { true }
+
+        viewModel.set(wiki, SkillState.ACCEPTED)
+        viewModel.awaitRows { rows -> rows.all { it.state == SkillState.ACCEPTED } }
+
+        viewModel.set(wiki, SkillState.DECLINED)
+        val rows = viewModel.awaitRows { it.last().state == SkillState.DECLINED }
+        assertEquals("turning Wikipedia off leaves page reading as it is", SkillState.ACCEPTED, rows.first().state)
+
+        viewModel.set(page, SkillState.ASK)
+        viewModel.awaitRows { it.first().state == SkillState.ASK }
+        viewModel.set(wiki, SkillState.ACCEPTED)
+        assertEquals("a companion already on keeps its state", SkillState.ASK, viewModel.awaitRows { it.last().state == SkillState.ACCEPTED }.first().state)
+    }
+
+    @Test
     fun highRiskSkillIsNotAcceptedWithoutTheWarning() {
         val viewModel = SkillsViewModel(registry, store)
         viewModel.awaitRows { true }
