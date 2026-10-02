@@ -2,7 +2,8 @@
 
 Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, local, and never sniffing around your data.
 
-- **Your model.** You choose which open-weight model Bruce uses. Download one from Hugging Face or import your own GGUF file. Paste a model's Hugging Face name or address into the search: if it is published in a format Bruce can't run, Bruce lists the copies it can.
+- **Easy start.** A short setup suggests models tested on phones like yours, with a line on what each is good at, and downloads your pick in one tap. It also lets you pick a context size your phone can run and which kinds of skills to turn on, warning you if they would crowd the chat.
+- **Your model.** You choose which open-weight model Bruce uses. Download one from Hugging Face (models Bruce has tested for your kind of phone are marked) or import your own GGUF file. Paste a model's Hugging Face name or address into the search: if it is published in a format Bruce can't run, Bruce lists the copies it can.
 - **Your phone.** The model runs on the device. Bruce works offline once a model is installed.
 - **Profiles.** Save a model as a named profile, such as Fast or Coding, and pick one per chat; the chat switches to it whenever you open it.
 - **Or your own server.** If you run llama.cpp (or another OpenAI-compatible server) at home, Bruce can use its models instead. Your skills and permissions still stay on the phone.
@@ -21,6 +22,8 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 - **Talk to it.** Tap the microphone to speak a message. Speech is turned into text on the phone itself; the audio never leaves it. Tap the speaker under a reply to hear it read aloud, or long-press the microphone for a hands-free conversation.
 - **Show it a picture.** With a model that can see (Bruce downloads its image support with it), add a photo or screenshot to a message. Images stay on the phone unless you use your own server's model.
 - **Share a document.** Attach a PDF or text file to a message and ask about it. Bruce reads its text on the phone; password-protected PDFs and scans without text cannot be read.
+- **Search.** If you turn it on, Bruce can search Wikipedia with no setup, or the whole web with your own free LangSearch key (or a Brave key).
+- **Thinking, if you want it.** Models answer straight away by default; turn on "Think before replying" in Settings to let models that can reason do so first. A spinner shows while Bruce is working, and you never see the raw tool calls.
 - **Readable replies.** Headings, lists, tables and code show formatted. Links ask before opening, and images from the web load only when you tap them.
 - **Your sidekick.** Pick a personality: Bruce, quick and eager, or Milo, calm and thoughtful.
 - **Your memory, if you want it.** Off unless you turn it on: Bruce then keeps short facts from your chats on the phone, uses them in later chats, and shows you every one to delete.

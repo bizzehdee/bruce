@@ -105,11 +105,13 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (2026-10-01): `docs/store/privacy-policy.md`, checked against the code: what is stored and where, each network feature with the data it sends and to whom (including the parameter ceiling derived from free memory that recommendations send to Hugging Face, and that a remote server receives skill results and memories), each Android permission and its use, the camera skill using the system camera app, text to speech possibly using a network voice, and how to delete each kind of data.
   - Still open: the publication URL. The policy must be updated in the same change as any feature that alters what leaves the phone.
   - Required by: TASK-017
-- [ ] TASK-017: Play Store listing text and setup answers
+- [x] TASK-017: Play Store listing text and setup answers
   - `docs/store/listing.md`: app name (30 characters or fewer), short description (80 or fewer), full description (4000 or fewer).
   - Prepared answers for the Play Console setup questions: app or game, free or paid, ads, app access, content rating questionnaire, target audience, data safety form, and any permission declarations.
   - Data safety answers must match the privacy policy.
+  - Done (2026-10-02): `docs/store/listing.md` (name 23, short 76, full 2,522 characters; `docs/store/check-listing.py` checks the limits) and `docs/store/play-console-answers.md` (app or game, free, no ads, app access with reviewer steps, content rating, target audience 18+, data safety table matching the privacy policy, permission declarations). Found: Google Play's AI-Generated Content policy requires in-app reporting of offensive AI content to the developer, which Bruce lacks; publishing on Play waits on TASK-114. The remote-server rows of the data safety table are for the owner to confirm.
   - Depends on: TASK-016
+  - Required by: TASK-114
 - [x] TASK-018: Default thread count from CPU topology
   - Default `LoadConfig.threads` to the number of performance cores instead of all cores; TASK-012 measured 4 threads 25–35% faster than 8 on both test phones.
   - Detect performance cores from each core's maximum frequency in sysfs; cores in the lowest-frequency cluster are efficiency cores.
@@ -846,3 +848,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Tests: parsers against archived responses, key handling as for Brave, the provider choice in Settings, and the skill's locked states.
   - Done (2026-10-02): LangSearch's API reference, terms and privacy policy read and archived first (nothing restricts keeping results; it logs searches and IP addresses, now in the privacy policy). Wikipedia is its own skill, `search_wikipedia` (Declined by default, locked only while Offline), so its description can say it covers Wikipedia only; it searches the phone's language edition, falling back to English. `web_search` uses the provider chosen in Settings, Network: LangSearch (default, free key) or Brave (paid, card needed), each with its own sealed key, sent only to its own host without following redirects. Unit tests use the archived Wikipedia answer and LangSearch's documented response; neither service was called from a phone (LangSearch needs a key).
   - Depends on: TASK-070
+- [ ] TASK-114: Report offensive AI replies (Google Play requirement)
+  - Google Play's AI-Generated Content policy: "Apps that generate content using AI must contain in-app user reporting or flagging features that allow users to report or flag offensive content to developers without needing to exit the app" (`research/sources/google-play-policy-2026-10-02/`). Bruce is a text-to-text chatbot, so it is in scope; Play publishing is blocked until this exists. F-Droid and GitHub Releases are not affected.
+  - Open, for the owner: how a report reaches the developer, given the developer runs no server and Bruce sends nothing without the user's action. Options: (a) a "Report reply" action on each reply that, after showing exactly what will be sent, posts the reply, the prompt and the model's name to a small report endpoint the owner runs; (b) the same report sent by email from inside the app through a share or compose screen the user confirms; (c) a report form on the owner's website opened in an in-app browser tab with the reply prefilled. Each needs the privacy policy and data safety form updated.
+  - Depends on: TASK-017

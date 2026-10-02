@@ -385,7 +385,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Store listing** — Play Store feature graphic, listing text (name, short
   description, full description) and prepared answers for the Play Console setup
   questions, kept as Markdown in the repository. Phone screenshots follow once
-  the product UI exists (Phase 1). `in progress` (feature graphic done, TASK-015)
+  the product UI exists (Phase 1). `in progress` (feature graphic, TASK-015; listing
+  text and Play Console answers, TASK-017; Play publishing waits on in-app reporting
+  of AI replies, TASK-114)
 - **Privacy policy** — Public privacy policy describing Bruce's local-only data
   handling, required by Google Play. Published on the owner's website; the
   contact email is the one given in `docs/store/`. `in progress` (written,
@@ -490,6 +492,7 @@ device-to-device transfer.
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Privacy policy URL on the owner's website. | User |
+| How a report of an offensive AI reply reaches the developer, which Google Play requires (TASK-114). | User |
 
 ## Milestones
 
@@ -516,6 +519,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Added | Report offensive AI replies, required by Google Play's AI-Generated Content policy; how reports reach the developer is open (TASK-114). |
 | 2026-10-02 | Changed | The context bar is always coloured green to red; the traffic-light setting is replaced by "Show context window", off by default (owner). |
 | 2026-10-02 | Changed | Recommended models settled: the bins rule, Gemma 4 E2B, MiniCPM5 2B and Qwen3 1.7B for 8 and 12 GB, Qwen3 1.7B Q4_K_M as slow but usable for 4 GB; the browser marks and ranks them (owner delegated, TASK-106, TASK-107). |
 | 2026-10-02 | Added | Free search providers: Wikipedia (no key) and LangSearch (free key) alongside Brave (owner) (TASK-113). |
