@@ -6,11 +6,20 @@ import com.bizzeh.bruce.remote.ServerClient
 import com.bizzeh.bruce.remote.RemoteServerStore
 import com.bizzeh.bruce.skills.web.SearchKeyRepository
 import com.bizzeh.bruce.skills.web.BraveSearch
+import com.bizzeh.bruce.skills.web.LangSearch
+import com.bizzeh.bruce.skills.web.SearchEngine
+import com.bizzeh.bruce.skills.web.WebSearchProvider
+import com.bizzeh.bruce.skills.web.WikipediaSearch
 import com.bizzeh.bruce.policy.SiteRule
 import com.bizzeh.bruce.skills.web.WebPages
 import com.bizzeh.bruce.skills.web.WebSkills
 import com.bizzeh.bruce.policy.SiteAccess
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.map
@@ -333,7 +342,8 @@ class AppContainer(private val context: Context) {
                 WebSkills(
                     WebPages(transport, Dispatchers.IO, userAgent),
                     allowed = { host -> sites.rule(host) == SiteRule.ALLOWED },
-                    search = BraveSearch(transport, Dispatchers.IO, userAgent, searchKey::key),
+                    search = chosenSearch,
+                    wikipedia = WikipediaSearch(transport, Dispatchers.IO, userAgent) { java.util.Locale.getDefault().language },
                 ).create(),
         )
     }
@@ -464,6 +474,26 @@ class AppContainer(private val context: Context) {
     }
 
     val searchKey: SearchKeyRepository by lazy { SearchKeyRepository(context.settingsDataStore, KeystoreTokenCipher(SEARCH_KEY_ALIAS)) }
+
+    /**
+     * The chosen search provider, kept current for the policy engine, which asks for the site a call
+     * reaches without suspending; it lives as long as the container.
+     */
+    private val searchProvider: StateFlow<WebSearchProvider> by lazy {
+        searchKey.provider.stateIn(CoroutineScope(SupervisorJob() + Dispatchers.IO), SharingStarted.Eagerly, WebSearchProvider.LANGSEARCH)
+    }
+
+    /** The web search skill's engine: the provider chosen in Settings, each with only its own key (TASK-113). */
+    private val chosenSearch: SearchEngine by lazy {
+        val engines = mapOf(
+            WebSearchProvider.LANGSEARCH to LangSearch(transport, Dispatchers.IO, userAgent) { searchKey.key(WebSearchProvider.LANGSEARCH) },
+            WebSearchProvider.BRAVE to BraveSearch(transport, Dispatchers.IO, userAgent) { searchKey.key(WebSearchProvider.BRAVE) },
+        )
+        object : SearchEngine {
+            override val host get() = engines.getValue(searchProvider.value).host
+            override suspend fun search(query: String) = engines.getValue(searchKey.provider.first()).search(query)
+        }
+    }
 
     /** The requirements not met now, as the Skills screen shows them. */
     val unmetRequirements: Flow<Set<SkillRequirement>> by lazy {

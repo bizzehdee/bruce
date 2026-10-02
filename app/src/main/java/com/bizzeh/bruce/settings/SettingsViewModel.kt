@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.settings
 
 import com.bizzeh.bruce.skills.web.SearchKeyRepository
+import com.bizzeh.bruce.skills.web.WebSearchProvider
 import kotlinx.coroutines.flow.flowOf
 import com.bizzeh.bruce.policy.SiteAccess
 import androidx.lifecycle.ViewModel
@@ -47,14 +48,19 @@ class SettingsViewModel(
             personality = chosen, summary = summarising, memory = remembering,
         )
     }.combine(sites?.approved ?: flowOf(emptyList())) { settings, approved -> settings.copy(approvedSites = approved) }
-        .combine(combine(searchKey?.saved ?: flowOf(false), searchKeyRejected, ::Pair)) { settings, (saved, rejected) ->
-            settings.copy(searchKeySaved = saved, searchKeyRejected = rejected)
+        .combine(combine(searchKey?.saved ?: flowOf(false), searchKeyRejected, searchKey?.provider ?: flowOf(WebSearchProvider.LANGSEARCH), ::Triple)) { settings, (saved, rejected, provider) ->
+            settings.copy(searchKeySaved = saved, searchKeyRejected = rejected, searchProvider = provider)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initial)
 
     fun saveSearchKey(key: String) = launch { searchKeyRejected.value = searchKey?.save(key) == false }
 
     fun removeSearchKey() = launch { searchKey?.remove() }
+
+    fun setSearchProvider(provider: WebSearchProvider) = launch {
+        searchKeyRejected.value = false
+        searchKey?.setProvider(provider)
+    }
 
     fun removeSite(host: String) = launch { sites?.remove(host) }
 

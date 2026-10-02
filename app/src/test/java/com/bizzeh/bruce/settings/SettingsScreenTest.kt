@@ -54,7 +54,8 @@ class SettingsScreenTest {
         override fun removeSite(host: String) { calls += "remove $host" }
         override fun saveSearchKey(key: String) { calls += "key $key" }
         override fun removeSearchKey() { calls += "remove key" }
-        override fun openSearchSignUp() { calls += "sign up" }
+        override fun openSearchSignUp(provider: com.bizzeh.bruce.skills.web.WebSearchProvider) { calls += "sign up $provider" }
+        override fun setSearchProvider(provider: com.bizzeh.bruce.skills.web.WebSearchProvider) { calls += "provider $provider" }
         override fun setPersonality(personality: Personality) { calls += "personality $personality" }
         override fun setSummaryEnabled(enabled: Boolean) { calls += "summarise $enabled" }
         override fun setSummaryThreshold(threshold: Int) { calls += "threshold $threshold" }
@@ -172,12 +173,14 @@ class SettingsScreenTest {
         compose.onNodeWithText("That does not look like a key", substring = true).performScrollTo().assertExists()
         compose.onNodeWithTag("searchKey").performScrollTo().performTextInput("BSA-123456")
         compose.onNodeWithTag("saveSearchKey").performClick()
+        compose.onNodeWithText("LangSearch is free", substring = true).assertExists()
         compose.onNodeWithTag("searchSignUp").performClick()
-        state = SettingsState(searchKeySaved = true)
+        compose.onNodeWithTag("searchProvider:BRAVE").performScrollTo().performClick()
+        state = SettingsState(searchKeySaved = true, searchProvider = com.bizzeh.bruce.skills.web.WebSearchProvider.BRAVE)
         compose.onNodeWithText("BSA-123456", substring = true).assertDoesNotExist()
         compose.onNodeWithTag("removeSearchKey").performScrollTo().performClick()
 
-        assertEquals(listOf("key BSA-123456", "sign up", "remove key"), calls)
+        assertEquals(listOf("key BSA-123456", "sign up LANGSEARCH", "provider BRAVE", "remove key"), calls)
     }
 
     @Test

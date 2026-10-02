@@ -35,3 +35,25 @@ either is built.
 Extract: reading search engines' result pages from the app goes against their published rules,
 breaks whenever the page layout changes, and is blocked with challenges; it is not an option for an
 app published on Google Play.
+
+## LangSearch, read before building (TASK-113, 2026-10-02)
+
+- API (`langsearch-web-search-api.html`, https://docs.langsearch.com/api/web-search-api):
+  `POST https://api.langsearch.com/v1/web-search`, header `Authorization: Bearer <key>`, JSON body
+  `query` (non-empty), `count` (1–50, default 10; above 50 rejected), `freshness`, `includeDomains`,
+  `excludeDomains`, `contents.text` (true or `{maxCharacters}`; full page text, 5,000 characters by
+  default, returned as `text` instead of `snippet`). Response: `code`, `log_id`, `msg`,
+  `data.webPages.value[]` of `id`, `name`, `url`, `displayUrl`, `snippet` or `text`,
+  `datePublished`; `usage.input_tokens`, `output_tokens`. "All supported Web Search features are
+  included in the Free Plan, subject to your account allowance." "Fewer results, including zero, are valid."
+- Terms (`langsearch-terms-of-service.html`, https://langsearch.com/terms-of-service, effective
+  2024-12-19): non-exclusive revocable licence; prohibited: "Scraping, mining, or harvesting data
+  from LangSearch Services", disruption, harming its reputation; "LangSearch provides the Web Search
+  API on a free-access basis" with no guarantee; users 18+ or with consent; US law. Nothing on
+  storing results or commercial use.
+- Privacy (`langsearch-privacy-policy.html`, https://langsearch.com/privacy-policy): collects usage
+  data "including search queries, API requests, and usage patterns" and technical data (IP address,
+  device information), used "to provide and improve" the service and to analyse usage.
+
+Extract: Bruce may use LangSearch with the user's own key; results kept with the chat are not
+restricted; the privacy policy must say LangSearch logs the search text and IP address.

@@ -43,6 +43,7 @@ object SkillText {
         "open_settings_page" to (R.string.skill_open_settings_page to R.string.skill_open_settings_page_summary),
         "fetch_page" to (R.string.skill_fetch_page to R.string.skill_fetch_page_summary),
         "web_search" to (R.string.skill_web_search to R.string.skill_web_search_summary),
+        "search_wikipedia" to (R.string.skill_search_wikipedia to R.string.skill_search_wikipedia_summary),
     )
 
     fun state(state: SkillState): Int = when (state) {

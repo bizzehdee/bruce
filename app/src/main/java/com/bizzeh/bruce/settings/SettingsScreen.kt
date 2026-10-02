@@ -43,6 +43,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
+import androidx.annotation.StringRes
+import com.bizzeh.bruce.skills.web.WebSearchProvider
 import com.bizzeh.bruce.conversations.ExportFormat
 import com.bizzeh.bruce.search.IndexStatus
 import com.bizzeh.bruce.search.SetupState
@@ -77,6 +79,8 @@ data class SettingsState(
     val approvedSites: List<String> = emptyList(),
     /** Whether a Brave Search key is saved (TASK-070); the key itself is never shown again. */
     val searchKeySaved: Boolean = false,
+    /** The web search skill's provider; the key shown and saved is this provider's (TASK-113). */
+    val searchProvider: WebSearchProvider = WebSearchProvider.LANGSEARCH,
     /** The last key entered did not look like one. */
     val searchKeyRejected: Boolean = false,
     /** File search over granted files (TASK-096); null where the screen is shown without it. */
@@ -105,7 +109,8 @@ interface SettingsActions {
     fun removeSearchKey() = Unit
 
     /** Opens Brave's page for getting a search key, in the browser. */
-    fun openSearchSignUp() = Unit
+    fun openSearchSignUp(provider: WebSearchProvider) = Unit
+    fun setSearchProvider(provider: WebSearchProvider) = Unit
     fun setPersonality(personality: Personality)
     fun setMemoryMode(mode: MemoryMode)
     fun openMemory()
@@ -417,11 +422,25 @@ private fun Label(text: Int) {
     Text(stringResource(text), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 4.dp))
 }
 
-/** The user's Brave Search key: typed once, then only ever shown as saved (TASK-070). */
+/**
+ * The web search provider and the user's key for it: typed once, then only ever shown as saved
+ * (TASK-070, TASK-113). Wikipedia search needs no key, so it is only mentioned.
+ */
 @Composable
 private fun SearchKey(state: SettingsState, actions: SettingsActions) {
     Label(R.string.settings_web_search)
     Column(modifier = Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.settings_search_wikipedia), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            WebSearchProvider.entries.forEach { provider ->
+                FilterChip(
+                    selected = state.searchProvider == provider,
+                    onClick = { actions.setSearchProvider(provider) },
+                    label = { Text(stringResource(SettingsText.searchProviderName(provider))) },
+                    modifier = Modifier.testTag("searchProvider:$provider"),
+                )
+            }
+        }
         if (state.searchKeySaved) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.settings_search_key_saved), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f).testTag("searchKeySaved"))
@@ -429,7 +448,7 @@ private fun SearchKey(state: SettingsState, actions: SettingsActions) {
             }
         } else {
             var key by rememberSaveable { mutableStateOf("") }
-            Text(stringResource(R.string.settings_search_key_explained), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(SettingsText.searchProviderExplained(state.searchProvider)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedTextField(
                 value = key,
                 onValueChange = { key = it },
@@ -445,7 +464,9 @@ private fun SearchKey(state: SettingsState, actions: SettingsActions) {
                 Button(onClick = { actions.saveSearchKey(key); key = "" }, enabled = key.isNotBlank(), modifier = Modifier.testTag("saveSearchKey")) {
                     Text(stringResource(R.string.settings_search_key_save))
                 }
-                TextButton(onClick = actions::openSearchSignUp, modifier = Modifier.testTag("searchSignUp")) { Text(stringResource(R.string.settings_search_key_get)) }
+                TextButton(onClick = { actions.openSearchSignUp(state.searchProvider) }, modifier = Modifier.testTag("searchSignUp")) {
+                    Text(stringResource(R.string.settings_search_key_get, stringResource(SettingsText.searchProviderName(state.searchProvider))))
+                }
             }
         }
     }
@@ -579,6 +600,23 @@ internal object SettingsText {
             minOf(cores, InferenceDefaults.MAX_THREADS)).distinct().toList()
 
     fun contextLabel(length: Int) = "${length / 1024}K"
+
+    @StringRes
+    fun searchProviderName(provider: WebSearchProvider): Int = when (provider) {
+        WebSearchProvider.LANGSEARCH -> R.string.settings_search_langsearch
+        WebSearchProvider.BRAVE -> R.string.settings_search_brave
+    }
+
+    @StringRes
+    fun searchProviderExplained(provider: WebSearchProvider): Int = when (provider) {
+        WebSearchProvider.LANGSEARCH -> R.string.settings_search_langsearch_explained
+        WebSearchProvider.BRAVE -> R.string.settings_search_brave_explained
+    }
+
+    fun signUpAddress(provider: WebSearchProvider): String = when (provider) {
+        WebSearchProvider.LANGSEARCH -> "https://langsearch.com/dashboard"
+        WebSearchProvider.BRAVE -> "https://api-dashboard.search.brave.com/register"
+    }
 
     fun networkLabel(mode: NetworkMode) = when (mode) {
         NetworkMode.OFFLINE -> R.string.network_offline

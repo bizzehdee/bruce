@@ -31,8 +31,8 @@ Bruce stores the following data in its private app storage on your phone:
 - Reminders and scheduled tasks that you create.
 - An index of the files you grant to the file search skill, when you set up file
   search.
-- Your Hugging Face sign-in token and your Brave Search API key, if you add them.
-  Bruce encrypts both with a key held in the Android Keystore.
+- Your Hugging Face sign-in token and your web search keys (LangSearch or Brave),
+  if you add them. Bruce encrypts them with keys held in the Android Keystore.
 
 Bruce excludes all of this data from Android cloud backup and from
 device-to-device transfer. Other apps cannot read Bruce's private storage. Bruce
@@ -50,7 +50,8 @@ Hugging Face only, Approved sites, or Any site.
 | Find and download models | Your search text, the filters you choose, a largest model size worked out from your phone's free memory, and requests for model files and their headers | Hugging Face |
 | Download the file search model | A request for the model file | Hugging Face |
 | Sign in with Hugging Face | The sign-in, through your web browser | Hugging Face |
-| Web search skill | The search text the model writes for your request, and your API key | Brave Search |
+| Wikipedia search skill | The search text the model writes for your request | Wikipedia (Wikimedia Foundation) |
+| Web search skill | The search text the model writes for your request, and your key for the service you chose | LangSearch or Brave Search |
 | Web page skill | A request for the page address | The web site |
 | Load an image in a reply | A request for the image address, after you tap Load image | The web site |
 | Remote model server | The whole conversation sent to the model, including skill results, images and memories | The server you add |
@@ -60,6 +61,9 @@ version. Bruce does not send your phone's model name, its memory size or any
 identifier. Each service handles the data under its own privacy policy:
 
 - Hugging Face: <https://huggingface.co/privacy>
+- Wikipedia: <https://foundation.wikimedia.org/wiki/Policy:Privacy_policy>
+- LangSearch: <https://langsearch.com/privacy-policy>. LangSearch says it keeps the
+  searches it receives and uses them to improve its service.
 - Brave Search: <https://search.brave.com/help/privacy-policy>
 - A web site or a remote server you add: the policy of whoever runs it.
 
@@ -102,7 +106,7 @@ tells you, and the engine's provider handles that text.
 - Delete memories in the Memory screen.
 - Delete a model in the Models screen. Its saved prompt copy is deleted with it.
 - Remove file and folder grants in the Permissions screen.
-- Sign out of Hugging Face, or remove your Brave Search key, in Settings.
+- Sign out of Hugging Face, or remove a web search key, in Settings.
 - Delete all of Bruce's data with Settings, Clear all data.
 - Uninstall Bruce. Android then deletes all of Bruce's data from your phone.
 

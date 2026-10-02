@@ -125,6 +125,8 @@ import com.bizzeh.bruce.setup.SetupActions
 import com.bizzeh.bruce.setup.SetupContext
 import com.bizzeh.bruce.setup.SetupSkills
 import com.bizzeh.bruce.setup.SkillChoices
+import com.bizzeh.bruce.settings.SettingsText
+import com.bizzeh.bruce.skills.web.WebSearchProvider
 import com.bizzeh.bruce.skills.CapabilityClass
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -871,9 +873,10 @@ class MainActivity : ComponentActivity() {
         override fun removeSite(host: String) = settings.removeSite(host)
         override fun saveSearchKey(key: String) = settings.saveSearchKey(key)
         override fun removeSearchKey() = settings.removeSearchKey()
-        override fun openSearchSignUp() {
+        override fun setSearchProvider(provider: WebSearchProvider) = settings.setSearchProvider(provider)
+        override fun openSearchSignUp(provider: WebSearchProvider) {
             try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(BRAVE_SIGN_UP)).addCategory(Intent.CATEGORY_BROWSABLE))
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(SettingsText.signUpAddress(provider))).addCategory(Intent.CATEGORY_BROWSABLE))
             } catch (e: ActivityNotFoundException) {
                 Log.w("BruceLinks", "no app opens web links")
             }
@@ -949,6 +952,5 @@ class MainActivity : ComponentActivity() {
         private const val THUMBNAIL_SIDE = 480
 
         /** Where the user gets their own Brave Search key (research/sources/brave-search-api-2026-09-29). */
-        private const val BRAVE_SIGN_UP = "https://api-dashboard.search.brave.com/register"
     }
 }

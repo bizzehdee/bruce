@@ -17,6 +17,13 @@ sealed interface SearchResult {
     data class Failed(val code: DenialCode, val reason: String) : SearchResult
 }
 
+/** A web search service the `web_search` skill can use (TASK-113); [host] is the one site it reaches. */
+interface SearchEngine {
+    val host: String
+
+    suspend fun search(query: String): SearchResult
+}
+
 /**
  * Brave's LLM Context search (owner's choice, 2026-09-29; research/sources/brave-search-api-2026-09-29):
  * page text chunks for the query, the smallest budget Brave allows so small models' contexts cope.
@@ -27,8 +34,10 @@ class BraveSearch(
     private val io: CoroutineDispatcher,
     private val userAgent: String,
     private val key: suspend () -> String?,
-) {
-    suspend fun search(query: String): SearchResult {
+) : SearchEngine {
+    override val host = HOST
+
+    override suspend fun search(query: String): SearchResult {
         val apiKey = key() ?: return SearchResult.Failed(DenialCode.TOOL_UNAVAILABLE, "No Brave Search key is saved in Settings.")
         val url = "https://$HOST/res/v1/llm/context?q=${URLEncoder.encode(query.trim(), "UTF-8")}" +
             "&maximum_number_of_tokens=$TOKENS&maximum_number_of_urls=$URLS"

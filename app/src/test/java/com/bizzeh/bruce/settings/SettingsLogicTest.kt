@@ -80,6 +80,21 @@ class SettingsLogicTest {
     }
 
     @Test
+    fun eachSearchProviderKeepsItsOwnKey() = runTest(dispatcher) {
+        val f = Fixture(this)
+        f.viewModel.saveSearchKey("langsearch-key-1")
+        f.viewModel.state.first { it.searchKeySaved }
+
+        f.viewModel.setSearchProvider(com.bizzeh.bruce.skills.web.WebSearchProvider.BRAVE)
+        f.viewModel.state.first { it.searchProvider == com.bizzeh.bruce.skills.web.WebSearchProvider.BRAVE && !it.searchKeySaved }
+        f.viewModel.saveSearchKey("brave-key-2")
+        f.viewModel.state.first { it.searchKeySaved }
+
+        assertEquals("langsearch-key-1", f.searchKey.key(com.bizzeh.bruce.skills.web.WebSearchProvider.LANGSEARCH))
+        assertEquals("brave-key-2", f.searchKey.key())
+    }
+
+    @Test
     fun viewModelReflectsAndChangesSettings() = runTest(dispatcher) {
         val f = Fixture(this)
 

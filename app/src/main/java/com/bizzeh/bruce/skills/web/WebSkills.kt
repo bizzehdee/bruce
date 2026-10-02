@@ -20,12 +20,15 @@ import com.bizzeh.bruce.skills.SkillState
 class WebSkills(
     private val pages: WebPages,
     private val allowed: suspend (host: String) -> Boolean,
-    private val search: BraveSearch? = null,
+    /** The chosen provider's search (LangSearch or Brave), which needs the user's key. */
+    private val search: SearchEngine? = null,
+    /** Wikipedia's search, which needs no key (TASK-113). */
+    private val wikipedia: SearchEngine? = null,
 ) {
-    fun create(): List<Skill> = listOfNotNull(fetchPage(), search?.let(::webSearch))
+    fun create(): List<Skill> = listOfNotNull(fetchPage(), search?.let(::webSearch), wikipedia?.let(::wikipediaSearch))
 
-    /** Brave's search (TASK-070): Declined, and locked until a key is saved and while the network is Offline. */
-    private fun webSearch(brave: BraveSearch) = Skill(
+    /** The web search (TASK-070, TASK-113): Declined, and locked until the chosen provider's key is saved and while the network is Offline. */
+    private fun webSearch(engine: SearchEngine) = Skill(
         id = "web_search",
         version = 1,
         description = "Search the web and return text from the best matching pages, with their addresses.",
@@ -34,9 +37,24 @@ class WebSkills(
         defaultState = SkillState.DECLINED,
         scope = ResourceScope.WEB,
         requires = setOf(SkillRequirement.NETWORK_ALLOWED, SkillRequirement.SEARCH_KEY),
-        site = { BraveSearch.HOST },
-    ) { arguments ->
-        when (val found = brave.search(arguments.string(QUERY).orEmpty())) {
+        site = { engine.host },
+    ) { arguments -> answer(engine.search(arguments.string(QUERY).orEmpty())) }
+
+    /** Wikipedia's search (TASK-113): Declined, and locked only while the network is Offline. */
+    private fun wikipediaSearch(engine: SearchEngine) = Skill(
+        id = "search_wikipedia",
+        version = 1,
+        description = "Search Wikipedia, and only Wikipedia, for encyclopedia articles; returns titles, addresses and matching excerpts. Use fetch_page to read an article.",
+        input = InputSchema(listOf(Parameter(QUERY, ParameterType.STRING, "What to look up", maxLength = MAX_QUERY))),
+        capabilities = setOf(Capability.WEB_SEARCH),
+        defaultState = SkillState.DECLINED,
+        scope = ResourceScope.WEB,
+        requires = setOf(SkillRequirement.NETWORK_ALLOWED),
+        site = { engine.host },
+    ) { arguments -> answer(engine.search(arguments.string(QUERY).orEmpty())) }
+
+    private fun answer(result: SearchResult): SkillOutcome =
+        when (val found = result) {
             is SearchResult.Failed -> SkillOutcome.Failed(found.code, found.reason, retryable = found.code == DenialCode.RATE_LIMITED)
             is SearchResult.Found -> SkillOutcome.Done(
                 if (found.sources.isEmpty()) {
@@ -48,7 +66,6 @@ class WebSkills(
                 },
             )
         }
-    }
 
     private fun fetchPage() = Skill(
         id = "fetch_page",
@@ -82,7 +99,7 @@ class WebSkills(
         const val MAX_URL = 2000
         const val QUERY = "query"
 
-        /** Brave's limit for a query. */
+        /** Brave's limit for a query, and within LangSearch's and Wikipedia's. */
         const val MAX_QUERY = 600
     }
 }
