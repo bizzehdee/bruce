@@ -235,6 +235,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Web search** — Search the web through the Brave Search API (its LLM Context
   endpoint) with the user's own key, entered in Settings and stored encrypted on
   the phone. Bruce ships no key. Only where the network mode allows it. `done`
+  Brave needs a payment card even for its free credit, so Bruce adds free
+  providers: Wikipedia search, which needs no key, and LangSearch, a free general
+  web search with the user's own free key. Reading search engines' result pages
+  is ruled out by their robots.txt and terms (owner, 2026-10-02). `planned` (TASK-113)
 - **Advanced skills** — Move/rename files, calendar create/modify/delete,
   sharing, opening apps and URLs, clipboard write, SMS, calls, notifications.
   `in progress` (move and rename, TASK-085; calendar, TASK-086; sharing, opening apps and URLs, TASK-087; clipboard write, TASK-088; messages and calls prepared for the user, TASK-089; notes as notifications, TASK-090)
@@ -434,6 +438,8 @@ device-to-device transfer.
 | Android platform APIs | Battery, device, storage, network, SAF, calendar, settings, and other skills | Yes, per skill and per user grant. |
 | Remote model servers | Replies from a model on the user's llama.cpp (or other OpenAI-compatible) server | No. Only if the user adds one. |
 | Brave Search API | The web search skill, with the user's own key | No. Only if the user adds a key and allows the network. |
+| Wikipedia (MediaWiki REST API) | The web search skill's keyless provider (TASK-113) | No. Only if the user allows the network. |
+| LangSearch API | The web search skill, with the user's own free key (TASK-113) | No. Only if the user adds a key and allows the network. |
 | Web sites | The web page skill, GET only | No. Only where the network mode allows the site. |
 
 ## Constraints
@@ -504,6 +510,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Added | Free search providers: Wikipedia (no key) and LangSearch (free key) alongside Brave (owner) (TASK-113). |
 | 2026-10-02 | Changed | Setup wizard asks which kinds of skills to turn on, with a warning when the system prompt takes over 25% of the context; reverses "no skill toggles" of 2026-09-28 (owner) (TASK-112). |
 | 2026-10-02 | Added | Setup wizard context size step; Auto context keeps the model within 6 GB (16K at most for larger models) (owner) (TASK-111). |
 | 2026-10-02 | Changed | Chat shows that Bruce is working, and never shows tool-call markup while a reply streams (owner). |

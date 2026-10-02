@@ -20,3 +20,18 @@ and Tavily are the free general-web APIs that need only a sign-up; the user's ow
 fits Bruce's "your own server" pattern (as remote model servers do) with no key. Commercial-use
 and result-storage terms of LangSearch and Tavily were not on these pages and must be read before
 either is built.
+
+## Scraping a search engine's result pages (owner asked, 2026-10-02)
+
+- DuckDuckGo: `robots.txt` (`duckduckgo-robots.txt`) has `User-agent: *` `Disallow: /lite` and
+  `Disallow: /html`, the two result pages that can be read without JavaScript. Its Acceptable Use
+  Policy (`duckduckgo-acceptable-use.html`, https://duckduckgo.com/acceptable-use) forbids to
+  "Frame, inline link, or similarly display any portion of the services within another service".
+- Google: `robots.txt` (`google-robots.txt`) disallows `/search`; its terms (`google-terms.html`,
+  https://policies.google.com/terms) forbid "using automated means to access content from any of our
+  services in violation of the machine-readable instructions on our web pages (for example,
+  robots.txt files…)".
+
+Extract: reading search engines' result pages from the app goes against their published rules,
+breaks whenever the page layout changes, and is blocked with challenges; it is not an option for an
+app published on Google Play.

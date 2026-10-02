@@ -516,7 +516,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
 - [x] TASK-071: More context sizes
   - Owner (2026-09-29): context choices 2K, 4K, 8K, 16K, 24K, 32K, 48K and 64K, in Settings and in each model's settings.
   - Done: `InferenceDefaults.CONTEXT_CHOICES`; both chip rows scroll sideways, and ActiveModel still caps a choice at the model's trained context.
-  - Required by: TASK-072, TASK-073
+  - Required by: TASK-072, TASK-073, TASK-113
 - [x] TASK-072: RAM use in model settings
   - Owner (2026-09-29): on the Models screen, each model shows how much RAM it is expected to use (weights plus the KV cache for its context size), updated as the user picks another context size, with a bar showing that as a share of the phone's total RAM.
   - The number is the existing memory estimate (`ModelMemory`); where the file does not declare its attention shape, the bar shows the weights only and says the context's share is unknown.
@@ -833,3 +833,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - After the step, Android permissions are still asked when a skill first needs them, not in the wizard.
   - Tests: unit tests for the class-to-skill-state mapping and the 25% rule; UI tests for the step with and without the warning.
   - Depends on: TASK-111
+- [ ] TASK-113: Free search providers (Wikipedia, LangSearch)
+  - Owner (2026-10-02): Brave is paid (its free credit needs a payment card), so offer free search: Wikipedia and LangSearch. Scraping search engines' result pages was asked about and ruled out: DuckDuckGo's and Google's robots.txt disallow their result pages, and their terms forbid it (`research/sources/web-search-providers-2026-10-02/`).
+  - Wikipedia: `GET https://<language>.wikipedia.org/w/rest.php/v1/search/page?q=…&limit=…`, no key, with Bruce's User-Agent; results as title, address and excerpt (search-match markup removed), as untrusted data. Works whenever the network mode allows wikipedia.org; the Wikipedia language follows the phone's language, falling back to English.
+  - LangSearch: the user's own free key, stored and sent as the Brave key is (Keystore, its own host only, no redirects). Read its terms of service, privacy policy and API reference first, with research provenance, and check limits, commercial use and result storage before building.
+  - Proposed, for the owner to confirm: Settings, Network gains a search provider choice: Wikipedia (default, no setup), LangSearch or Brave (each with its key field). `web_search` uses the chosen provider; with Wikipedia its description says it searches Wikipedia only, so the model does not expect general web results.
+  - The privacy policy (TASK-016) gains each provider in its table in the same change.
+  - Tests: parsers against archived responses, key handling as for Brave, the provider choice in Settings, and the skill's locked states.
+  - Depends on: TASK-070
