@@ -20,3 +20,11 @@ stopped the reasoning but broke the model, measured on the Pixel 11 with all 41 
 answers with skills on fell from 0.90 to 0.07, it called a tool in 27 of 41 cases that needed
 none, and with skills off it wrote made-up calls such as `[google(query=...)]`. Leave thinking on
 for templates that always open it (owner, 2026-10-01); measure any such model with its reasoning.
+
+## State today's date in the system prompt (2026-10-02)
+
+Small models do not turn "today" or "on this day" into a date lookup: MiniCPM5 asked which day,
+or searched "today in history". With "Today is Friday 2 October 2026." in the prompt, it searched
+"October 2"; Qwen3 1.7B searched "History of October 2" instead of "History". A line telling the
+model to fetch the date first changed nothing. Only the date is stated, so the prompt is the same
+all day and prompt reuse holds. Data: `research/experiments/date-in-prompt-2026-10-02/`.

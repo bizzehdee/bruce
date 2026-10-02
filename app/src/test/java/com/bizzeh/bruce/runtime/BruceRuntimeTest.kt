@@ -216,7 +216,7 @@ class BruceRuntimeTest {
         names = emptyList()
         assertTrue(system(files).endsWith(BruceRuntime.NO_GRANTS))
         assertEquals("with nothing granted, file skills are not offered", listOf("get_datetime"), engine.offered.last().map { it.name })
-        assertEquals("P\n\n" + BruceRuntime.GUIDANCE, system(SkillRegistry(listOf(clock))))
+        assertTrue(system(SkillRegistry(listOf(clock))).startsWith("P\n\n" + BruceRuntime.GUIDANCE + " Today is "))
     }
 
     @Test
@@ -224,13 +224,13 @@ class BruceRuntimeTest {
         val reader = Skill("read_file", 1, "Read.", InputSchema(), setOf(Capability.FILE_READ), SkillState.ACCEPTED, requires = setOf(SkillRequirement.FILE_GRANT)) { SkillOutcome.Done("text") }
         fun system(registry: SkillRegistry): String {
             engine.steps += Step("", ParsedReply("Hi.", "", emptyList()))
-            val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" })
+            val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" }, today = { java.time.LocalDate.of(2026, 10, 2) })
             runBlocking { runtime.respond(question).toList() }
             return engine.formatted.last().first().content
         }
 
-        assertEquals("P\n\n" + BruceRuntime.NO_SKILLS_GUIDANCE, system(SkillRegistry(emptyList())))
-        assertEquals("only a locked file skill", "P\n\n" + BruceRuntime.NO_SKILLS_GUIDANCE + " " + BruceRuntime.NO_GRANTS, system(SkillRegistry(listOf(reader))))
+        assertEquals("P\n\n" + BruceRuntime.NO_SKILLS_GUIDANCE + " Today is Friday 2 October 2026.", system(SkillRegistry(emptyList())))
+        assertEquals("only a locked file skill", "P\n\n" + BruceRuntime.NO_SKILLS_GUIDANCE + " Today is Friday 2 October 2026. " + BruceRuntime.NO_GRANTS, system(SkillRegistry(listOf(reader))))
         assertFalse(BruceRuntime.NO_SKILLS_GUIDANCE.contains("Use a tool"))
     }
 
