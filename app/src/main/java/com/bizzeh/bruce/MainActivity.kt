@@ -122,6 +122,10 @@ import com.bizzeh.bruce.skills.SkillsScreen
 import com.bizzeh.bruce.skills.SkillsViewModel
 import com.bizzeh.bruce.settings.ThemeSettings
 import com.bizzeh.bruce.setup.SetupActions
+import com.bizzeh.bruce.setup.SetupContext
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
 import com.bizzeh.bruce.setup.SetupExit
 import com.bizzeh.bruce.setup.SetupScreen
 import com.bizzeh.bruce.setup.SetupViewModel
@@ -213,8 +217,24 @@ class MainActivity : ComponentActivity() {
     private val grants: GrantsViewModel by viewModels { factory { GrantsViewModel(container.grants, Dispatchers.IO, container.folderInstructions, onChanged = container.searchSetup::updateIndex) } }
     private val memory: MemoryViewModel by viewModels { factory { MemoryViewModel(container.memory) } }
     private val reminders: RemindersViewModel by viewModels { factory { RemindersViewModel(container.reminders, container.scheduledTasks) } }
+    private val suggestedModels by lazy { SuggestedModels.forDevice(deviceProfile()) }
+
+    /** The model the wizard's context step is about, once one is installed or downloading (TASK-111). */
+    private val setupContext by lazy {
+        combine(models.state, browser.state) { installed, browse -> SetupContext.choice(installed.models, suggestedModels, browse, container.memoryForModels()) }
+            .stateIn(lifecycleScope, SharingStarted.Eagerly, null)
+    }
     private val setup: SetupViewModel by viewModels {
-        factory { SetupViewModel(container.setupSettings, container.networkSettings, askNotifications = needsNotificationPermission(), SuggestedModels.forDevice(deviceProfile())) }
+        factory {
+            SetupViewModel(
+                container.setupSettings,
+                container.networkSettings,
+                container.inferenceSettings,
+                askNotifications = needsNotificationPermission(),
+                suggestions = suggestedModels,
+                hasModel = setupContext.map { it != null }.stateIn(lifecycleScope, SharingStarted.Eagerly, false),
+            )
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -304,6 +324,7 @@ class MainActivity : ComponentActivity() {
         val state by setup.state.collectAsState()
         val modelsState by models.state.collectAsState()
         val browse by browser.state.collectAsState()
+        val contextChoice by setupContext.collectAsState()
         val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let(models::import) }
         // Refused or granted, the wizard moves on; replies still complete without notifications.
         val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { setup.next() }
@@ -316,10 +337,11 @@ class MainActivity : ComponentActivity() {
                 override fun importModel() = picker.launch(arrayOf("*/*"))
                 override fun download(model: SuggestedModel) = browser.downloadFile(model.repositoryId, model.path)
                 override fun cancelDownload(model: SuggestedModel) = browser.cancel(model.repositoryId, model.path)
+                override fun setContextLength(contextLength: Int?) = setup.setContextLength(contextLength)
                 override fun finish(exit: SetupExit) = setup.finish { onExit(exit) }
             }
         }
-        SetupScreen(state, modelsState, actions, browse.downloads)
+        SetupScreen(state, modelsState, actions, browse.downloads, contextChoice)
     }
 
     private fun needsNotificationPermission(): Boolean =

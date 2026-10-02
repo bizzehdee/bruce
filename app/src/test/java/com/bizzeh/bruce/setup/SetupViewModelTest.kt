@@ -13,6 +13,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.jupiter.api.AfterEach
 import com.bizzeh.bruce.R
+import com.bizzeh.bruce.settings.InferenceSettingsRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import com.bizzeh.bruce.models.DeviceTier
 import com.bizzeh.bruce.models.SuggestedModel
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -37,18 +39,20 @@ class SetupViewModelTest {
     @AfterEach
     fun tearDown() = Dispatchers.resetMain()
 
-    private inner class Fixture(scope: TestScope, askNotifications: Boolean = false, suggestions: List<SuggestedModel> = emptyList()) {
+    private inner class Fixture(scope: TestScope, askNotifications: Boolean = false, suggestions: List<SuggestedModel> = emptyList(), hasModel: Boolean = false) {
         val dataStore = PreferenceDataStoreFactory.create(scope = scope.backgroundScope) { File(dir, "s.preferences_pb") }
         val setup = SetupSettingsRepository(dataStore)
         val network = NetworkSettingsRepository(dataStore)
-        val viewModel = SetupViewModel(setup, network, askNotifications, suggestions)
+        val inference = InferenceSettingsRepository(dataStore)
+        val model = MutableStateFlow(hasModel)
+        val viewModel = SetupViewModel(setup, network, inference, askNotifications, suggestions, model)
 
         suspend fun awaitStep(step: SetupStep) = viewModel.state.first { it.step == step }
     }
 
     @Test
     fun notificationsStepOnlyWhenThePermissionIsNeeded() {
-        assertEquals(SetupStep.entries.toList(), setupSteps(askNotifications = true))
+        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.NOTIFICATIONS, SetupStep.MODEL), setupSteps(askNotifications = true))
         assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.MODEL), setupSteps(askNotifications = false))
     }
 
@@ -76,6 +80,31 @@ class SetupViewModelTest {
         repeat(2) { f.viewModel.next() }
 
         assertEquals(listOf(suggestion), f.awaitStep(SetupStep.MODEL).suggestions)
+    }
+
+    @Test
+    fun theContextStepFollowsTheModelStepOnlyOnceThereIsAModel() = runTest(dispatcher) {
+        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.MODEL, SetupStep.CONTEXT), setupSteps(askNotifications = false, hasModel = true))
+        val f = Fixture(this)
+        repeat(2) { f.viewModel.next() }
+        assertTrue(f.awaitStep(SetupStep.MODEL).isLast)
+
+        f.model.value = true
+        assertFalse(f.viewModel.state.first { it.step == SetupStep.MODEL && !it.isLast }.isLast)
+        f.viewModel.next()
+        assertTrue(f.awaitStep(SetupStep.CONTEXT).isLast)
+        f.viewModel.next()
+        f.awaitStep(SetupStep.CONTEXT)
+    }
+
+    @Test
+    fun theContextChoiceIsTheDefaultContextSetting() = runTest(dispatcher) {
+        val f = Fixture(this, hasModel = true)
+        f.viewModel.setContextLength(8192)
+        assertEquals(8192, f.viewModel.state.first { it.contextLength == 8192 }.contextLength)
+        assertEquals(8192, f.inference.defaults.first().contextLength)
+        f.viewModel.setContextLength(null)
+        assertEquals(null, f.inference.defaults.first { it.contextLength == null }.contextLength)
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.bizzeh.bruce.models
 
 import com.bizzeh.bruce.gguf.GgufMetadata
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class AutoContextTest {
@@ -40,5 +41,32 @@ class AutoContextTest {
         assertEquals(4096, AutoContext.pick(model.copy(blockCount = null), 16 * gb))
         assertEquals(2048, AutoContext.pick(model.copy(blockCount = null, contextLength = 2048), 16 * gb))
         assertEquals(4096, AutoContext.pick(null, 16 * gb))
+    }
+
+    @Test
+    fun autoKeepsTheModelWithinSixGigabytes() {
+        val bigger = model.copy(fileSizeBytes = 4608 * mb)
+        val picked = AutoContext.pick(bigger, 32 * gb)
+        assertTrue(ModelMemory.estimate(bigger, picked).totalBytes <= AutoContext.CAP_BYTES)
+        val next = com.bizzeh.bruce.settings.InferenceDefaults.CONTEXT_CHOICES.first { it > picked }
+        assertTrue(ModelMemory.estimate(bigger, next).totalBytes > AutoContext.CAP_BYTES, "the next size up would pass 6 GB")
+    }
+
+    @Test
+    fun aModelOverSixGigabytesOnItsOwnGetsSixteenKAtMost() {
+        val large = model.copy(fileSizeBytes = 7 * gb)
+        assertEquals(16384, AutoContext.pick(large, 32 * gb))
+        val small = AutoContext.pick(large, 9 * gb)
+        assertTrue(small < 16384 && ModelMemory.estimate(large, small).totalBytes <= 9 * gb * ModelFit.TIGHT_SHARE, "a smaller phone gets what it runs comfortably")
+    }
+
+    @Test
+    fun theWizardOffersEverySizeThatFitsUpToTheTrainedMaximum() {
+        val offered = AutoContext.options(model, 2 * gb).map { it.contextLength }
+        assertEquals(listOf(2048, 4096, 8192, 16384, 24576, 32768), offered.take(6))
+        assertTrue(AutoContext.options(model, 2 * gb).all { it.totalBytes <= 2 * gb })
+        assertEquals(listOf(2048, 4096, 8192), AutoContext.options(model.copy(contextLength = 8192), 16 * gb).map { it.contextLength })
+        assertEquals(emptyList<ContextOption>(), AutoContext.options(model.copy(blockCount = null), 16 * gb))
+        assertEquals(emptyList<ContextOption>(), AutoContext.options(null, 16 * gb))
     }
 }

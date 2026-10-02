@@ -11,7 +11,9 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -45,11 +47,19 @@ interface SetupActions {
     fun importModel()
     fun download(model: SuggestedModel)
     fun cancelDownload(model: SuggestedModel)
+    /** Null is Auto. */
+    fun setContextLength(contextLength: Int?)
     fun finish(exit: SetupExit)
 }
 
 @Composable
-fun SetupScreen(state: SetupState, models: ModelsState, actions: SetupActions, downloads: Map<String, DownloadState> = emptyMap()) {
+fun SetupScreen(
+    state: SetupState,
+    models: ModelsState,
+    actions: SetupActions,
+    downloads: Map<String, DownloadState> = emptyMap(),
+    contextChoice: ContextChoice? = null,
+) {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize().safeDrawingPadding().padding(16.dp).testTag("setup")) {
             Column(
@@ -78,6 +88,7 @@ fun SetupScreen(state: SetupState, models: ModelsState, actions: SetupActions, d
                         }
                     }
                     SetupStep.MODEL -> ModelStep(state, models, downloads, actions)
+                    SetupStep.CONTEXT -> ContextStep(state, contextChoice, actions)
                 }
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -119,6 +130,30 @@ private fun ModelStep(state: SetupState, models: ModelsState, downloads: Map<Str
     }
     if (!online) Text(stringResource(R.string.setup_browse_offline), style = MaterialTheme.typography.bodySmall)
     models.models.forEach { Text(stringResource(R.string.setup_installed, it.file.nameWithoutExtension), modifier = Modifier.testTag("setupInstalled")) }
+}
+
+@Composable
+private fun ContextStep(state: SetupState, choice: ContextChoice?, actions: SetupActions) {
+    Page(R.string.setup_context_title, R.string.setup_context_text)
+    if (choice == null) return
+    Text(stringResource(R.string.setup_context_model, choice.modelName), style = MaterialTheme.typography.bodyMedium)
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilterChip(
+            selected = state.contextLength == null,
+            onClick = { actions.setContextLength(null) },
+            label = { Text(stringResource(R.string.settings_context_auto_size, SettingsText.contextLabel(choice.auto))) },
+            modifier = Modifier.testTag("setupContext:auto"),
+        )
+        choice.options.forEach { option ->
+            FilterChip(
+                selected = state.contextLength == option.contextLength,
+                onClick = { actions.setContextLength(option.contextLength) },
+                label = { Text(stringResource(R.string.setup_context_option, SettingsText.contextLabel(option.contextLength), Format.bytes(option.totalBytes))) },
+                modifier = Modifier.testTag("setupContext:${option.contextLength}"),
+            )
+        }
+    }
+    Text(stringResource(R.string.setup_context_auto_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }
 
 @Composable

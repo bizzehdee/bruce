@@ -3,6 +3,7 @@ package com.bizzeh.bruce.setup
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -44,6 +45,7 @@ class SetupScreenTest {
         override fun importModel() { calls += "import" }
         override fun download(model: SuggestedModel) { calls += "download ${model.path}" }
         override fun cancelDownload(model: SuggestedModel) { calls += "cancel ${model.path}" }
+        override fun setContextLength(contextLength: Int?) { calls += "context $contextLength" }
         override fun finish(exit: SetupExit) { calls += "finish $exit" }
     }
 
@@ -166,5 +168,19 @@ class SetupScreenTest {
 
         assertEquals(0, compose.onAllNodesWithText("Suggested for this phone").fetchSemanticsNodes().size)
         compose.onNodeWithText("Download from Hugging Face").assertIsDisplayed()
+    }
+
+    @Test
+    fun theContextStepOffersAutoAndTheSizesThatFit() {
+        val choice = ContextChoice("Qwen3 1.7B", 8192, listOf(com.bizzeh.bruce.models.ContextOption(4096, 1_500_000_000), com.bizzeh.bruce.models.ContextOption(8192, 1_700_000_000)))
+        compose.setContent { BruceTheme { SetupScreen(SetupState(SetupStep.CONTEXT, isFirst = false, isLast = true), ModelsState(), actions, contextChoice = choice) } }
+
+        compose.onNodeWithText("For Qwen3 1.7B:").assertIsDisplayed()
+        compose.onNodeWithTag("setupContext:auto").assertIsSelected()
+        compose.onNodeWithText("Auto (8K)").assertIsDisplayed()
+        compose.onNodeWithText("4K · 1.40 GB").performClick()
+        compose.onNodeWithTag("setupContext:16384").assertDoesNotExist()
+
+        assertEquals(listOf("context 4096"), calls)
     }
 }

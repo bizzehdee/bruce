@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bizzeh.bruce.models.SuggestedModel
+import com.bizzeh.bruce.settings.InferenceSettingsRepository
 import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.settings.NetworkSettingsRepository
 import kotlinx.coroutines.flow.Flow
@@ -39,11 +40,14 @@ class SetupSettingsRepository(private val dataStore: DataStore<Preferences>) {
     }
 }
 
-enum class SetupStep { WELCOME, NETWORK, NOTIFICATIONS, MODEL }
+enum class SetupStep { WELCOME, NETWORK, NOTIFICATIONS, MODEL, CONTEXT }
 
-/** The notifications step is only shown where Android needs a runtime permission for notifications and it is not yet granted. */
-fun setupSteps(askNotifications: Boolean): List<SetupStep> =
-    SetupStep.entries.filter { it != SetupStep.NOTIFICATIONS || askNotifications }
+/**
+ * The notifications step is only shown where Android needs a runtime permission for notifications
+ * and it is not yet granted; the context step only once a model is installed or downloading (TASK-111).
+ */
+fun setupSteps(askNotifications: Boolean, hasModel: Boolean = false): List<SetupStep> =
+    SetupStep.entries.filter { (it != SetupStep.NOTIFICATIONS || askNotifications) && (it != SetupStep.CONTEXT || hasModel) }
 
 /** Where the app goes when the wizard ends. */
 enum class SetupExit { CHAT, BROWSE_MODELS }
@@ -55,28 +59,42 @@ data class SetupState(
     val isLast: Boolean = false,
     /** Models the evaluation found good on phones like this one (TASK-107); empty where none was measured. */
     val suggestions: List<SuggestedModel> = emptyList(),
+    /** The default context size; null is Auto (TASK-111). */
+    val contextLength: Int? = null,
 )
 
 /** The first-launch wizard. It writes the same settings as the Settings screen. */
 class SetupViewModel(
     private val setup: SetupSettingsRepository,
     private val network: NetworkSettingsRepository,
-    askNotifications: Boolean,
+    private val inference: InferenceSettingsRepository,
+    private val askNotifications: Boolean,
     private val suggestions: List<SuggestedModel> = emptyList(),
+    /** Whether a model is installed or downloading, so the context step applies (TASK-111). */
+    private val hasModel: StateFlow<Boolean> = MutableStateFlow(false),
 ) : ViewModel() {
-    private val steps = setupSteps(askNotifications)
-    private val index = MutableStateFlow(0)
+    private val step = MutableStateFlow(setupSteps(askNotifications).first())
 
-    val state: StateFlow<SetupState> = combine(index, network.mode) { i, mode ->
-        SetupState(steps[i], mode, isFirst = i == 0, isLast = i == steps.lastIndex, suggestions = suggestions)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, SetupState(steps.first(), isLast = steps.size == 1, suggestions = suggestions))
+    private fun steps() = setupSteps(askNotifications, hasModel.value)
+
+    val state: StateFlow<SetupState> = combine(step, network.mode, hasModel, inference.defaults.map { it.contextLength }) { current, mode, model, context ->
+        val steps = setupSteps(askNotifications, model)
+        SetupState(current, mode, isFirst = current == steps.first(), isLast = current == steps.last(), suggestions = suggestions, contextLength = context)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, SetupState(step.value, isLast = steps().size == 1, suggestions = suggestions))
 
     fun next() {
-        index.value = (index.value + 1).coerceAtMost(steps.lastIndex)
+        val steps = steps()
+        step.value = steps.getOrNull(steps.indexOf(step.value) + 1) ?: step.value
     }
 
     fun back() {
-        index.value = (index.value - 1).coerceAtLeast(0)
+        val steps = steps()
+        step.value = steps.getOrNull(steps.indexOf(step.value) - 1) ?: step.value
+    }
+
+    /** Null is Auto. */
+    fun setContextLength(contextLength: Int?) {
+        viewModelScope.launch { inference.setContextLength(contextLength) }
     }
 
     fun setNetworkMode(mode: NetworkMode) {
@@ -87,7 +105,7 @@ class SetupViewModel(
         viewModelScope.launch {
             setup.markComplete()
             // Clearing all data shows the wizard again in the same process; it starts from the beginning.
-            index.value = 0
+            step.value = steps().first()
             onFinished()
         }
     }

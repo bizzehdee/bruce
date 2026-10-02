@@ -334,7 +334,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   After the model step, a context size step offers only the sizes the phone and
   the chosen model can run, up to the model's trained maximum, with Auto selected.
   It is skipped when no model was installed or started downloading (owner,
-  2026-10-02). `planned` (TASK-111)
+  2026-10-02). `done` (TASK-111)
   A skills step then asks which kinds of skills to turn on (grouped by what they
   do: information, files, personal data, sensors, communication, phone settings,
   web), and warns when the system prompt with those skills would take more than
