@@ -304,7 +304,15 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   for this phone, each with its size and a line or two on what it is good at,
   downloadable in one tap; the user can skip the suggestions and
   pick their own from the model browser or import a file (owner, 2026-10-01).
-  `planned` (TASK-103 to TASK-108)
+  Bins (TASK-106, rule in `research/experiments/model-bins-2026-09-30/bins.py`):
+  Recommended needs 80% of plain and skill cases, 8 tokens a second and a
+  follow-up answer within 10 s; a model that invents answers with skills off is
+  still Recommended for use with skills on, but never binned "skills off". 8 GB
+  and 12 GB phones: Gemma 4 E2B, MiniCPM5 2B and Qwen3 1.7B. 4 GB phones without
+  dot-product instructions have no Recommended model; Qwen3 1.7B Q4_K_M is the
+  usable one and is suggested as slow. The model browser marks recommended
+  models for the phone's tier and lists them first (TASK-107). `in progress`
+  (TASK-103 to TASK-108)
 - **Saved system prompt** — The first reply after a model loads has to read the
   fixed part of every prompt (system prompt and skill descriptions) first: about
   70 seconds for a 1.5B model on the XZ Premium. Bruce saves that evaluated part
@@ -479,9 +487,6 @@ device-to-device transfer.
 | App signing arrangements (Play App Signing, upload key custody). | User |
 | Dependency injection approach (Hilt or manual). | Developer, with user approval |
 | Whether any crash reporting or telemetry exists. The privacy model implies none. | User |
-| Which models Bruce recommends by default. | User, from the evaluation in TASK-103 to TASK-106 |
-| The rule that bins a model as recommended for a memory tier (proposed in TASK-106). | User |
-| How recommended models show in the model browser, beyond the setup wizard's suggestions (TASK-107). | User, once the bins exist |
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Privacy policy URL on the owner's website. | User |
 
@@ -510,6 +515,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Changed | Recommended models settled: the bins rule, Gemma 4 E2B, MiniCPM5 2B and Qwen3 1.7B for 8 and 12 GB, Qwen3 1.7B Q4_K_M as slow but usable for 4 GB; the browser marks and ranks them (owner delegated, TASK-106, TASK-107). |
 | 2026-10-02 | Added | Free search providers: Wikipedia (no key) and LangSearch (free key) alongside Brave (owner) (TASK-113). |
 | 2026-10-02 | Changed | Setup wizard asks which kinds of skills to turn on, with a warning when the system prompt takes over 25% of the context; reverses "no skill toggles" of 2026-09-28 (owner) (TASK-112). |
 | 2026-10-02 | Added | Setup wizard context size step; Auto context keeps the model within 6 GB (16K at most for larger models) (owner) (TASK-111). |
