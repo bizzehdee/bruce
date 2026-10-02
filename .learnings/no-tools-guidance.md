@@ -36,3 +36,11 @@ temperature. MiniCPM5 2B searched every time greedy, but skipped the search in 1
 0.8 (Bruce has no top-k, top-p or min-p cutoff). A min-p cutoff did not help; 0.5 cut the misses to
 about 5%, and became the default. Sample 20–30 seeds before trusting a prompt change. Data:
 `research/experiments/date-in-prompt-2026-10-02/temperature-test.py`.
+
+## Skill order in the prompt matters to small models (2026-10-02)
+
+With fetch_page listed before search_wikipedia, MiniCPM5 2B searched for "what happened today in
+history" 3 times in 30; with the search first, 27. Other skill sets moved the rate between 4 and 29
+too, so test a prompt change against the phone's real prompt (`PromptDumpDeviceTest`), not a
+hand-built one. Searches are now listed before fetch_page. Data:
+`research/experiments/date-in-prompt-2026-10-02/order-test.py`.

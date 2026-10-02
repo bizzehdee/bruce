@@ -39,3 +39,26 @@ phone's skills, MiniCPM5 2B Q4_K_M, seeds 0 to N-1:
 
 A min-p cutoff did not help; a lower temperature did. Decision: the default temperature is 0.5
 (was 0.8). The model bins were measured greedy, so 0.5 is closer to the measured behaviour.
+
+## Skill order (2026-10-02, later)
+
+At 0.5 the Pixel still answered without searching. `PromptDumpDeviceTest` gave the phone's own
+prompt (`phone-prompt.txt`, with the question added); the computer test's prompt is `host-prompt.txt`.
+They differ in the pun line, the phone-status skills switched on, and the order: on the phone
+fetch_page came before search_wikipedia. `order-test.py` sends the raw prompt to llama-server's
+`/completion` at 0.5, 30 seeds. (In raw output `<function` is a special token and is not shown;
+a call starts with ` name="`.)
+
+| Phone-status skills | Order | "today in history": search / date / none | "on this day": search / none |
+|---|---|---|---|
+| none | read first | 4 / 1 / 25 | 30 / 0 |
+| none | search first | 25 / 0 / 5 | 30 / 0 |
+| network (the phone's) | read first | 3 / 6 / 21 | 29 / 1 |
+| network (the phone's) | search first | 27 / 1 / 2 | 30 / 0 |
+| battery, device, storage | read first | 16 / 0 / 14 | 25 / 5 |
+| battery, device, storage | search first | 21 / 0 / 9 | 25 / 5 |
+| all four | read first | 28 / 0 / 2 | 29 / 1 |
+| all four | search first | 29 / 0 / 1 | 28 / 2 |
+
+The pun line made no difference (5 vs 3 searches of 30). Searches first was never clearly worse
+and lifted the phone's case from 3 to 27. Decision: Bruce lists the search skills before fetch_page.

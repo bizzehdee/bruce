@@ -92,4 +92,10 @@ class BraveSearchTest {
         assertEquals(true, (skill.execute(SkillArguments(mapOf("query" to "q"))) as SkillOutcome.Failed).retryable)
         assertEquals(listOf("fetch_page"), WebSkills(WebPages(transport, Dispatchers.Unconfined, "x"), { true }).create().map { it.id })
     }
+
+    @Test
+    fun searchesAreOfferedBeforeReadingAPage() {
+        val ids = WebSkills(WebPages(transport, Dispatchers.Unconfined, "x"), { true }, brave, brave).create().map { it.id }
+        assertEquals(listOf("web_search", "search_wikipedia", "fetch_page"), ids)
+    }
 }

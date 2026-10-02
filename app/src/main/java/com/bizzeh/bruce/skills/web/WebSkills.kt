@@ -25,7 +25,9 @@ class WebSkills(
     /** Wikipedia's search, which needs no key (TASK-113). */
     private val wikipedia: SearchEngine? = null,
 ) {
-    fun create(): List<Skill> = listOfNotNull(fetchPage(), search?.let(::webSearch), wikipedia?.let(::wikipediaSearch))
+    // Searches before fetch_page: with fetch_page listed first, MiniCPM5 2B searched for "what happened
+    // today in history" 3 times in 30; with the searches first, 27 (2026-10-02).
+    fun create(): List<Skill> = listOfNotNull(search?.let(::webSearch), wikipedia?.let(::wikipediaSearch), fetchPage())
 
     /** The web search (TASK-070, TASK-113): Declined, and locked until the chosen provider's key is saved and while the network is Offline. */
     private fun webSearch(engine: SearchEngine) = Skill(
