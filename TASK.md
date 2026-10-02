@@ -825,3 +825,11 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - "Fits the phone" is the existing memory estimate against usable memory (`ModelFit`), at the comfortable or tight band; the 6 GB cap is on the estimate's total (weights, KV cache and any vision projector).
   - Tests: unit tests for the Auto rule (under 6 GB, over 6 GB, phone smaller than the cap, trained maximum, unknown metadata) and for the offered sizes; UI tests for the step with a model, with a downloading model, and skipped with none.
   - Depends on: TASK-073, TASK-107
+  - Required by: TASK-112
+- [ ] TASK-112: Skills step in the setup wizard
+  - Owner (2026-10-02): the wizard asks which types of skills the user wants on, and warns that skills use up context: the warning shows when the system prompt (personality, guidance and the chosen skills' descriptions) takes more than 25% of the context window. Reverses the 2026-09-28 decision that the wizard sets no skills.
+  - Proposed, for the owner to confirm: one switch per capability class (information, files, personal data, sensors, communication, phone settings, web), each listing its skills; a switch sets its skills to their usual "on" state (Accepted for automatic skills, Ask for the others, high-risk skills stay Ask). The defaults shown are a fresh install's. Locked skills (no key, Offline, permission missing) are shown as such.
+  - The warning uses the measured fixed-prompt size for the chosen model and the context from TASK-111 (Auto's size when Auto), updated as switches change; with no model, it is estimated from the skill descriptions' length.
+  - After the step, Android permissions are still asked when a skill first needs them, not in the wizard.
+  - Tests: unit tests for the class-to-skill-state mapping and the 25% rule; UI tests for the step with and without the warning.
+  - Depends on: TASK-111

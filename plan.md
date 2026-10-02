@@ -322,6 +322,11 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   the chosen model can run, up to the model's trained maximum, with Auto selected.
   It is skipped when no model was installed or started downloading (owner,
   2026-10-02). `planned` (TASK-111)
+  A skills step then asks which kinds of skills to turn on (grouped by what they
+  do: information, files, personal data, sensors, communication, phone settings,
+  web), and warns when the system prompt with those skills would take more than
+  25% of the chosen context. This replaces the earlier decision that the wizard
+  sets no skills (owner, 2026-10-02). `planned` (TASK-112)
 - **Skills screen** — Reached from Settings. Lists every skill with what it does,
   a high-risk flag where it applies, and its state (Declined, Ask, Accepted),
   which the user changes there. Declined skills are not offered to the model.
@@ -499,6 +504,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Changed | Setup wizard asks which kinds of skills to turn on, with a warning when the system prompt takes over 25% of the context; reverses "no skill toggles" of 2026-09-28 (owner) (TASK-112). |
 | 2026-10-02 | Added | Setup wizard context size step; Auto context keeps the model within 6 GB (16K at most for larger models) (owner) (TASK-111). |
 | 2026-10-02 | Changed | Chat shows that Bruce is working, and never shows tool-call markup while a reply streams (owner). |
 | 2026-10-01 | Added | Thinking off for every model that can switch it off, with a setting to turn it on; models that always think keep thinking (owner) (TASK-110). |
