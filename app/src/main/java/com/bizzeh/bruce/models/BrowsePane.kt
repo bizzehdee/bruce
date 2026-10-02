@@ -112,6 +112,9 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
                         Text(model.id, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
                         if (model.gated) Text(stringResource(R.string.browse_gated), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
                     }
+                    if (listing.recommended) {
+                        Text(stringResource(R.string.browse_tested_pick), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, modifier = Modifier.testTag("recommended:${model.id}"))
+                    }
                     if (listing.vision) {
                         Text(stringResource(R.string.models_sees_images), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.testTag("vision:${model.id}"))
                     }

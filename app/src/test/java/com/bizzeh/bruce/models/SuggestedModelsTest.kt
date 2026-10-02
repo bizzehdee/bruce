@@ -55,4 +55,11 @@ class SuggestedModelsTest {
         }
         assertEquals(SuggestedModels.all.size, SuggestedModels.all.map { it.path }.toSet().size)
     }
+
+    @Test
+    fun theShippedListSuggestsSomethingForEveryTestedPhone() {
+        assertEquals(listOf("Qwen3-1.7B.Q4_K_M.gguf"), SuggestedModels.forDevice(phone(3_906_961_408, dotProd = false)).map { it.path })
+        assertEquals(3, SuggestedModels.forDevice(phone(8_037_171_200)).size)
+        assertEquals(3, SuggestedModels.forDevice(phone(12_212_867_072)).size)
+    }
 }

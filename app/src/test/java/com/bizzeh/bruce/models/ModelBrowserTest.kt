@@ -547,6 +547,20 @@ class ModelBrowserTest {
     }
 
     @Test
+    fun paneMarksModelsRecommendedForThisPhone() {
+        val actions = recordingActions(mutableListOf())
+        val other = qwen.copy(id = "x/other")
+        compose.setContent {
+            BruceTheme {
+                BrowsePane(BrowseState(searched = true, results = listOf(qwen, other), listings = listOf(Listing(qwen, null, recommended = true), Listing(other, null))), actions)
+            }
+        }
+
+        compose.onNodeWithText("Tested by Bruce: recommended for this phone").assertExists()
+        compose.onNodeWithTag("recommended:x/other", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test
     fun paneErrorsAndEmptyResults() {
         val actions = object : BrowseActions {
             override fun setQuery(query: String) = Unit

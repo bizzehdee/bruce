@@ -73,6 +73,8 @@ class ModelBrowserViewModel(
     private val templateSupportsTools: (template: String, bosToken: String?, eosToken: String?) -> Boolean? = { _, _, _ -> null },
     /** Judging templates parses them, off the main thread. */
     private val checkDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    /** Repositories Bruce's evaluation recommends for this kind of phone (TASK-107). */
+    private val recommendedRepositories: () -> Set<String> = { emptySet() },
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(BrowseState())
     val state: StateFlow<BrowseState> = mutableState.asStateFlow()
@@ -137,7 +139,7 @@ class ModelBrowserViewModel(
         val judged = withContext(checkDispatcher) {
             state.results.associate { model -> model.id to model.chatTemplate?.let { skills(it, model.bosToken, model.eosToken) } }
         }
-        val listings = Recommendations.listings(state.results, state.filters, device(), roughContext(), state.recommended) { judged[it.id] }
+        val listings = Recommendations.listings(state.results, state.filters, device(), roughContext(), state.recommended, recommendedRepositories()) { judged[it.id] }
         mutableState.update { it.copy(listings = listings) }
     }
 

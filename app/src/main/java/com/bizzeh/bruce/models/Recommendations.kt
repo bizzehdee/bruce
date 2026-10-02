@@ -42,7 +42,8 @@ data class BrowseFilters(
 
 /** A repository in the list, with the file Bruce would pick for this phone, sized by estimate. */
 /** [skills] is false when the repository's chat template cannot express tool calls, null when unknown (TASK-061). */
-data class Listing(val model: HubModel, val best: Assessment?, val skills: Boolean? = null) {
+/** [recommended] is true when Bruce's evaluation recommends the repository for this kind of phone (TASK-107). */
+data class Listing(val model: HubModel, val best: Assessment?, val skills: Boolean? = null, val recommended: Boolean = false) {
     /** The repository has a vision projector, so its models can see images (TASK-083). */
     val vision: Boolean get() = model.files.any(Projectors::isProjector)
 }
@@ -80,8 +81,9 @@ object Recommendations {
     }
 
     /**
-     * Applies the phone-side filters. Recommendations put files that fit first, then keep the Hub's
-     * most-downloaded order; name searches keep the Hub's order.
+     * Applies the phone-side filters. Models recommended for this kind of phone come first;
+     * recommendations then put files that fit first, then keep the Hub's most-downloaded order; name
+     * searches keep the Hub's order.
      */
     fun listings(
         results: List<HubModel>,
@@ -89,13 +91,20 @@ object Recommendations {
         device: DeviceProfile,
         contextLength: Int,
         recommended: Boolean,
+        recommendedRepositories: Set<String> = emptySet(),
         skills: (HubModel) -> Boolean? = { null },
     ): List<Listing> {
-        val listed = results.map { Listing(it, bestFile(it, device, contextLength), skills(it)) }
+        val chosen = recommendedRepositories.map { it.lowercase() }.toSet()
+        val listed = results.map { Listing(it, bestFile(it, device, contextLength), skills(it), it.id.lowercase() in chosen) }
             .filter { runs(it.best, filters.runs) && inSize(it.best, filters.size) }
         // Stable sorts keep the Hub's order (popularity) within each rank.
+        val recommendedFirst = compareBy<Listing> { if (it.recommended) 0 else 1 }
         val limitedLast = compareBy<Listing> { if (it.skills == false) 1 else 0 }
-        return if (recommended) listed.sortedWith(compareBy<Listing> { it.best?.fit?.ordinal ?: Fit.entries.size }.then(limitedLast)) else listed.sortedWith(limitedLast)
+        return if (recommended) {
+            listed.sortedWith(recommendedFirst.thenBy { it.best?.fit?.ordinal ?: Fit.entries.size }.then(limitedLast))
+        } else {
+            listed.sortedWith(recommendedFirst.then(limitedLast))
+        }
     }
 
     private fun runs(best: Assessment?, filter: RunsFilter): Boolean = when (filter) {

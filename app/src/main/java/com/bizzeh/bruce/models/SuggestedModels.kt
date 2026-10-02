@@ -24,9 +24,18 @@ data class SuggestedModel(
     val tiers: Set<DeviceTier>,
 )
 
-/** The setup wizard's suggested first models (TASK-107). Shipped with the app, so choosing one asks Hugging Face for nothing until it is downloaded. */
+/**
+ * The models Bruce's evaluation recommends for each kind of phone (TASK-106): the setup wizard's
+ * suggested first models, and the "Recommended" mark in the model browser (TASK-107). The 4 GB tier
+ * has no model that met the Recommended bar, so it suggests the usable one and says it is slow.
+ * Shipped with the app, so choosing one asks Hugging Face for nothing until it is downloaded.
+ */
 object SuggestedModels {
     val all = listOf(
+        SuggestedModel(
+            "MaziyarPanahi/Qwen3-1.7B-GGUF", "Qwen3-1.7B.Q4_K_M.gguf", 1_282_439_296, "Qwen3 1.7B",
+            R.string.suggested_qwen3_1_7b_slow, setOf(DeviceTier.FOUR_GB),
+        ),
         SuggestedModel(
             "MaziyarPanahi/Qwen3-1.7B-GGUF", "Qwen3-1.7B.Q5_K_M.gguf", 1_471_805_568, "Qwen3 1.7B",
             R.string.suggested_qwen3_1_7b, setOf(DeviceTier.EIGHT_GB, DeviceTier.TWELVE_GB),

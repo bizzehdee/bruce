@@ -311,7 +311,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   and 12 GB phones: Gemma 4 E2B, MiniCPM5 2B and Qwen3 1.7B. 4 GB phones without
   dot-product instructions have no Recommended model; Qwen3 1.7B Q4_K_M is the
   usable one and is suggested as slow. The model browser marks recommended
-  models for the phone's tier and lists them first (TASK-107). `in progress`
+  models for the phone's tier and lists them first (TASK-107). `done`
   (TASK-103 to TASK-108)
 - **Saved system prompt** — The first reply after a model loads has to read the
   fixed part of every prompt (system prompt and skill descriptions) first: about

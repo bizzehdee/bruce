@@ -111,4 +111,16 @@ class RecommendationsTest {
         assertEquals(listOf("b/full", "c/unknown", "a/limited"), listed(recommended = false).map { it.model.id })
         assertEquals(listOf(true, null, false), listed(recommended = true).map { it.skills })
     }
+
+    @Test
+    fun modelsRecommendedForThisPhoneAreMarkedAndListedFirst() {
+        val phone = DeviceProfile(64 * gb, cpu)
+        val results = listOf(model("a/popular", gb, "m-Q4_0.gguf"), model("b/limited", gb, "m-Q4_0.gguf"), model("MaziyarPanahi/Qwen3-1.7B-GGUF", gb, "m-Q4_0.gguf"))
+        fun listed(recommended: Boolean) =
+            Recommendations.listings(results, BrowseFilters(runs = RunsFilter.ANY), phone, 4096, recommended, setOf("maziyarpanahi/qwen3-1.7b-gguf")) { if (it.id == "b/limited") false else null }
+
+        assertEquals(listOf("MaziyarPanahi/Qwen3-1.7B-GGUF", "a/popular", "b/limited"), listed(recommended = true).map { it.model.id })
+        assertEquals(listOf("MaziyarPanahi/Qwen3-1.7B-GGUF", "a/popular", "b/limited"), listed(recommended = false).map { it.model.id })
+        assertEquals(listOf(true, false, false), listed(recommended = true).map { it.recommended })
+    }
 }

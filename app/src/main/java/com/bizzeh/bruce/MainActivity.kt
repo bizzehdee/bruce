@@ -183,6 +183,7 @@ class MainActivity : ComponentActivity() {
                 contextLength = { container.inferenceSettings.defaults.first().contextLength },
                 onDownloaded = { models.refresh() },
                 templateSupportsTools = container.engine::templateSupportsTools,
+                recommendedRepositories = { SuggestedModels.forDevice(deviceProfile()).map { it.repositoryId }.toSet() },
             )
         }
     }

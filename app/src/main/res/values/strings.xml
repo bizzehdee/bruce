@@ -384,6 +384,7 @@
     <string name="browse_sniffing">Sniffing out models for this phone…</string>
     <string name="browse_gated">Gated</string>
     <string name="browse_download">Download</string>
+    <string name="browse_tested_pick">Tested by Bruce: recommended for this phone</string>
     <string name="browse_cancel">Cancel</string>
     <string name="browse_retry">Retry</string>
     <string name="browse_weights_only">These fits are judged from file size alone. Download checks the file itself first and stops if it cannot fit.</string>
@@ -418,6 +419,7 @@
     <string name="setup_suggested_installed">Installed</string>
     <string name="setup_browse_other">Choose another on Hugging Face</string>
     <string name="suggested_qwen3_1_7b">Good all-rounder. Uses skills such as the time, battery and sums reliably, and answers everyday questions well.</string>
+    <string name="suggested_qwen3_1_7b_slow">Uses skills well and answers everyday questions, but slowly on this phone: a few words a second.</string>
     <string name="suggested_minicpm5_2b">Quick to reply and dependable with skills. Solid everyday answers.</string>
     <string name="suggested_gemma4_e2b">Strong answers, and honest about what it cannot check. A larger download, slower to start.</string>
     <string name="setup_back">Back</string>
