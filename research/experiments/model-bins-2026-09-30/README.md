@@ -289,3 +289,23 @@ cases: 7 of 18 records ran in `/foreground`; the speed and memory runs while loc
 - Memory at 4096: estimate 2.58 GB, resident 4.42 GB; first reply after loading 33 s, follow-up 1.4 s.
 
 Slower than the QAT Q4_0 and below the Usable bar's 4 tokens a second in one of three runs.
+
+### Gemma 4 E2B QAT Q4_0 (2026-10-02)
+
+`google/gemma-4-E2B-it-qat-q4_0-gguf` at 675cff42, `gemma-4-E2B_q4_0-it.gguf` (3.35 GB, SHA-256
+fa401b55…), quick pass on screen, all records in `/top-app`.
+
+| | E2B QAT Q4_0 | E2B Q3_K_M (recommended) |
+|---|---|---|
+| Generation, tokens a second | 10.2, 10.6, 10.6 | 18.4–18.8 |
+| Prompt, tokens a second | 54–56 | 37–38 |
+| First token: after loading / follow-up | 16.4 s / 0.64 s | 18.1 s / 0.75 s |
+| Estimate / resident at 4096 | 1.46 / 3.99 GB | 1.25 / 3.18 GB |
+
+Quick cases: all 16 answers sensible; with skills on it called get_datetime, calculate and
+get_battery_status (3/3; the Q3_K_M called 2/3); with skills off it said it could not check.
+
+Tensor types (gguf-py): the QAT file keeps the token embedding, which is also the output layer, and
+the per-layer embeddings at Q6_K (330 and 1,927 MB) with the layers at Q4_0 (1,048 MB); the Q3_K_M
+file has them at Q3_K and Q4_K (173 and 1,321 MB). Not measured: whether the Q6_K output layer, run
+for every token over the 262K vocabulary, is what halves generation speed.
