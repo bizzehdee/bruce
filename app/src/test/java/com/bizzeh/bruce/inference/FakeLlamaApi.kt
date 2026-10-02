@@ -91,7 +91,24 @@ internal class FakeLlamaApi : LlamaApi {
 
     override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long {
         generationRequest = Triple(context, temperature, seed)
+        stopped.set(false)
         return 30L
+    }
+
+    val stopRequests = mutableListOf<Long>()
+    private val stopped = java.util.concurrent.atomic.AtomicBoolean(false)
+
+    /** Makes evaluatePrompt wait, as a long prompt does, until a stop is requested or this long passes. */
+    var promptBlocksForMs = 0L
+    var onEvaluatePrompt: () -> Unit = {}
+    private val stopSignal = Object()
+
+    override fun requestStop(context: Long) {
+        synchronized(stopSignal) {
+            stopRequests += context
+            stopped.set(true)
+            stopSignal.notifyAll()
+        }
     }
 
     var lastReuse: Boolean? = null
@@ -110,7 +127,9 @@ internal class FakeLlamaApi : LlamaApi {
         lastCheckpointPrefix = String(checkpointPrefixUtf8).ifEmpty { null }
         lastSavedPrefix = String(savedPrefixUtf8).ifEmpty { null }
         lastStatePath = statePath.ifEmpty { null }
-        return promptResult
+        onEvaluatePrompt()
+        if (promptBlocksForMs > 0) synchronized(stopSignal) { if (!stopped.get()) stopSignal.wait(promptBlocksForMs) }
+        return if (stopped.get()) LlamaApi.STOPPED else promptResult
     }
 
     override fun nextToken(generation: Long): Int {

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html class="client-nojs skin-thumbsize-clientpref-standard" lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<title>MediaWiki API help - Wikipedia</title>
+<script>document.documentElement.className="client-js skin-thumbsize-clientpref-standard";RLCONF={"wgBreakFrames":true,"wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgRequestId":"2e1e7fe3-8cf4-4209-b908-4f7e6700e856","wgCanonicalNamespace":"Special","wgCanonicalSpecialPageName":"ApiHelp","wgNamespaceNumber":-1,"wgPageName":"Special:ApiHelp","wgTitle":"ApiHelp","wgCurRevisionId":0,"wgRevisionId":0,"wgArticleId":0,"wgIsArticle":false,"wgIsRedirect":false,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":[],"wgPageViewLanguage":"en","wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgRelevantPageName":"Special:ApiHelp","wgRelevantArticleId":0,"wgTempUserName":null,"wgIsProbablyEditable":false,"wgRelevantPageIsProbablyEditable":false,"wgNoticeProject":"wikipedia","wgFlaggedRevsParams":{"tags":{"status":{"levels":1}},"namespaces":[0,4]},"wgConfirmEditCaptchaNeededForGenericEdit":false,"wgMediaViewerOnClick":true,"wgMediaViewerEnabledByDefault":true,"wgMediaViewerMobileBeta":false,"wgPopupsFlags":0,"wgVisualEditor":{"pageLanguageCode":"en","pageLanguageDir":"ltr","pageVariantFallbacks":"en"},"wgMFDisplayWikibaseDescriptions":{"search":true,"watchlist":true,"tagline":false,"nearby":true},"wgWMESchemaEditAttemptStepOversample":false,"wgWMEPageLength":0,"wgTestKitchenUserExperiments":{"overrides":[],"enrolled":[],"assigned":[],"subject_ids":[]},"wgEditSubmitButtonLabelPublish":true,"wgVisualEditorPageIsDisambiguation":false,"wgCheckUserClientHintsHeadersJsApi":["brands","architecture","bitness","fullVersionList","mobile","model","platform","platformVersion"],"wgCheckUserClientHintsInEditRequest":true,"wgPersonalDashboardMenuVisible":false};
+RLSTATE={"mediawiki.hlist":"ready","mediawiki.apipretty":"ready","mediawiki.skinning.interface":"ready","ext.visualEditor.desktopArticleTarget.noscript":"ready"};</script>
+<link rel="stylesheet" href="/w/load.php?lang=en&amp;modules=ext.visualEditor.desktopArticleTarget.noscript%7Cmediawiki.apipretty%2Chlist%7Cmediawiki.skinning.interface&amp;only=styles&amp;skin=apioutput">
+<script async="" src="/w/load.php?lang=en&amp;modules=startup&amp;only=scripts&amp;raw=1&amp;safemode=1&amp;skin=apioutput"></script>
+<meta name="generator" content="MediaWiki 1.47.0-wmf.22">
+<meta name="referrer" content="origin">
+<meta name="referrer" content="origin-when-cross-origin">
+<meta name="robots" content="noindex,nofollow,max-image-preview:standard">
+<meta name="format-detection" content="telephone=no">
+<meta name="viewport" content="width=1120">
+<meta property="og:title" content="MediaWiki API help - Wikipedia">
+<meta property="og:type" content="website">
+<link rel="apple-touch-icon" href="/static/apple-touch/wikipedia.png">
+<link rel="icon" href="/static/favicon/wikipedia.ico">
+<link rel="search" type="application/opensearchdescription+xml" href="/w/rest.php/v1/search" title="Wikipedia (en)">
+<link rel="EditURI" type="application/rsd+xml" href="//en.wikipedia.org/w/api.php?action=rsd">
+<link rel="canonical" href="https://en.wikipedia.org/wiki/Special:ApiHelp">
+<link rel="license" href="https://www.mediawiki.org/wiki/Special:MyLanguage/Copyright">
+<link rel="alternate" type="application/atom+xml" title="Wikipedia Atom feed" href="/w/index.php?title=Special:RecentChanges&amp;feed=atom">
+<link rel="dns-prefetch" href="login.wikimedia.org">
+</head>
+<body class="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns--1 ns-special mw-special-ApiHelp page-Special_ApiHelp rootpage-Special_ApiHelp skin-apioutput action-view">
+<div id="mw-aria-live-region" class="mw-aria-live-region" aria-live="polite"></div><div class="mw-body" role="main">
+	<h1 id="firstHeading">MediaWiki API help</h1>
+	<div class="mw-body-content">
+		<div id="mw-content-text" class="mw-body-content"><p>This is an auto-generated <a class="external text" href="https://www.mediawiki.org/wiki/Special:MyLanguage/API:Action_API">MediaWiki Action API</a> documentation page.
+</p><h2 class="apihelp-header apihelp-module-name" dir="ltr" lang="en" id="query+extracts">prop=extracts (ex)</h2><div class="apihelp-linktrail">(<a href="/wiki/Special:ApiHelp/main" class="apihelp-linktrail" dir="ltr" lang="en">main</a> | <a href="/wiki/Special:ApiHelp/query" class="apihelp-linktrail" dir="ltr" lang="en">query</a> | <b dir="ltr" lang="en">extracts</b>)</div>
+<div class="apihelp-block apihelp-flags"><ul><li><span class="apihelp-flag-readrights">This module requires read rights.</span></li><li><span class="apihelp-source">Source: <span dir="ltr" lang="en">TextExtracts</span></span></li><li><span class="apihelp-license">License: <a href="/wiki/Special:Version/License/TextExtracts" title="Special:Version/License/TextExtracts"><span dir="ltr" lang="en">GPL-2.0-or-later</span></a></span></li></ul></div>
+<p>Returns plain-text or limited HTML extracts of the given pages.
+</p>
+<div class="apihelp-block apihelp-help-urls"><ul><li><a href="https://www.mediawiki.org/wiki/Special:MyLanguage/Extension:TextExtracts#API" dir="ltr">https://www.mediawiki.org/wiki/Special:MyLanguage/Extension:TextExtracts#API</a></li></ul></div>
+<div class="apihelp-block apihelp-parameters"><div class="apihelp-block-head">Specific parameters:</div><div class="apihelp-block-header">Other general parameters are available.</div><dl><dt><span dir="ltr" lang="en" id="query+extracts:exchars">exchars</span></dt><dd class="description"><p>How many characters to return. Actual text returned might be slightly longer.
+</p></dd><dd class="info">Type: integer</dd><dd class="info">The value must be between 1 and 1,200.</dd><dt><span dir="ltr" lang="en" id="query+extracts:exsentences">exsentences</span></dt><dd class="description"><p>How many sentences to return.
+</p></dd><dd class="info">Type: integer</dd><dd class="info">The value must be between 1 and 10.</dd><dt><span dir="ltr" lang="en" id="query+extracts:exlimit">exlimit</span></dt><dd class="description"><p>How many extracts to return. (Multiple extracts can only be returned if exintro is set to true.)
+</p></dd><dd class="info">Type: integer or <kbd>max</kbd></dd><dd class="info">The value must be between 1 and 20.</dd><dd class="info">Default: 20</dd><dt><span dir="ltr" lang="en" id="query+extracts:exintro">exintro</span></dt><dd class="description"><p>Return only content before the first section.
+</p></dd><dd class="info">Type: boolean (<a href="/w/api.php?action=help&amp;modules=main#main/datatype/boolean">details</a>)</dd><dt><span dir="ltr" lang="en" id="query+extracts:explaintext">explaintext</span></dt><dd class="description"><p>Return extracts as plain text instead of limited HTML.
+</p></dd><dd class="info">Type: boolean (<a href="/w/api.php?action=help&amp;modules=main#main/datatype/boolean">details</a>)</dd><dt><span dir="ltr" lang="en" id="query+extracts:exsectionformat">exsectionformat</span></dt><dd class="description"><p>How to format sections in plaintext mode:
+</p><dl><dt><span dir="ltr" lang="en">plain</span></dt>
+<dd>No formatting.</dd>
+<dt><span dir="ltr" lang="en">wiki</span></dt>
+<dd>Wikitext-style formatting (== like this ==).</dd>
+<dt><span dir="ltr" lang="en">raw</span></dt>
+<dd>This module's internal representation (section titles prefixed with &lt;ASCII 1&gt;&lt;ASCII 2&gt;&lt;section level&gt;&lt;ASCII 2&gt;&lt;ASCII 1&gt;).</dd></dl></dd><dd class="info">One of the following values: plain, raw, wiki</dd><dd class="info">Default: wiki</dd><dt><span dir="ltr" lang="en" id="query+extracts:excontinue">excontinue</span></dt><dd class="description"><p>When more results are available, use this to continue. More detailed information on how to continue queries <a href="https://www.mediawiki.org/wiki/Special:MyLanguage/API:Continue" class="extiw" title="mw:Special:MyLanguage/API:Continue">can be found on mediawiki.org</a>.
+</p></dd><dd class="info">Type: integer</dd></dl></div>
+<div class="apihelp-block apihelp-examples"><div class="apihelp-block-head">Example:</div><dl><dt>Get a 175-character extract</dt><dd><a href="/w/api.php?action=query&amp;prop=extracts&amp;exchars=175&amp;titles=Therion" dir="ltr" rel="nofollow">api.php?action=query&amp;prop=extracts&amp;exchars=175&amp;titles=Therion</a> <a href="/wiki/Special:ApiSandbox#action=query&amp;prop=extracts&amp;exchars=175&amp;titles=Therion"><small>[open in sandbox]</small></a></dd></dl></div>
+<noscript><img src="https://en.wikipedia.org/wiki/Special:CentralAutoLogin/start?useformat=desktop&amp;type=1x1&amp;usesul3=0" alt="" width="1" height="1" style="border: none; position: absolute;"></noscript>
+<div class="printfooter" data-nosnippet="">Retrieved from "<a dir="ltr" href="https://en.wikipedia.org/wiki/Special:ApiHelp">https://en.wikipedia.org/wiki/Special:ApiHelp</a>"</div></div>
+	</div>
+</div>
+<script>(RLQ=window.RLQ||[]).push(function(){mw.log.warn("This page is using the deprecated ResourceLoader module \"mediawiki.skinning.interface\".\n[1.43] The use of the `interface-message-box` feature with SkinModule is deprecated in favor of CodexModule. Please remove this feature.More information can be found at [[mw:Manual:ResourceLoaderSkinModule]]. ");mw.config.set({"wgHostname":"mw-api-ext.eqiad.main-9fb74df6f-xncz7","wgBackendResponseTime":137});});</script>
+</body>
+</html>

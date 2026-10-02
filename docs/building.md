@@ -55,6 +55,17 @@ adb shell "run-as com.bizzeh.bruce mkdir -p files/test-models"
 adb shell "cat /data/local/tmp/Qwen3.5-0.8B-Q8_0.gguf | run-as com.bizzeh.bruce sh -c 'cat > files/test-models/Qwen3.5-0.8B-Q8_0.gguf'"
 ```
 
+`ChatReplayDeviceTest` replays one question with another phone's model, context and skills, and
+logs each step with its time to `files/bins/results/<label>.replay.jsonl` and logcat tag
+`BruceReplay`. It needs the model in `files/bins` (copied in as above) and the internet, and sets
+this phone's network mode to General. For example, a Pixel's chat with Wikipedia on:
+
+```
+adb shell am instrument -w -e class com.bizzeh.bruce.runtime.ChatReplayDeviceTest -e model MiniCPM5-2B-Q4_K_M.gguf \
+  -e context 49152 -e accepted search_wikipedia,fetch_page -e seeds 0,2,3 -e runs 1 -e label pixel-replay \
+  com.bizzeh.bruce.test/androidx.test.runner.AndroidJUnitRunner
+```
+
 `PromptReuseTimingDeviceTest` times a three-turn chat with and without prompt reuse; pass `-e model <file>` to use a model in `files/test-models` other than Qwen3.5-0.8B-Q8_0.gguf.
 
 `FileSkillsDeviceTest` needs a folder named Documents granted in the installed app: open

@@ -149,7 +149,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Agent loop** — Multi-step tool use, bounded by maximum tool calls, maximum
   execution time and resource limits; supports cancellation and structured
   errors. `done` (5 tool calls and 3 minutes per turn; at the call limit the
-  model is told to answer from what it has, and only fails if it still calls)
+  model is told to answer from what it has, and only fails if it still calls.
+  The time limit waits while a visible answer streams; Stop and the limit also
+  reach a prompt still being read)
 - **Conversations** — Saved conversations ("sessions"): the drawer lists them,
   newest first; the user starts a new chat, resumes, renames, archives or deletes
   one, and can archive or delete several at once. Archived chats are kept but
@@ -233,8 +235,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `done`
 - **Web pages** — Fetch a web page (GET only) as plain text, size-capped and
   marked as untrusted data. Menus and other page furniture are left out; the
-  start of the page (2,000 characters) comes back unless the model asks for the
-  whole page (up to 24,000) (owner, 2026-10-02). No forms, uploads, cookies or sign-ins. Only where the
+  start of the page (2,000 characters) comes back unless the model asks for
+  more (up to 8,000, what a phone reads within the time limit) (owner,
+  2026-10-02). Wikipedia articles are read as their plain text from Wikipedia's
+  API, without the boxes and tables. No forms, uploads, cookies or sign-ins. Only where the
   network mode allows the site. `done`
 - **Web search** — Search the web through the Brave Search API (its LLM Context
   endpoint) with the user's own key, entered in Settings and stored encrypted on
@@ -525,6 +529,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Changed | A chat on the Pixel never finished: reading a whole page took a phone 8+ minutes and neither Stop nor the time limit could reach it. Stop and the limit now abort a prompt being read; the limit lets a visible answer finish; "more of the page" is 8,000 characters (was 24,000); Wikipedia articles are read through Wikipedia's API as plain text. |
 | 2026-10-02 | Added | Report offensive AI replies, required by Google Play's AI-Generated Content policy; how reports reach the developer is open (TASK-114). |
 | 2026-10-02 | Changed | The context bar is always coloured green to red; the traffic-light setting is replaced by "Show context window", off by default (owner). |
 | 2026-10-02 | Changed | Recommended models settled: the bins rule, Gemma 4 E2B, MiniCPM5 2B and Qwen3 1.7B for 8 and 12 GB, Qwen3 1.7B Q4_K_M as slow but usable for 4 GB; the browser marks and ranks them (owner delegated, TASK-106, TASK-107). |

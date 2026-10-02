@@ -76,8 +76,8 @@ internal interface LlamaApi {
     fun countTokens(model: Long, textUtf8: ByteArray): Int
 
     /**
-     * Evaluates the prompt and returns how many of its tokens were decoded, or [PROMPT_TOO_LONG] or
-     * [DECODE_FAILED]. With [reuse], the part it shares with what the context already holds (the
+     * Evaluates the prompt and returns how many of its tokens were decoded, or [PROMPT_TOO_LONG],
+     * [DECODE_FAILED] or [STOPPED]. With [reuse], the part it shares with what the context already holds (the
      * last prompt and reply) is kept rather than decoded again. For memory that cannot be cut back,
      * a non-empty [checkpointPrefixUtf8] that the prompt starts with marks where to checkpoint.
      * With [reuse], a non-empty [savedPrefixUtf8] (the prompt's fixed start) is loaded from
@@ -85,8 +85,14 @@ internal interface LlamaApi {
      */
     fun evaluatePrompt(generation: Long, promptUtf8: ByteArray, reuse: Boolean, checkpointPrefixUtf8: ByteArray, savedPrefixUtf8: ByteArray, statePath: String): Int
 
-    /** Returns [TOKEN], [END_OF_GENERATION], [CONTEXT_FULL] or [DECODE_FAILED]. */
+    /** Returns [TOKEN], [END_OF_GENERATION], [CONTEXT_FULL], [DECODE_FAILED] or [STOPPED]. */
     fun nextToken(generation: Long): Int
+
+    /**
+     * Aborts [context]'s decoding, within moments even mid-prompt, until the next generation begins:
+     * the call then returns [STOPPED]. Safe from any thread, and does nothing once [context] is freed.
+     */
+    fun requestStop(context: Long)
 
     /** UTF-8 bytes of the token from the last [TOKEN] result; may end mid-character. */
     fun takePiece(generation: Long): ByteArray
@@ -122,6 +128,7 @@ internal interface LlamaApi {
         // Must match the status codes in llama_jni.cpp.
         const val PROMPT_TOO_LONG = -1
         const val DECODE_FAILED = -2
+        const val STOPPED = -3
         const val TOKEN = 0
         const val END_OF_GENERATION = 1
         const val CONTEXT_FULL = 2
@@ -176,6 +183,8 @@ internal object LlamaNative : LlamaApi {
     external override fun formatChat(model: Long, roles: Array<String>, contents: Array<ByteArray>, addAssistant: Boolean): ByteArray?
 
     external override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
+
+    external override fun requestStop(context: Long)
 
     external override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long
 

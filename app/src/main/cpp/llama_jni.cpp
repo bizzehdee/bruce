@@ -4,6 +4,7 @@
 #include <sys/auxv.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstdio>
 #include <exception>
@@ -35,6 +36,7 @@ llama_context *asContext(jlong handle) { return reinterpret_cast<llama_context *
 // Status codes shared with LlamaApi on the Kotlin side.
 constexpr jint kPromptTooLong = -1;
 constexpr jint kDecodeFailed = -2;
+constexpr jint kStopped = -3;
 constexpr jint kToken = 0;
 constexpr jint kEndOfGeneration = 1;
 constexpr jint kContextFull = 2;
@@ -67,6 +69,27 @@ constexpr int32_t kCheckpointOffset = 8;
 
 std::mutex gCachesMutex;
 std::unordered_map<llama_context *, PromptCache> gCaches;
+
+// Set from another thread to abort the context's decoding within a graph node, so Stop and the
+// runtime's time limit reach a prompt that takes minutes to evaluate. Guarded by gCachesMutex.
+std::unordered_map<llama_context *, std::unique_ptr<std::atomic<bool>>> gStopFlags;
+
+bool abortWhenStopped(void *flag) { return static_cast<std::atomic<bool> *>(flag)->load(); }
+
+std::atomic<bool> *stopFlagFor(llama_context *context) {
+    std::lock_guard<std::mutex> lock(gCachesMutex);
+    const auto found = gStopFlags.find(context);
+    return found == gStopFlags.end() ? nullptr : found->second.get();
+}
+
+void clearStop(llama_context *context) {
+    if (std::atomic<bool> *flag = stopFlagFor(context)) flag->store(false);
+}
+
+bool stopRequested(llama_context *context) {
+    const std::atomic<bool> *flag = stopFlagFor(context);
+    return flag != nullptr && flag->load();
+}
 
 PromptCache *cacheFor(llama_context *context) {
     std::lock_guard<std::mutex> lock(gCachesMutex);
@@ -253,7 +276,23 @@ Java_com_bizzeh_bruce_inference_LlamaNative_newContext(
     params.n_batch = static_cast<uint32_t>(batchSize);
     params.n_threads = threads;
     params.n_threads_batch = threads;
-    return reinterpret_cast<jlong>(llama_init_from_model(asModel(model), params));
+    llama_context *context = llama_init_from_model(asModel(model), params);
+    if (context != nullptr) {
+        auto flag = std::make_unique<std::atomic<bool>>(false);
+        llama_set_abort_callback(context, abortWhenStopped, flag.get());
+        std::lock_guard<std::mutex> lock(gCachesMutex);
+        gStopFlags[context] = std::move(flag);
+    }
+    return reinterpret_cast<jlong>(context);
+}
+
+// Aborts the context's current or next decode, until a generation begins on it. Safe from any
+// thread, and a no-op for a context already freed.
+JNIEXPORT void JNICALL
+Java_com_bizzeh_bruce_inference_LlamaNative_requestStop(JNIEnv *, jobject, jlong context) {
+    std::lock_guard<std::mutex> lock(gCachesMutex);
+    const auto found = gStopFlags.find(asContext(context));
+    if (found != gStopFlags.end()) found->second->store(true);
 }
 
 JNIEXPORT void JNICALL
@@ -263,6 +302,8 @@ Java_com_bizzeh_bruce_inference_LlamaNative_freeContext(JNIEnv *, jobject, jlong
         gCaches.erase(asContext(context));
     }
     llama_free(asContext(context));
+    std::lock_guard<std::mutex> lock(gCachesMutex);
+    gStopFlags.erase(asContext(context));
 }
 
 JNIEXPORT jstring JNICALL
@@ -417,6 +458,7 @@ JNIEXPORT jlong JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_beginGeneration(
         JNIEnv *, jobject, jlong context, jfloat temperature, jint seed) {
     llama_context *ctx = asContext(context);
+    clearStop(ctx);
     auto *generation = new Generation{
             cacheFor(ctx),
             ctx,
@@ -435,6 +477,7 @@ JNIEXPORT jlong JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_beginGenerationWithGrammar(
         JNIEnv *env, jobject, jlong context, jfloat temperature, jint seed, jbyteArray grammarUtf8) {
     llama_context *ctx = asContext(context);
+    clearStop(ctx);
     const llama_vocab *vocab = llama_model_get_vocab(llama_get_model(ctx));
     std::vector<llama_token> preserved;
     llama_sampler *grammar = nullptr;
@@ -573,7 +616,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
     if (savedCount > start) {
         if (!decodeRange(start, savedCount)) {
             cache.reset(context);
-            return kDecodeFailed;
+            return stopRequested(context) ? kStopped : kDecodeFailed;
         }
         if (llama_state_seq_save_file(context, savedFile.c_str(), 0, tokens.data(), static_cast<size_t>(savedCount)) == 0) {
             std::remove(savedFile.c_str());
@@ -596,7 +639,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePrompt(
     }
     if (!decoded) {
         cache.reset(context);
-        return kDecodeFailed;
+        return stopRequested(context) ? kStopped : kDecodeFailed;
     }
     cache.tokens = tokens;
     __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt: %d tokens, %d reused%s", count, reusedCount,
@@ -728,7 +771,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_evaluatePromptWithImages(
     const int32_t status = mtmd_helper_eval_chunks(mctx, context, chunks.get(), 0, 0, static_cast<int32_t>(llama_n_batch(context)), true, &past);
     if (status != 0) {
         generation->cache->reset(context);
-        return kDecodeFailed;
+        return stopRequested(context) ? kStopped : kDecodeFailed;
     }
     generation->cache->untracked = true;
     __android_log_print(ANDROID_LOG_INFO, kLogTag, "prompt with %zu images: %zu tokens", bitmaps.size(), count);
@@ -834,7 +877,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_nextToken(JNIEnv *, jobject, jlong h
     storePiece(generation, token);
     if (llama_decode(generation->context, llama_batch_get_one(&token, 1)) != 0) {
         generation->cache->reset(generation->context);
-        return kDecodeFailed;
+        return stopRequested(generation->context) ? kStopped : kDecodeFailed;
     }
     if (!generation->cache->untracked) generation->cache->tokens.push_back(token);
     return kToken;

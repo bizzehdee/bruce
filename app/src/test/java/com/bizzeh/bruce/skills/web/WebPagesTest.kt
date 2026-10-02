@@ -124,12 +124,12 @@ class WebPagesTest {
         val skill = WebSkills(pages, allowed = { true }).create().single()
 
         val start = skill.execute(SkillArguments(mapOf("url" to "https://example.com/long"))) as SkillOutcome.Done
-        assertTrue(start.content.contains("x".repeat(2_000) + "\n[This is the start of the page: 28000 more characters. Call fetch_page again with full set to true"))
+        assertTrue(start.content.contains("x".repeat(2_000) + "\n[This is enough to answer most questions: answer now. The page goes on for 28000 more characters, which fetch_page with full set to true reads"))
         assertEquals(2_600, start.maxLength)
 
         val full = skill.execute(SkillArguments(mapOf("url" to "https://example.com/long", "full" to true))) as SkillOutcome.Done
-        assertTrue(full.content.endsWith("x".repeat(24_000) + "\n[Only the first 24000 characters of this page could be read.]"))
-        assertEquals(24_600, full.maxLength)
+        assertTrue(full.content.endsWith("x".repeat(8_000) + "\n[Only the first 8000 characters of this page could be read.]"))
+        assertEquals(8_600, full.maxLength)
         assertTrue(skill.input.parameters.single { it.name == "full" }.required.not())
     }
 }

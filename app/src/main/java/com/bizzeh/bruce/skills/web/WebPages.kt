@@ -23,6 +23,7 @@ sealed interface PageResult {
  * Reads one web page with GET only (TASK-069): no cookies, no stored credentials, no request body.
  * Redirects are followed one at a time, each to a site [allowed] accepts and never from https to
  * http. At most [MAX_BYTES] are read; HTML becomes plain text, other text types are kept as they are.
+ * A Wikipedia article is read as its plain-text extract from the same site's API when it can be.
  */
 class WebPages(
     private val transport: HttpTransport,
@@ -30,6 +31,7 @@ class WebPages(
     private val userAgent: String,
 ) {
     suspend fun read(address: String, allowed: suspend (host: String) -> Boolean): PageResult {
+        wikipediaArticle(address.trim(), allowed)?.let { return it }
         var current = address.trim()
         repeat(MAX_REDIRECTS + 1) {
             val host = WebAddress.host(current) ?: return PageResult.Failed("That is not an http or https address.")
@@ -66,6 +68,23 @@ class WebPages(
             }
         }
         return PageResult.Failed("The page redirects too many times.")
+    }
+
+    /** A Wikipedia article's plain-text extract ([WikipediaArticles]); null to read [address] as any other page. */
+    private suspend fun wikipediaArticle(address: String, allowed: suspend (host: String) -> Boolean): PageResult? {
+        val api = WikipediaArticles.extractAddress(address) ?: return null
+        if (!allowed(WebAddress.host(api) ?: return null)) return null
+        val body = try {
+            withContext(io) {
+                transport.openSingle(api, mapOf("User-Agent" to userAgent, "Accept" to "application/json")).use { response ->
+                    if (response.status !in 200..299) null else readUpTo(response.body, MAX_BYTES).let { (bytes, cut) -> if (cut) null else String(bytes, Charsets.UTF_8) }
+                }
+            }
+        } catch (e: IOException) {
+            null
+        } ?: return null
+        val (title, text) = WikipediaArticles.parse(body) ?: return null
+        return PageResult.Read(address, title, text, cut = false)
     }
 
     private enum class Kind { HTML, TEXT }

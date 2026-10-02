@@ -18,11 +18,14 @@ import com.bizzeh.bruce.skills.SkillRegistry
 import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.ToolOutput
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
 import java.time.LocalDate
@@ -95,7 +98,8 @@ enum class RuntimeError {
 /**
  * One user turn: the model may call skills, each through the policy engine, and sees each result
  * before it answers (plan.md, BruceRuntime; ADR 0001 for the formats). Bounded by [maxToolCalls]
- * and [maxDuration]; cancelling collection stops it.
+ * and [maxDuration]; cancelling collection stops it. [maxDuration] waits while an answer the user can
+ * see is streaming, and ends the turn if the model then asks for more skills.
  */
 class BruceRuntime(
     private val engine: InferenceEngine,
@@ -135,15 +139,37 @@ class BruceRuntime(
      */
     fun respond(history: List<ToolChatMessage>, memory: List<String> = emptyList(), unattended: Boolean = false): Flow<RuntimeEvent> = flow {
         val added = mutableListOf<ToolChatMessage>()
+        val limit = TurnLimit()
         try {
-            withTimeout(maxDuration) { loop(history, memory, added, unattended) }
-        } catch (e: TimeoutCancellationException) {
+            coroutineScope {
+                val turn = this
+                val watchdog = launch {
+                    delay(maxDuration)
+                    limit.expired = true
+                    if (!limit.answering) turn.cancel(TimedOut())
+                }
+                loop(history, memory, added, unattended, limit)
+                watchdog.cancel()
+            }
+        } catch (e: TimedOut) {
             backend().stop()
             emit(RuntimeEvent.Failed(RuntimeError.TIMED_OUT, added.toList()))
         }
     }
 
-    private suspend fun FlowCollector<RuntimeEvent>.loop(history: List<ToolChatMessage>, memory: List<String>, added: MutableList<ToolChatMessage>, unattended: Boolean) {
+    /**
+     * The turn's time limit: work the user cannot see (skills, reading a long prompt) is cut off at
+     * [maxDuration], but a visible answer is let finish, since the user watches it arrive and can stop
+     * it. A Snapdragon 865 needed more than three minutes to search, read a page and answer (2026-10-02).
+     */
+    private class TurnLimit {
+        @Volatile var expired = false
+        @Volatile var answering = false
+    }
+
+    private class TimedOut : CancellationException("the turn's time limit passed")
+
+    private suspend fun FlowCollector<RuntimeEvent>.loop(history: List<ToolChatMessage>, memory: List<String>, added: MutableList<ToolChatMessage>, unattended: Boolean, limit: TurnLimit) {
         val offer = offer(memory)
         val tools = offer.tools
         var calls = 0
@@ -160,19 +186,26 @@ class BruceRuntime(
             val prompt = fitted.prompt ?: return emit(RuntimeEvent.Failed(RuntimeError.CONVERSATION_TOO_LONG, added.toList()))
             var done: StepEvent.Done? = null
             var failure: RuntimeError? = null
+            val shown = StringBuilder()
             fitted.backend.generate(prompt, maxReplyTokens, temperature()).collect { event ->
                 when (event) {
-                    is StepEvent.Text -> emit(RuntimeEvent.Text(event.text))
+                    is StepEvent.Text -> {
+                        shown.append(event.text)
+                        if (!limit.answering && shown.replace(THINKING, "").isNotBlank()) limit.answering = true
+                        emit(RuntimeEvent.Text(event.text))
+                    }
                     is StepEvent.Done -> done = event
                     is StepEvent.Failed -> failure = event.error
                 }
             }
+            limit.answering = false
             failure?.let { return emit(RuntimeEvent.Failed(it, added.toList())) }
             val step = done ?: return emit(RuntimeEvent.Failed(RuntimeError.GENERATION_FAILED, added.toList()))
 
             val parsed = numbered(step.reply, calls)
             emit(RuntimeEvent.Step(parsed.content, parsed.reasoning, parsed.toolCalls, step.stats))
             added += ToolChatMessage(ChatRole.ASSISTANT, parsed.content, toolCalls = parsed.toolCalls)
+            if (parsed.toolCalls.isNotEmpty() && limit.expired) throw TimedOut()
             if (parsed.toolCalls.isEmpty()) {
                 // MiniCPM5 answered nothing after reading a page of menus (2026-10-02); say so rather than show nothing.
                 if (parsed.content.replace(THINKING, "").isBlank()) return emit(RuntimeEvent.Failed(RuntimeError.EMPTY_REPLY, added.toList()))

@@ -77,11 +77,11 @@ class WebSkills(
     private fun fetchPage() = Skill(
         id = "fetch_page",
         version = 1,
-        description = "Read a web page and return its text: the start of the page, or the whole page with full set to true. Only for http or https addresses.",
+        description = "Read a web page and return its text: the start of the page, or more of it with full set to true. Only for http or https addresses.",
         input = InputSchema(
             listOf(
                 Parameter(URL, ParameterType.STRING, "The page's full address, starting https://", maxLength = MAX_URL),
-                Parameter(FULL, ParameterType.BOOLEAN, "True to read the whole page, when its start was not enough", required = false),
+                Parameter(FULL, ParameterType.BOOLEAN, "True to read more of the page, when its start did not answer the question", required = false),
             ),
         ),
         capabilities = setOf(Capability.HTTP_READ),
@@ -106,7 +106,9 @@ class WebSkills(
                         page.title?.let { append("\nTitle: ").append(it) }
                         append("\n\n").append(text.take(limit))
                         when {
-                            text.length > limit && !full -> append("\n[This is the start of the page: ${text.length - limit} more characters. Call fetch_page again with full set to true to read the whole page.]")
+                            // Told to read on, MiniCPM5 2B did 13 times in 20 with the answer in front of it; told to answer
+                            // first, twice (2026-10-02, research/experiments/date-in-prompt-2026-10-02).
+                            text.length > limit && !full -> append("\n[This is enough to answer most questions: answer now. The page goes on for ${text.length - limit} more characters, which fetch_page with full set to true reads, but only if this does not answer.]")
                             text.length > limit || page.cut -> append("\n[Only the first ${minOf(limit, text.length)} characters of this page could be read.]")
                         }
                     },
@@ -123,8 +125,11 @@ class WebSkills(
         /** About 500 tokens: a page's start, enough for most answers. */
         const val PAGE_START = 2_000
 
-        /** About 6,000 tokens: "the whole page", within what a phone's context can take. */
-        const val FULL_PAGE = 24_000
+        /**
+         * About 2,000 tokens: as much more as a phone reads within the reply's time limit. 24,000 took
+         * a Snapdragon 865 eight minutes to read with MiniCPM5 2B (2026-10-02).
+         */
+        const val FULL_PAGE = 8_000
 
         /** Room for the address, title and the note after the text. */
         const val PAGE_FRAME = 600

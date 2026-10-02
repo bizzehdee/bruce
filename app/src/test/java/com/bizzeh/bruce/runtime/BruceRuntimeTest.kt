@@ -41,6 +41,7 @@ import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.ToolOutput
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -635,6 +636,38 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun anAnswerStillStreamingAtTheTimeLimitIsLetFinish() {
+        engine.steps += Step("It is noon, and here is a long answer.", ParsedReply("It is noon, and here is a long answer.", "", emptyList()), slowMs = 300)
+
+        val events = events(runtime(maxDuration = 50.milliseconds))
+
+        assertEquals("It is noon, and here is a long answer.", (events.last() as RuntimeEvent.Finished).messages.last().content)
+        assertEquals(0, engine.stops)
+    }
+
+    @Test
+    fun aSkillAskedForAfterTheTimeLimitPassedDuringAnAnswerEndsTheTurn() {
+        engine.steps += Step("Let me check.", ParsedReply("Let me check.", "", listOf(ToolCall("get_datetime", "{}"))), slowMs = 300)
+        engine.steps += Step("It is noon.", ParsedReply("It is noon.", "", emptyList()))
+
+        val failed = events(runtime(maxDuration = 50.milliseconds)).last() as RuntimeEvent.Failed
+
+        assertEquals(RuntimeError.TIMED_OUT, failed.error)
+        assertEquals(emptyList<String>(), ran)
+    }
+
+    @Test
+    fun hiddenWorkPastTheTimeLimitIsStoppedEvenAfterAnEarlierAnswerStreamed() {
+        engine.steps += Step("Checking.", ParsedReply("Checking.", "", listOf(ToolCall("get_datetime", "{}"))))
+        engine.steps += Step("<call>", ParsedReply("", "", listOf(ToolCall("calculate", "{\"expression\":\"1+1\"}"))), slowMs = 300)
+
+        val failed = events(runtime(maxDuration = 50.milliseconds)).last() as RuntimeEvent.Failed
+
+        assertEquals(RuntimeError.TIMED_OUT, failed.error)
+        assertEquals(listOf("get_datetime"), ran)
+    }
+
+    @Test
     fun generationFailuresEndTheTurn() {
         mapOf(
             GenerationError.PROMPT_TOO_LONG to RuntimeError.CONVERSATION_TOO_LONG,
@@ -684,7 +717,8 @@ class BruceRuntimeTest {
         assertEquals("Hello.", (events.last() as RuntimeEvent.Finished).messages.single().content)
     }
 
-    private data class Step(val text: String, val parsed: ParsedReply?, val failure: GenerationError? = null)
+    /** [slowMs] passes between the step's text and its end, as a long answer takes to stream. */
+    private data class Step(val text: String, val parsed: ParsedReply?, val failure: GenerationError? = null, val slowMs: Long = 0)
 
     private inner class ScriptedEngine : InferenceEngine {
         val steps = ArrayDeque<Step>()
@@ -729,7 +763,11 @@ class BruceRuntimeTest {
             if (hang) return flow { awaitCancellation() }
             val step = steps.removeFirst().also { current = it }
             step.failure?.let { return flowOf(GenerationEvent.Failed(it)) }
-            return flowOf(GenerationEvent.Token(step.text), GenerationEvent.Completed(StopReason.END_OF_GENERATION, GenerationStats(1, 1.seconds, 1, 1.seconds)))
+            return flow {
+                emit(GenerationEvent.Token(step.text))
+                if (step.slowMs > 0) delay(step.slowMs)
+                emit(GenerationEvent.Completed(StopReason.END_OF_GENERATION, GenerationStats(1, 1.seconds, 1, 1.seconds)))
+            }
         }
 
         override fun parseReply(format: ToolFormat, text: String, partial: Boolean): ParsedReply? = current?.parsed

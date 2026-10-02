@@ -1,11 +1,14 @@
 package com.bizzeh.bruce.inference
 
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNull
@@ -14,6 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.concurrent.Executors
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -129,6 +133,38 @@ class LlamaCppEngineGenerationTest {
 
         assertEquals("ab", events.text())
         assertEquals(StopReason.STOPPED, events.completion().reason)
+    }
+
+    @Test
+    fun stopWhileThePromptIsEvaluatedAbortsItAndEndsAsStopped() = test {
+        loadModel()
+        llama.script("a")
+        llama.onEvaluatePrompt = { engine.stop() }
+
+        val events = engine.generate(GenerationRequest("p")).toList()
+
+        assertEquals(listOf(20L), llama.stopRequests)
+        assertEquals("", events.text())
+        assertEquals(StopReason.STOPPED, events.completion().reason)
+        assertEquals(0, events.completion().stats.generatedTokens)
+    }
+
+    @Test
+    fun cancellingCollectionAbortsAPromptStillBeingEvaluated() = runBlocking {
+        // A real native thread: the prompt blocks it, as a long one does, and only an abort ends it.
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher().use { native ->
+            val engine = LlamaCppEngine(llama, native)
+            engine.loadModel(File(dir, "m.gguf").apply { writeBytes("GGUF".toByteArray() + ByteArray(16)) })
+            llama.promptBlocksForMs = 10_000
+
+            val started = System.nanoTime()
+            val events = withTimeoutOrNull(200.milliseconds) { engine.generate(GenerationRequest("long prompt")).toList() }
+
+            assertNull(events)
+            assertEquals(listOf(20L), llama.stopRequests)
+            assertTrue(System.nanoTime() - started < 5.seconds.inWholeNanoseconds, "the timeout ended the prompt, not the fake's own wait")
+            assertEquals(listOf(30L), llama.endedGenerations)
+        }
     }
 
     @Test

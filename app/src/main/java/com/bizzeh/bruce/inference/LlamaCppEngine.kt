@@ -2,6 +2,10 @@ package com.bizzeh.bruce.inference
 
 import com.bizzeh.bruce.gguf.Gguf
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
@@ -13,6 +17,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.Duration
 import kotlin.time.TimeSource
 
 /**
@@ -105,7 +110,25 @@ internal class LlamaCppEngine(
                 return@withLock
             }
             try {
-                streamCompletion(generation, request, current)
+                coroutineScope {
+                    // Evaluating a long prompt is one native call that can take minutes, and coroutine
+                    // cancellation (the runtime's time limit, a closed chat) cannot reach into it; this
+                    // watcher, off the blocked native thread, aborts the decoding instead.
+                    var finished = false
+                    val watcher = launch(Dispatchers.Default) {
+                        try {
+                            awaitCancellation()
+                        } finally {
+                            if (!finished) llama.requestStop(current.context)
+                        }
+                    }
+                    try {
+                        streamCompletion(generation, request, current)
+                    } finally {
+                        finished = true
+                        watcher.cancel()
+                    }
+                }
             } finally {
                 llama.endGeneration(generation)
             }
@@ -114,6 +137,7 @@ internal class LlamaCppEngine(
 
     override fun stop() {
         stopRequested.set(true)
+        session?.let { llama.requestStop(it.context) }
     }
 
     override suspend fun formatChat(messages: List<ChatMessage>): ChatPrompt? = mutex.withLock {
@@ -250,6 +274,7 @@ internal class LlamaCppEngine(
             )
         }
         when (promptTokens) {
+            LlamaApi.STOPPED -> return emit(GenerationEvent.Completed(StopReason.STOPPED, GenerationStats(0, promptStart.elapsedNow(), 0, Duration.ZERO)))
             LlamaApi.PROMPT_TOO_LONG -> return emit(GenerationEvent.Failed(GenerationError.PROMPT_TOO_LONG))
             LlamaApi.DECODE_FAILED -> return emit(GenerationEvent.Failed(GenerationError.DECODE_FAILED))
         }
@@ -287,6 +312,10 @@ internal class LlamaCppEngine(
                 }
                 LlamaApi.CONTEXT_FULL -> {
                     reason = StopReason.CONTEXT_FULL
+                    break
+                }
+                LlamaApi.STOPPED -> {
+                    reason = StopReason.STOPPED
                     break
                 }
                 else -> return emit(GenerationEvent.Failed(GenerationError.DECODE_FAILED))

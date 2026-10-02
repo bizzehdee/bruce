@@ -44,3 +44,10 @@ history" 3 times in 30; with the search first, 27. Other skill sets moved the ra
 too, so test a prompt change against the phone's real prompt (`PromptDumpDeviceTest`), not a
 hand-built one. Searches are now listed before fetch_page. Data:
 `research/experiments/date-in-prompt-2026-10-02/order-test.py`.
+
+## A tool result's closing note steers small models (2026-10-02)
+
+After the start of a page, a note saying "call fetch_page again with full set to true" made
+MiniCPM5 2B read more 13 times in 20 even with the answer in front of it; leading with "answer
+now" cut that to 2. Write such notes so the cheap path (answering) comes first. Data:
+`research/experiments/pixel-chat-replay-2026-10-02/`.
