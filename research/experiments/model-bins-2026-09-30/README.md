@@ -257,3 +257,20 @@ leniently); for the owner to choose.
 
 Every other file is Not recommended on that phone: weak skill use with invented answers (Llama
 3.2 1B, Qwen2.5 and its Coder, gemma-2 and gemma-3, Qwen3-0.6B), or too slow on the XZ Premium.
+
+## Gemma 4 E4B QAT Q4_0 on the Pixel 11 (2026-10-02)
+
+`google/gemma-4-E4B-it-qat-q4_0-gguf` at 4b4a2c1d, `gemma-4-E4B_q4_0-it.gguf` (5.15 GB, SHA-256
+676c3507…; sources in `research/sources/gemma-4-qat-mobile-2026-10-02/`), quick pass on screen
+(`phones/pixel-11/gemma-4-E4B_q4_0-it.gguf.*.jsonl`). Not in the host screen, so `bins.py` has no
+quality score for it.
+
+- Quick cases: all 16 answers sensible; with skills on it called get_datetime and
+  get_battery_status, and multiplied 1234 × 5678 correctly (7,006,652) without calculate; with skills
+  off it said it could not check the time or battery.
+- Generation 4.1, 4.6 and 5.7 tokens a second at 4 threads (Gemma 4 E2B Q3_K_M: 18.8); prompt
+  28–30 tokens a second; first reply after loading 39 s, follow-up 1.6 s to first token.
+- Memory at 4096: estimate 2.95 GB, resident 3.65 GB.
+
+Below the Recommended bar's 8 tokens a second, just above Usable's 4: not recommended over E2B on
+a 12 GB phone.
