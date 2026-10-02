@@ -534,7 +534,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Where the phone has no on-device recogniser, the button is not shown. The microphone permission is asked on first use and listed in Permissions.
   - Done (`chat/VoiceInput.kt`): the microphone sits at the end of the message box; while listening the box says "Listening…" and the button stops it. Recognised text joins what is already typed. Listening stops when Bruce leaves the screen. Only error codes are logged, never what was said.
   - Device-tested on the Pixel 11 (Android 17): the first tap asked for the microphone ("Only this time" chosen), the box showed "Listening…", and speech in the room came out as text in the message box, not sent. Not checked on the Xperias, which likely have no on-device recogniser.
-  - Required by: TASK-080, TASK-081, TASK-101
+  - Required by: TASK-080, TASK-081, TASK-101, TASK-111
 - [x] TASK-075: Remote model servers: adding and checking a server
   - Owner (2026-09-29): the user can connect Bruce to their own (or any) llama.cpp server, so the model need not run on the phone.
   - Settings, Models: add a server with a name, its address and an optional API key (llama-server `--api-key`), stored encrypted with the Android Keystore like the Hugging Face token. Bruce checks it with the OpenAI-compatible `GET /v1/models` and lists the models it offers.
@@ -790,6 +790,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
     - Still to do: the final list from TASK-106, and the model browser's "Recommended" label.
   - Nothing new leaves the phone: the list is in the app, matched against Hub results on the phone.
   - Depends on: TASK-031, TASK-106
+  - Required by: TASK-111
 - [x] TASK-108: Screen the models on the development machine first
   - Owner (2026-09-30): test on the development machine with llama.cpp first, so phone time is not spent on poor models.
   - `llama-server` from the pinned llama.cpp submodule, CPU only, with Bruce's own system prompt and skill definitions exported from the app (as `PromptDumpDeviceTest` does) and each model's own tool-call format, the way the TASK-033 harness ran. Same `cases.json`, skills on and off, context 4096, greedy.
@@ -817,3 +818,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Extra model passes (summaries, memory extraction) keep thinking off whatever the setting, as `.learnings/reasoning-models-and-plain-templates.md` requires.
   - Tests: unit tests that the setting reaches the prompt (`enable_thinking`) and that side passes ignore it; the existing device test for the forced thinking block.
   - Depends on: TASK-033
+- [ ] TASK-111: Context size in the setup wizard, and Auto within 6 GB
+  - Owner (2026-10-02): the wizard asks for the default context size, and does not allow a size that would not work on the phone with the chosen model; sizes are clamped to the model's trained maximum. The default is the largest the phone and model can run without the total going over 6 GB of memory; for a model that is over 6 GB on its own, 16K or lower, as the phone allows.
+  - Owner (2026-10-02): Auto uses the same rule everywhere, replacing "the biggest that leaves room for other apps" (TASK-073). The step offers Auto (selected, with the size it gives for this model) and the fixed sizes; sizes that do not fit the phone are not offered.
+  - Owner (2026-10-02): the step comes after the model step and is skipped when no model was installed or started downloading in the wizard; the setting then stays Auto. For a suggested model still downloading, its limits come from its GGUF header, read from Hugging Face as the browser does.
+  - "Fits the phone" is the existing memory estimate against usable memory (`ModelFit`), at the comfortable or tight band; the 6 GB cap is on the estimate's total (weights, KV cache and any vision projector).
+  - Tests: unit tests for the Auto rule (under 6 GB, over 6 GB, phone smaller than the cap, trained maximum, unknown metadata) and for the offered sizes; UI tests for the step with a model, with a downloading model, and skipped with none.
+  - Depends on: TASK-073, TASK-107

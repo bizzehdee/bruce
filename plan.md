@@ -101,8 +101,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   quantisation, context size, file size, compatibility, memory), select, load,
   unload, delete. Model files live outside the database. Each model shows the
   RAM it is expected to use at its context size, as a share of the phone's RAM.
-  Context sizes run from 2K to 64K; by default Bruce picks the biggest that
-  leaves the phone room for other apps, within what the model was trained for.
+  Context sizes run from 2K to 64K; by default (Auto) Bruce picks the biggest the
+  phone can run that keeps the model's total memory within 6 GB, or for a model
+  over 6 GB on its own, the biggest up to 16K the phone can run; always within
+  what the model was trained for (owner, 2026-10-02; TASK-111).
   `done`
 - **Remote model servers** — Connect to the user's own (or any) llama.cpp server,
   or another OpenAI-compatible one, so the model runs there instead of on the
@@ -316,6 +318,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   shape Bruce before first use: network mode, notification permission, and getting
   a first model (import or download). Skills keep their defaults until changed in
   the Skills screen. Every choice can be changed later. `done`
+  After the model step, a context size step offers only the sizes the phone and
+  the chosen model can run, up to the model's trained maximum, with Auto selected.
+  It is skipped when no model was installed or started downloading (owner,
+  2026-10-02). `planned` (TASK-111)
 - **Skills screen** — Reached from Settings. Lists every skill with what it does,
   a high-risk flag where it applies, and its state (Declined, Ask, Accepted),
   which the user changes there. Declined skills are not offered to the model.
@@ -493,6 +499,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Added | Setup wizard context size step; Auto context keeps the model within 6 GB (16K at most for larger models) (owner) (TASK-111). |
+| 2026-10-02 | Changed | Chat shows that Bruce is working, and never shows tool-call markup while a reply streams (owner). |
 | 2026-10-01 | Added | Thinking off for every model that can switch it off, with a setting to turn it on; models that always think keep thinking (owner) (TASK-110). |
 | 2026-10-01 | Changed | Setup wizard's model step suggests recommended models for the phone; the user can skip them and choose their own (owner) (TASK-107). |
 | 2026-10-01 | Added | Saved system prompt: the evaluated fixed prompt is kept per model, so the first reply after loading does not re-read it (owner) (TASK-109). |
