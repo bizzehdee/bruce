@@ -18,6 +18,7 @@ import com.bizzeh.bruce.skills.Denial
 import com.bizzeh.bruce.skills.DenialCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlin.random.Random
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,6 +91,8 @@ data class ChatState(
     val profileId: String? = null,
     /** The profile's model could not be used (deleted, or its server removed). */
     val profileUnavailable: Boolean = false,
+    /** Which "working" phrase this turn shows, chosen at random when the turn starts; the screen takes it modulo the phrases it has. */
+    val workingPhrase: Int = 0,
 ) {
     /**
      * A reply is under way with nothing of it to show yet: the prompt is being read, a skill is
@@ -149,6 +152,8 @@ class ChatViewModel(
     private val setChatProfile: suspend (Long, String?) -> Unit = { _, _ -> },
     /** Switches to a profile's model (AppContainer.applyProfile); false if it cannot. */
     private val applyProfile: suspend (String) -> Boolean = { true },
+    /** Picks the dog pun the chat shows while a turn works (owner, 2026-10-02). */
+    private val random: Random = Random.Default,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(ChatState())
     val state: StateFlow<ChatState> = mutableState.asStateFlow()
@@ -293,7 +298,7 @@ class ChatViewModel(
     private fun runTurn(history: List<ChatEntry>) {
         val current = mutableState.value
         val turnSession = session
-        mutableState.update { it.copy(entries = history + ChatEntry(ChatRole.ASSISTANT, ""), generating = true, error = null) }
+        mutableState.update { it.copy(entries = history + ChatEntry(ChatRole.ASSISTANT, ""), generating = true, error = null, workingPhrase = random.nextInt(Int.MAX_VALUE)) }
         turns.turnStarted()
         turn = viewModelScope.launch {
             val added = mutableListOf<ChatEntry>()

@@ -170,7 +170,14 @@ class BruceRuntime(
             if (parsed.toolCalls.isEmpty()) return emit(RuntimeEvent.Finished(added.toList()))
 
             for ((index, call) in parsed.toolCalls.withIndex()) {
-                if (calls++ >= maxToolCalls) return emit(RuntimeEvent.Failed(RuntimeError.TOO_MANY_TOOL_CALLS, added.toList()))
+                if (calls++ >= maxToolCalls) {
+                    // Out of calls: the model answers from the results it has rather than the turn failing
+                    // (MiniCPM5 kept rephrasing a Wikipedia search, 2026-10-02). Only a model that still calls fails.
+                    if (answerOnly) return emit(RuntimeEvent.Failed(RuntimeError.TOO_MANY_TOOL_CALLS, added.toList()))
+                    parsed.toolCalls.drop(index).forEach { result(it, JSONObject().put("status", "not_run").put("tool", it.name).put("note", LIMIT_NOTE).toString(), ran = false, added) }
+                    answerOnly = true
+                    break
+                }
                 val key = call.name to call.argumentsJson.trim()
                 val earlier = results[key]
                 if (earlier != null) {
@@ -429,6 +436,7 @@ class BruceRuntime(
         private val THINKING = Regex("<think>.*?(</think>|$)", RegexOption.DOT_MATCHES_ALL)
         const val NO_GRANTS = "The user has not granted any files or folders. If they ask about files, tell them to grant one in Settings, Permissions."
         const val REPEAT_NOTE = "You already have this result. Do not call a tool again: answer the user now, using it."
+        const val LIMIT_NOTE = "No more tool calls this turn. Answer the user now with the results you already have, and say if they were not enough."
         const val SUMMARY_TOKENS = 400
         private const val SUMMARY_MARGIN = 64
         private const val SUMMARY_TEMPERATURE = 0.2f

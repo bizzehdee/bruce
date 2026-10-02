@@ -64,6 +64,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
@@ -219,7 +220,7 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
             }
         }
         if (state.working) {
-            item { Working(state.sidekick) }
+            item { Working(state.sidekick, state.workingPhrase) }
         }
         if (state.summarising) {
             item {
@@ -417,14 +418,15 @@ private fun Attachments(state: ChatState, actions: ChatActions) {
 }
 
 @Composable
-private fun Working(sidekick: String) {
+private fun Working(sidekick: String, phrase: Int) {
+    val phrases = stringArrayResource(R.array.chat_working_phrases)
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         modifier = Modifier.semantics(mergeDescendants = true) {}.testTag("working"),
     ) {
         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-        Text(stringResource(R.string.chat_working, sidekick), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(phrases[phrase.mod(phrases.size)].replace("%1\$s", sidekick), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 

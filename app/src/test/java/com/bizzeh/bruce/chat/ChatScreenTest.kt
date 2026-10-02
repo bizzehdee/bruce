@@ -60,9 +60,9 @@ class ChatScreenTest {
 
     @Test
     fun aReplyWithNothingToShowYetSaysTheSidekickIsWorking() {
-        show(ChatState(modelName = "m", sidekick = "Milo", entries = listOf(ChatEntry(ChatRole.USER, "Hi"), ChatEntry(ChatRole.ASSISTANT, "")), generating = true))
+        show(ChatState(modelName = "m", sidekick = "Milo", entries = listOf(ChatEntry(ChatRole.USER, "Hi"), ChatEntry(ChatRole.ASSISTANT, "")), generating = true, workingPhrase = 16))
 
-        compose.onNodeWithText("Milo is working…").assertIsDisplayed()
+        compose.onNodeWithText("Milo is sniffing it out…").assertIsDisplayed()
     }
 
     @Test

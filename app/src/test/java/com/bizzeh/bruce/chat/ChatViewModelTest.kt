@@ -126,6 +126,23 @@ class ChatViewModelTest {
     }
 
     @Test
+    fun eachTurnPicksAWorkingPhrase() = runTest(dispatcher) {
+        val picks = ArrayDeque(listOf(7, 3))
+        val vm = ChatViewModel(engine, activeModel, save, load, respond, noAnswer, random = object : kotlin.random.Random() {
+            override fun nextBits(bitCount: Int) = error("not used")
+            override fun nextInt(until: Int) = picks.removeFirst()
+        })
+        advanceUntilIdle()
+
+        turns += reply("One.")
+        chat("a", vm)
+        assertEquals(7, vm.state.value.workingPhrase)
+        turns += reply("Two.")
+        chat("b", vm)
+        assertEquals(3, vm.state.value.workingPhrase)
+    }
+
+    @Test
     fun aChatKeepsItsProfileAndSwitchesToItWhenOpened() = runTest(dispatcher) {
         val profiles = mutableMapOf<Long, String?>()
         val applied = mutableListOf<String>()

@@ -593,8 +593,23 @@ class BruceRuntimeTest {
     }
 
     @Test
-    fun tooManyToolCallsEndTheTurn() {
+    fun atTheCallLimitTheModelAnswersWithWhatItHas() {
         repeat(3) { i -> engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("calculate", "{\"expression\":\"$i+1\"}")))) }
+        engine.steps += Step("1, 2 and more.", ParsedReply("1, 2 and more.", "", emptyList()))
+
+        val events = events(runtime(maxToolCalls = 2))
+
+        assertEquals(2, ran.size)
+        val notRun = events.filterIsInstance<RuntimeEvent.ToolResult>().last()
+        assertEquals(false, notRun.ran)
+        assertTrue(notRun.resultJson.contains(BruceRuntime.LIMIT_NOTE))
+        assertTrue("the last step offers no tools", engine.offered.last().isEmpty())
+        assertEquals("1, 2 and more.", (events.last() as RuntimeEvent.Finished).messages.last().content)
+    }
+
+    @Test
+    fun aModelThatStillCallsAtTheLimitEndsTheTurn() {
+        repeat(4) { i -> engine.steps += Step("", ParsedReply("", "", listOf(ToolCall("calculate", "{\"expression\":\"$i+1\"}")))) }
 
         val failed = events(runtime(maxToolCalls = 2)).last() as RuntimeEvent.Failed
 

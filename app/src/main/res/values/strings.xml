@@ -33,7 +33,24 @@
     <string name="chat_reasoning_show">Show reasoning</string>
     <string name="chat_reasoning_hide">Hide reasoning</string>
     <string name="chat_thinking">%1$s is thinking…</string>
-    <string name="chat_working">%1$s is working…</string>
+    <!-- Shown while a reply has nothing to show yet; one is picked at random each turn (owner, 2026-10-02). -->
+    <string-array name="chat_working_phrases">
+        <item>%1$s is fetching…</item>
+        <item>%1$s is sniffing it out…</item>
+        <item>%1$s is digging…</item>
+        <item>%1$s is on the scent…</item>
+        <item>%1$s is chasing it down…</item>
+        <item>%1$s is pawing through it…</item>
+        <item>%1$s is rooting around…</item>
+        <item>%1$s is chewing it over…</item>
+        <item>%1$s is following the trail…</item>
+        <item>%1$s is rounding it up…</item>
+        <item>%1$s is barking up the right tree…</item>
+        <item>%1$s is retrieving…</item>
+        <item>%1$s is nosing about…</item>
+        <item>%1$s is hot on the trail…</item>
+        <item>%1$s is bringing it back…</item>
+    </string-array>
     <string name="chat_error_no_model">Load a model first.</string>
     <string name="chat_error_too_long">This conversation is too long for the model. Start a new chat.</string>
     <string name="chat_error_failed">The model could not finish that reply.</string>

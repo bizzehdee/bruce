@@ -148,7 +148,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   (the one-line list was measured and dropped: full definitions stay, TASK-054)
 - **Agent loop** — Multi-step tool use, bounded by maximum tool calls, maximum
   execution time and resource limits; supports cancellation and structured
-  errors. `done` (5 tool calls and 3 minutes per turn)
+  errors. `done` (5 tool calls and 3 minutes per turn; at the call limit the
+  model is told to answer from what it has, and only fails if it still calls)
 - **Conversations** — Saved conversations ("sessions"): the drawer lists them,
   newest first; the user starts a new chat, resumes, renames, archives or deletes
   one, and can archive or delete several at once. Archived chats are kept but
@@ -256,7 +257,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   This familiar layout is the starting point because it is what users expect;
   how Bruce's interface stands apart is decided later. While a reply has nothing
   to show yet (the prompt is being read, a skill is running), the chat shows a
-  spinner and "Bruce is working…". A reply's tool-call markup is never shown, not
+  spinner with a dog pun picked at random each turn ("Bruce is sniffing it
+  out…", one of 15). A reply's tool-call markup is never shown, not
   even while it is being written (owner, 2026-10-02). A microphone button fills
   the message box by speech, through Android's on-device recogniser only; it is
   not shown on phones without one. `in progress`
