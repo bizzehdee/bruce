@@ -23,6 +23,7 @@ import java.io.IOException
 class LangSearchTest {
     private var status = 200
     private var body = ""
+    private var titleBody = """{"pages":[]}"""
     private var offline = false
     private var key: String? = "ls-key-123"
     private val posts = mutableListOf<Triple<String, Map<String, String>, String>>()
@@ -35,7 +36,8 @@ class LangSearchTest {
         override fun openSingle(url: String, headers: Map<String, String>): StreamingResponse {
             gets += url to headers
             if (offline) throw IOException("offline")
-            return StreamingResponse(status, emptyMap(), ByteArrayInputStream(body.toByteArray())) {}
+            val answer = if ("/search/title" in url) titleBody else body
+            return StreamingResponse(status, emptyMap(), ByteArrayInputStream(answer.toByteArray())) {}
         }
         override fun postStream(url: String, headers: Map<String, String>, body: ByteArray, readTimeoutMs: Int): StreamingResponse {
             posts += Triple(url, headers, String(body))
@@ -90,8 +92,11 @@ class LangSearchTest {
 
         val found = runBlocking { wikipedia.search("capital of australia") } as SearchResult.Found
 
-        assertEquals("https://fr.wikipedia.org/w/rest.php/v1/search/page?q=capital+of+australia&limit=5", gets.single().first)
-        assertEquals("Bruce/test", gets.single().second["User-Agent"])
+        assertEquals(
+            listOf("https://fr.wikipedia.org/w/rest.php/v1/search/page?q=capital+of+australia&limit=5", "https://fr.wikipedia.org/w/rest.php/v1/search/title?q=capital+of+australia&limit=3"),
+            gets.map { it.first },
+        )
+        assertTrue(gets.all { it.second["User-Agent"] == "Bruce/test" })
         val first = found.sources.first()
         assertEquals("Australian Capital Territory", first.title)
         assertEquals("https://fr.wikipedia.org/wiki/Australian_Capital_Territory", first.url)
@@ -101,6 +106,30 @@ class LangSearchTest {
         assertEquals("en.wikipedia.org", wikipedia.host)
         status = 503
         assertEquals("Wikipedia answered with HTTP 503.", (runBlocking { wikipedia.search("x") } as SearchResult.Failed).reason)
+    }
+
+    @Test
+    fun anArticleTitledAsTheQueryComesFirst() {
+        body = """{"pages":[{"key":"2012_in_American_television","title":"2012 in American television","excerpt":"events","description":"x"},{"key":"October_2","title":"October 2","excerpt":"day","description":"Day of the year"}]}"""
+        titleBody = """{"pages":[{"key":"October_2","title":"October 2","matched_title":"2 October","description":"Day of the year"},{"key":"2_October_(film)","title":"2 October (film)","matched_title":null}]}"""
+        val wikipedia = WikipediaSearch(transport, Dispatchers.Unconfined, "Bruce/test") { "en" }
+
+        val found = runBlocking { wikipedia.search("2 October") } as SearchResult.Found
+
+        assertEquals(listOf("October 2", "2012 in American television"), found.sources.map { it.title })
+        assertEquals(listOf("Day of the year"), found.sources.first().snippets)
+    }
+
+    @Test
+    fun searchResultsPointTheModelAtReadingThePage() = runBlocking {
+        body = """{"pages":[{"key":"October_2","title":"October 2","excerpt":"day","description":"Day of the year"}]}"""
+        val wikipedia = WikipediaSearch(transport, Dispatchers.Unconfined, "Bruce/test") { "en" }
+        val skill = WebSkills(WebPages(transport, Dispatchers.Unconfined, "Bruce/test"), { true }, wikipedia = wikipedia).create().single { it.id == "search_wikipedia" }
+
+        val text = (skill.execute(SkillArguments(mapOf("query" to "October 2"))) as SkillOutcome.Done).content
+
+        assertTrue(text, text.endsWith("read it with fetch_page and its address."))
+        assertTrue(skill.description.contains("not a question"))
     }
 
     @Test

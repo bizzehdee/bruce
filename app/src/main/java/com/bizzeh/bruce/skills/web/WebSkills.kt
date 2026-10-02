@@ -38,14 +38,16 @@ class WebSkills(
         scope = ResourceScope.WEB,
         requires = setOf(SkillRequirement.NETWORK_ALLOWED, SkillRequirement.SEARCH_KEY),
         site = { engine.host },
-    ) { arguments -> answer(engine.search(arguments.string(QUERY).orEmpty())) }
+    ) { arguments -> answer(engine.search(arguments.string(QUERY).orEmpty()), READ_HINT) }
 
     /** Wikipedia's search (TASK-113): Declined, and locked only while the network is Offline. */
     private fun wikipediaSearch(engine: SearchEngine) = Skill(
         id = "search_wikipedia",
         version = 1,
-        description = "Search Wikipedia, and only Wikipedia, for encyclopedia articles; returns titles, addresses and matching excerpts. Use fetch_page to read an article.",
-        input = InputSchema(listOf(Parameter(QUERY, ParameterType.STRING, "What to look up", maxLength = MAX_QUERY))),
+        description = "Search Wikipedia, and only Wikipedia, for encyclopedia articles; returns titles, addresses and matching excerpts. " +
+            "Search for an article's title or a few key words, such as \"October 2\" or \"Julius Caesar\", not a question. " +
+            "Then read the best article with fetch_page to answer.",
+        input = InputSchema(listOf(Parameter(QUERY, ParameterType.STRING, "An article title or a few key words, not a sentence", maxLength = MAX_QUERY))),
         capabilities = setOf(Capability.WEB_SEARCH),
         defaultState = SkillState.DECLINED,
         scope = ResourceScope.WEB,
@@ -53,9 +55,10 @@ class WebSkills(
         site = { engine.host },
         // Search gives excerpts; reading the article answers the question (owner, 2026-10-02).
         companions = setOf("fetch_page"),
-    ) { arguments -> answer(engine.search(arguments.string(QUERY).orEmpty())) }
+    ) { arguments -> answer(engine.search(arguments.string(QUERY).orEmpty()), READ_HINT) }
 
-    private fun answer(result: SearchResult): SkillOutcome =
+    /** [hint] follows the results, to point a small model at its next step. */
+    private fun answer(result: SearchResult, hint: String? = null): SkillOutcome =
         when (val found = result) {
             is SearchResult.Failed -> SkillOutcome.Failed(found.code, found.reason, retryable = found.code == DenialCode.RATE_LIMITED)
             is SearchResult.Found -> SkillOutcome.Done(
@@ -64,7 +67,7 @@ class WebSkills(
                 } else {
                     found.sources.mapIndexed { i, source ->
                         "${i + 1}. ${source.title.ifBlank { source.url }}\n${source.url}\n${source.snippets.joinToString("\n")}"
-                    }.joinToString("\n\n")
+                    }.joinToString("\n\n") + hint?.let { "\n\n$it" }.orEmpty()
                 },
             )
         }
@@ -100,6 +103,8 @@ class WebSkills(
         const val URL = "url"
         const val MAX_URL = 2000
         const val QUERY = "query"
+
+        const val READ_HINT = "These are only excerpts. To answer from a page, read it with fetch_page and its address."
 
         /** Brave's limit for a query, and within LangSearch's and Wikipedia's. */
         const val MAX_QUERY = 600

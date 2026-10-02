@@ -22,25 +22,35 @@ class WikipediaSearch(
 ) : SearchEngine {
     override val host: String get() = hostFor(language())
 
+    /**
+     * The article whose title (or a redirect to it) is the query comes first, then the full-text
+     * matches: full-text search alone did not rank "October 2" for a small model's query (2026-10-02).
+     */
     override suspend fun search(query: String): SearchResult {
         val site = host
-        val url = "https://$site/w/rest.php/v1/search/page?q=${URLEncoder.encode(query.trim(), "UTF-8")}&limit=$RESULTS"
-        return withContext(io) {
-            try {
-                transport.openSingle(url, mapOf("Accept" to "application/json", "User-Agent" to userAgent)).use { response ->
-                    when (response.status) {
-                        200 -> parse(response.body.readAtMost(MAX_BYTES), site)
-                        429 -> SearchResult.Failed(DenialCode.RATE_LIMITED, "Wikipedia asked Bruce to slow down. Try again later.")
-                        else -> SearchResult.Failed(DenialCode.TOOL_FAILED, "Wikipedia answered with HTTP ${response.status}.")
-                    }
+        val words = URLEncoder.encode(query.trim(), "UTF-8")
+        val found = request("https://$site/w/rest.php/v1/search/page?q=$words&limit=$RESULTS", site)
+        if (found !is SearchResult.Found) return found
+        val titled = (request("https://$site/w/rest.php/v1/search/title?q=$words&limit=$TITLE_RESULTS", site, exactTitle = query.trim()) as? SearchResult.Found)?.sources.orEmpty()
+        return SearchResult.Found((titled + found.sources.filterNot { source -> titled.any { it.url == source.url } }).take(RESULTS))
+    }
+
+    private suspend fun request(url: String, site: String, exactTitle: String? = null): SearchResult = withContext(io) {
+        try {
+            transport.openSingle(url, mapOf("Accept" to "application/json", "User-Agent" to userAgent)).use { response ->
+                when (response.status) {
+                    200 -> parse(response.body.readAtMost(MAX_BYTES), site, exactTitle)
+                    429 -> SearchResult.Failed(DenialCode.RATE_LIMITED, "Wikipedia asked Bruce to slow down. Try again later.")
+                    else -> SearchResult.Failed(DenialCode.TOOL_FAILED, "Wikipedia answered with HTTP ${response.status}.")
                 }
-            } catch (e: IOException) {
-                SearchResult.Failed(DenialCode.TOOL_FAILED, "Wikipedia could not be reached.")
             }
+        } catch (e: IOException) {
+            SearchResult.Failed(DenialCode.TOOL_FAILED, "Wikipedia could not be reached.")
         }
     }
 
-    private fun parse(bytes: ByteArray, site: String): SearchResult {
+    /** With [exactTitle], only pages whose title, or the redirect that led to them, is that text. */
+    private fun parse(bytes: ByteArray, site: String, exactTitle: String? = null): SearchResult {
         if (bytes.size > MAX_BYTES) return SearchResult.Failed(DenialCode.TOOL_FAILED, "Wikipedia's answer was too large.")
         return try {
             val pages = JSONObject(String(bytes, Charsets.UTF_8)).optJSONArray("pages") ?: return SearchResult.Found(emptyList())
@@ -48,7 +58,8 @@ class WikipediaSearch(
                 (0 until pages.length()).mapNotNull { i ->
                     val page = pages.optJSONObject(i) ?: return@mapNotNull null
                     val key = page.optString("key").takeIf(String::isNotBlank) ?: return@mapNotNull null
-                    val excerpt = HtmlText.text(page.optString("excerpt")).replace("\n", " ")
+                    if (exactTitle != null && listOf(page.optString("title"), page.optString("matched_title")).none { it.equals(exactTitle, ignoreCase = true) }) return@mapNotNull null
+                    val excerpt = HtmlText.text(page.optString("excerpt")).replace("\n", " ").takeIf { exactTitle == null }.orEmpty()
                     val description = page.optString("description").takeIf { it.isNotBlank() && it != "null" }
                     SearchSource(page.optString("title"), "https://$site/wiki/${URLEncoder.encode(key, "UTF-8").replace("+", "_")}", listOfNotNull(description, excerpt.takeIf(String::isNotBlank)))
                 },
@@ -60,6 +71,7 @@ class WikipediaSearch(
 
     companion object {
         private const val RESULTS = 5
+        private const val TITLE_RESULTS = 3
         private const val MAX_BYTES = 512 * 1024
         private val LANGUAGE = Regex("[a-z]{2,3}")
 

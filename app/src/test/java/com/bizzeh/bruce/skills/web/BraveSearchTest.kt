@@ -82,7 +82,10 @@ class BraveSearchTest {
         assertEquals("api.search.brave.com", skill.site!!(SkillArguments(mapOf("query" to "anything"))))
 
         body = """{"grounding":{"generic":[{"url":"https://a.example","title":"A","snippets":["one"]},{"url":"https://b.example","snippets":["two"]}]}}"""
-        assertEquals(SkillOutcome.Done("1. A\nhttps://a.example\none\n\n2. https://b.example\nhttps://b.example\ntwo"), skill.execute(SkillArguments(mapOf("query" to "q"))))
+        assertEquals(
+            SkillOutcome.Done("1. A\nhttps://a.example\none\n\n2. https://b.example\nhttps://b.example\ntwo\n\nThese are only excerpts. To answer from a page, read it with fetch_page and its address."),
+            skill.execute(SkillArguments(mapOf("query" to "q"))),
+        )
         body = "{}"
         assertEquals(SkillOutcome.Done("No results."), skill.execute(SkillArguments(mapOf("query" to "q"))))
         status = 429
