@@ -101,10 +101,12 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   quantisation, context size, file size, compatibility, memory), select, load,
   unload, delete. Model files live outside the database. Each model shows the
   RAM it is expected to use at its context size, as a share of the phone's RAM.
-  Context sizes run from 2K to 64K; by default (Auto) Bruce picks the biggest the
-  phone can run that keeps the model's total memory within 6 GB, or for a model
-  over 6 GB on its own, the biggest up to 16K the phone can run; always within
-  what the model was trained for (owner, 2026-10-02; TASK-111).
+  Context sizes run from 2K to 64K; by default (Auto) Bruce picks the biggest
+  whose memory, with the app's own, stays within 30% of the phone's RAM and keeps
+  the model's total within 6 GB, or for a model over 6 GB on its own, the biggest
+  up to 16K within that share; always within what the model was trained for
+  (owner, 2026-10-02; TASK-111). Sized from RAM, not from what is free at the
+  moment, so the model stays in memory rather than being read back from storage.
   `done`
 - **Remote model servers** — Connect to the user's own (or any) llama.cpp server,
   or another OpenAI-compatible one, so the model runs there instead of on the
@@ -529,6 +531,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Changed | Auto context is sized from 30% of the phone's RAM (with the app's own memory counted), not from free memory: at the old Auto size the Pixel read the model back from storage and killed Bruce (owner chose the rule). |
 | 2026-10-02 | Changed | A chat on the Pixel never finished: reading a whole page took a phone 8+ minutes and neither Stop nor the time limit could reach it. Stop and the limit now abort a prompt being read; the limit lets a visible answer finish; "more of the page" is 8,000 characters (was 24,000); Wikipedia articles are read through Wikipedia's API as plain text. |
 | 2026-10-02 | Added | Report offensive AI replies, required by Google Play's AI-Generated Content policy; how reports reach the developer is open (TASK-114). |
 | 2026-10-02 | Changed | The context bar is always coloured green to red; the traffic-light setting is replaced by "Show context window", off by default (owner). |

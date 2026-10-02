@@ -133,6 +133,7 @@ class SettingsScreenTest {
         compose.onNodeWithTag("context:auto").performScrollTo().assertIsSelected()
         compose.onNodeWithText("Auto (8K)").assertExists()
         compose.onNodeWithText("8K for the loaded model", substring = true).assertExists()
+        compose.onNodeWithText("within 30% of the phone's memory", substring = true).assertExists()
         compose.onNodeWithTag("context:65536").performScrollTo().performClick()
         assertEquals(listOf("context 65536"), calls)
     }

@@ -42,3 +42,26 @@ replayed on llama-server, temperature 0.5, 20 seeds, after the start of the Octo
 Final replay (`xperia-1-ii-final.replay.jsonl`, seeds 0, 2 and 3; seeds 1 and 4 did not search):
 all three answer with events from the article, in 244 s, 135 s and 181 s. The phone was throttling
 after an hour of runs: the last answer streamed at 2.5 tokens per second (16 when cool).
+
+## Memory on the Pixel 11 (12 GB) by context size
+
+At Auto (49,152, chosen from memory free when the model was picked) Bruce held 2.2 GB of its own
+memory plus 0.7 GB already in compressed swap, and only 0.87 GB of the 1.56 GB model in memory;
+Android had 2.1 GB left. `pixel-mem.sh` replays the chat (seed 0) at each size and samples the
+process's major faults (reads from storage), swap and resident weights every 5 s:
+
+| Context | Major faults during the turn | Most swap | Least weights resident | Result |
+|---|---|---|---|---|
+| 16,384 | 9 | 24 MB | 1.46 GB | answered, 116 s |
+| 24,576 | 18 | 24 MB | 1.33 GB | read more of the page; time limit |
+| 32,768 | 63 | 24 MB | 1.34 GB | read more of the page; time limit |
+| 49,152 | 217,695 | 573 MB | 1.32 GB | killed by Android after one step (`MemoryLimiter:AnonSwap`) |
+
+llama.cpp's buffers for MiniCPM5 2B (host, same build): weights 1,477 MiB mapped; KV cache 336,
+672, 1,344 and 2,016 MiB and compute buffer 60, 68, 84 and 100 MiB at 8K, 16K, 32K and 48K.
+
+Decision (owner): Auto keeps Bruce's estimate plus 512 MiB for the app and buffers within 30% of
+the phone's RAM; on the Pixel 11 that is 32,768.
+
+Not explained yet: the same prompt reads slower at bigger contexts with no memory pressure (412
+tokens: 15.6 s at 16K, 37.7 s at 32K).

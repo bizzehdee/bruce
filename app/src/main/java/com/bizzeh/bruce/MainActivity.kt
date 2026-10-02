@@ -226,7 +226,7 @@ class MainActivity : ComponentActivity() {
 
     /** The model the wizard's context step is about, once one is installed or downloading (TASK-111). */
     private val setupContext by lazy {
-        combine(models.state, browser.state) { installed, browse -> SetupContext.choice(installed.models, suggestedModels, browse, container.memoryForModels()) }
+        combine(models.state, browser.state) { installed, browse -> SetupContext.choice(installed.models, suggestedModels, browse, container.memoryForModels(), container.memoryInfo().totalMem) }
             .stateIn(lifecycleScope, SharingStarted.Eagerly, null)
     }
     private val setup: SetupViewModel by viewModels {
@@ -538,7 +538,7 @@ class MainActivity : ComponentActivity() {
                 null
             } else {
                 val metadata = withContext(Dispatchers.IO) { (GgufReader.read(active) as? GgufReadResult.Read)?.metadata }
-                AutoContext.pick(metadata, container.memoryForModels(), withContext(Dispatchers.IO) { Projectors.bytesFor(active) })
+                AutoContext.pick(metadata, container.memoryInfo().totalMem, withContext(Dispatchers.IO) { Projectors.bytesFor(active) })
             }
         }
         return picked

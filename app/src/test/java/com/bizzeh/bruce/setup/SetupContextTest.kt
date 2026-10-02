@@ -38,17 +38,17 @@ class SetupContextTest {
 
     @Test
     fun aSuggestedModelBeingDownloadedIsTheOneAskedAbout() {
-        val choice = SetupContext.choice(listOf(installed), listOf(suggestion), browse(DownloadState(10, 100)), 4 * gb)!!
+        val choice = SetupContext.choice(listOf(installed), listOf(suggestion), browse(DownloadState(10, 100)), 4 * gb, 12 * gb)!!
         assertEquals("Model M", choice.modelName)
-        assertEquals(AutoContext.pick(metadata, 4 * gb), choice.auto)
+        assertEquals(AutoContext.pick(metadata, 12 * gb), choice.auto)
         assertEquals(AutoContext.options(metadata, 4 * gb), choice.options)
     }
 
     @Test
     fun otherwiseTheInstalledModelAndWithNeitherNoStep() {
-        assertEquals("other", SetupContext.choice(listOf(installed), listOf(suggestion), browse(null), 4 * gb)?.modelName)
-        assertEquals("other", SetupContext.choice(listOf(installed), listOf(suggestion), browse(DownloadState(0, 0, DownloadError.INTERRUPTED)), 4 * gb)?.modelName)
-        assertNull(SetupContext.choice(emptyList(), listOf(suggestion), browse(null), 4 * gb))
-        assertNull(SetupContext.choice(emptyList(), listOf(suggestion), BrowseState(downloads = mapOf("a/repo/m.gguf" to DownloadState(0, 0))), 4 * gb), "header not read yet")
+        assertEquals("other", SetupContext.choice(listOf(installed), listOf(suggestion), browse(null), 4 * gb, 12 * gb)?.modelName)
+        assertEquals("other", SetupContext.choice(listOf(installed), listOf(suggestion), browse(DownloadState(0, 0, DownloadError.INTERRUPTED)), 4 * gb, 12 * gb)?.modelName)
+        assertNull(SetupContext.choice(emptyList(), listOf(suggestion), browse(null), 4 * gb, 12 * gb))
+        assertNull(SetupContext.choice(emptyList(), listOf(suggestion), BrowseState(downloads = mapOf("a/repo/m.gguf" to DownloadState(0, 0))), 4 * gb, 12 * gb), "header not read yet")
     }
 }

@@ -17,15 +17,22 @@ class AutoContextTest {
     )
 
     @Test
-    fun theBiggestSizeThatLeavesRoomIsPicked() {
-        assertEquals(65536, AutoContext.pick(model, 4 * gb), "64K takes 2.8 GB, within 80% of 4 GB")
-        assertEquals(24576, AutoContext.pick(model, 2 * gb), "24K takes 1.55 GB; 32K's 1.8 GB would crowd 2 GB")
-        assertEquals(2048, AutoContext.pick(model, 512 * mb), "nothing is comfortable: the smallest size")
+    fun theBiggestSizeWithinThirtyPercentOfRamIsPicked() {
+        assertEquals(65536, AutoContext.pick(model, 12 * gb), "64K and the app take 3.3 GB, within 3.6 GB")
+        assertEquals(32768, AutoContext.pick(model, 8 * gb), "32K and the app take 2.3 GB; 48K's 2.8 GB passes 2.4 GB")
+        assertEquals(16384, AutoContext.pick(model, 6 * gb))
+        assertEquals(2048, AutoContext.pick(model, 4 * gb), "nothing fits 1.2 GB: the smallest size")
+    }
+
+    @Test
+    fun whatIsFreeAtTheMomentDoesNotChangeAuto() {
+        val profile = DeviceProfile(usableMemoryBytes = 1 * gb, cpu = com.bizzeh.bruce.hardware.CpuFeatures(arm64 = true, neon = true, fp16 = true, dotProd = true, i8mm = false), totalMemoryBytes = 12 * gb)
+        assertEquals(65536, AutoContext.pick(model, profile.totalMemoryBytes))
     }
 
     @Test
     fun aVisionProjectorTakesItsShareOfTheRoom() {
-        assertEquals(49152, AutoContext.pick(model, 4 * gb, projectorBytes = 800 * mb), "64K plus the projector would crowd 4 GB; 48K takes 3.1 GB")
+        assertEquals(49152, AutoContext.pick(model, 12 * gb, projectorBytes = 800 * mb), "64K plus the projector would pass 3.6 GB; 48K fits")
         assertEquals(65536, ModelMemory.estimate(model, 65536, 800 * mb).contextLength)
         assertEquals(ModelMemory.estimate(model, 2048).totalBytes + 800 * mb, ModelMemory.estimate(model, 2048, 800 * mb).totalBytes)
     }
@@ -41,6 +48,7 @@ class AutoContextTest {
         assertEquals(4096, AutoContext.pick(model.copy(blockCount = null), 16 * gb))
         assertEquals(2048, AutoContext.pick(model.copy(blockCount = null, contextLength = 2048), 16 * gb))
         assertEquals(4096, AutoContext.pick(null, 16 * gb))
+        assertEquals(4096, AutoContext.pick(model, 0), "the phone's RAM is unknown")
     }
 
     @Test
@@ -56,8 +64,7 @@ class AutoContextTest {
     fun aModelOverSixGigabytesOnItsOwnGetsSixteenKAtMost() {
         val large = model.copy(fileSizeBytes = 7 * gb)
         assertEquals(16384, AutoContext.pick(large, 32 * gb))
-        val small = AutoContext.pick(large, 9 * gb)
-        assertTrue(small < 16384 && ModelMemory.estimate(large, small).totalBytes <= 9 * gb * ModelFit.TIGHT_SHARE, "a smaller phone gets what it runs comfortably")
+        assertEquals(2048, AutoContext.pick(large, 9 * gb), "a phone it does not fit gets the smallest size")
     }
 
     @Test

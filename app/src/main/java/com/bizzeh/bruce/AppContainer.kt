@@ -258,7 +258,7 @@ class AppContainer(private val context: Context) {
     val modelSettings: ModelSettingsRepository by lazy { ModelSettingsRepository(context.settingsDataStore) }
 
     val modelSelection: ModelSelection by lazy {
-        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO, ::memoryForModels, forgetSavedPrompt = savedPrompts::forget) {
+        ModelSelection(activeModel, modelSettings, inferenceSettings, modelsDir, Dispatchers.IO, { memoryInfo().totalMem }, forgetSavedPrompt = savedPrompts::forget) {
             remoteServers.servers.first()
         }
     }

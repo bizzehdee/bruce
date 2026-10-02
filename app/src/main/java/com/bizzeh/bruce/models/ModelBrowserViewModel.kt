@@ -243,7 +243,7 @@ class ModelBrowserViewModel(
         val projectorBytes = assessment.candidate.projectorBytes
         val header = (hub.ggufHeader(model.id, assessment.candidate.path) as? HubResult.Success)?.value as? GgufReadResult.Read ?: return null
         val profile = device()
-        val context = contextLength() ?: AutoContext.pick(header.metadata, profile.usableMemoryBytes, projectorBytes)
+        val context = contextLength() ?: AutoContext.pick(header.metadata, profile.totalMemoryBytes, projectorBytes)
         return ModelFit.assess(assessment.candidate.copy(header = header.metadata), profile, context)
     }
 

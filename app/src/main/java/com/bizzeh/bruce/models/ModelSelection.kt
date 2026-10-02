@@ -17,8 +17,8 @@ class ModelSelection(
     private val inferenceSettings: InferenceSettingsRepository,
     private val modelsDir: File,
     private val ioDispatcher: CoroutineDispatcher,
-    /** Memory a model may use: free memory plus what the loaded model takes (AppContainer.memoryForModels). */
-    private val memoryForModels: () -> Long = { 0 },
+    /** The phone's RAM, which Auto sizes the context from (AutoContext.pick). */
+    private val totalMemory: () -> Long = { 0 },
     /** Deletes a model's evaluated system prompt (SavedPrompts.forget) with the model. */
     private val forgetSavedPrompt: (File) -> Unit = {},
     /** The user's model servers, to restore a chosen server model only while its server is still there. */
@@ -35,7 +35,7 @@ class ModelSelection(
         val template = modelSettings.template(file.name).first()
         val metadata = withContext(ioDispatcher) { (GgufReader.read(file) as? GgufReadResult.Read)?.metadata }
         val projectorBytes = withContext(ioDispatcher) { Projectors.bytesFor(file) }
-        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first()) { AutoContext.pick(metadata, memoryForModels(), projectorBytes) }
+        val config = modelSettings.overridesNow(file.name).loadConfig(inferenceSettings.defaults.first()) { AutoContext.pick(metadata, totalMemory(), projectorBytes) }
             .copy(chatTemplate = template?.text)
         val result = activeModel.load(file, config)
         if (result is LoadResult.Loaded) modelSettings.setActiveModel(file.name)

@@ -265,8 +265,8 @@
     <string name="models_on">On</string>
     <string name="models_off">Off</string>
     <string name="settings_context_auto_size">Auto (%1$s)</string>
-    <string name="settings_context_auto_explained">Auto picks the biggest size the phone runs comfortably that keeps the model within 6 GB of memory (16K at most for models bigger than that), up to what the model was trained for.</string>
-    <string name="settings_context_auto_picked">Auto picks the biggest size the phone runs comfortably that keeps the model within 6 GB of memory (16K at most for models bigger than that), up to what the model was trained for: %1$s for the loaded model.</string>
+    <string name="settings_context_auto_explained">Auto picks the biggest size that keeps Bruce within 30% of the phone\'s memory and the model within 6 GB (16K at most for models bigger than that), up to what the model was trained for.</string>
+    <string name="settings_context_auto_picked">Auto picks the biggest size that keeps Bruce within 30%% of the phone\'s memory and the model within 6 GB (16K at most for models bigger than that), up to what the model was trained for: %1$s for the loaded model.</string>
     <string name="settings_context_tight">With the loaded model, instructions and skills take about %1$,d tokens, leaving about %2$,d for the chat. Choose a longer context.</string>
     <string name="settings_defaults_note">Applied the next time a model is loaded.</string>
     <string name="settings_privacy">Data and privacy</string>
@@ -446,7 +446,7 @@
     <string name="setup_context_text">How much of a chat the model can see at once. Bigger sizes let it remember more of the chat but use more of the phone\'s memory. Only sizes this phone can run are shown.</string>
     <string name="setup_context_model">For %1$s:</string>
     <string name="setup_context_option">%1$s · %2$s</string>
-    <string name="setup_context_auto_note">Auto picks the biggest size this phone runs comfortably, keeping the model within 6 GB of memory. You can change this later in Settings.</string>
+    <string name="setup_context_auto_note">Auto picks the biggest size that keeps Bruce within 30% of this phone\'s memory, so the model stays in memory. You can change this later in Settings.</string>
     <string name="setup_skills_title">Skills</string>
     <string name="setup_skills_text">Skills let Bruce do things on this phone, such as checking the battery or reading your calendar. Phone-status skills run when needed; every other skill asks you each time. Each skill\'s description takes room in the model\'s context, leaving less for the chat. You can change any skill later in Settings, Skills.</string>
     <string name="setup_skills_crowded">With these skills on, Bruce\'s instructions take about %1$d tokens, more than a quarter of the %2$d-token context. Turn some kinds off, or choose a bigger context size.</string>
