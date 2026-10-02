@@ -90,7 +90,20 @@ data class ChatState(
     val profileId: String? = null,
     /** The profile's model could not be used (deleted, or its server removed). */
     val profileUnavailable: Boolean = false,
-)
+) {
+    /**
+     * A reply is under way with nothing of it to show yet: the prompt is being read, a skill is
+     * running, or the next step has not started writing. The chat shows that Bruce is working.
+     */
+    val working: Boolean
+        get() {
+            if (!generating || summarising) return false
+            val last = entries.lastOrNull() ?: return true
+            if (last.role != ChatRole.ASSISTANT || last.tool != null) return true
+            val reply = ThinkingText.split(last.text)
+            return reply.answer.isBlank() && !reply.stillThinking
+        }
+}
 
 enum class ChatError {
     NO_MODEL_LOADED,

@@ -104,6 +104,7 @@ class LocalBackend(
         val prompt = prepared.handle as Prompt
         val shared = branchOf?.let { other -> prompt(other)?.text?.let(prompt.text::commonPrefixWith) }
         val text = StringBuilder()
+        var shown = ""
         var stats: GenerationStats? = null
         var failure: RuntimeError? = null
         val pixels = withContext(io) { prompt.images.mapNotNull { images?.rgb(it) } }
@@ -120,7 +121,11 @@ class LocalBackend(
             when (event) {
                 is GenerationEvent.Token -> {
                     text.append(event.text)
-                    emit(StepEvent.Text(event.text))
+                    val visible = visibleText(prompt.format, text.toString())
+                    if (visible != null && visible.length > shown.length && visible.startsWith(shown)) {
+                        emit(StepEvent.Text(visible.substring(shown.length)))
+                        shown = visible
+                    }
                 }
                 is GenerationEvent.Completed -> stats = event.stats
                 is GenerationEvent.Failed -> failure = when (event.error) {
@@ -183,6 +188,14 @@ class LocalBackend(
         val image = withContext(io) { images?.rgb(name) } ?: return@getOrPut null.also { Log.w(TAG, "image unreadable; the model is told it cannot see it") }
         engine.imageTokens(image) ?: null.also { Log.w(TAG, "the vision projector could not take a ${image.width}x${image.height} image") }
     }
+
+    /**
+     * What may be shown of a reply still being written: its text without any tool call, so the call's
+     * markup never flashes up before the reply is parsed (owner, 2026-10-02). Null while a partial
+     * reply cannot be parsed; the text then waits for more tokens.
+     */
+    private fun visibleText(format: ToolFormat, text: String): String? =
+        if (format.format == BRUCE_FORMAT) BruceToolFormat.visible(text) else engine.parseReply(format, text, partial = true)?.content
 
     private fun parse(format: ToolFormat, text: String): ParsedReply =
         if (format.format == BRUCE_FORMAT) BruceToolFormat.parse(text) else engine.parseReply(format, text) ?: ParsedReply(text, "", emptyList())

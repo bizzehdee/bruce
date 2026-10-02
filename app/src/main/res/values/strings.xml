@@ -33,6 +33,7 @@
     <string name="chat_reasoning_show">Show reasoning</string>
     <string name="chat_reasoning_hide">Hide reasoning</string>
     <string name="chat_thinking">%1$s is thinking…</string>
+    <string name="chat_working">%1$s is working…</string>
     <string name="chat_error_no_model">Load a model first.</string>
     <string name="chat_error_too_long">This conversation is too long for the model. Start a new chat.</string>
     <string name="chat_error_failed">The model could not finish that reply.</string>

@@ -247,7 +247,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   bottom, and replies that stream in as they are generated. Bruce's actions,
   permission requests and confirmations appear inline in the conversation.
   This familiar layout is the starting point because it is what users expect;
-  how Bruce's interface stands apart is decided later. A microphone button fills
+  how Bruce's interface stands apart is decided later. While a reply has nothing
+  to show yet (the prompt is being read, a skill is running), the chat shows a
+  spinner and "Bruce is working…". A reply's tool-call markup is never shown, not
+  even while it is being written (owner, 2026-10-02). A microphone button fills
   the message box by speech, through Android's on-device recogniser only; it is
   not shown on phones without one. `in progress`
 - **Personalities** — Settings offers personalities, one choice for every chat:

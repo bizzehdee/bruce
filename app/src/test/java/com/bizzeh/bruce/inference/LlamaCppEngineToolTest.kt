@@ -189,4 +189,13 @@ class LlamaCppEngineToolTest {
         assertEquals(ParsedReply("Just text.", "", emptyList()), BruceToolFormat.parse(" Just text. "))
         assertEquals("not a call object: left as text", emptyList<ToolCall>(), BruceToolFormat.parse("<tool_call>not json</tool_call>").toolCalls)
     }
+
+    @Test
+    fun bruceFormatShowsNothingOfACallWhileItIsWritten() {
+        assertEquals("It is <b>noon</b>.", BruceToolFormat.visible("It is <b>noon</b>."))
+        assertEquals("Checking.", BruceToolFormat.visible("Checking.<tool_call>{\"name\": \"calc"))
+        assertEquals("the start of the tag is held back", "Checking.", BruceToolFormat.visible("Checking.<tool_c"))
+        assertEquals("Checking.", BruceToolFormat.visible("Checking.<"))
+        assertEquals("", BruceToolFormat.visible("<tool_call>"))
+    }
 }

@@ -110,6 +110,8 @@ class ToolCallDeviceTest {
         val answer = (events.last() as RuntimeEvent.Finished).messages.last()
         assertEquals(ChatRole.ASSISTANT, answer.role)
         assertTrue(answer.content, answer.content.contains("14:37") || answer.content.contains("2:37"))
+        val streamed = events.filterIsInstance<RuntimeEvent.Text>().joinToString("") { it.text }
+        assertTrue("no call markup streamed: $streamed", "tool_call" !in streamed && "get_datetime" !in streamed)
     }
 
     @Test

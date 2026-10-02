@@ -28,6 +28,14 @@ object BruceToolFormat {
         append("When no tool is needed, answer the user directly.")
     }
 
+    /** The text before any tool call, holding back an ending that could be the start of the call's tag. */
+    fun visible(text: String): String {
+        val open = text.indexOf(OPEN)
+        if (open >= 0) return text.substring(0, open)
+        val held = (OPEN.length - 1 downTo 1).firstOrNull { text.endsWith(OPEN.substring(0, it)) } ?: 0
+        return text.substring(0, text.length - held)
+    }
+
     /**
      * Splits a reply into text and at most one tool call. A tag whose contents are not a
      * name-and-arguments object is left in the text rather than guessed at.

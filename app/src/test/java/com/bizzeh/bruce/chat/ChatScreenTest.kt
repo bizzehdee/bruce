@@ -50,6 +50,13 @@ class ChatScreenTest {
     }
 
     @Test
+    fun aReplyWithNothingToShowYetSaysTheSidekickIsWorking() {
+        show(ChatState(modelName = "m", sidekick = "Milo", entries = listOf(ChatEntry(ChatRole.USER, "Hi"), ChatEntry(ChatRole.ASSISTANT, "")), generating = true))
+
+        compose.onNodeWithText("Milo is working…").assertIsDisplayed()
+    }
+
+    @Test
     fun contextBarShowsUseMarksDroppedMessagesAndExplains() {
         val entries = listOf(ChatEntry(ChatRole.USER, "old"), ChatEntry(ChatRole.ASSISTANT, "reply"), ChatEntry(ChatRole.USER, "new"))
         show(ChatState(modelName = "m", entries = entries, context = com.bizzeh.bruce.runtime.ContextUse(used = 900, total = 1000, dropped = 2, limit = 1000), firstSeen = 2))

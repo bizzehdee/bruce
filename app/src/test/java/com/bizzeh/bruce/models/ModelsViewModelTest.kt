@@ -105,8 +105,11 @@ class ModelsViewModelTest {
         assertEquals("the loaded model is reloaded with it", "{{ tools }}", engine.loads.last().second.chatTemplate)
         assertEquals(loadsBefore + 1, engine.loads.size)
 
+        val loadsWithTemplate = engine.loads.size
         f.viewModel.removeTemplate(file)
         f.viewModel.state.first { it.models.single().template == null }
+        // As above: the state can show the removal before the reload ends.
+        withContext(Dispatchers.Default) { withTimeout(5_000) { while (engine.loads.size == loadsWithTemplate) delay(10) } }
         assertEquals(null, engine.loads.last().second.chatTemplate)
     }
 

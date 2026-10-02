@@ -107,7 +107,7 @@ class BruceRuntimeTest {
         assertEquals(listOf(ChatRole.ASSISTANT, ChatRole.TOOL, ChatRole.ASSISTANT), finished.messages.map { it.role })
         assertEquals("call_1", finished.messages[1].toolCallId)
         assertEquals("It is noon.", finished.messages[2].content)
-        assertEquals(listOf("<call>", "It is noon."), events.filterIsInstance<RuntimeEvent.Text>().map { it.text })
+        assertEquals("the call's markup is never streamed", listOf("It is noon."), events.filterIsInstance<RuntimeEvent.Text>().map { it.text })
 
         val second = engine.formatted[1]
         assertEquals(ChatRole.SYSTEM, second.first().role)

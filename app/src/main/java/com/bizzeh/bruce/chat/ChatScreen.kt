@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.runtime.produceState
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.background
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -215,6 +217,9 @@ private fun Messages(state: ChatState, actions: ChatActions, modifier: Modifier)
                 else -> Reply(index, entry, state.sidekick, markdownActions, readAloud = state.speech.takeIf { it.available && !(state.generating && index == state.entries.lastIndex) }, actions)
             }
         }
+        if (state.working) {
+            item { Working(state.sidekick) }
+        }
         if (state.summarising) {
             item {
                 Text(
@@ -407,6 +412,18 @@ private fun Attachments(state: ChatState, actions: ChatActions) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Working(sidekick: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.semantics(mergeDescendants = true) {}.testTag("working"),
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+        Text(stringResource(R.string.chat_working, sidekick), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
