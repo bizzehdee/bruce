@@ -274,3 +274,18 @@ quality score for it.
 
 Below the Recommended bar's 8 tokens a second, just above Usable's 4: not recommended over E2B on
 a 12 GB phone.
+
+### Gemma 4 E4B Q3_K_M (2026-10-02)
+
+No QAT Q3 is published (Google: Q4_0 only; unsloth's QAT repositories: UD-Q2_K_XL only), so the
+regular `unsloth/gemma-4-E4B-it-GGUF` at bfc15c38, `gemma-4-E4B-it-Q3_K_M.gguf` (4.06 GB, SHA-256
+0980898d…), the same quantisation as the recommended E2B file. The Pixel locked partway through the
+cases: 7 of 18 records ran in `/foreground`; the speed and memory runs while locked are kept as
+`*.offscreen.jsonl`, and were rerun unlocked.
+
+- Generation on screen 6.2, 3.6 and 5.4 tokens a second; prompt 16.0, 7.9 and 8.9 (QAT Q4_0: 28–30).
+  llama.cpp's arm64 Q4_0 kernels beat its K-quants on this CPU.
+- Replies in the quick cases took 38–117 s (QAT Q4_0: 13–57 s); answers sensible, skills used.
+- Memory at 4096: estimate 2.58 GB, resident 4.42 GB; first reply after loading 33 s, follow-up 1.4 s.
+
+Slower than the QAT Q4_0 and below the Usable bar's 4 tokens a second in one of three runs.
