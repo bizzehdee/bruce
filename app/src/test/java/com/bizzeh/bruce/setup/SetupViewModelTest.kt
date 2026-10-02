@@ -39,21 +39,21 @@ class SetupViewModelTest {
     @AfterEach
     fun tearDown() = Dispatchers.resetMain()
 
-    private inner class Fixture(scope: TestScope, askNotifications: Boolean = false, suggestions: List<SuggestedModel> = emptyList(), hasModel: Boolean = false) {
+    private inner class Fixture(scope: TestScope, askNotifications: Boolean = false, suggestions: List<SuggestedModel> = emptyList(), hasModel: Boolean = false, skills: SkillChoices = SkillChoices.NONE) {
         val dataStore = PreferenceDataStoreFactory.create(scope = scope.backgroundScope) { File(dir, "s.preferences_pb") }
         val setup = SetupSettingsRepository(dataStore)
         val network = NetworkSettingsRepository(dataStore)
         val inference = InferenceSettingsRepository(dataStore)
         val model = MutableStateFlow(hasModel)
-        val viewModel = SetupViewModel(setup, network, inference, askNotifications, suggestions, model)
+        val viewModel = SetupViewModel(setup, network, inference, askNotifications, suggestions, model, skills)
 
         suspend fun awaitStep(step: SetupStep) = viewModel.state.first { it.step == step }
     }
 
     @Test
     fun notificationsStepOnlyWhenThePermissionIsNeeded() {
-        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.NOTIFICATIONS, SetupStep.MODEL), setupSteps(askNotifications = true))
-        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.MODEL), setupSteps(askNotifications = false))
+        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.NOTIFICATIONS, SetupStep.MODEL, SetupStep.SKILLS), setupSteps(askNotifications = true))
+        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.MODEL, SetupStep.SKILLS), setupSteps(askNotifications = false))
     }
 
     @Test
@@ -66,10 +66,12 @@ class SetupViewModelTest {
         f.awaitStep(SetupStep.NETWORK)
         f.viewModel.next()
         f.awaitStep(SetupStep.NOTIFICATIONS)
+        f.viewModel.next()
+        assertEquals(SetupState(SetupStep.MODEL, isFirst = false, isLast = false), f.awaitStep(SetupStep.MODEL))
         repeat(3) { f.viewModel.next() }
-        assertEquals(SetupState(SetupStep.MODEL, isFirst = false, isLast = true), f.awaitStep(SetupStep.MODEL))
+        assertTrue(f.awaitStep(SetupStep.SKILLS).isLast)
 
-        f.viewModel.back()
+        repeat(2) { f.viewModel.back() }
         assertFalse(f.awaitStep(SetupStep.NOTIFICATIONS).isLast)
     }
 
@@ -84,17 +86,45 @@ class SetupViewModelTest {
 
     @Test
     fun theContextStepFollowsTheModelStepOnlyOnceThereIsAModel() = runTest(dispatcher) {
-        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.MODEL, SetupStep.CONTEXT), setupSteps(askNotifications = false, hasModel = true))
+        assertEquals(listOf(SetupStep.WELCOME, SetupStep.NETWORK, SetupStep.MODEL, SetupStep.CONTEXT, SetupStep.SKILLS), setupSteps(askNotifications = false, hasModel = true))
         val f = Fixture(this)
-        repeat(2) { f.viewModel.next() }
-        assertTrue(f.awaitStep(SetupStep.MODEL).isLast)
+        repeat(3) { f.viewModel.next() }
+        assertTrue(f.awaitStep(SetupStep.SKILLS).isLast, "without a model, the skills step follows the model step")
+        f.viewModel.back()
+        f.awaitStep(SetupStep.MODEL)
 
         f.model.value = true
-        assertFalse(f.viewModel.state.first { it.step == SetupStep.MODEL && !it.isLast }.isLast)
         f.viewModel.next()
-        assertTrue(f.awaitStep(SetupStep.CONTEXT).isLast)
+        assertFalse(f.awaitStep(SetupStep.CONTEXT).isLast)
         f.viewModel.next()
-        f.awaitStep(SetupStep.CONTEXT)
+        assertTrue(f.awaitStep(SetupStep.SKILLS).isLast)
+        f.viewModel.next()
+        f.awaitStep(SetupStep.SKILLS)
+    }
+
+    @Test
+    fun aKindOfSkillsIsTurnedOnOrOffTogether() = runTest(dispatcher) {
+        val battery = com.bizzeh.bruce.skills.Skill("get_battery_status", 1, "battery", com.bizzeh.bruce.skills.InputSchema(), setOf(com.bizzeh.bruce.skills.Capability.BATTERY), com.bizzeh.bruce.skills.SkillState.DECLINED) { com.bizzeh.bruce.skills.SkillOutcome.Done("") }
+        val read = com.bizzeh.bruce.skills.Skill("read_file", 1, "read", com.bizzeh.bruce.skills.InputSchema(), setOf(com.bizzeh.bruce.skills.Capability.FILE_READ), com.bizzeh.bruce.skills.SkillState.DECLINED) { com.bizzeh.bruce.skills.SkillOutcome.Done("") }
+        val stored = mutableMapOf<String, com.bizzeh.bruce.skills.SkillState>()
+        val choices = object : SkillChoices {
+            override val skills = listOf(battery, read)
+            override suspend fun state(skill: com.bizzeh.bruce.skills.Skill) = stored[skill.id] ?: skill.defaultState
+            override suspend fun set(skill: com.bizzeh.bruce.skills.Skill, state: com.bizzeh.bruce.skills.SkillState) { stored[skill.id] = state }
+            override suspend fun promptTokens(enabled: List<com.bizzeh.bruce.skills.Skill>) = 100 + 50 * enabled.size
+        }
+        val f = Fixture(this, skills = choices)
+        val before = f.viewModel.state.first { it.skillGroups.size == 2 }
+        assertEquals(listOf(false, false), before.skillGroups.map { it.on })
+
+        f.viewModel.setSkillGroup(com.bizzeh.bruce.skills.CapabilityClass.INFORMATION, true)
+        val after = f.viewModel.state.first { it.skillGroups.first().on }
+        assertEquals(com.bizzeh.bruce.skills.SkillState.ACCEPTED, stored["get_battery_status"])
+        assertTrue(after.promptTokens > before.promptTokens)
+
+        f.viewModel.setSkillGroup(com.bizzeh.bruce.skills.CapabilityClass.INFORMATION, false)
+        f.viewModel.state.first { !it.skillGroups.first().on }
+        assertEquals(com.bizzeh.bruce.skills.SkillState.DECLINED, stored["get_battery_status"])
     }
 
     @Test

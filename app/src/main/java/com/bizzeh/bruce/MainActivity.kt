@@ -123,6 +123,9 @@ import com.bizzeh.bruce.skills.SkillsViewModel
 import com.bizzeh.bruce.settings.ThemeSettings
 import com.bizzeh.bruce.setup.SetupActions
 import com.bizzeh.bruce.setup.SetupContext
+import com.bizzeh.bruce.setup.SetupSkills
+import com.bizzeh.bruce.setup.SkillChoices
+import com.bizzeh.bruce.skills.CapabilityClass
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.combine
@@ -233,6 +236,14 @@ class MainActivity : ComponentActivity() {
                 askNotifications = needsNotificationPermission(),
                 suggestions = suggestedModels,
                 hasModel = setupContext.map { it != null }.stateIn(lifecycleScope, SharingStarted.Eagerly, false),
+                skills = object : SkillChoices {
+                    override val skills get() = container.skills.skills.toList()
+                    override suspend fun state(skill: Skill) = container.skillStates.state(skill)
+                    override suspend fun set(skill: Skill, state: SkillState) {
+                        container.skillStates.set(skill, state)
+                    }
+                    override suspend fun promptTokens(enabled: List<Skill>) = SetupSkills.promptTokens(container.personalityRules(), enabled)
+                },
             )
         }
     }
@@ -338,6 +349,7 @@ class MainActivity : ComponentActivity() {
                 override fun download(model: SuggestedModel) = browser.downloadFile(model.repositoryId, model.path)
                 override fun cancelDownload(model: SuggestedModel) = browser.cancel(model.repositoryId, model.path)
                 override fun setContextLength(contextLength: Int?) = setup.setContextLength(contextLength)
+                override fun setSkillGroup(kind: CapabilityClass, on: Boolean) = setup.setSkillGroup(kind, on)
                 override fun finish(exit: SetupExit) = setup.finish { onExit(exit) }
             }
         }

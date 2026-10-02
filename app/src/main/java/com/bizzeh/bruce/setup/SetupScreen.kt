@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,6 +36,9 @@ import com.bizzeh.bruce.models.DownloadState
 import com.bizzeh.bruce.models.ModelBrowserViewModel
 import com.bizzeh.bruce.models.ModelsState
 import com.bizzeh.bruce.models.SuggestedModel
+import com.bizzeh.bruce.settings.InferenceDefaults
+import com.bizzeh.bruce.skills.CapabilityClass
+import com.bizzeh.bruce.skills.SkillText
 import com.bizzeh.bruce.settings.NetworkMode
 import com.bizzeh.bruce.settings.SettingsText
 import com.bizzeh.bruce.ui.Format
@@ -49,6 +53,7 @@ interface SetupActions {
     fun cancelDownload(model: SuggestedModel)
     /** Null is Auto. */
     fun setContextLength(contextLength: Int?)
+    fun setSkillGroup(kind: CapabilityClass, on: Boolean)
     fun finish(exit: SetupExit)
 }
 
@@ -89,6 +94,7 @@ fun SetupScreen(
                     }
                     SetupStep.MODEL -> ModelStep(state, models, downloads, actions)
                     SetupStep.CONTEXT -> ContextStep(state, contextChoice, actions)
+                    SetupStep.SKILLS -> SkillsStep(state, state.contextLength ?: contextChoice?.auto ?: InferenceDefaults.FALLBACK_CONTEXT, actions)
                 }
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -154,6 +160,27 @@ private fun ContextStep(state: SetupState, choice: ContextChoice?, actions: Setu
         }
     }
     Text(stringResource(R.string.setup_context_auto_note), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+}
+
+@Composable
+private fun SkillsStep(state: SetupState, contextLength: Int, actions: SetupActions) {
+    Page(R.string.setup_skills_title, R.string.setup_skills_text)
+    state.skillGroups.forEach { group ->
+        val names = group.skills.map { SkillText.name(it) }
+        ListItem(
+            headlineContent = { Text(stringResource(SetupText.kind(group.kind))) },
+            supportingContent = { Text(names.joinToString(", "), style = MaterialTheme.typography.bodySmall) },
+            trailingContent = { Switch(group.on, { actions.setSkillGroup(group.kind, it) }, modifier = Modifier.testTag("setupSkills:${group.kind}")) },
+        )
+    }
+    if (SetupSkills.crowded(state.promptTokens, contextLength)) {
+        Text(
+            stringResource(R.string.setup_skills_crowded, state.promptTokens, contextLength),
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.testTag("setupSkillsCrowded"),
+        )
+    }
 }
 
 @Composable

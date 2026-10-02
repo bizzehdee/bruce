@@ -46,6 +46,7 @@ class SetupScreenTest {
         override fun download(model: SuggestedModel) { calls += "download ${model.path}" }
         override fun cancelDownload(model: SuggestedModel) { calls += "cancel ${model.path}" }
         override fun setContextLength(contextLength: Int?) { calls += "context $contextLength" }
+        override fun setSkillGroup(kind: com.bizzeh.bruce.skills.CapabilityClass, on: Boolean) { calls += "skills $kind $on" }
         override fun finish(exit: SetupExit) { calls += "finish $exit" }
     }
 
@@ -182,5 +183,25 @@ class SetupScreenTest {
         compose.onNodeWithTag("setupContext:16384").assertDoesNotExist()
 
         assertEquals(listOf("context 4096"), calls)
+    }
+
+    @Test
+    fun theSkillsStepTurnsKindsOnAndWarnsWhenTheyCrowdTheContext() {
+        val clock = com.bizzeh.bruce.skills.Skill("get_datetime", 1, "time", com.bizzeh.bruce.skills.InputSchema(), setOf(com.bizzeh.bruce.skills.Capability.TIME), com.bizzeh.bruce.skills.SkillState.ACCEPTED) { com.bizzeh.bruce.skills.SkillOutcome.Done("") }
+        val groups = listOf(SkillGroup(com.bizzeh.bruce.skills.CapabilityClass.INFORMATION, listOf(clock), on = true))
+        compose.setContent { BruceTheme { SetupScreen(SetupState(SetupStep.SKILLS, isFirst = false, isLast = true, skillGroups = groups, promptTokens = 1200, contextLength = 4096), ModelsState(), actions) } }
+
+        compose.onNodeWithText("Phone status").assertIsDisplayed()
+        compose.onNodeWithTag("setupSkillsCrowded").assertIsDisplayed()
+        compose.onNodeWithTag("setupSkills:INFORMATION").performClick()
+
+        assertEquals(listOf("skills INFORMATION false"), calls)
+    }
+
+    @Test
+    fun noWarningWhileTheInstructionsFitAQuarter() {
+        compose.setContent { BruceTheme { SetupScreen(SetupState(SetupStep.SKILLS, isFirst = false, isLast = true, promptTokens = 900, contextLength = 4096), ModelsState(), actions) } }
+
+        compose.onNodeWithTag("setupSkillsCrowded").assertDoesNotExist()
     }
 }

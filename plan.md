@@ -339,7 +339,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   do: information, files, personal data, sensors, communication, phone settings,
   web), and warns when the system prompt with those skills would take more than
   25% of the chosen context. This replaces the earlier decision that the wizard
-  sets no skills (owner, 2026-10-02). `planned` (TASK-112)
+  sets no skills (owner, 2026-10-02). `done` (TASK-112)
 - **Skills screen** — Reached from Settings. Lists every skill with what it does,
   a high-risk flag where it applies, and its state (Declined, Ask, Accepted),
   which the user changes there. Declined skills are not offered to the model.
