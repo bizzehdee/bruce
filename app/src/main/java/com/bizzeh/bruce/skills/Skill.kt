@@ -82,7 +82,8 @@ data class FolderGuidance(val id: String, val folder: String, val text: String)
 
 sealed interface SkillOutcome {
     /** [guidance] travels with the result the first time a chat works in a folder with followed instructions. */
-    data class Done(val content: String, val guidance: FolderGuidance? = null) : SkillOutcome
+    /** [maxLength], when set, replaces the usual cap on what goes back to the model (a whole web page asked for, 2026-10-02). */
+    data class Done(val content: String, val guidance: FolderGuidance? = null, val maxLength: Int? = null) : SkillOutcome
 
     /** The skill ran and could not do it; [code] is one of the spec's failure codes. */
     data class Failed(val code: DenialCode, val message: String, val retryable: Boolean = false) : SkillOutcome

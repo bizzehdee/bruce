@@ -251,4 +251,12 @@ class PolicyEngineTest {
         assertEquals(SkillState.DECLINED, states.state(clock))
         assertEquals(DenialCode.CAPABILITY_DISABLED, denial("get_datetime").code)
     }
+
+    @Test
+    fun theToolOutputKeepsALongerResultWhenTheSkillAllowsIt() {
+        val output = ToolOutput()
+        val text = "y".repeat(10_000)
+        assertEquals(4_000 + ToolOutput.TRUNCATED.length, output.result("t", com.bizzeh.bruce.skills.SkillOutcome.Done(text)).getString("untrusted_data").length)
+        assertEquals(10_000, output.result("t", com.bizzeh.bruce.skills.SkillOutcome.Done(text, maxLength = 12_000)).getString("untrusted_data").length)
+    }
 }

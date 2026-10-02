@@ -110,10 +110,26 @@ class WebPagesTest {
         assertEquals(ResourceScope.WEB, skill.scope)
         assertEquals(setOf(SkillRequirement.NETWORK_ALLOWED), skill.requires)
         assertEquals("example.com", skill.site!!(SkillArguments(mapOf("url" to "https://example.com/a"))))
-        assertEquals(SkillOutcome.Done("Address: https://example.com/a\nTitle: A\n\nHello"), skill.execute(SkillArguments(mapOf("url" to "https://example.com/a"))))
-        assertEquals(SkillOutcome.Done("Address: https://example.com/empty\n\n(The page has no readable text.)"), skill.execute(SkillArguments(mapOf("url" to "https://example.com/empty"))))
+        assertEquals("Address: https://example.com/a\nTitle: A\n\nHello", (skill.execute(SkillArguments(mapOf("url" to "https://example.com/a"))) as SkillOutcome.Done).content)
+        assertEquals("Address: https://example.com/empty\n\n(The page has no readable text.)", (skill.execute(SkillArguments(mapOf("url" to "https://example.com/empty"))) as SkillOutcome.Done).content)
         val refused = skill.execute(SkillArguments(mapOf("url" to "https://example.com/away"))) as SkillOutcome.Failed
         assertEquals(DenialCode.TOOL_FAILED, refused.code)
         assertTrue(refused.message.contains("elsewhere.org"), "a redirect to a site not allowed is refused, even after the first was approved")
+    }
+
+    @Test
+    fun aPageStartsShortAndTheWholePageIsReadOnRequest() = runBlocking {
+        val long = "x".repeat(30_000)
+        sites["https://example.com/long"] = html("<p>$long</p>")
+        val skill = WebSkills(pages, allowed = { true }).create().single()
+
+        val start = skill.execute(SkillArguments(mapOf("url" to "https://example.com/long"))) as SkillOutcome.Done
+        assertTrue(start.content.contains("x".repeat(2_000) + "\n[This is the start of the page: 28000 more characters. Call fetch_page again with full set to true"))
+        assertEquals(2_600, start.maxLength)
+
+        val full = skill.execute(SkillArguments(mapOf("url" to "https://example.com/long", "full" to true))) as SkillOutcome.Done
+        assertTrue(full.content.endsWith("x".repeat(24_000) + "\n[Only the first 24000 characters of this page could be read.]"))
+        assertEquals(24_600, full.maxLength)
+        assertTrue(skill.input.parameters.single { it.name == "full" }.required.not())
     }
 }

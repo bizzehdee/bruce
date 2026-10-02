@@ -75,8 +75,13 @@ class WebSkills(
     private fun fetchPage() = Skill(
         id = "fetch_page",
         version = 1,
-        description = "Read a web page and return its text. Only for http or https addresses.",
-        input = InputSchema(listOf(Parameter(URL, ParameterType.STRING, "The page's full address, starting https://", maxLength = MAX_URL))),
+        description = "Read a web page and return its text: the start of the page, or the whole page with full set to true. Only for http or https addresses.",
+        input = InputSchema(
+            listOf(
+                Parameter(URL, ParameterType.STRING, "The page's full address, starting https://", maxLength = MAX_URL),
+                Parameter(FULL, ParameterType.BOOLEAN, "True to read the whole page, when its start was not enough", required = false),
+            ),
+        ),
         capabilities = setOf(Capability.HTTP_READ),
         defaultState = SkillState.DECLINED,
         scope = ResourceScope.WEB,
@@ -88,19 +93,39 @@ class WebSkills(
         // The site the user just approved, once or always, is allowed for this call's own request.
         when (val page = pages.read(address) { host -> host == first || allowed(host) }) {
             is PageResult.Failed -> SkillOutcome.Failed(DenialCode.TOOL_FAILED, page.reason, retryable = false)
-            is PageResult.Read -> SkillOutcome.Done(
-                buildString {
-                    append("Address: ").append(page.address)
-                    page.title?.let { append("\nTitle: ").append(it) }
-                    append("\n\n").append(page.text.ifBlank { "(The page has no readable text.)" })
-                    if (page.cut) append("\n[Only the start of this page was read.]")
-                },
-            )
+            is PageResult.Read -> {
+                // The start of a page by default keeps small contexts usable; the model asks for the rest (owner, 2026-10-02).
+                val full = arguments.boolean(FULL) == true
+                val limit = if (full) FULL_PAGE else PAGE_START
+                val text = page.text.ifBlank { "(The page has no readable text.)" }
+                SkillOutcome.Done(
+                    buildString {
+                        append("Address: ").append(page.address)
+                        page.title?.let { append("\nTitle: ").append(it) }
+                        append("\n\n").append(text.take(limit))
+                        when {
+                            text.length > limit && !full -> append("\n[This is the start of the page: ${text.length - limit} more characters. Call fetch_page again with full set to true to read the whole page.]")
+                            text.length > limit || page.cut -> append("\n[Only the first ${minOf(limit, text.length)} characters of this page could be read.]")
+                        }
+                    },
+                    maxLength = limit + PAGE_FRAME,
+                )
+            }
         }
     }
 
     private companion object {
         const val URL = "url"
+        const val FULL = "full"
+
+        /** About 500 tokens: a page's start, enough for most answers. */
+        const val PAGE_START = 2_000
+
+        /** About 6,000 tokens: "the whole page", within what a phone's context can take. */
+        const val FULL_PAGE = 24_000
+
+        /** Room for the address, title and the note after the text. */
+        const val PAGE_FRAME = 600
         const val MAX_URL = 2000
         const val QUERY = "query"
 

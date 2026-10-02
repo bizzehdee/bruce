@@ -232,7 +232,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   allow. Always-allowed sites are listed in Settings, where they can be removed.
   `done`
 - **Web pages** — Fetch a web page (GET only) as plain text, size-capped and
-  marked as untrusted data. No forms, uploads, cookies or sign-ins. Only where the
+  marked as untrusted data. Menus and other page furniture are left out; the
+  start of the page (2,000 characters) comes back unless the model asks for the
+  whole page (up to 24,000) (owner, 2026-10-02). No forms, uploads, cookies or sign-ins. Only where the
   network mode allows the site. `done`
 - **Web search** — Search the web through the Brave Search API (its LLM Context
   endpoint) with the user's own key, entered in Settings and stored encrypted on
