@@ -97,7 +97,7 @@ class ModelSettingsTest {
         assertEquals(LoadConfig(contextLength = 8192, threads = 4, backend = BackendPreference.CPU), ModelOverrides(backend = BackendPreference.CPU, contextLength = 8192).loadConfig(defaults) { error("not asked") })
         assertEquals(4096, ModelOverrides().loadConfig(defaults) { error("not asked") }.contextLength)
         assertEquals(16384, ModelOverrides().loadConfig(defaults.copy(contextLength = null)) { 16384 }.contextLength, "automatic when neither names a size")
-        assertEquals(0.8f, ModelOverrides().temperature())
+        assertEquals(0.5f, ModelOverrides().temperature())
         assertEquals(0.3f, ModelOverrides(temperature = 0.3f).temperature())
     }
 
@@ -123,7 +123,7 @@ class ModelSettingsTest {
         f.selection.choose(f.model("m.gguf"))
 
         assertNull(f.settings.activeModelName.first())
-        assertEquals(0.8f, f.selection.activeTemperature())
+        assertEquals(0.5f, f.selection.activeTemperature())
     }
 
     @Test

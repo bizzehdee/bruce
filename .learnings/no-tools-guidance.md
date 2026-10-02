@@ -28,3 +28,11 @@ or searched "today in history". With "Today is Friday 2 October 2026." in the pr
 "October 2"; Qwen3 1.7B searched "History of October 2" instead of "History". A line telling the
 model to fetch the date first changed nothing. Only the date is stated, so the prompt is the same
 all day and prompt reuse holds. Data: `research/experiments/date-in-prompt-2026-10-02/`.
+
+## Test prompt changes at the phone's temperature, not only greedy (2026-10-02)
+
+A prompt that makes a model call a skill under greedy decoding can still miss at the phone's
+temperature. MiniCPM5 2B searched every time greedy, but skipped the search in 15–20% of tries at
+0.8 (Bruce has no top-k, top-p or min-p cutoff). A min-p cutoff did not help; 0.5 cut the misses to
+about 5%, and became the default. Sample 20–30 seeds before trusting a prompt change. Data:
+`research/experiments/date-in-prompt-2026-10-02/temperature-test.py`.

@@ -21,3 +21,21 @@ Results (first step's tool calls):
 Both models still call get_datetime for "how many days until christmas". Decision: the system prompt
 states the date (not the time, so the prompt stays reusable all day); the "get the date first" line
 was not kept.
+
+## Sampling temperature (2026-10-02, later)
+
+On the Pixel, with the date stated, MiniCPM5 2B still answered "what happened today in history"
+without searching. The phone samples at temperature 0.8 with no top-k, top-p or min-p cutoff; the
+test above was greedy. `temperature-test.py`, same prompt with the date after the guidance, the
+phone's skills, MiniCPM5 2B Q4_K_M, seeds 0 to N-1:
+
+| Sampling | Tries | "today in history": search / none | "on this day": search / none |
+|---|---|---|---|
+| greedy | 1 | search | search |
+| 0.8 | 20 | 16 / 4 | 17 / 3 |
+| 0.8, min-p 0.05 | 30 | 22 / 6 (2 get_datetime) | 23 / 7 |
+| 0.8, min-p 0.1 | 30 | 21 / 8 (1 get_datetime) | 26 / 4 |
+| 0.5 | 30 | 27 / 1 (2 get_datetime) | 28 / 2 |
+
+A min-p cutoff did not help; a lower temperature did. Decision: the default temperature is 0.5
+(was 0.8). The model bins were measured greedy, so 0.5 is closer to the measured behaviour.

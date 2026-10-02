@@ -103,7 +103,8 @@ data class GenerationRequest(
     }
 
     companion object {
-        const val DEFAULT_TEMPERATURE = 0.8f
+        // At 0.8 MiniCPM5 2B skipped a needed search one time in five; at 0.5 one in twenty (2026-10-02).
+        const val DEFAULT_TEMPERATURE = 0.5f
     }
 }
 
