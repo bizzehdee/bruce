@@ -67,6 +67,12 @@ class ModelSelection(
         activeModel.refresh()
     }
 
+    /** Whether the chosen model thinks before answering (TASK-110); a server model follows the default. */
+    suspend fun activeThinking(): Boolean {
+        val defaults = inferenceSettings.defaults.first()
+        return activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).thinking(defaults) } ?: defaults.thinking
+    }
+
     suspend fun activeTemperature(): Float =
         activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).temperature() } ?: ModelOverrides.DEFAULT_TEMPERATURE
 }

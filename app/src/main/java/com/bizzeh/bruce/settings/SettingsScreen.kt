@@ -95,6 +95,7 @@ interface SettingsActions {
     fun setThreads(threads: Int?)
     /** Null is Auto. */
     fun setContextLength(contextLength: Int?)
+    fun setThinking(enabled: Boolean) = Unit
     fun clearAllData()
     fun deleteAllConversations()
     fun exportAllConversations(format: ExportFormat) = Unit
@@ -265,6 +266,11 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 )
             }
             (state.inference.contextLength ?: state.autoContext)?.let { TightContextNote(it, state.fixedPromptTokens) }
+            ListItem(
+                headlineContent = { Text(stringResource(R.string.settings_thinking)) },
+                supportingContent = { Text(stringResource(R.string.settings_thinking_summary)) },
+                trailingContent = { Switch(state.inference.thinking, actions::setThinking, modifier = Modifier.testTag("thinking")) },
+            )
             Text(
                 stringResource(R.string.settings_defaults_note),
                 style = MaterialTheme.typography.bodySmall,

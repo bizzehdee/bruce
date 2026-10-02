@@ -98,6 +98,8 @@ class SettingsViewModel(
 
     fun setContextLength(contextLength: Int?) = launch { inference.setContextLength(contextLength) }
 
+    fun setThinking(enabled: Boolean) = launch { inference.setThinking(enabled) }
+
     fun clearAllData() = launch { dataReset.clearAll() }
 
     private fun launch(block: suspend () -> Unit) {

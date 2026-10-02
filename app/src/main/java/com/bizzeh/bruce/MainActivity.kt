@@ -826,6 +826,7 @@ class MainActivity : ComponentActivity() {
         override fun setBackend(backend: BackendPreference) = settings.setBackend(backend)
         override fun setThreads(threads: Int?) = settings.setThreads(threads)
         override fun setContextLength(contextLength: Int?) = settings.setContextLength(contextLength)
+        override fun setThinking(enabled: Boolean) = settings.setThinking(enabled)
         override fun clearAllData() {
             settings.clearAllData()
             chat.newChat()

@@ -89,8 +89,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   answer), because on a phone it costs tens of seconds per reply. A model whose
   template always opens a thinking block (LFM2.5 2.6B) keeps thinking: without it
   that model calls tools for almost every message (owner, 2026-10-01). A setting
-  turns thinking on for models that can switch it. `in progress` (off where the
-  template allows, done; the setting is TASK-110)
+  turns thinking on for models that can switch it, with a per-model choice.
+  `done` (TASK-110)
 - **Advanced hardware tuning** — User control over backend, threads, context and
   similar settings; optional backend benchmarking. `done` (Settings and each
   model's settings; benchmarks in Diagnostics)

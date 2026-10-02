@@ -99,6 +99,8 @@ class BruceRuntime(
     private val states: SkillStateStore,
     private val policy: PolicyEngine,
     private val temperature: suspend () -> Float,
+    /** Whether the chosen model may reason before answering (TASK-110). */
+    private val thinking: suspend () -> Boolean = { false },
     /** The chosen personality's rules, which lead the system prompt. */
     private val personality: suspend () -> String,
     /** Names of the user's file and folder grants, which file skills' paths start with. */
@@ -400,7 +402,7 @@ class BruceRuntime(
         val systemPrompt = (listOf(offer.memory, personality().trim(), offer.guidance).filter { it.isNotEmpty() } + summaries).joinToString("\n\n")
         // Remembered facts, summaries of the chat and granted file names are about the user: not kept on storage.
         val savable = offer.memory.isEmpty() && summaries.isEmpty() && !offer.namesGrants
-        return BackendChat(systemPrompt, messages.filter { it.role != ChatRole.SYSTEM }, tools, savable)
+        return BackendChat(systemPrompt, messages.filter { it.role != ChatRole.SYSTEM }, tools, savable, thinking())
     }
 
     /** Results are matched to calls by id; some formats give none. */

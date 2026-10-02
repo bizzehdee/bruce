@@ -6,6 +6,7 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.hardware.CpuFeatures
@@ -129,7 +130,8 @@ class ModelsScreenTest {
         compose.onNodeWithTag("threads:2").performClick()
         compose.onNodeWithTag("context:8192").performClick()
         compose.onNodeWithTag("temperature:0.3").performClick()
-        compose.onNodeWithTag("use:stories260K.gguf").performClick()
+        compose.onNodeWithTag("thinking:true").performScrollTo().performClick()
+        compose.onNodeWithTag("use:stories260K.gguf").performScrollTo().performClick()
 
         assertEquals(
             listOf(
@@ -137,6 +139,7 @@ class ModelsScreenTest {
                 "overrides ${ModelOverrides(threads = 2)}",
                 "overrides ${ModelOverrides(contextLength = 8192)}",
                 "overrides ${ModelOverrides(temperature = 0.3f)}",
+                "overrides ${ModelOverrides(thinking = true)}",
                 "choose stories260K.gguf",
             ),
             calls,

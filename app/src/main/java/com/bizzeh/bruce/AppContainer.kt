@@ -487,7 +487,7 @@ class AppContainer(private val context: Context) {
                 else -> grantScope.check(request)
             }
         }, requirementMet = ::requirementMet, sites = sites)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages)
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, thinking = { modelSelection.activeThinking() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages)
     }
 
     val dataReset: DataReset by lazy {

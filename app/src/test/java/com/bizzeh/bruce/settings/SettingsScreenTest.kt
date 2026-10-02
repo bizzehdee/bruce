@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.settings
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.runtime.setValue
@@ -26,7 +27,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /** A tall screen, so every setting is laid out without scrolling nested scroll containers. */
-@Config(qualifiers = "w400dp-h2400dp")
+@Config(qualifiers = "w400dp-h3000dp")
 @RunWith(RobolectricTestRunner::class)
 class SettingsScreenTest {
     @get:Rule
@@ -37,6 +38,7 @@ class SettingsScreenTest {
         override fun setThemeMode(mode: ThemeMode) { calls += "theme $mode" }
         override fun setDynamicColour(enabled: Boolean) { calls += "dynamic $enabled" }
         override fun setShowContextWindow(enabled: Boolean) { calls += "context window $enabled" }
+        override fun setThinking(enabled: Boolean) { calls += "thinking $enabled" }
         override fun setBackend(backend: BackendPreference) { calls += "backend $backend" }
         override fun setThreads(threads: Int?) { calls += "threads $threads" }
         override fun setContextLength(contextLength: Int?) { calls += "context $contextLength" }
@@ -115,6 +117,13 @@ class SettingsScreenTest {
 
         assertEquals(listOf("theme DARK", "dynamic true", "context window true", "backend CPU", "threads 2", "threads null", "context 8192"), calls)
         compose.onNodeWithText("Auto (4)").assertIsDisplayed()
+    }
+
+    @Test
+    fun thinkingIsOffByDefaultAndCanBeTurnedOn() {
+        show(SettingsState(inference = InferenceDefaults()))
+        compose.onNodeWithTag("thinking").performScrollTo().assertIsOff().performClick()
+        assertEquals(listOf("thinking true"), calls)
     }
 
     @Test

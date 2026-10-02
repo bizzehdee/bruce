@@ -355,6 +355,19 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun theThinkingSettingReachesTheReplyButNotTheSummary() = runBlocking {
+        engine.steps += Step("<think>hm</think>Noon.", ParsedReply("<think>hm</think>Noon.", "", emptyList()))
+        engine.steps += Step("Summary.", ParsedReply("Summary.", "", emptyList()))
+        val thinking = BruceRuntime(engine, registry, states, policy, temperature = { 0.3f }, thinking = { true }, personality = { "You are Milo.\n" })
+
+        thinking.respond(question).toList()
+        thinking.summarise(listOf(ToolChatMessage(ChatRole.USER, "hi")))
+
+        assertEquals(true, engine.thinking.first())
+        assertEquals(false, engine.thinking.last())
+    }
+
+    @Test
     fun aSummaryIsAskedForWithoutThinkingAndReasoningAloneIsNoSummary() = runBlocking {
         engine.steps += Step("<think>only thoughts</think>", ParsedReply("", "only thoughts", emptyList()))
 

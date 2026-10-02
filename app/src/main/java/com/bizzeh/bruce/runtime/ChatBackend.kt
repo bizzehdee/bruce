@@ -24,7 +24,8 @@ import org.json.JSONObject
 
 /** What one model step is asked with: the system prompt as the runtime wrote it, the conversation and the skills offered. */
 /** [savable]: [system] and [tools] hold nothing about the user, so their evaluated state may be kept on storage (TASK-109). */
-data class BackendChat(val system: String, val messages: List<ToolChatMessage>, val tools: List<ToolDefinition>, val savable: Boolean = false)
+/** [thinking] lets a model that can reason before answering do so (TASK-110); side passes leave it off. */
+data class BackendChat(val system: String, val messages: List<ToolChatMessage>, val tools: List<ToolDefinition>, val savable: Boolean = false, val thinking: Boolean = false)
 
 sealed interface Prepared {
     /** Ready to generate; [tokens] is what the prompt takes of the context. */
@@ -154,7 +155,7 @@ class LocalBackend(
     private suspend fun prompt(chat: BackendChat): Prompt? {
         val system = ToolChatMessage(ChatRole.SYSTEM, chat.system)
         val (conversation, shown) = withImages(chat.messages.map(::withReadableArguments))
-        val native = engine.formatToolChat(listOf(system) + conversation, chat.tools) ?: return null
+        val native = engine.formatToolChat(listOf(system) + conversation, chat.tools, enableThinking = chat.thinking) ?: return null
         if (chat.tools.isEmpty() || native.format.supportsTools) return Prompt(native.text, native.format, shown)
 
         val grammar = engine.bruceToolGrammar(chat.tools)

@@ -3,6 +3,7 @@ package com.bizzeh.bruce.settings
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.bizzeh.bruce.inference.BackendPreference
@@ -18,6 +19,8 @@ data class InferenceDefaults(
     val backend: BackendPreference = BackendPreference.AUTO,
     val threads: Int? = null,
     val contextLength: Int? = null,
+    /** Models that can reason before answering do so (TASK-110); off by default, as it costs seconds per reply. */
+    val thinking: Boolean = false,
 ) {
     /** [contextLength] is the size to load with: this default's, a model's own, or the automatic one. */
     fun toLoadConfig(contextLength: Int): LoadConfig = if (threads == null) {
@@ -45,6 +48,7 @@ class InferenceSettingsRepository(private val dataStore: DataStore<Preferences>)
             backend = BackendPreference.entries.firstOrNull { it.name == preferences[BACKEND] } ?: BackendPreference.AUTO,
             threads = preferences[THREADS]?.takeIf { it in 1..InferenceDefaults.MAX_THREADS },
             contextLength = preferences[CONTEXT]?.takeIf { it in InferenceDefaults.CONTEXT_CHOICES },
+            thinking = preferences[THINKING] ?: false,
         )
     }
 
@@ -64,7 +68,12 @@ class InferenceSettingsRepository(private val dataStore: DataStore<Preferences>)
         dataStore.edit { if (contextLength == null) it.remove(CONTEXT) else it[CONTEXT] = contextLength }
     }
 
+    suspend fun setThinking(enabled: Boolean) {
+        dataStore.edit { it[THINKING] = enabled }
+    }
+
     private companion object {
+        val THINKING = booleanPreferencesKey("default_thinking")
         val BACKEND = stringPreferencesKey("default_backend")
         val THREADS = intPreferencesKey("default_threads")
         val CONTEXT = intPreferencesKey("default_context")

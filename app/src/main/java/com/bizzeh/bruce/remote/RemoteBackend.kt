@@ -139,7 +139,7 @@ class RemoteBackend(
         .put("stream_options", JSONObject().put("include_usage", true))
         .put("max_tokens", maxTokens)
         .put("temperature", temperature.toDouble())
-        .put("chat_template_kwargs", JSONObject().put("enable_thinking", false))
+        .put("chat_template_kwargs", JSONObject().put("enable_thinking", chat.thinking))
         .put("messages", JSONArray().apply {
             put(JSONObject().put("role", "system").put("content", chat.system))
             chat.messages.forEach { put(message(it, vision)) }

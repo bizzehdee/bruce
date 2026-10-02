@@ -3,6 +3,7 @@ package com.bizzeh.bruce.models
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -19,6 +20,8 @@ data class ModelOverrides(
     val threads: Int? = null,
     val contextLength: Int? = null,
     val temperature: Float? = null,
+    /** Null follows the inference default (TASK-110). */
+    val thinking: Boolean? = null,
 ) {
     /** [automatic] is the size to use when neither this model nor the defaults name one. */
     fun loadConfig(defaults: InferenceDefaults, automatic: () -> Int): LoadConfig = defaults.copy(
@@ -27,6 +30,8 @@ data class ModelOverrides(
     ).toLoadConfig(contextLength ?: defaults.contextLength ?: automatic())
 
     fun temperature(): Float = temperature ?: DEFAULT_TEMPERATURE
+
+    fun thinking(defaults: InferenceDefaults): Boolean = thinking ?: defaults.thinking
 
     companion object {
         const val DEFAULT_TEMPERATURE = com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TEMPERATURE
@@ -50,6 +55,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             threads = preferences[threadsKey(fileName)]?.takeIf { it in 1..InferenceDefaults.MAX_THREADS },
             contextLength = preferences[contextKey(fileName)]?.takeIf { it in InferenceDefaults.CONTEXT_CHOICES },
             temperature = preferences[temperatureKey(fileName)]?.takeIf { it in ModelOverrides.TEMPERATURE_CHOICES },
+            thinking = preferences[thinkingKey(fileName)],
         )
     }
 
@@ -94,6 +100,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             it.setOrRemove(threadsKey(fileName), overrides.threads)
             it.setOrRemove(contextKey(fileName), overrides.contextLength)
             it.setOrRemove(temperatureKey(fileName), overrides.temperature)
+            it.setOrRemove(thinkingKey(fileName), overrides.thinking)
         }
     }
 
@@ -104,6 +111,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             it.remove(threadsKey(fileName))
             it.remove(contextKey(fileName))
             it.remove(temperatureKey(fileName))
+            it.remove(thinkingKey(fileName))
             it.remove(templateKey(fileName))
             it.remove(templateSourceKey(fileName))
             if (it[ACTIVE] == fileName) it.remove(ACTIVE)
@@ -121,6 +129,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
         fun threadsKey(name: String) = intPreferencesKey("model.$name.threads")
         fun contextKey(name: String) = intPreferencesKey("model.$name.context")
         fun temperatureKey(name: String) = floatPreferencesKey("model.$name.temperature")
+        fun thinkingKey(name: String) = booleanPreferencesKey("model.$name.thinking")
         fun templateKey(name: String) = stringPreferencesKey("model.$name.chat_template")
         fun templateSourceKey(name: String) = stringPreferencesKey("model.$name.chat_template_source")
     }

@@ -52,7 +52,7 @@ class ModelSettingsTest {
     @Test
     fun overridesAreStoredPerModel() = runTest(dispatcher) {
         val f = Fixture(this)
-        val overrides = ModelOverrides(BackendPreference.CPU, 2, 8192, 0.3f)
+        val overrides = ModelOverrides(BackendPreference.CPU, 2, 8192, 0.3f, thinking = true)
 
         f.settings.setOverrides("a.gguf", overrides)
 
@@ -60,6 +60,14 @@ class ModelSettingsTest {
         assertEquals(ModelOverrides(), f.settings.overridesNow("b.gguf"))
         f.settings.setOverrides("a.gguf", ModelOverrides())
         assertEquals(ModelOverrides(), f.settings.overridesNow("a.gguf"))
+    }
+
+    @Test
+    fun aModelsThinkingChoiceWinsOverTheDefault() {
+        val on = com.bizzeh.bruce.settings.InferenceDefaults(thinking = true)
+        assertEquals(true, ModelOverrides().thinking(on))
+        assertEquals(false, ModelOverrides(thinking = false).thinking(on))
+        assertEquals(true, ModelOverrides(thinking = true).thinking(com.bizzeh.bruce.settings.InferenceDefaults()))
     }
 
     @Test

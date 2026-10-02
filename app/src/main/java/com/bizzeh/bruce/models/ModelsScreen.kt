@@ -245,6 +245,8 @@ private fun ModelCard(
                 Text(stringResource(R.string.models_details), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
                 ModelsText.details(model).forEach { Text(it, style = MaterialTheme.typography.bodySmall) }
                 Text(stringResource(R.string.models_settings), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
+                val onText = stringResource(R.string.models_on)
+                val offText = stringResource(R.string.models_off)
                 OverrideChips(
                     label = stringResource(R.string.settings_backend),
                     options = listOf(null) + backendChoices(model.overrides.backend),
@@ -277,6 +279,13 @@ private fun ModelCard(
                     text = { it?.let { value -> String.format(Locale.ROOT, "%.1f", value) } },
                     tag = "temperature",
                 ) { actions.setOverrides(model.file, model.overrides.copy(temperature = it)) }
+                OverrideChips(
+                    label = stringResource(R.string.settings_thinking),
+                    options = listOf(null, true, false),
+                    selected = model.overrides.thinking,
+                    text = { it?.let { on -> if (on) onText else offText } },
+                    tag = "thinking",
+                ) { actions.setOverrides(model.file, model.overrides.copy(thinking = it)) }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(top = 8.dp)) {
                     Button(onClick = { actions.choose(model.file) }, enabled = !active && !loading && assessment.supported, modifier = Modifier.testTag("use:${model.file.name}")) {
                         Text(stringResource(if (loading) R.string.models_loading else R.string.models_use))

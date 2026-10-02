@@ -42,6 +42,10 @@ class InferenceSettingsTest {
         assertEquals(65536, repository.defaults.first().contextLength)
         repository.setContextLength(null)
         assertEquals(null, repository.defaults.first().contextLength)
+
+        assertEquals(false, repository.defaults.first().thinking)
+        repository.setThinking(true)
+        assertEquals(true, repository.defaults.first().thinking)
     }
 
     @Test
