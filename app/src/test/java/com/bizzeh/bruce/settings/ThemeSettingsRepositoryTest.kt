@@ -35,13 +35,13 @@ class ThemeSettingsRepositoryTest {
     }
 
     @Test
-    fun contextTrafficLightsAreOnUntilTurnedOff() = runTest {
+    fun theContextWindowIsHiddenUntilTurnedOn() = runTest {
         val repository = ThemeSettingsRepository(store())
-        assertEquals(true, repository.settings.first().contextTrafficLights)
+        assertEquals(false, repository.settings.first().showContextWindow)
 
-        repository.setContextTrafficLights(false)
+        repository.setShowContextWindow(true)
 
-        assertEquals(false, repository.settings.first().contextTrafficLights)
+        assertEquals(true, repository.settings.first().showContextWindow)
     }
 
     @Test

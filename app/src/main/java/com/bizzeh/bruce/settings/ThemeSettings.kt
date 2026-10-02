@@ -20,8 +20,8 @@ data class ThemeSettings(
     val mode: ThemeMode = ThemeMode.SYSTEM,
     /** Wallpaper-based colour; only takes effect on Android 12 and later. */
     val dynamicColour: Boolean = false,
-    /** The chat's context bar is green, amber or red by how full the chat is (TASK-064). */
-    val contextTrafficLights: Boolean = true,
+    /** The chat shows how much of the context it uses; off by default (owner, 2026-10-02). */
+    val showContextWindow: Boolean = false,
 )
 
 val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -31,7 +31,7 @@ class ThemeSettingsRepository(private val dataStore: DataStore<Preferences>) {
         ThemeSettings(
             mode = preferences[MODE]?.let(::parseMode) ?: ThemeMode.SYSTEM,
             dynamicColour = preferences[DYNAMIC_COLOUR] ?: false,
-            contextTrafficLights = preferences[CONTEXT_TRAFFIC_LIGHTS] ?: true,
+            showContextWindow = preferences[SHOW_CONTEXT_WINDOW] ?: false,
         )
     }
 
@@ -43,8 +43,8 @@ class ThemeSettingsRepository(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[DYNAMIC_COLOUR] = enabled }
     }
 
-    suspend fun setContextTrafficLights(enabled: Boolean) {
-        dataStore.edit { it[CONTEXT_TRAFFIC_LIGHTS] = enabled }
+    suspend fun setShowContextWindow(enabled: Boolean) {
+        dataStore.edit { it[SHOW_CONTEXT_WINDOW] = enabled }
     }
 
     /** Stored text may come from an older or newer app version; unknown values fall back to SYSTEM. */
@@ -53,6 +53,6 @@ class ThemeSettingsRepository(private val dataStore: DataStore<Preferences>) {
     private companion object {
         val MODE = stringPreferencesKey("theme_mode")
         val DYNAMIC_COLOUR = booleanPreferencesKey("dynamic_colour")
-        val CONTEXT_TRAFFIC_LIGHTS = booleanPreferencesKey("context_traffic_lights")
+        val SHOW_CONTEXT_WINDOW = booleanPreferencesKey("show_context_window")
     }
 }

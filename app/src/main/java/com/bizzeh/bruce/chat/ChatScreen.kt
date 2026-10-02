@@ -68,6 +68,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.runtime.ContextUse
+import com.bizzeh.bruce.ui.theme.LocalShowContextWindow
 import com.bizzeh.bruce.ui.theme.LocalTrafficLights
 import com.bizzeh.bruce.skills.SkillText
 import com.bizzeh.bruce.inference.ChatRole
@@ -134,7 +135,7 @@ fun ChatScreen(
     ) { padding ->
         // The Scaffold's padding already covers the navigation bar; consuming it stops imePadding adding it again.
         Column(modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding()) {
-            state.context?.let { ContextBar(it) }
+            if (LocalShowContextWindow.current) state.context?.let { ContextBar(it) }
             Messages(state, actions, modifier = Modifier.weight(1f))
             if (state.profileUnavailable) {
                 Text(stringResource(R.string.profiles_unavailable), color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(horizontal = 16.dp).testTag("profileUnavailable"))

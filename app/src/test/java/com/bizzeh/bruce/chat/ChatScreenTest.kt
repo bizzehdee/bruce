@@ -37,7 +37,16 @@ class ChatScreenTest {
         override fun decide(callId: String, approved: Boolean) { calls += "decide $callId $approved" }
     }
 
-    private fun show(state: ChatState) = compose.setContent { BruceTheme { ChatScreen(state, actions) } }
+    private fun show(state: ChatState, showContextWindow: Boolean = true) =
+        compose.setContent { BruceTheme(com.bizzeh.bruce.settings.ThemeSettings(showContextWindow = showContextWindow)) { ChatScreen(state, actions) } }
+
+    @Test
+    fun theContextWindowIsHiddenWhenTheSettingIsOff() {
+        val entries = listOf(ChatEntry(ChatRole.USER, "hi"))
+        show(ChatState(modelName = "m", entries = entries, context = com.bizzeh.bruce.runtime.ContextUse(used = 900, total = 1000, dropped = 0, limit = 1000)), showContextWindow = false)
+
+        compose.onNodeWithTag("contextBar").assertDoesNotExist()
+    }
 
     @Test
     fun summariesAreMarkedAndSummarisingIsShown() {

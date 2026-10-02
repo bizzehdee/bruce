@@ -90,7 +90,7 @@ class SettingsViewModel(
 
     fun setDynamicColour(enabled: Boolean) = launch { theme.setDynamicColour(enabled) }
 
-    fun setContextTrafficLights(enabled: Boolean) = launch { theme.setContextTrafficLights(enabled) }
+    fun setShowContextWindow(enabled: Boolean) = launch { theme.setShowContextWindow(enabled) }
 
     fun setBackend(backend: BackendPreference) = launch { inference.setBackend(backend) }
 

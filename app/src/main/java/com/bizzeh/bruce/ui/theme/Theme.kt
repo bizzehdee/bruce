@@ -36,10 +36,13 @@ fun BruceTheme(
     } else {
         bruceColorScheme(dark)
     }
-    val trafficLights = if (!settings.contextTrafficLights) null else if (dark) DarkTrafficLights else LightTrafficLights
-    CompositionLocalProvider(LocalTrafficLights provides trafficLights) {
+    val trafficLights = if (dark) DarkTrafficLights else LightTrafficLights
+    CompositionLocalProvider(LocalTrafficLights provides trafficLights, LocalShowContextWindow provides settings.showContextWindow) {
         MaterialTheme(colorScheme = colorScheme, content = content)
     }
 }
 
 val LocalTrafficLights = staticCompositionLocalOf<TrafficLights?> { null }
+
+/** Whether the chat shows its context use (ThemeSettings.showContextWindow). */
+val LocalShowContextWindow = staticCompositionLocalOf { false }

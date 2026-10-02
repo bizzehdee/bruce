@@ -90,7 +90,7 @@ data class FileSearchState(val setup: SetupState, val index: IndexStatus)
 interface SettingsActions {
     fun setThemeMode(mode: ThemeMode)
     fun setDynamicColour(enabled: Boolean)
-    fun setContextTrafficLights(enabled: Boolean)
+    fun setShowContextWindow(enabled: Boolean)
     fun setBackend(backend: BackendPreference)
     fun setThreads(threads: Int?)
     /** Null is Auto. */
@@ -166,10 +166,10 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
             }
 
             ListItem(
-                headlineContent = { Text(stringResource(R.string.settings_context_traffic_lights)) },
-                supportingContent = { Text(stringResource(R.string.settings_context_traffic_lights_summary)) },
+                headlineContent = { Text(stringResource(R.string.settings_show_context_window)) },
+                supportingContent = { Text(stringResource(R.string.settings_show_context_window_summary)) },
                 trailingContent = {
-                    Switch(state.theme.contextTrafficLights, actions::setContextTrafficLights, modifier = Modifier.testTag("contextTrafficLights"))
+                    Switch(state.theme.showContextWindow, actions::setShowContextWindow, modifier = Modifier.testTag("showContextWindow"))
                 },
             )
 

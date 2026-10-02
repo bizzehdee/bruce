@@ -211,8 +211,8 @@
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_dynamic_colour">Use wallpaper colours</string>
-    <string name="settings_context_traffic_lights">Context traffic lights</string>
-    <string name="settings_context_traffic_lights_summary">Colour the chat\'s context bar green, amber or red as the chat fills up.</string>
+    <string name="settings_show_context_window">Show context window</string>
+    <string name="settings_show_context_window_summary">Shows at the top of the chat how much of the model\'s context the chat uses, green to red as it fills.</string>
     <string name="settings_memory">Memory</string>
     <string name="memory_off">Off</string>
     <string name="memory_per_model">Per model</string>

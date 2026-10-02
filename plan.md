@@ -153,8 +153,9 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   newest first; the user starts a new chat, resumes, renames, archives or deletes
   one, and can archive or delete several at once. Archived chats are kept but
   leave the main list. Stored locally; export follows. `done` (export not yet)
-- **Context management** — The chat shows how much of the model's context is in
-  use and how much is free, with a note that a full context does not stop the
+- **Context management** — When "Show context window" is on (Appearance, off by
+  default; owner, 2026-10-02), the chat shows how much of the model's context is
+  in use, green to amber to red as it fills, and how much is free, with a note that a full context does not stop the
   chat: new messages push the oldest out. When the context overflows, the oldest
   messages are dropped (the system prompt and skills are kept). Optional
   auto-summarise, off by default: when on, older messages are summarised once use
@@ -515,6 +516,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-10-02 | Changed | The context bar is always coloured green to red; the traffic-light setting is replaced by "Show context window", off by default (owner). |
 | 2026-10-02 | Changed | Recommended models settled: the bins rule, Gemma 4 E2B, MiniCPM5 2B and Qwen3 1.7B for 8 and 12 GB, Qwen3 1.7B Q4_K_M as slow but usable for 4 GB; the browser marks and ranks them (owner delegated, TASK-106, TASK-107). |
 | 2026-10-02 | Added | Free search providers: Wikipedia (no key) and LangSearch (free key) alongside Brave (owner) (TASK-113). |
 | 2026-10-02 | Changed | Setup wizard asks which kinds of skills to turn on, with a warning when the system prompt takes over 25% of the context; reverses "no skill toggles" of 2026-09-28 (owner) (TASK-112). |

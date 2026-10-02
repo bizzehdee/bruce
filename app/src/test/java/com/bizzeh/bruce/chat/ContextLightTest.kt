@@ -10,7 +10,6 @@ import com.bizzeh.bruce.ui.theme.TrafficLights
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,18 +33,15 @@ class ContextLightTest {
     }
 
     @Test
-    fun theThemeProvidesLightsOnlyWhenTheSettingIsOn() {
+    fun theThemeAlwaysProvidesLights() {
         var on: TrafficLights? = null
-        var off: TrafficLights? = null
         var dark: TrafficLights? = null
         compose.setContent {
             BruceTheme(ThemeSettings(ThemeMode.LIGHT)) { on = LocalTrafficLights.current }
-            BruceTheme(ThemeSettings(ThemeMode.LIGHT, contextTrafficLights = false)) { off = LocalTrafficLights.current }
             BruceTheme(ThemeSettings(ThemeMode.DARK)) { dark = LocalTrafficLights.current }
         }
 
         assertNotNull(on)
-        assertNull(off)
         assertNotEquals("dark mode has its own, lighter shades", on, dark)
     }
 }
