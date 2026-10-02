@@ -243,7 +243,15 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                     FilterChip(
                         selected = state.inference.contextLength == length,
                         onClick = { actions.setContextLength(length) },
-                        label = { Text(length?.let(SettingsText::contextLabel) ?: stringResource(R.string.settings_context_auto)) },
+                        label = {
+                            Text(
+                                when {
+                                    length != null -> SettingsText.contextLabel(length)
+                                    state.autoContext != null -> stringResource(R.string.settings_context_auto_size, SettingsText.contextLabel(state.autoContext))
+                                    else -> stringResource(R.string.settings_context_auto)
+                                },
+                            )
+                        },
                         modifier = Modifier.testTag("context:${length ?: "auto"}"),
                     )
                 }

@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.settings
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.getValue
@@ -120,6 +121,7 @@ class SettingsScreenTest {
     fun autoContextIsTheDefaultAndSaysWhatItPicked() {
         show(SettingsState(inference = InferenceDefaults(), autoContext = 8192))
         compose.onNodeWithTag("context:auto").performScrollTo().assertIsSelected()
+        compose.onNodeWithText("Auto (8K)").assertExists()
         compose.onNodeWithText("8K for the loaded model", substring = true).assertExists()
         compose.onNodeWithTag("context:65536").performScrollTo().performClick()
         assertEquals(listOf("context 65536"), calls)
@@ -129,6 +131,7 @@ class SettingsScreenTest {
     fun aChosenContextHidesTheAutoNoteAndAutoCanBeChosenAgain() {
         show(SettingsState(inference = InferenceDefaults(contextLength = 4096)))
         compose.onNodeWithTag("contextAuto").assertDoesNotExist()
+        compose.onNodeWithTag("context:auto").assertTextEquals("Auto")
         compose.onNodeWithTag("context:auto").performScrollTo().performClick()
         assertEquals(listOf("context null"), calls)
     }
