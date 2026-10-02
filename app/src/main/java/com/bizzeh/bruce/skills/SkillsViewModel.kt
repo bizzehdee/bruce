@@ -34,10 +34,10 @@ class SkillsViewModel(
      */
     fun set(skill: Skill, state: SkillState, highRiskWarningAccepted: Boolean = false) {
         viewModelScope.launch {
-            if (store.set(skill, state, highRiskWarningAccepted) != StateChange.Changed || state == SkillState.DECLINED) return@launch
-            skill.companions.mapNotNull { registry[it] }
-                .filter { store.state(it) == SkillState.DECLINED }
-                .forEach { store.set(it, if (it.highRisk || it.confirmEveryUse) SkillState.ASK else state) }
+            // Companions are read first, so the last thing this does is a write the screen shows.
+            val off = if (state == SkillState.DECLINED) emptyList() else skill.companions.mapNotNull { registry[it] }.filter { store.state(it) == SkillState.DECLINED }
+            if (store.set(skill, state, highRiskWarningAccepted) != StateChange.Changed) return@launch
+            off.forEach { store.set(it, if (it.highRisk || it.confirmEveryUse) SkillState.ASK else state) }
         }
     }
 
