@@ -1,6 +1,7 @@
 package com.bizzeh.bruce.runtime
 
 import android.util.Log
+import com.bizzeh.bruce.chat.ThinkingText
 import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.inference.GenerationStats
 import com.bizzeh.bruce.inference.InferenceEngine
@@ -191,7 +192,7 @@ class BruceRuntime(
                 when (event) {
                     is StepEvent.Text -> {
                         shown.append(event.text)
-                        if (!limit.answering && shown.replace(THINKING, "").isNotBlank()) limit.answering = true
+                        if (!limit.answering && ThinkingText.split(shown.toString()).answer.isNotBlank()) limit.answering = true
                         emit(RuntimeEvent.Text(event.text))
                     }
                     is StepEvent.Done -> done = event
@@ -208,7 +209,7 @@ class BruceRuntime(
             if (parsed.toolCalls.isNotEmpty() && limit.expired) throw TimedOut()
             if (parsed.toolCalls.isEmpty()) {
                 // MiniCPM5 answered nothing after reading a page of menus (2026-10-02); say so rather than show nothing.
-                if (parsed.content.replace(THINKING, "").isBlank()) return emit(RuntimeEvent.Failed(RuntimeError.EMPTY_REPLY, added.toList()))
+                if (ThinkingText.split(parsed.content).answer.isBlank()) return emit(RuntimeEvent.Failed(RuntimeError.EMPTY_REPLY, added.toList()))
                 return emit(RuntimeEvent.Finished(added.toList()))
             }
 
@@ -434,7 +435,7 @@ class BruceRuntime(
         val lastRequest = history.indexOfLast { it.role == ChatRole.USER }
         val said = contentWords(history.drop(lastRequest.coerceAtLeast(0)).filter { it.role == ChatRole.USER }.joinToString(" ") { it.content })
         val known = memory.flatMap { listOf(sameFact(it), sameFact(Facts.aboutUser(it))) }.toSet()
-        return THINKING.replace(reply.content, "").lines()
+        return ThinkingText.split(reply.content).answer.lines()
             .map { it.trim().removePrefix("-").removePrefix("*").removePrefix("•").trim() }
             .filter { it.isNotEmpty() && !it.startsWith("NONE", ignoreCase = true) && !it.startsWith("<") }
             .filter { fact -> contentWords(fact).any(said::contains) }
@@ -479,7 +480,6 @@ class BruceRuntime(
             "from", "they", "them", "their", "what", "when", "where", "who", "how", "can", "will", "would", "could", "should",
             "just", "about", "like", "love", "want", "need", "get", "got", "also", "very", "some", "any", "all", "our", "out", "its",
         )
-        private val THINKING = Regex("<think>.*?(</think>|$)", RegexOption.DOT_MATCHES_ALL)
         const val NO_GRANTS = "The user has not granted any files or folders. If they ask about files, tell them to grant one in Settings, Permissions."
         const val REPEAT_NOTE = "You already have this result. Do not call a tool again: answer the user now, using it."
         const val LIMIT_NOTE = "No more tool calls this turn. Answer the user now with the results you already have, and say if they were not enough."

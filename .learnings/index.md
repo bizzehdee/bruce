@@ -39,3 +39,4 @@
 - [model-bins.md](model-bins.md) — Which small models Bruce recommends per phone type and why; the 4 GB no-dot-product tier has none. Read before changing suggested models, the bins or the recommendation rule.
 - [native-calls-ignore-cancellation.md](native-calls-ignore-cancellation.md) — Timeouts and Stop cannot interrupt a blocking JNI call; Bruce aborts llama.cpp decoding through its abort callback. Read before adding a long native call or changing how generation stops.
 - [auto-context-memory.md](auto-context-memory.md) — Why Auto is sized from 30% of RAM, not free memory, and how to tell when a model is being read back from storage. Read before changing Auto or memory estimates.
+- [gemma4-channel-reasoning-and-short-service.md](gemma4-channel-reasoning-and-short-service.md) — Gemma 4 reasoning tags (`<|channel>thought`) and the 3-minute short-service timeout that cut a visible reply. Read when a reply ends early or a model's thinking shows in chat.
