@@ -355,7 +355,7 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (`notifications` package, `chat/TurnObserver.kt`): each turn starts `ReplyService`, a `shortService` foreground service on Android 14 and later (a plain one before; research/sources/android-fgs-types-2026-09-29), with a silent "Bruce is writing a reply" notification, and stops it when the turn ends; at Android's time limit the turn is stopped and what was written kept. A reply finished while no Bruce screen is showing is announced on the Replies channel; tapping it opens that chat. The permission is asked once, on the first message sent, if Android 13+ needs it and it has not been asked for a reply before; refused, replies still complete.
   - Device-tested on the XZ Premium (Android 13): the permission prompt came with the first message; with Home pressed mid-reply the service ran in the foreground, the reply finished, "Your reply is ready" was posted and the service stopped; tapping it opened the chat with the reply; a reply with the chat on screen posted nothing. The `shortService` type itself (Android 14+) was not device-tested: the Pixel 11 was not connected.
   - Depends on: TASK-032
-  - Required by: TASK-094, TASK-095
+  - Required by: TASK-094, TASK-095, TASK-115
 - [x] TASK-049: Folder instructions (AGENTS.md and .agents/)
   - When Bruce works in a granted folder, check the folder root for `AGENTS.md` and the `.agents/` directory. Only those locations; nested `AGENTS.md` files and other tools' files (`CLAUDE.md`, `GEMINI.md`) are not read.
   - The first time Bruce finds instructions in a folder, show them and ask whether to follow them for that folder. The answer is stored against the files' content hash; any change asks again. Declined instructions are ignored.
@@ -852,3 +852,16 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Google Play's AI-Generated Content policy: "Apps that generate content using AI must contain in-app user reporting or flagging features that allow users to report or flag offensive content to developers without needing to exit the app" (`research/sources/google-play-policy-2026-10-02/`). Bruce is a text-to-text chatbot, so it is in scope; Play publishing is blocked until this exists. F-Droid and GitHub Releases are not affected.
   - Open, for the owner: how a report reaches the developer, given the developer runs no server and Bruce sends nothing without the user's action. Options: (a) a "Report reply" action on each reply that, after showing exactly what will be sent, posts the reply, the prompt and the model's name to a small report endpoint the owner runs; (b) the same report sent by email from inside the app through a share or compose screen the user confirms; (c) a report form on the owner's website opened in an in-app browser tab with the reply prefilled. Each needs the privacy policy and data safety form updated.
   - Depends on: TASK-017
+- [ ] TASK-115: Turn time limit setting and reply service type
+  - Owner (2026-10-06): Settings gains "Longest wait for a reply": 1 to 10 minutes, default 5. It replaces the fixed 3-minute turn limit (`BruceRuntime.MAX_DURATION`). Existing rules stay: the limit cuts work the user cannot see, and a visible answer is let finish.
+  - `ReplyService` is a short foreground service, which Android ends at about 3 minutes, so an off-screen turn cannot reach 5 to 10 minutes. Change its type to one without that limit. Owner (2026-10-06): use `specialUse`, with its manifest property and a declaration for Google Play (`dataSync` was rejected: its name does not describe local inference and it has its own time cap on Android 15).
+  - On screen, the service's timeout must not stop the turn (done in `fa40567`).
+  - Tests: the setting's range, default and persistence; the runtime uses the setting; a UI test for the Settings control.
+  - Depends on: TASK-048
+  - Required by: TASK-116
+- [ ] TASK-116: Error and Retry after 1 minute with no output
+  - Owner (2026-10-06): when the model writes no text for 1 minute, the turn stops and the chat shows an error with a Retry button. Retry sends the same prompt again. The 1 minute is fixed, not a setting.
+  - Any streamed model text, thinking included, restarts the timer. The timer pauses while a skill runs. Owner (2026-10-06): reading the prompt counts as waiting. A first token that takes more than 1 minute means the model is too big for the phone, so the error is correct.
+  - Adds a `RuntimeError` value for it and its message in the chat.
+  - Tests: stop with no output; timer restarts on text; timer pauses during a skill; Retry re-sends the prompt; the error shows with the Retry button.
+  - Depends on: TASK-115
