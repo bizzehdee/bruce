@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.settings
 
+import kotlin.math.roundToInt
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,12 +30,15 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -277,25 +281,16 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 supportingContent = { Text(stringResource(R.string.settings_thinking_summary)) },
                 trailingContent = { Switch(state.inference.thinking, actions::setThinking, modifier = Modifier.testTag("thinking")) },
             )
-            Label(R.string.settings_max_wait)
-            Chips {
-                InferenceDefaults.WAIT_MINUTES_CHOICES.forEach { minutes ->
-                    FilterChip(
-                        selected = state.inference.maxWaitMinutes == minutes,
-                        onClick = { actions.setMaxWaitMinutes(minutes) },
-                        label = { Text(stringResource(R.string.settings_max_wait_minutes, minutes)) },
-                        modifier = Modifier.testTag("wait:$minutes"),
-                    )
-                }
-            }
             Text(
-                stringResource(R.string.settings_max_wait_note),
+                stringResource(R.string.settings_defaults_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
+            Label(R.string.settings_max_wait)
+            MaxWaitSlider(state.inference.maxWaitMinutes, actions::setMaxWaitMinutes)
             Text(
-                stringResource(R.string.settings_defaults_note),
+                stringResource(R.string.settings_max_wait_note),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp),
@@ -557,6 +552,24 @@ private fun FileSearchSection(search: FileSearchState, networkAllowed: Boolean, 
             text = { Text(stringResource(R.string.search_remove_text)) },
             confirmButton = { TextButton(onClick = { confirmRemove = false; actions.removeSearch() }, modifier = Modifier.testTag("confirmSearchRemove")) { Text(stringResource(R.string.search_remove), color = MaterialTheme.colorScheme.error) } },
             dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text(stringResource(R.string.settings_cancel)) } },
+        )
+    }
+}
+
+/** Saves the minutes when the finger lifts, not at each step of the drag. */
+@Composable
+private fun MaxWaitSlider(minutes: Int, onChosen: (Int) -> Unit) {
+    var shown by remember(minutes) { mutableFloatStateOf(minutes.toFloat()) }
+    val range = InferenceDefaults.WAIT_MINUTES_CHOICES
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(stringResource(R.string.settings_max_wait_minutes, shown.roundToInt()), style = MaterialTheme.typography.bodyLarge, modifier = Modifier.testTag("waitValue"))
+        Slider(
+            value = shown,
+            onValueChange = { shown = it },
+            onValueChangeFinished = { onChosen(shown.roundToInt()) },
+            valueRange = range.first.toFloat()..range.last.toFloat(),
+            steps = range.last - range.first - 1,
+            modifier = Modifier.testTag("wait"),
         )
     }
 }

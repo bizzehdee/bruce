@@ -12,6 +12,8 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import com.bizzeh.bruce.huggingface.HubAccount
@@ -122,11 +124,11 @@ class SettingsScreenTest {
     }
 
     @Test
-    fun longestWaitShowsTheChosenMinutesAndCanBeChanged() {
+    fun longestWaitSliderShowsTheChosenMinutesAndSavesAChange() {
         show(SettingsState(inference = InferenceDefaults(maxWaitMinutes = 7)))
 
-        compose.onNodeWithTag("wait:7").performScrollTo().assertIsSelected()
-        compose.onNodeWithTag("wait:10").performScrollTo().performClick()
+        compose.onNodeWithTag("waitValue").performScrollTo().assertTextEquals("7 min")
+        compose.onNodeWithTag("wait").performSemanticsAction(SemanticsActions.SetProgress) { it(10f) }
 
         assertEquals(listOf("wait 10"), calls)
     }
