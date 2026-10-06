@@ -122,6 +122,7 @@ import com.bizzeh.bruce.settings.NetworkSettingsRepository
 import com.bizzeh.bruce.settings.PersonalitySettingsRepository
 import com.bizzeh.bruce.settings.SummarySettingsRepository
 import kotlinx.coroutines.flow.first
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.withContext
 import com.bizzeh.bruce.settings.ThemeSettingsRepository
 import com.bizzeh.bruce.settings.settingsDataStore
@@ -175,10 +176,6 @@ class AppContainer(private val context: Context) {
     /** Whether a Bruce screen is showing; MainActivity keeps it up to date. */
     @Volatile
     var onScreen: Boolean = false
-
-    /** Stops the turn in progress; set by the chat, used when Android ends the reply service. */
-    @Volatile
-    var stopTurn: () -> Unit = {}
 
     /** Keeps a turn alive off screen and announces its reply there (TASK-048). */
     val turnObserver: TurnObserver = object : TurnObserver {
@@ -517,7 +514,7 @@ class AppContainer(private val context: Context) {
                 else -> grantScope.check(request)
             }
         }, requirementMet = ::requirementMet, sites = sites)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, thinking = { modelSelection.activeThinking() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages)
+        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, maxDuration = { inferenceSettings.defaults.first().maxWaitMinutes.minutes }, thinking = { modelSelection.activeThinking() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages)
     }
 
     val dataReset: DataReset by lazy {

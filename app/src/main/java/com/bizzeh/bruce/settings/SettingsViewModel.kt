@@ -106,6 +106,8 @@ class SettingsViewModel(
 
     fun setThinking(enabled: Boolean) = launch { inference.setThinking(enabled) }
 
+    fun setMaxWaitMinutes(minutes: Int) = launch { inference.setMaxWaitMinutes(minutes) }
+
     fun clearAllData() = launch { dataReset.clearAll() }
 
     private fun launch(block: suspend () -> Unit) {

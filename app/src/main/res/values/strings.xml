@@ -260,6 +260,9 @@
     <string name="settings_threads_auto">Auto (%1$d)</string>
     <string name="settings_context">Context length (tokens)</string>
     <string name="settings_context_auto">Auto</string>
+    <string name="settings_max_wait">Longest wait for a reply</string>
+    <string name="settings_max_wait_minutes">%1$d min</string>
+    <string name="settings_max_wait_note">A reply that is not finished after this long is stopped. The text already written stays. A reply being shown on screen is let finish.</string>
     <string name="settings_thinking">Think before replying</string>
     <string name="settings_thinking_summary">Models that can reason first do so. Replies take longer; the reasoning shows folded above the answer. Some models always think, whatever this says.</string>
     <string name="models_on">On</string>

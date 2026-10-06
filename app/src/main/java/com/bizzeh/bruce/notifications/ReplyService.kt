@@ -10,25 +10,15 @@ import com.bizzeh.bruce.appContainer
 
 /**
  * Keeps Bruce running while a reply is written with the screen off or another app in front
- * (TASK-048). A short service on Android 14 and later: its limit of about three minutes matches a
- * turn's own (BruceRuntime.MAX_DURATION); at the limit an off-screen turn is stopped and what was written kept; one the user watches runs on.
+ * (TASK-048). A special-use service on Android 14 and later, which Android does not time out: the
+ * turn's own limit (the Longest wait setting, TASK-115) ends the reply, and the turn stops the service.
  */
 class ReplyService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE else 0
+        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
         ServiceCompat.startForeground(this, ReplyNotifications.WORKING_ID, appContainer.replyNotifications.working(), type)
         return START_NOT_STICKY
-    }
-
-    // Android 14 calls the first, Android 15 and later the second.
-    override fun onTimeout(startId: Int) = timedOut()
-
-    override fun onTimeout(startId: Int, fgsType: Int) = timedOut()
-
-    private fun timedOut() {
-        if (!appContainer.onScreen) appContainer.stopTurn()
-        stopSelf()
     }
 }

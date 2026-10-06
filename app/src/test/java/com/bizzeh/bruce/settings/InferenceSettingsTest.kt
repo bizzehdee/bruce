@@ -49,6 +49,28 @@ class InferenceSettingsTest {
     }
 
     @Test
+    fun maxWaitDefaultsToFiveMinutesAndStoresOneToTen() = runTest {
+        val repository = InferenceSettingsRepository(store())
+        assertEquals(5, repository.defaults.first().maxWaitMinutes)
+
+        repository.setMaxWaitMinutes(10)
+        assertEquals(10, repository.defaults.first().maxWaitMinutes)
+        repository.setMaxWaitMinutes(1)
+        assertEquals(1, repository.defaults.first().maxWaitMinutes)
+
+        assertThrows<IllegalArgumentException> { repository.setMaxWaitMinutes(0) }
+        assertThrows<IllegalArgumentException> { repository.setMaxWaitMinutes(11) }
+    }
+
+    @Test
+    fun aStoredMaxWaitOutsideOneToTenFallsBack() = runTest {
+        val dataStore = store()
+        dataStore.edit { it[intPreferencesKey("max_wait_minutes")] = 99 }
+
+        assertEquals(5, InferenceSettingsRepository(dataStore).defaults.first().maxWaitMinutes)
+    }
+
+    @Test
     fun contextChoicesRunFrom2kTo64k() {
         assertEquals(listOf("2K", "4K", "8K", "16K", "24K", "32K", "48K", "64K"), InferenceDefaults.CONTEXT_CHOICES.map(SettingsText::contextLabel))
     }

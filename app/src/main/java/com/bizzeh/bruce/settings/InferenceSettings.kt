@@ -21,6 +21,8 @@ data class InferenceDefaults(
     val contextLength: Int? = null,
     /** Models that can reason before answering do so (TASK-110); off by default, as it costs seconds per reply. */
     val thinking: Boolean = false,
+    /** The longest a turn may take, in minutes (TASK-115). */
+    val maxWaitMinutes: Int = DEFAULT_WAIT_MINUTES,
 ) {
     /** [contextLength] is the size to load with: this default's, a model's own, or the automatic one. */
     fun toLoadConfig(contextLength: Int): LoadConfig = if (threads == null) {
@@ -38,6 +40,8 @@ data class InferenceDefaults(
         const val FALLBACK_CONTEXT = 4096
         val CONTEXT_CHOICES = listOf(2048, 4096, 8192, 16384, 24576, 32768, 49152, 65536)
         const val MAX_THREADS = 16
+        val WAIT_MINUTES_CHOICES = 1..10
+        const val DEFAULT_WAIT_MINUTES = 5
     }
 }
 
@@ -49,6 +53,7 @@ class InferenceSettingsRepository(private val dataStore: DataStore<Preferences>)
             threads = preferences[THREADS]?.takeIf { it in 1..InferenceDefaults.MAX_THREADS },
             contextLength = preferences[CONTEXT]?.takeIf { it in InferenceDefaults.CONTEXT_CHOICES },
             thinking = preferences[THINKING] ?: false,
+            maxWaitMinutes = preferences[MAX_WAIT]?.takeIf { it in InferenceDefaults.WAIT_MINUTES_CHOICES } ?: InferenceDefaults.DEFAULT_WAIT_MINUTES,
         )
     }
 
@@ -72,7 +77,13 @@ class InferenceSettingsRepository(private val dataStore: DataStore<Preferences>)
         dataStore.edit { it[THINKING] = enabled }
     }
 
+    suspend fun setMaxWaitMinutes(minutes: Int) {
+        require(minutes in InferenceDefaults.WAIT_MINUTES_CHOICES) { "wait out of range: $minutes" }
+        dataStore.edit { it[MAX_WAIT] = minutes }
+    }
+
     private companion object {
+        val MAX_WAIT = intPreferencesKey("max_wait_minutes")
         val THINKING = booleanPreferencesKey("default_thinking")
         val BACKEND = stringPreferencesKey("default_backend")
         val THREADS = intPreferencesKey("default_threads")

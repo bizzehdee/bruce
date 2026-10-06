@@ -58,6 +58,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import java.io.File
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 /** The agent loop with the real registry, policy engine and skill states (in-memory Room); only the model is scripted. */
@@ -83,7 +84,7 @@ class BruceRuntimeTest {
     private val engine = ScriptedEngine()
 
     private fun runtime(maxToolCalls: Int = 5, maxDuration: kotlin.time.Duration = 10.seconds) =
-        BruceRuntime(engine, registry, states, policy, temperature = { 0.3f }, personality = { "You are Milo.\n" }, maxToolCalls = maxToolCalls, maxDuration = maxDuration)
+        BruceRuntime(engine, registry, states, policy, temperature = { 0.3f }, personality = { "You are Milo.\n" }, maxToolCalls = maxToolCalls, maxDuration = { maxDuration })
 
     private val question = listOf(ToolChatMessage(ChatRole.USER, "What time is it?"))
 
@@ -633,6 +634,22 @@ class BruceRuntimeTest {
 
         assertEquals(RuntimeError.TIMED_OUT, failed.error)
         assertEquals(1, engine.stops)
+    }
+
+    @Test
+    fun theTimeLimitIsReadAtTheStartOfEachTurn() {
+        engine.hang = true
+        var limit = 10.seconds
+        val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0.3f }, personality = { "You are Milo.\n" }, maxDuration = { limit })
+
+        limit = 50.milliseconds
+
+        assertEquals(RuntimeError.TIMED_OUT, (events(runtime).last() as RuntimeEvent.Failed).error)
+    }
+
+    @Test
+    fun aTurnMayTakeFiveMinutesUnlessSettingsSaysOtherwise() {
+        assertEquals(5.minutes, BruceRuntime.MAX_DURATION)
     }
 
     @Test

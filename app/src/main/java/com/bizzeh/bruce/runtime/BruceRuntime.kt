@@ -99,7 +99,7 @@ enum class RuntimeError {
 /**
  * One user turn: the model may call skills, each through the policy engine, and sees each result
  * before it answers (plan.md, BruceRuntime; ADR 0001 for the formats). Bounded by [maxToolCalls]
- * and [maxDuration]; cancelling collection stops it. [maxDuration] waits while an answer the user can
+ * and [maxDuration]; cancelling collection stops it. [maxDuration] (5 minutes unless Settings says otherwise) waits while an answer the user can
  * see is streaming, and ends the turn if the model then asks for more skills.
  */
 class BruceRuntime(
@@ -117,7 +117,8 @@ class BruceRuntime(
     /** Whether a requirement other than a file grant holds (AppContainer.requirementMet); skills needing one that does not are locked off. */
     private val requirementMet: suspend (SkillRequirement) -> Boolean = { true },
     private val maxToolCalls: Int = MAX_TOOL_CALLS,
-    private val maxDuration: Duration = MAX_DURATION,
+    /** The longest a turn may take; read at the start of each turn so a change in Settings applies at once (TASK-115). */
+    private val maxDuration: suspend () -> Duration = { MAX_DURATION },
     private val maxReplyTokens: Int = MAX_REPLY_TOKENS,
     /** A remote server's backend when the chosen model runs on one (TASK-076); otherwise the phone's. */
     private val remote: suspend () -> ChatBackend? = { null },
@@ -141,11 +142,12 @@ class BruceRuntime(
     fun respond(history: List<ToolChatMessage>, memory: List<String> = emptyList(), unattended: Boolean = false): Flow<RuntimeEvent> = flow {
         val added = mutableListOf<ToolChatMessage>()
         val limit = TurnLimit()
+        val allowed = maxDuration()
         try {
             coroutineScope {
                 val turn = this
                 val watchdog = launch {
-                    delay(maxDuration)
+                    delay(allowed)
                     limit.expired = true
                     if (!limit.answering) turn.cancel(TimedOut())
                 }
@@ -465,7 +467,7 @@ class BruceRuntime(
 
     companion object {
         const val MAX_TOOL_CALLS = 5
-        val MAX_DURATION: Duration = 3.minutes
+        val MAX_DURATION: Duration = 5.minutes
         const val MAX_REPLY_TOKENS = 4096
 
         private const val TAG = "BruceRuntime"

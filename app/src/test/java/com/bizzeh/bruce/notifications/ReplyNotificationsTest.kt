@@ -1,11 +1,9 @@
 package com.bizzeh.bruce.notifications
 
-import android.app.Application
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import androidx.test.core.app.ApplicationProvider
-import com.bizzeh.bruce.appContainer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -55,16 +53,9 @@ class ReplyNotificationsTest {
     }
 
     @Test
-    fun theServiceRunsInTheForegroundAndStopsTheTurnWhenAndroidEndsIt() {
-        var stopped = 0
-        (context as Application).appContainer.stopTurn = { stopped++ }
+    fun theServiceRunsInTheForeground() {
         val controller = Robolectric.buildService(ReplyService::class.java, Intent(context, ReplyService::class.java)).create().startCommand(0, 1)
 
         assertNotNull(shadowOf(controller.get()).lastForegroundNotification)
-        controller.get().onTimeout(1)
-        controller.get().onTimeout(1, 0)
-
-        assertEquals(2, stopped)
-        assertTrue(shadowOf(controller.get()).isStoppedBySelf)
     }
 }

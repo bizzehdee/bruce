@@ -100,6 +100,7 @@ interface SettingsActions {
     /** Null is Auto. */
     fun setContextLength(contextLength: Int?)
     fun setThinking(enabled: Boolean) = Unit
+    fun setMaxWaitMinutes(minutes: Int) = Unit
     fun clearAllData()
     fun deleteAllConversations()
     fun exportAllConversations(format: ExportFormat) = Unit
@@ -275,6 +276,23 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 headlineContent = { Text(stringResource(R.string.settings_thinking)) },
                 supportingContent = { Text(stringResource(R.string.settings_thinking_summary)) },
                 trailingContent = { Switch(state.inference.thinking, actions::setThinking, modifier = Modifier.testTag("thinking")) },
+            )
+            Label(R.string.settings_max_wait)
+            Chips {
+                InferenceDefaults.WAIT_MINUTES_CHOICES.forEach { minutes ->
+                    FilterChip(
+                        selected = state.inference.maxWaitMinutes == minutes,
+                        onClick = { actions.setMaxWaitMinutes(minutes) },
+                        label = { Text(stringResource(R.string.settings_max_wait_minutes, minutes)) },
+                        modifier = Modifier.testTag("wait:$minutes"),
+                    )
+                }
+            }
+            Text(
+                stringResource(R.string.settings_max_wait_note),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
             Text(
                 stringResource(R.string.settings_defaults_note),

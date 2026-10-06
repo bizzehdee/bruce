@@ -258,7 +258,6 @@ class MainActivity : ComponentActivity() {
             handleAssist(intent)
             handleShare(intent)
         }
-        container.stopTurn = { chat.stop() }
         if (savedInstanceState == null) {
             removeUnusedImages()
             // Alarms are cleared when Bruce is force-stopped; setting them again is harmless.
@@ -863,6 +862,7 @@ class MainActivity : ComponentActivity() {
         override fun setThreads(threads: Int?) = settings.setThreads(threads)
         override fun setContextLength(contextLength: Int?) = settings.setContextLength(contextLength)
         override fun setThinking(enabled: Boolean) = settings.setThinking(enabled)
+        override fun setMaxWaitMinutes(minutes: Int) = settings.setMaxWaitMinutes(minutes)
         override fun clearAllData() {
             settings.clearAllData()
             chat.newChat()

@@ -41,6 +41,7 @@ class SettingsScreenTest {
         override fun setThinking(enabled: Boolean) { calls += "thinking $enabled" }
         override fun setBackend(backend: BackendPreference) { calls += "backend $backend" }
         override fun setThreads(threads: Int?) { calls += "threads $threads" }
+        override fun setMaxWaitMinutes(minutes: Int) { calls += "wait $minutes" }
         override fun setContextLength(contextLength: Int?) { calls += "context $contextLength" }
         override fun clearAllData() { calls += "clear" }
         override fun deleteAllConversations() { calls += "deleteChats" }
@@ -118,6 +119,16 @@ class SettingsScreenTest {
 
         assertEquals(listOf("theme DARK", "dynamic true", "context window true", "backend CPU", "threads 2", "threads null", "context 8192"), calls)
         compose.onNodeWithText("Auto (4)").assertIsDisplayed()
+    }
+
+    @Test
+    fun longestWaitShowsTheChosenMinutesAndCanBeChanged() {
+        show(SettingsState(inference = InferenceDefaults(maxWaitMinutes = 7)))
+
+        compose.onNodeWithTag("wait:7").performScrollTo().assertIsSelected()
+        compose.onNodeWithTag("wait:10").performScrollTo().performClick()
+
+        assertEquals(listOf("wait 10"), calls)
     }
 
     @Test

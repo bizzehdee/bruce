@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <!-- Network status skill: whether the phone is online and how; granted at install. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Voice input (TASK-074), through Android's on-device recogniser only; asked on first use. -->
@@ -70,11 +71,15 @@
         android:theme="@style/Theme.Bruce"
         tools:targetApi="36">
         <!-- singleTask so the sign-in redirect returns to the running app, not a new copy. -->
-        <!-- Keeps a reply going with Bruce off screen (TASK-048); a short service, ended with the turn. -->
+        <!-- Keeps a reply going with Bruce off screen (TASK-048, TASK-115); ended with the turn, whose own time limit bounds it. -->
         <service
             android:name=".notifications.ReplyService"
             android:exported="false"
-            android:foregroundServiceType="shortService" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="On-device language model inference: keeps a chat reply being written while Bruce is not on screen, until the reply is finished or the user stops it." />
+        </service>
 
         <activity
             android:name=".MainActivity"
