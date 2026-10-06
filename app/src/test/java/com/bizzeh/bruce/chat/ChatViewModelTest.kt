@@ -394,6 +394,7 @@ class ChatViewModelTest {
             RuntimeError.TOO_MANY_TOOL_CALLS to ChatError.TOO_MANY_TOOL_CALLS,
             RuntimeError.TIMED_OUT to ChatError.TIMED_OUT,
             RuntimeError.EMPTY_REPLY to ChatError.EMPTY_REPLY,
+            RuntimeError.NO_OUTPUT to ChatError.NO_OUTPUT,
         ).forEach { (runtimeError, chatError) ->
             turns += flowOf(RuntimeEvent.Failed(runtimeError, emptyList()))
             val vm = viewModel()
@@ -414,6 +415,34 @@ class ChatViewModelTest {
         chat("two", vm)
 
         assertNull(vm.state.value.error)
+    }
+
+    @Test
+    fun retryAfterNoOutputAsksTheSameQuestionAgain() = runTest(dispatcher) {
+        turns += flowOf(RuntimeEvent.Failed(RuntimeError.NO_OUTPUT, emptyList()))
+        turns += reply("ok")
+        val vm = viewModel()
+
+        chat("Hi", vm)
+        vm.retry()
+        advanceUntilIdle()
+
+        assertEquals(2, histories.size)
+        assertEquals(histories[0], histories[1])
+        assertNull(vm.state.value.error)
+        assertEquals("ok", vm.state.value.entries.last().text)
+    }
+
+    @Test
+    fun retryDoesNothingAfterOtherErrors() = runTest(dispatcher) {
+        turns += flowOf(RuntimeEvent.Failed(RuntimeError.GENERATION_FAILED, emptyList()))
+        val vm = viewModel()
+
+        chat("Hi", vm)
+        vm.retry()
+        advanceUntilIdle()
+
+        assertEquals(1, histories.size)
     }
 
     @Test
@@ -504,5 +533,6 @@ class ChatViewModelTest {
         assertEquals(R.string.chat_error_too_many_tools, ChatText.error(ChatError.TOO_MANY_TOOL_CALLS))
         assertEquals(R.string.chat_error_timed_out, ChatText.error(ChatError.TIMED_OUT))
         assertEquals(R.string.chat_error_empty, ChatText.error(ChatError.EMPTY_REPLY))
+        assertEquals(R.string.chat_error_no_output, ChatText.error(ChatError.NO_OUTPUT))
     }
 }

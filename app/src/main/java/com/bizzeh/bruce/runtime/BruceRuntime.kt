@@ -20,6 +20,7 @@ import com.bizzeh.bruce.skills.SkillRequirement
 import com.bizzeh.bruce.skills.SkillState
 import com.bizzeh.bruce.skills.ToolOutput
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -94,6 +95,9 @@ enum class RuntimeError {
 
     /** The model ended its turn with no answer and no skill call, which the chat would otherwise show as nothing. */
     EMPTY_REPLY,
+
+    /** The model wrote nothing for [BruceRuntime.IDLE_TIMEOUT] (TASK-116). */
+    NO_OUTPUT,
 }
 
 /**
@@ -120,6 +124,8 @@ class BruceRuntime(
     /** The longest a turn may take; read at the start of each turn so a change in Settings applies at once (TASK-115). */
     private val maxDuration: suspend () -> Duration = { MAX_DURATION },
     private val maxReplyTokens: Int = MAX_REPLY_TOKENS,
+    /** How long the model may write nothing, prompt reading included, before the turn is stopped (TASK-116). */
+    private val idleTimeout: Duration = IDLE_TIMEOUT,
     /** A remote server's backend when the chosen model runs on one (TASK-076); otherwise the phone's. */
     private val remote: suspend () -> ChatBackend? = { null },
     /** Images attached to chats (TASK-082). */
@@ -151,12 +157,24 @@ class BruceRuntime(
                     limit.expired = true
                     if (!limit.answering) turn.cancel(TimedOut())
                 }
+                var idle: Job? = null
+                limit.arm = {
+                    idle?.cancel()
+                    idle = launch {
+                        delay(idleTimeout)
+                        turn.cancel(NoOutput())
+                    }
+                }
+                limit.disarm = { idle?.cancel() }
                 loop(history, memory, added, unattended, limit)
                 watchdog.cancel()
             }
         } catch (e: TimedOut) {
             backend().stop()
             emit(RuntimeEvent.Failed(RuntimeError.TIMED_OUT, added.toList()))
+        } catch (e: NoOutput) {
+            backend().stop()
+            emit(RuntimeEvent.Failed(RuntimeError.NO_OUTPUT, added.toList()))
         }
     }
 
@@ -168,9 +186,13 @@ class BruceRuntime(
     private class TurnLimit {
         @Volatile var expired = false
         @Volatile var answering = false
+        var arm: () -> Unit = {}
+        var disarm: () -> Unit = {}
     }
 
     private class TimedOut : CancellationException("the turn's time limit passed")
+
+    private class NoOutput : CancellationException("the model wrote nothing for too long")
 
     private suspend fun FlowCollector<RuntimeEvent>.loop(history: List<ToolChatMessage>, memory: List<String>, added: MutableList<ToolChatMessage>, unattended: Boolean, limit: TurnLimit) {
         val offer = offer(memory)
@@ -190,9 +212,11 @@ class BruceRuntime(
             var done: StepEvent.Done? = null
             var failure: RuntimeError? = null
             val shown = StringBuilder()
+            limit.arm()
             fitted.backend.generate(prompt, maxReplyTokens, temperature()).collect { event ->
                 when (event) {
                     is StepEvent.Text -> {
+                        limit.arm()
                         shown.append(event.text)
                         if (!limit.answering && ThinkingText.split(shown.toString()).answer.isNotBlank()) limit.answering = true
                         emit(RuntimeEvent.Text(event.text))
@@ -201,6 +225,7 @@ class BruceRuntime(
                     is StepEvent.Failed -> failure = event.error
                 }
             }
+            limit.disarm()
             limit.answering = false
             failure?.let { return emit(RuntimeEvent.Failed(it, added.toList())) }
             val step = done ?: return emit(RuntimeEvent.Failed(RuntimeError.GENERATION_FAILED, added.toList()))
@@ -468,6 +493,7 @@ class BruceRuntime(
     companion object {
         const val MAX_TOOL_CALLS = 5
         val MAX_DURATION: Duration = 5.minutes
+        val IDLE_TIMEOUT: Duration = 1.minutes
         const val MAX_REPLY_TOKENS = 4096
 
         private const val TAG = "BruceRuntime"

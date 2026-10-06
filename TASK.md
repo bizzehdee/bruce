@@ -860,9 +860,10 @@ Source of scope: `plan.md`. Current milestone: Phase 0 — Technical prototype.
   - Done (2026-10-06): Settings has "Longest wait for a reply", chips for 1 to 10 minutes, default 5; `BruceRuntime` reads it at the start of each turn (`maxDuration` is now a function). `ReplyService` is a `specialUse` service with the manifest permission and subtype property, so Android does not end it; the turn ends it. The service-timeout stop (`stopTurn`) was removed as dead. Google Play's special-use declaration is still to be written when publishing (TASK-114's neighbour work, owner). Unit and UI tests pass; not yet run on a phone.
   - Depends on: TASK-048
   - Required by: TASK-116
-- [ ] TASK-116: Error and Retry after 1 minute with no output
+- [x] TASK-116: Error and Retry after 1 minute with no output
   - Owner (2026-10-06): when the model writes no text for 1 minute, the turn stops and the chat shows an error with a Retry button. Retry sends the same prompt again. The 1 minute is fixed, not a setting.
   - Any streamed model text, thinking included, restarts the timer. The timer pauses while a skill runs. Owner (2026-10-06): reading the prompt counts as waiting. A first token that takes more than 1 minute means the model is too big for the phone, so the error is correct.
   - Adds a `RuntimeError` value for it and its message in the chat.
   - Tests: stop with no output; timer restarts on text; timer pauses during a skill; Retry re-sends the prompt; the error shows with the Retry button.
+  - Done (2026-10-06): `BruceRuntime` stops the turn when the model writes nothing for `IDLE_TIMEOUT` (1 minute), counting from the start of each generation, so prompt reading counts. Each streamed piece of text, thinking included, restarts the timer, so a stall after some text counts too. The timer is off while a skill runs. The failure is `RuntimeError.NO_OUTPUT` / `ChatError.NO_OUTPUT`; the chat shows "The model wrote nothing for 1 minute… may be too big or slow for this phone" with a Retry button (`ChatViewModel.retry` runs the same conversation again). Unit and UI tests pass; not yet run on a phone.
   - Depends on: TASK-115

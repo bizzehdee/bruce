@@ -799,6 +799,7 @@ class MainActivity : ComponentActivity() {
             chat.send()
         }
         override fun stop() = chat.stop()
+        override fun retry() = chat.retry()
         override fun decide(callId: String, approved: Boolean) = chat.decide(callId, approved)
         override fun alwaysAllowSites(callId: String) = chat.decide(callId, approved = true, alwaysAllowSites = true)
         override fun openLink(url: String) {

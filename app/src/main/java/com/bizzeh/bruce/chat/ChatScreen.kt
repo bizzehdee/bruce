@@ -79,6 +79,9 @@ interface ChatActions {
     fun send()
     fun stop()
 
+    /** Asks again after the model wrote nothing for a minute (TASK-116). */
+    fun retry() = Unit
+
     /** The user's answer to a skill call awaiting approval. */
     fun decide(callId: String, approved: Boolean)
 
@@ -147,6 +150,11 @@ fun ChatScreen(
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(horizontal = 16.dp).testTag("chatError"),
                 )
+                if (state.error == ChatError.NO_OUTPUT) {
+                    TextButton(onClick = actions::retry, modifier = Modifier.padding(horizontal = 8.dp).testTag("retry")) {
+                        Text(stringResource(R.string.chat_retry))
+                    }
+                }
             }
             state.conversation?.let { ConversationBar(it, state.sidekick, actions) }
             if (state.attachments.isNotEmpty() || state.documents.isNotEmpty()) Attachments(state, actions)
@@ -611,5 +619,6 @@ internal object ChatText {
         ChatError.TIMED_OUT -> R.string.chat_error_timed_out
         ChatError.SERVER_UNREACHABLE -> R.string.chat_error_server
         ChatError.EMPTY_REPLY -> R.string.chat_error_empty
+        ChatError.NO_OUTPUT -> R.string.chat_error_no_output
     }
 }

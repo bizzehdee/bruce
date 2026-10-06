@@ -123,6 +123,9 @@ enum class ChatError {
 
     /** The model gave no answer. */
     EMPTY_REPLY,
+
+    /** The model wrote nothing for a minute; the chat offers Retry (TASK-116). */
+    NO_OUTPUT,
 }
 
 class ChatViewModel(
@@ -298,6 +301,13 @@ class ChatViewModel(
         }
     }
 
+    /** Asks again after [ChatError.NO_OUTPUT]: the same conversation, answered afresh. */
+    fun retry() {
+        val current = mutableState.value
+        if (current.generating || current.error != ChatError.NO_OUTPUT) return
+        runTurn(current.entries)
+    }
+
     private fun runTurn(history: List<ChatEntry>) {
         val current = mutableState.value
         val turnSession = session
@@ -437,6 +447,7 @@ class ChatViewModel(
         RuntimeError.TIMED_OUT -> ChatError.TIMED_OUT
         RuntimeError.SERVER_UNREACHABLE -> ChatError.SERVER_UNREACHABLE
         RuntimeError.EMPTY_REPLY -> ChatError.EMPTY_REPLY
+        RuntimeError.NO_OUTPUT -> ChatError.NO_OUTPUT
     }
 
     private companion object {

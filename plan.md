@@ -154,8 +154,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   model is told to answer from what it has, and only fails if it still calls.
   The time limit waits while a visible answer streams; Stop and the limit also
   reach a prompt still being read). the time limit is a setting, 1 to 10 minutes,
-  default 5 (TASK-115, `done`); `planned` (TASK-116): a turn whose model writes
-  no text for 1 minute stops with an error and a Retry button)
+  default 5 (TASK-115, `done`); a turn whose model writes no text for 1
+  minute stops with an error and a Retry button (TASK-116, `done`))
 - **Conversations** — Saved conversations ("sessions"): the drawer lists them,
   newest first; the user starts a new chat, resumes, renames, archives or deletes
   one, and can archive or delete several at once. Archived chats are kept but

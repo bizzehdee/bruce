@@ -23,7 +23,7 @@ Bruce is an AI sidekick for Android that runs entirely on your phone. Loyal, loc
 - **Show it a picture.** With a model that can see (Bruce downloads its image support with it), add a photo or screenshot to a message. Images stay on the phone unless you use your own server's model.
 - **Share a document.** Attach a PDF or text file to a message and ask about it. Bruce reads its text on the phone; password-protected PDFs and scans without text cannot be read.
 - **Search.** If you turn it on, Bruce can search Wikipedia with no setup, or the whole web with your own free LangSearch key (or a Brave key).
-- **Thinking, if you want it.** Models answer straight away by default; turn on "Think before replying" in Settings to let models that can reason do so first. A spinner shows while Bruce is working, and you never see the raw tool calls.
+- **Thinking, if you want it.** Models answer straight away by default; turn on "Think before replying" in Settings to let models that can reason do so first. A spinner shows while Bruce is working, and you never see the raw tool calls. Bruce stops a reply that takes longer than the "Longest wait for a reply" setting (1 to 10 minutes, 5 by default). If the model writes nothing for 1 minute, Bruce stops it and offers Retry; the model may be too big for your phone.
 - **Readable replies.** Headings, lists, tables and code show formatted. Links ask before opening, and images from the web load only when you tap them.
 - **Your sidekick.** Pick a personality: Bruce, quick and eager, or Milo, calm and thoughtful.
 - **Your memory, if you want it.** Off unless you turn it on: Bruce then keeps short facts from your chats on the phone, uses them in later chats, and shows you every one to delete.

@@ -636,6 +636,49 @@ class BruceRuntimeTest {
         assertEquals(1, engine.stops)
     }
 
+    private fun idleRuntime(idleTimeout: kotlin.time.Duration, registry: SkillRegistry = this.registry) =
+        BruceRuntime(engine, registry, states, PolicyEngine(registry, states, ToolOutput(), permissionGranted = { true }, scope = { ScopeCheck.InScope() }), temperature = { 0.3f }, personality = { "P" }, idleTimeout = idleTimeout)
+
+    @Test
+    fun aModelThatWritesNothingForTheIdleTimeoutIsStopped() {
+        engine.hang = true
+
+        val failed = events(idleRuntime(50.milliseconds)).last() as RuntimeEvent.Failed
+
+        assertEquals(RuntimeError.NO_OUTPUT, failed.error)
+        assertEquals(1, engine.stops)
+    }
+
+    @Test
+    fun aModelThatStallsAfterWritingIsStoppedToo() {
+        engine.steps += Step("It is", ParsedReply("It is", "", emptyList()), slowMs = 600)
+
+        val events = events(idleRuntime(100.milliseconds))
+
+        assertEquals(RuntimeError.NO_OUTPUT, (events.last() as RuntimeEvent.Failed).error)
+    }
+
+    @Test
+    fun aModelThatWritesInTimeIsNotStopped() {
+        engine.steps += Step("It is noon.", ParsedReply("It is noon.", "", emptyList()))
+
+        assertEquals("It is noon.", (events(idleRuntime(5.seconds)).last() as RuntimeEvent.Finished).messages.last().content)
+    }
+
+    @Test
+    fun timeSpentRunningASkillIsNotIdleTime() {
+        val slow = Skill("slow_clock", 1, "Slow test skill.", InputSchema(emptyList()), setOf(Capability.TIME), SkillState.ACCEPTED) {
+            Thread.sleep(300)
+            SkillOutcome.Done("noon")
+        }
+        engine.steps += Step("<call>", ParsedReply("", "", listOf(ToolCall("slow_clock", "{}"))))
+        engine.steps += Step("It is noon.", ParsedReply("It is noon.", "", emptyList()))
+
+        val events = events(idleRuntime(150.milliseconds, SkillRegistry(listOf(slow))))
+
+        assertEquals("It is noon.", (events.last() as RuntimeEvent.Finished).messages.last().content)
+    }
+
     @Test
     fun theTimeLimitIsReadAtTheStartOfEachTurn() {
         engine.hang = true
@@ -645,6 +688,11 @@ class BruceRuntimeTest {
         limit = 50.milliseconds
 
         assertEquals(RuntimeError.TIMED_OUT, (events(runtime).last() as RuntimeEvent.Failed).error)
+    }
+
+    @Test
+    fun theIdleTimeoutIsOneMinute() {
+        assertEquals(1.minutes, BruceRuntime.IDLE_TIMEOUT)
     }
 
     @Test

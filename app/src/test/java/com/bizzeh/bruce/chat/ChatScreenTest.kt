@@ -34,6 +34,7 @@ class ChatScreenTest {
         override fun setInput(input: String) { calls += "input $input" }
         override fun send() { calls += "send" }
         override fun stop() { calls += "stop" }
+        override fun retry() { calls += "retry" }
         override fun decide(callId: String, approved: Boolean) { calls += "decide $callId $approved" }
     }
 
@@ -168,6 +169,23 @@ class ChatScreenTest {
         compose.onNodeWithTag("stop").performClick()
 
         assertEquals(listOf("stop"), calls)
+    }
+
+    @Test
+    fun noOutputErrorOffersRetry() {
+        show(ChatState(modelName = "qwen3", error = ChatError.NO_OUTPUT))
+
+        compose.onNodeWithTag("chatError").assertIsDisplayed()
+        compose.onNodeWithTag("retry").performClick()
+
+        assertEquals(listOf("retry"), calls)
+    }
+
+    @Test
+    fun otherErrorsOfferNoRetry() {
+        show(ChatState(modelName = "qwen3", error = ChatError.GENERATION_FAILED))
+
+        compose.onNodeWithTag("retry").assertDoesNotExist()
     }
 
     @Test
