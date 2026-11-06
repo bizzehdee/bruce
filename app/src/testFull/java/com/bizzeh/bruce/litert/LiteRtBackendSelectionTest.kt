@@ -21,4 +21,12 @@ class LiteRtBackendSelectionTest {
             LiteRtBackendSelection.plan(LiteRtBackendPreference.GPU),
         )
     }
+
+    @Test
+    fun npuFallsBackToCpu() {
+        assertEquals(
+            listOf(LiteRtBackendChoice.NPU, LiteRtBackendChoice.CPU),
+            LiteRtBackendSelection.plan(LiteRtBackendPreference.NPU),
+        )
+    }
 }

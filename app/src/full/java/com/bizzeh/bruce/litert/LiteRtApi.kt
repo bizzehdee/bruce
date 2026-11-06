@@ -14,8 +14,10 @@ internal interface LiteRtApi {
     /**
      * Loads [file] as the active model, following [LiteRtBackendSelection.plan] for [preference].
      * [maxContextTokens] non-positive asks for the model's default (`EngineConfig.maxNumTokens`).
+     * [nativeLibraryDir] (`context.applicationInfo.nativeLibraryDir`) is where the Tensor NPU
+     * delegate's library is bundled; unused for the CPU and GPU choices.
      */
-    fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference): LiteRtLoadResult
+    fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference, nativeLibraryDir: String): LiteRtLoadResult
 }
 
 internal sealed interface LiteRtLoadResult {

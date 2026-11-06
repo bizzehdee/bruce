@@ -27,21 +27,24 @@ class LiteRtPipelineImplTest {
     private class FakeApi : LiteRtApi {
         var result: LiteRtLoadResult = LiteRtLoadResult.Failed
         val calls = mutableListOf<Triple<File, Int, LiteRtBackendPreference>>()
+        val nativeLibraryDirs = mutableListOf<String>()
 
-        override fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference): LiteRtLoadResult {
+        override fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference, nativeLibraryDir: String): LiteRtLoadResult {
             calls += Triple(file, maxContextTokens, preference)
+            nativeLibraryDirs += nativeLibraryDir
             return result
         }
     }
 
     private val api = FakeApi()
-    private val pipeline = LiteRtPipelineImpl(api)
+    private val pipeline = LiteRtPipelineImpl(api, "/data/app/com.bizzeh.bruce/lib/arm64")
 
     @Test
-    fun loadAlwaysAsksForAuto() = runBlockingTest {
+    fun loadAlwaysAsksForAutoAndPassesTheNativeLibraryDir() = runBlockingTest {
         pipeline.load(File("a.litertlm"), 4096)
         assertEquals(LiteRtBackendPreference.AUTO, api.calls.single().third)
         assertEquals(4096, api.calls.single().second)
+        assertEquals("/data/app/com.bizzeh.bruce/lib/arm64", api.nativeLibraryDirs.single())
     }
 
     @Test

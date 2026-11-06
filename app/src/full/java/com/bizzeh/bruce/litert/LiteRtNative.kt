@@ -39,10 +39,10 @@ import com.google.ai.edge.litertlm.ToolCall as NativeToolCall
  * generation (its own KDoc says it does; the C++ side was not read).
  */
 internal object LiteRtNative : LiteRtApi {
-    override fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference): LiteRtLoadResult {
+    override fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference, nativeLibraryDir: String): LiteRtLoadResult {
         val failed = mutableListOf<LiteRtBackendChoice>()
         for (choice in LiteRtBackendSelection.plan(preference)) {
-            when (val result = openOn(file, maxContextTokens, choice)) {
+            when (val result = openOn(file, maxContextTokens, choice, nativeLibraryDir)) {
                 null -> if (choice != LiteRtBackendChoice.CPU) failed += choice
                 else -> return LiteRtLoadResult.Loaded(result, choice, failed.toList())
             }
@@ -50,13 +50,14 @@ internal object LiteRtNative : LiteRtApi {
         return LiteRtLoadResult.Failed
     }
 
-    private fun nativeBackend(choice: LiteRtBackendChoice): Backend = when (choice) {
+    private fun nativeBackend(choice: LiteRtBackendChoice, nativeLibraryDir: String): Backend = when (choice) {
         LiteRtBackendChoice.CPU -> Backend.CPU()
         LiteRtBackendChoice.GPU -> Backend.GPU()
+        LiteRtBackendChoice.NPU -> Backend.NPU(nativeLibraryDir)
     }
 
-    private fun openOn(file: File, maxContextTokens: Int, choice: LiteRtBackendChoice): EngineModel? {
-        val engine = Engine(EngineConfig(modelPath = file.absolutePath, backend = nativeBackend(choice), maxNumTokens = maxContextTokens))
+    private fun openOn(file: File, maxContextTokens: Int, choice: LiteRtBackendChoice, nativeLibraryDir: String): EngineModel? {
+        val engine = Engine(EngineConfig(modelPath = file.absolutePath, backend = nativeBackend(choice, nativeLibraryDir), maxNumTokens = maxContextTokens))
         return try {
             engine.initialize()
             val contextTokens = ModelInfo.from(file.absolutePath).use { it.maxContextTokens() }

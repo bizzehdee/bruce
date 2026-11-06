@@ -159,6 +159,9 @@ dependencies {
     }
     // LiteRT-LM (TASK-118): "full" flavour only, see the flavorDimensions comment above.
     "fullImplementation"(libs.litertlm.android)
+    // Tensor G5/G6 NPU delegate (TASK-119): a plain public Maven artifact, not gated by the
+    // Google Tensor SDK Beta signup (research/sources/litert-npu-maven-gating-2026-11-06/).
+    "fullImplementation"(libs.litert.npu.runtime.google.tensor)
     ksp(libs.room.compiler)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

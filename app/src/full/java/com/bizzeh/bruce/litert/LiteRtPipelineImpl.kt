@@ -9,7 +9,7 @@ import java.io.File
  * model. Always loads on the CPU/GPU-fallback plan ([LiteRtBackendPreference.AUTO]); a user-facing
  * backend choice for this pipeline is not yet wired (TASK-119's GPU half exists but has no setting).
  */
-internal class LiteRtPipelineImpl(private val api: LiteRtApi) : LiteRtPipeline {
+internal class LiteRtPipelineImpl(private val api: LiteRtApi, private val nativeLibraryDir: String) : LiteRtPipeline {
     private data class Active(val model: LiteRtModel, val backend: LiteRtBackend)
 
     @Volatile private var active: Active? = null
@@ -17,7 +17,7 @@ internal class LiteRtPipelineImpl(private val api: LiteRtApi) : LiteRtPipeline {
     override suspend fun load(file: File, contextTokens: Int): LiteRtPipelineResult {
         active?.model?.close()
         active = null
-        return when (val result = api.loadModel(file, contextTokens, LiteRtBackendPreference.AUTO)) {
+        return when (val result = api.loadModel(file, contextTokens, LiteRtBackendPreference.AUTO, nativeLibraryDir)) {
             is LiteRtLoadResult.Loaded -> {
                 val backend = LiteRtBackend(result.model)
                 active = Active(result.model, backend)

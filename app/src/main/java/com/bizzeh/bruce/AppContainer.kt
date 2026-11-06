@@ -159,7 +159,7 @@ class AppContainer(private val context: Context) {
     val engine: InferenceEngine by lazy { LlamaCppEngine.create(context.applicationInfo.nativeLibraryDir, nativeThread, savedPrompts) }
 
     /** Null in F-Droid builds, which carry no LiteRT-LM library (TASK-117, TASK-120). */
-    val liteRtPipeline: LiteRtPipeline? by lazy { createLiteRtPipeline() }
+    val liteRtPipeline: LiteRtPipeline? by lazy { createLiteRtPipeline(context.applicationInfo.nativeLibraryDir) }
 
     val modelsDir: File = File(context.filesDir, MODELS_DIR)
 
