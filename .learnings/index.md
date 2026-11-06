@@ -1,5 +1,8 @@
 # Learnings index
 
+- [litert-lm-fdroid-blocker.md](litert-lm-fdroid-blocker.md) — LiteRT-LM ships prebuilt binaries (not source), and the Tensor G5/G6 path is a gated beta with Play-specific delivery; a likely F-Droid conflict independent of its Apache-2.0 licence. Read before any LiteRT pipeline work.
+- [litert-lm-kotlin-api.md](litert-lm-kotlin-api.md) — The real LiteRT-LM Kotlin API, found by decompiling the AAR, where it differs from the docs/sample (`Message.text` doesn't exist, `ToolCall.arguments` is a `Map` not JSON, no per-string token count, etc.). Read before any further LiteRT-LM Kotlin work.
+
 - [llama32-tool-calls.md](llama32-tool-calls.md) — Llama 3.2 1B writes malformed calls and repeats calls; how Bruce copes. Read when a model's tool calls fail in the app.
 - [compose-keyboard-insets.md](compose-keyboard-insets.md) — Keyboard gap: adjustResize, and consume Scaffold insets before imePadding. Read when a text field screen jumps or gaps with the keyboard.
 - [reasoning-models-and-plain-templates.md](reasoning-models-and-plain-templates.md) — Extra model passes need thinking off, or reasoning models write no answer; uiautomator hides long chat text. Read when adding a model pass or checking chats on a phone.

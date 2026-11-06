@@ -28,7 +28,7 @@ stay plain.
 
 | User | Needs to |
 |---|---|
-| User | Install without an account, download or import a GGUF model, chat offline, use skills, grant scoped file access, approve or deny sensitive actions. Every feature is available to every user at no cost. |
+| User | Install without an account, download or import a model (GGUF or LiteRT), chat offline, use skills, grant scoped file access, approve or deny sensitive actions. Every feature is available to every user at no cost. |
 | Hugging Face account holder | Optionally sign in to reach private and authorised gated repositories. |
 
 ## Scope
@@ -38,6 +38,37 @@ stay plain.
 - Android app, ARM64 devices, Android 10 (API 29) and later.
 - On-device inference with llama.cpp, GGUF model format.
 - CPU inference always; Vulkan and OpenCL where the device supports them.
+- On-device inference with LiteRT-LM, `.litertlm` model format (corrected
+  2026-11-06 from an earlier, wrong `.tflite` guess; see
+  `research/sources/litert-lm-gemma-4-2026-11-06/`), as a second pipeline
+  alongside llama.cpp/GGUF. Bruce picks the pipeline automatically from the
+  chosen model's format and what the phone supports; the user makes no
+  pipeline choice.
+- The Google Tensor G5/G6 TPU delegate for LiteRT-LM inference, on phones that
+  have one; CPU and GPU delegates elsewhere. This is the one named exception
+  to the manufacturer/NPU exclusion below.
+- **Build-variant split, owner decision 2026-11-06:** LiteRT-LM ships prebuilt
+  binaries rather than building from Bruce's own source (TASK-117,
+  `research/sources/litert-lm-android-tensor-sdk-2026-11-06/`), so it is
+  Google Play and GitHub Releases only. The F-Droid build omits the LiteRT
+  pipeline entirely and offers llama.cpp/GGUF only; a LiteRT-LM model is
+  simply unsupported there, same as any other unsupported format. The Tensor
+  G5/G6 NPU path adds a gated beta and an unverified Bazel dependency on top;
+  whether to gate the NPU delegate further (e.g. behind a separate opt-in,
+  given its beta status) is for TASK-119 once it is reached.
+- A developer-only script to convert an existing checkpoint into `.litertlm`
+  variants (standard/CPU, GPU, Tensor G5, Tensor G6), so models not already
+  published in LiteRT-LM can still run in Bruce. Not shipped in the app; run
+  by the project, not by Bruce's users. **Resolved 2026-11-06** (owner,
+  confirmed against Google's LiteRT Torch docs,
+  `research/sources/litert-torch-conversion-2026-11-06/`): the source is a
+  safetensors checkpoint, not GGUF — no GGUF input path exists. Int8 is the
+  main target (the documented default recipe); Int4 is also offered, not
+  excluded (owner, 2026-11-06); Int6 is dropped (owner, 2026-11-06) — it had
+  no source confirming it exists, so it is not pursued. Int8's recipe name
+  is confirmed (`dynamic_wi8_afp32`); Int4's exact recipe name is still to be
+  confirmed against `google-ai-edge/ai-edge-quantizer` before the script
+  asserts support for it (TASK-121/122).
 - Model discovery and download from Hugging Face, anonymous or signed in.
 - Local model import.
 - Agent runtime with tool calling, bounded agent loop, cancellation.
@@ -58,14 +89,18 @@ stay plain.
 ### Out of scope
 
 - Cloud inference of any kind.
-- Dependence on Google Gemini Nano, AICore or Google GenAI libraries.
-- Dependence on a specific device manufacturer or NPU.
+- Dependence on Google Gemini Nano, AICore or Google GenAI libraries. The
+  LiteRT pipeline must not route through AICore or Play services; confirm this
+  before building it (see Open questions).
+- Dependence on a specific device manufacturer's NPU, except the Google Tensor
+  G5/G6 TPU delegate the LiteRT pipeline uses, above. No other vendor NPU is
+  supported.
 - Advertising.
 - Any paid tier, in-app purchase or payment flow.
 - Subscriptions, message credits, token packs or usage fees.
 - Mandatory user accounts.
 - Bypassing Android security, permission or background-execution rules.
-- Model formats other than GGUF (until a later plan revision adds them).
+- Model formats other than GGUF and LiteRT-LM (`.litertlm`).
 
 ## Features
 
@@ -94,6 +129,35 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 - **Advanced hardware tuning** — User control over backend, threads, context and
   similar settings; optional backend benchmarking. `done` (Settings and each
   model's settings; benchmarks in Diagnostics)
+- **LiteRT pipeline** — A second inference pipeline, alongside llama.cpp, for
+  LiteRT-LM (`.litertlm`) models. Redesigned mid-implementation (owner
+  approved, 2026-11-06): LiteRT-LM's own API (structured messages, its own
+  chat-template application, its own tool-call handling) does not fit
+  `InferenceEngine`'s llama.cpp-shaped text/grammar contract (ADR 0001), so
+  `LiteRtBackend` is a second `ChatBackend` implementation beside
+  `LocalBackend`/`RemoteBackend`, not a second `InferenceEngine`. Uses the
+  Google Tensor G5/G6 TPU delegate where the phone has one, GPU or CPU
+  delegate otherwise (CPU done; GPU/NPU is TASK-119). Android integration
+  confirmed (Maven AAR, TASK-117); it ships prebuilt binaries rather than
+  building from source, so it is Google Play and GitHub Releases only (a new
+  `full`/`foss` Gradle flavour split) — the F-Droid (`foss`) build omits it
+  entirely, llama.cpp/GGUF only there (owner decision, 2026-11-06). `in
+  progress` (TASK-118 done: CPU path, `LiteRtBackend`/`LiteRtNative`/`LiteRtApi`,
+  `app/src/full/java/com/bizzeh/bruce/litert/`; TASK-119 GPU/NPU and TASK-120
+  pipeline selection/model-manager wiring remain)
+- **Pipeline selection** — Bruce selects llama.cpp/GGUF or LiteRT-LM
+  automatically from the chosen model's format and the phone's hardware; no
+  user choice to make. `planned` (TASK-117 onward)
+- **LiteRT-LM conversion script** — A developer tool, outside the Android app,
+  that converts a safetensors checkpoint into `.litertlm` variants (standard,
+  GPU, Tensor G5, Tensor G6), so the project can publish or locally use models
+  not already available in LiteRT-LM. Source format confirmed as safetensors
+  only, no GGUF path (owner, 2026-11-06); tool is Google's `litert-torch`
+  (`export_hf`/`export-hf`, naming inconsistent in its own docs). Int8 is the
+  main quantisation target (confirmed default); Int4 is also offered
+  (owner, 2026-11-06), exact recipe name still to confirm; Int6 is dropped
+  (owner, 2026-11-06). Whether Tensor G5 (not just G6) is produceable by this
+  tool is still open (TASK-121). `planned` (TASK-121 onward)
 
 ### Models
 
@@ -420,11 +484,13 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 | File access | Storage Access Framework | Scoped, user-granted access instead of broad storage permission. |
 | Native | C++, Android NDK, CMake, JNI | llama.cpp is C/C++. |
 | Inference | llama.cpp, git submodule at a pinned commit | Explicit version pin; upgrades visible in history. |
+| Inference (LiteRT-LM) | `com.google.ai.edge.litertlm:litertlm-android:0.19.1`, pinned exact version (TASK-118); `fullImplementation` only, via the new `full`/`foss` Gradle product-flavour dimension, omitted from F-Droid (`foss`) builds (owner decision, 2026-11-06) | Behind `LiteRtBackend` (a `ChatBackend`, not an `InferenceEngine` — see the LiteRT pipeline feature entry) so LiteRT-LM models can use the Tensor G5/G6 TPU delegate; llama.cpp/GGUF stays the default, universal path, present in every build variant including F-Droid. Apache-2.0 licensed, but ships as a prebuilt AAR/`.so`, not built from Bruce's own source, which is why it cannot be an F-Droid dependency. |
+| Model conversion tooling | Python, `litert-torch` (Google's HF/safetensors-to-`.litertlm` export tool), pinned virtual environment, outside Gradle (TASK-121) | Converts a safetensors checkpoint to `.litertlm`; a developer tool, never shipped in the app, so it does not carry the app's F-Droid or GPL constraints, but its own dependencies are still pinned and version-controlled. |
 | Tool-call formats | llama.cpp's chat, template and parser sources from `common`, built by Bruce's own CMake target; not its HTTP or download code | Each model's own tool format (ADR 0001) without native network code outside the network mode. |
 | Native backends | ggml backends as runtime-loaded libraries: 7 Android CPU variants, Vulkan, OpenCL. Native libraries are extracted on install. | One APK runs the best code path each phone supports. |
 | Build tools | Khronos Vulkan-Headers, SPIRV-Headers, OpenCL-Headers, OpenCL-ICD-Loader (link only) as pinned submodules; host `glslc` | The NDK lacks these headers, and its `glslc` is too old for llama.cpp's shaders. |
 | HTTP and JSON | Android's `HttpURLConnection` and `org.json` | Built in; no new dependencies for a small API surface. |
-| Model format | GGUF | llama.cpp native format. |
+| Model format | GGUF, LiteRT-LM (`.litertlm`) | llama.cpp's native format, and the LiteRT-LM format for TPU-delegated models. |
 | Build | Gradle with Kotlin DSL | Android standard. |
 | Unit tests | JUnit Jupiter 6 (successor to JUnit 5), MockK, Robolectric | Kotlin-idiomatic mocking. Robolectric runs Compose UI tests on the JVM so Kover counts UI branches. |
 | UI / end-to-end tests | Compose UI tests (instrumented, JUnit 4 runner) | Playwright does not apply to native Android. The Compose test rule requires JUnit 4. |
@@ -442,7 +508,7 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
 | Memories | Room database |
 | Tool calls, tool results | Room database |
 | Model metadata | Room database |
-| Model files (GGUF) | App-private file storage, outside the database |
+| Model files (GGUF, LiteRT-LM) | App-private file storage, outside the database |
 | Permissions, grants, scopes | Room database; SAF URI permissions persisted by Android |
 | Settings | Jetpack DataStore (Preferences) |
 | Hugging Face token | Android Keystore-backed encrypted storage |
@@ -488,6 +554,10 @@ device-to-device transfer.
 - Source is open under GPL-3.0-or-later. Every shipped dependency must be
   GPL-3.0-compatible; GPL-2.0-only code must not be added.
 - F-Droid requires the app to build from source with no proprietary dependencies.
+  The LiteRT pipeline does not meet this (owner decision, 2026-11-06): the
+  F-Droid build variant omits LiteRT-LM and the Tensor G5/G6 delegate
+  entirely, offering llama.cpp/GGUF only; Google Play and GitHub Releases
+  builds include it.
 
 ## Test devices
 
@@ -507,6 +577,11 @@ device-to-device transfer.
 | How Bruce's interface should differ from mainstream chatbots, once the chat interface exists. | User |
 | Privacy policy URL on the owner's website. | User |
 | How a report of an offensive AI reply reaches the developer, which Google Play requires (TASK-114). | User |
+| **Resolved 2026-11-06 (TASK-117):** Android integration is a Maven AAR (`com.google.ai.edge.litertlm:litertlm-android`), Kotlin `Engine`/`Backend` API, Apache-2.0 licensed (GPL-3.0-or-later-compatible). No page read mentions AICore or Gemini Nano, so no stated dependency was found — not proof none exists, since the closed Tensor runtime library's internals were not inspected. | — |
+| **Resolved 2026-11-06:** LiteRT-LM ships prebuilt binaries, not a from-source build, conflicting with F-Droid's requirement. Owner decision: Google Play and GitHub Releases builds get the full LiteRT pipeline; the F-Droid build variant omits it and offers llama.cpp/GGUF only. Detail: `research/sources/litert-lm-android-tensor-sdk-2026-11-06/`, `.learnings/litert-lm-fdroid-blocker.md`. Still open: whether the Tensor G5/G6 NPU path (gated beta, unverified Bazel dependency, Play Feature Delivery) needs its own further gating within the Play/GitHub builds — deferred to TASK-119. | Developer (TASK-119) |
+| **Resolved 2026-11-06:** Source format is safetensors, not GGUF (owner, confirmed against Google's LiteRT Torch docs). The tool is `litert-torch export_hf`/`export-hf`. Int8 is the main quantisation target (confirmed default recipe `dynamic_wi8_afp32`); Int4 stays in scope (owner, 2026-11-06), exact recipe name still to confirm; Int6 is dropped (owner, 2026-11-06), no longer pursued. Still open: whether Tensor G5 (only G6 is shown in the AOT compilation docs read) can be produced at all — needs checking against `google-ai-edge/ai-edge-quantizer` and the Tensor SDK docs directly (TASK-121). Tensor AOT compilation also needs the same gated "Google Tensor SDK Beta" signup found for the runtime (TASK-117) — a second place that gate appears, reinforcing that the Tensor path is not an ungated, from-source pipeline end to end. | Developer |
+| Where the conversion script lives in the repository and whether its output models are published anywhere (the project's own Hugging Face bucket, user suggested) or stay local-only. | User |
+| None of the test devices (XZ Premium, Xperia 1 II, Pixel 11) has a Tensor G5/G6 chip, so the TPU delegate cannot be measured on real hardware yet; a Tensor G5/G6 phone needs adding to Test devices, or the pipeline ships CPU-delegate-verified only, TPU-delegate unverified, until one is available. | User |
 
 ## Milestones
 
@@ -533,6 +608,14 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-06 | Changed | TASK-118 done: `LiteRtBackend`, a `ChatBackend` implementation (not `InferenceEngine` — redesigned mid-task, owner approved, since LiteRT-LM's structured-message API does not fit llama.cpp's text/grammar contract), CPU path only, in `app/src/full/java/com/bizzeh/bruce/litert/`. New `full`/`foss` Gradle flavour dimension carries the Google Play/GitHub-vs-F-Droid split decided for TASK-117. Token counting is a characters-per-token estimate (no per-string tokenizer API exists in LiteRT-LM); `stop()` and the delta-streaming assumption are unverified on real hardware. |
+| 2026-11-06 | Changed | Owner decision on quantisation scope: Int8 is the conversion script's main target, Int4 stays in scope, Int6 is dropped (no source ever confirmed it exists). |
+| 2026-11-06 | Changed | TASK-121 research confirms the conversion script's source format is safetensors, not GGUF (owner), using Google's `litert-torch` export tool; Int8 quantisation is confirmed for phones, Int4/Int6 recipe names and Tensor G5 (vs. the only-confirmed G6) AOT compilation remain open (`research/sources/litert-torch-conversion-2026-11-06/`). |
+| 2026-11-06 | Changed | Owner decision on TASK-117's F-Droid finding: the LiteRT pipeline (CPU, GPU, Tensor G5/G6) ships only in Google Play and GitHub Releases builds; the F-Droid build variant omits it and offers llama.cpp/GGUF only. |
+| 2026-11-06 | Changed | TASK-117 research: LiteRT-LM's Android integration is a Maven AAR (resolved); no AICore dependency found in the docs read (not proof of absence); the CPU/GPU path ships prebuilt binaries and the Tensor G5/G6 path needs a gated beta and Play-specific delivery, a likely F-Droid conflict needing an owner decision, not just an open question (`research/sources/litert-lm-android-tensor-sdk-2026-11-06/`). |
+| 2026-11-06 | Added | A developer-only conversion script to produce `.litertlm` variants (standard, GPU, Tensor G5, Tensor G6) from an existing checkpoint, since not every model the project wants to run is already published in LiteRT-LM (user). Source format, toolchain and whether the Tensor variants are reproducible without Google's own tooling are open questions (TASK-121). |
+| 2026-11-06 | Changed | Corrected the LiteRT pipeline's model format from a guessed `.tflite` to the confirmed `.litertlm` (LiteRT-LM), after checking the user's example repository, `litert-community/gemma-4-E2B-it-litert-lm`; its model card documents a Python/CLI package, not an Android library, and never names Tensor G5/G6 despite two files named for them, so the Android integration path and the TPU delegate's existence stay unconfirmed pending TASK-117 (`research/sources/litert-lm-gemma-4-2026-11-06/`). |
+| 2026-11-06 | Added | LiteRT (TensorFlow Lite) as a second inference pipeline alongside llama.cpp/GGUF, selected automatically by model format and phone hardware; carves a named exception into the manufacturer/NPU exclusion for the Google Tensor G5/G6 TPU delegate. AICore routing, F-Droid buildability and licensing are open questions to resolve before implementation (owner, 2026-11-06). |
 | 2026-10-02 | Changed | Auto context is sized from 30% of the phone's RAM (with the app's own memory counted), not from free memory: at the old Auto size the Pixel read the model back from storage and killed Bruce (owner chose the rule). |
 | 2026-10-02 | Changed | A chat on the Pixel never finished: reading a whole page took a phone 8+ minutes and neither Stop nor the time limit could reach it. Stop and the limit now abort a prompt being read; the limit lets a visible answer finish; "more of the page" is 8,000 characters (was 24,000); Wikipedia articles are read through Wikipedia's API as plain text. |
 | 2026-10-02 | Added | Report offensive AI replies, required by Google Play's AI-Generated Content policy; how reports reach the developer is open (TASK-114). |

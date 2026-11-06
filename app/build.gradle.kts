@@ -50,6 +50,19 @@ android {
         }
     }
 
+    // "full" (Google Play, GitHub Releases) carries the LiteRT pipeline; "foss" (F-Droid) does not,
+    // since LiteRT-LM ships prebuilt binaries rather than building from source (TASK-117, owner
+    // decision 2026-11-06, .learnings/litert-lm-fdroid-blocker.md).
+    flavorDimensions += "distribution"
+    productFlavors {
+        create("full") {
+            dimension = "distribution"
+        }
+        create("foss") {
+            dimension = "distribution"
+        }
+    }
+
     externalNativeBuild {
         cmake {
             path = file("src/main/cpp/CMakeLists.txt")
@@ -105,7 +118,16 @@ kover {
                 classes("com.bizzeh.bruce.MainActivity*", "com.bizzeh.bruce.AppContainer*", "com.bizzeh.bruce.BruceApplication*")
             }
         }
-        variant("debug") {
+        // Both distribution flavours (TASK-118) are gated the same way; "full" alone exercises
+        // LiteRtBackend, "foss" simply does not compile it in.
+        variant("fullDebug") {
+            verify {
+                rule {
+                    minBound(90, kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
+                }
+            }
+        }
+        variant("fossDebug") {
             verify {
                 rule {
                     minBound(90, kotlinx.kover.gradle.plugin.dsl.CoverageUnit.BRANCH)
@@ -135,6 +157,8 @@ dependencies {
     implementation(libs.pdfbox.android) {
         exclude(group = "org.bouncycastle")
     }
+    // LiteRT-LM (TASK-118): "full" flavour only, see the flavorDimensions comment above.
+    "fullImplementation"(libs.litertlm.android)
     ksp(libs.room.compiler)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

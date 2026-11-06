@@ -47,7 +47,9 @@ jobs:
           > /dev/null
 
       - name: Build, unit test, lint and coverage gate
-        run: ./gradlew build koverVerifyDebug koverXmlReportDebug
+        # "full" and "foss" are the two distribution flavours (TASK-118); both are built and
+        # coverage-gated so neither variant silently breaks.
+        run: ./gradlew build koverVerifyFullDebug koverVerifyFossDebug koverXmlReportFullDebug koverXmlReportFossDebug
 
       - name: Native unit tests
         run: |
