@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.litert
 
+import android.util.Log
 import com.bizzeh.bruce.inference.ChatRole
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.inference.ToolDefinition
@@ -63,7 +64,11 @@ internal object LiteRtNative : LiteRtApi {
             val contextTokens = ModelInfo.from(file.absolutePath).use { it.maxContextTokens() }
             EngineModel(engine, contextTokens)
         } catch (e: Exception) {
-            engine.close()
+            Log.w(TAG, "$choice backend failed to load", e)
+            // Engine.close() itself requires isInitialized(); calling it after a failed
+            // initialize() throws IllegalStateException and masks the real failure (found on a
+            // real Pixel 11 running the Tensor NPU delegate, TASK-119).
+            if (engine.isInitialized()) engine.close()
             null
         }
     }
@@ -164,4 +169,5 @@ internal object LiteRtNative : LiteRtApi {
     private const val REASONING_CHANNEL = "thought"
     private const val DEFAULT_TOP_K = 40
     private const val DEFAULT_TOP_P = 0.95
+    private const val TAG = "LiteRtNative"
 }

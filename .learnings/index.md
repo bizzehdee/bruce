@@ -1,6 +1,7 @@
 # Learnings index
 
 - [litert-lm-fdroid-blocker.md](litert-lm-fdroid-blocker.md) — LiteRT-LM ships prebuilt binaries (not source), and the Tensor G5/G6 path is a gated beta with Play-specific delivery; a likely F-Droid conflict independent of its Apache-2.0 licence. Read before any LiteRT pipeline work.
+- [litert-lm-npu-no-cpu-fallback.md](litert-lm-npu-no-cpu-fallback.md) — AOT-compiled Tensor `.litertlm` files are NPU-only, a different file from the CPU/GPU one; the "try NPU, fall back to CPU" shape copied from llama.cpp doesn't fit. Also: `Engine.close()` masks the real error if called after a failed `initialize()`. Read before completing TASK-119 or TASK-120's model selection.
 - [pixel-11-tensor-g6-and-sdk-gating.md](pixel-11-tensor-g6-and-sdk-gating.md) — The Pixel 11 test device is a Tensor G6 (12 GB RAM), not previously checked; `Build.SOC_MODEL` reports it literally; the Tensor SDK Beta signup gates AOT compilation and remote-device access, not the public runtime Maven artifacts. Read before TASK-119's NPU half.
 - [litert-lm-kotlin-api.md](litert-lm-kotlin-api.md) — The real LiteRT-LM Kotlin API, found by decompiling the AAR, where it differs from the docs/sample (`Message.text` doesn't exist, `ToolCall.arguments` is a `Map` not JSON, no per-string token count, etc.). Read before any further LiteRT-LM Kotlin work.
 

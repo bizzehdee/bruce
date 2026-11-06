@@ -137,21 +137,28 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `LiteRtBackend` is a second `ChatBackend` implementation beside
   `LocalBackend`/`RemoteBackend`, not a second `InferenceEngine`. Uses the
   Google Tensor G5/G6 TPU delegate where the phone has one, GPU or CPU
-  delegate otherwise (CPU and GPU done; Tensor NPU next, unblocked
-  2026-11-06). Android integration confirmed (Maven AAR, TASK-117); it ships
-  prebuilt binaries rather than building from source, so it is Google Play
-  and GitHub Releases only (a new `full`/`foss` Gradle flavour split) — the
-  F-Droid (`foss`) build omits it entirely, llama.cpp/GGUF only there (owner
-  decision, 2026-11-06). The Tensor NPU half's two blockers both resolved:
-  the Tensor SDK Beta signup gates AOT model compilation and optional
-  remote-device access, not the runtime Maven artifacts (confirmed public,
-  no auth); and the owner's Pixel 11 test device turns out to be a Google
-  Tensor G6 with 12 GB RAM (`adb shell getprop ro.soc.model` → `"Tensor G6"`,
-  confirmed by the owner too), not previously checked. `in progress`
-  (TASK-118 done: CPU path; TASK-119 done: GPU path, Tensor NPU next;
-  TASK-120 done for local loading, chat and Hugging Face discovery,
-  remaining: Model Browser UI and fit/speed ranking;
-  `app/src/full/java/com/bizzeh/bruce/litert/`)
+  delegate otherwise (CPU and GPU done; Tensor NPU code done and run for real
+  on a Tensor G6 phone, 2026-11-06 — result below). Android integration
+  confirmed (Maven AAR, TASK-117); it ships prebuilt binaries rather than
+  building from source, so it is Google Play and GitHub Releases only (a new
+  `full`/`foss` Gradle flavour split) — the F-Droid (`foss`) build omits it
+  entirely, llama.cpp/GGUF only there (owner decision, 2026-11-06).
+  `Backend.NPU(nativeLibraryDir)` is wired with the public
+  `litert-npu-runtime-google-tensor` artifact, and was run against the
+  owner's Pixel 11 (confirmed Tensor G6, 12 GB RAM) with a real Tensor-AOT
+  `.litertlm` file: it reached genuine native NPU code (proving the wiring
+  correct) but failed at native tensor allocation, root cause unconfirmed.
+  Separately, and not a bug: the CPU fallback on the same file also failed,
+  because an AOT-compiled Tensor file has **no CPU path at all** — the
+  CPU/GPU-capable model is a different file in the same Hugging Face repo, so
+  `LiteRtBackendSelection`'s llama.cpp-shaped "fall back to CPU on the same
+  file" does not apply to this delegate; picking the right file per device is
+  a TASK-120/TASK-123 concern. `research/sources/litert-npu-device-test-2026-11-06/`,
+  `.learnings/litert-lm-npu-no-cpu-fallback.md`. `in progress` (TASK-118
+  done: CPU path; TASK-119 done: GPU and NPU code, NPU unverified working on
+  real hardware pending the allocation failure above; TASK-120 done for local
+  loading, chat and Hugging Face discovery, remaining: Model Browser UI and
+  fit/speed ranking; `app/src/full/java/com/bizzeh/bruce/litert/`)
 - **Pipeline selection** — Bruce selects llama.cpp/GGUF or LiteRT-LM
   automatically from the chosen model's format and the phone's hardware; no
   user choice to make. Local loading, chat and Hugging Face discovery
@@ -622,6 +629,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-06 | Changed | TASK-119's Tensor NPU delegate code written and run for real on the owner's Pixel 11 (Tensor G6): reaches genuine native NPU code but fails at tensor allocation (root cause unconfirmed); separately confirmed that an AOT-compiled Tensor `.litertlm` file has no CPU fallback at all (a different file holds the CPU/GPU-capable model), so `LiteRtBackendSelection`'s llama.cpp-shaped same-file fallback does not apply to it. A real bug (`Engine.close()` masking the actual failure) found and fixed in the same pass. |
 | 2026-11-06 | Changed | TASK-119's Tensor NPU half unblocked: the Google Tensor SDK Beta gates AOT compilation and optional remote-device access, not the public runtime Maven artifacts (verified); the owner's Pixel 11 test device is confirmed a Google Tensor G6 with 12 GB RAM, not previously checked. The Test devices table and an earlier, incorrect "no test device has Tensor G5/G6" note are corrected. |
 | 2026-11-06 | Changed | TASK-120 done for local model loading, chat and Hugging Face discovery: automatic pipeline selection by file format (`ActiveModel.loadAny`, `LiteRtPipeline`, `BruceRuntime.localOverride`), `.litertlm` local import, and `HubClient` search/file-listing for `litert-lm` repositories. Not done: Model Browser UI for LiteRT-LM results, and fit/speed ranking (no LiteRT-LM benchmark data exists to base it on, so none was invented). |
 | 2026-11-06 | Changed | Owner signed up for the Google Tensor SDK Beta; TASK-119's Tensor NPU half resumes once access is granted, with the device-identifier string and any other beta-portal findings. |
