@@ -148,12 +148,18 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   pending. Also still needed: a verified device-identifier string for Tensor
   G5/G6 (no research has found one; must not be guessed) and a Tensor G5/G6
   test device (Open questions). `in progress` (TASK-118 done: CPU path;
-  TASK-119 done: GPU path, Tensor NPU pending beta access; TASK-120 pipeline
-  selection/model-manager wiring remains;
-  `app/src/full/java/com/bizzeh/bruce/litert/`)
+  TASK-119 done: GPU path, Tensor NPU pending beta access; TASK-120 done for
+  local loading, chat and Hugging Face discovery, remaining: Model Browser UI
+  and fit/speed ranking; `app/src/full/java/com/bizzeh/bruce/litert/`)
 - **Pipeline selection** — Bruce selects llama.cpp/GGUF or LiteRT-LM
   automatically from the chosen model's format and the phone's hardware; no
-  user choice to make. `planned` (TASK-117 onward)
+  user choice to make. Local loading, chat and Hugging Face discovery
+  (`HubClient`, confirmed: `filter=litert-lm` works like `filter=gguf`) are
+  done; the Model Browser screen does not yet show or download LiteRT-LM
+  search results, and no fit or speed ranking exists for this pipeline —
+  `ModelFit`'s heuristics come from measured llama.cpp benchmarks that have
+  no LiteRT-LM equivalent yet, so none was invented. `in progress`
+  (TASK-120)
 - **LiteRT-LM conversion script** — A developer tool, outside the Android app,
   that converts a safetensors checkpoint into `.litertlm` variants (standard,
   GPU, Tensor G5, Tensor G6), so the project can publish or locally use models
@@ -614,6 +620,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-06 | Changed | TASK-120 done for local model loading, chat and Hugging Face discovery: automatic pipeline selection by file format (`ActiveModel.loadAny`, `LiteRtPipeline`, `BruceRuntime.localOverride`), `.litertlm` local import, and `HubClient` search/file-listing for `litert-lm` repositories. Not done: Model Browser UI for LiteRT-LM results, and fit/speed ranking (no LiteRT-LM benchmark data exists to base it on, so none was invented). |
 | 2026-11-06 | Changed | Owner signed up for the Google Tensor SDK Beta; TASK-119's Tensor NPU half resumes once access is granted, with the device-identifier string and any other beta-portal findings. |
 | 2026-11-06 | Changed | TASK-119's GPU half done: `LiteRtBackendSelection` mirrors `BackendSelection`'s Auto-never-GPU shape; `Backend.GPU()` falls back to CPU on failure; `app/src/full/AndroidManifest.xml` declares `libvndksupport.so`. The Tensor NPU half is blocked, not just unstarted: a gated SDK signup with no access, an unverified Tensor G5/G6 device-identifier string, and still no test device. |
 | 2026-11-06 | Changed | TASK-118 done: `LiteRtBackend`, a `ChatBackend` implementation (not `InferenceEngine` — redesigned mid-task, owner approved, since LiteRT-LM's structured-message API does not fit llama.cpp's text/grammar contract), CPU path only, in `app/src/full/java/com/bizzeh/bruce/litert/`. New `full`/`foss` Gradle flavour dimension carries the Google Play/GitHub-vs-F-Droid split decided for TASK-117. Token counting is a characters-per-token estimate (no per-string tokenizer API exists in LiteRT-LM); `stop()` and the delta-streaming assumption are unverified on real hardware. |
