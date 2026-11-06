@@ -137,20 +137,21 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   `LiteRtBackend` is a second `ChatBackend` implementation beside
   `LocalBackend`/`RemoteBackend`, not a second `InferenceEngine`. Uses the
   Google Tensor G5/G6 TPU delegate where the phone has one, GPU or CPU
-  delegate otherwise (CPU and GPU done; Tensor NPU blocked, below). Android
-  integration confirmed (Maven AAR, TASK-117); it ships prebuilt binaries
-  rather than building from source, so it is Google Play and GitHub Releases
-  only (a new `full`/`foss` Gradle flavour split) — the F-Droid (`foss`) build
-  omits it entirely, llama.cpp/GGUF only there (owner decision, 2026-11-06).
-  The Tensor NPU half of TASK-119 is blocked on access, not a decision
-  anymore: owner signed up for the Google Tensor SDK Beta (2026-11-06,
-  https://developers.google.com/edge/litert/next/tensor-sdk), approval
-  pending. Also still needed: a verified device-identifier string for Tensor
-  G5/G6 (no research has found one; must not be guessed) and a Tensor G5/G6
-  test device (Open questions). `in progress` (TASK-118 done: CPU path;
-  TASK-119 done: GPU path, Tensor NPU pending beta access; TASK-120 done for
-  local loading, chat and Hugging Face discovery, remaining: Model Browser UI
-  and fit/speed ranking; `app/src/full/java/com/bizzeh/bruce/litert/`)
+  delegate otherwise (CPU and GPU done; Tensor NPU next, unblocked
+  2026-11-06). Android integration confirmed (Maven AAR, TASK-117); it ships
+  prebuilt binaries rather than building from source, so it is Google Play
+  and GitHub Releases only (a new `full`/`foss` Gradle flavour split) — the
+  F-Droid (`foss`) build omits it entirely, llama.cpp/GGUF only there (owner
+  decision, 2026-11-06). The Tensor NPU half's two blockers both resolved:
+  the Tensor SDK Beta signup gates AOT model compilation and optional
+  remote-device access, not the runtime Maven artifacts (confirmed public,
+  no auth); and the owner's Pixel 11 test device turns out to be a Google
+  Tensor G6 with 12 GB RAM (`adb shell getprop ro.soc.model` → `"Tensor G6"`,
+  confirmed by the owner too), not previously checked. `in progress`
+  (TASK-118 done: CPU path; TASK-119 done: GPU path, Tensor NPU next;
+  TASK-120 done for local loading, chat and Hugging Face discovery,
+  remaining: Model Browser UI and fit/speed ranking;
+  `app/src/full/java/com/bizzeh/bruce/litert/`)
 - **Pipeline selection** — Bruce selects llama.cpp/GGUF or LiteRT-LM
   automatically from the chosen model's format and the phone's hardware; no
   user choice to make. Local loading, chat and Hugging Face discovery
@@ -577,7 +578,7 @@ device-to-device transfer.
 |---|---|---|
 | Sony Xperia XZ Premium | Always | 4 GB RAM. Deliberate stand-in for a modern budget phone. LineageOS, Android 13. |
 | Sony Xperia 1 II | Always | Android 12. |
-| Google Pixel 11 | Intermittent | Benchmarks on it are recorded when it is available; tasks do not wait for it. |
+| Google Pixel 11 | Intermittent | Google Tensor G6, 12 GB RAM, Android 17 (confirmed via `adb shell getprop ro.soc.model` and `/proc/meminfo`, 2026-11-06; corrects an earlier, unverified assumption that no test device had a Tensor G5/G6 chip). PowerVR GPU unchanged (`PowerVR C-Series CXTP-48-1536 MC1`, vendor ID 0x1010) — the Vulkan exclusion still applies. Benchmarks on it are recorded when it is available; tasks do not wait for it. |
 
 ## Open questions
 
@@ -593,7 +594,8 @@ device-to-device transfer.
 | **Resolved 2026-11-06:** LiteRT-LM ships prebuilt binaries, not a from-source build, conflicting with F-Droid's requirement. Owner decision: Google Play and GitHub Releases builds get the full LiteRT pipeline; the F-Droid build variant omits it and offers llama.cpp/GGUF only. Detail: `research/sources/litert-lm-android-tensor-sdk-2026-11-06/`, `.learnings/litert-lm-fdroid-blocker.md`. Still open: whether the Tensor G5/G6 NPU path (gated beta, unverified Bazel dependency, Play Feature Delivery) needs its own further gating within the Play/GitHub builds — deferred to TASK-119. | Developer (TASK-119) |
 | **Resolved 2026-11-06:** Source format is safetensors, not GGUF (owner, confirmed against Google's LiteRT Torch docs). The tool is `litert-torch export_hf`/`export-hf`. Int8 is the main quantisation target (confirmed default recipe `dynamic_wi8_afp32`); Int4 stays in scope (owner, 2026-11-06), exact recipe name still to confirm; Int6 is dropped (owner, 2026-11-06), no longer pursued. Still open: whether Tensor G5 (only G6 is shown in the AOT compilation docs read) can be produced at all — needs checking against `google-ai-edge/ai-edge-quantizer` and the Tensor SDK docs directly (TASK-121). Tensor AOT compilation also needs the same gated "Google Tensor SDK Beta" signup found for the runtime (TASK-117) — a second place that gate appears, reinforcing that the Tensor path is not an ungated, from-source pipeline end to end. | Developer |
 | Where the conversion script lives in the repository and whether its output models are published anywhere (the project's own Hugging Face bucket, user suggested) or stay local-only. | User |
-| None of the test devices (XZ Premium, Xperia 1 II, Pixel 11) has a Tensor G5/G6 chip, so the TPU delegate cannot be measured on real hardware yet; a Tensor G5/G6 phone needs adding to Test devices, or the pipeline ships CPU-delegate-verified only, TPU-delegate unverified, until one is available. Owner signed up for the Google Tensor SDK Beta (2026-11-06), approval pending; this stays open until access and a test device are both in hand. | User |
+| **Resolved 2026-11-06:** The Pixel 11 test device is a Google Tensor G6 with 12 GB RAM, confirmed via `adb shell getprop ro.soc.model` (literally returns `"Tensor G6"`, the same string `Build.SOC_MODEL` reads) and `/proc/meminfo`, and by the owner independently. Corrects the earlier, never-actually-checked assumption that no test device had a Tensor G5/G6 chip — it has had one the whole time. The Tensor NPU delegate can now be measured on real hardware. | — |
+| **Resolved 2026-11-06:** The Google Tensor SDK Beta signup gates the AOT model-compilation toolchain and optional remote access to a Pixel the developer does not own, not the runtime. `litertlm-android` and `litert-npu-runtime-google-tensor` are both plain public Maven artifacts (confirmed: `dl.google.com`'s metadata for both returns HTTP 200, no auth), and pre-built Tensor-targeted `.litertlm` files already exist on Hugging Face (`_Google_Tensor_G5.litertlm` / `_G6.litertlm`), so building and running the NPU delegate needs neither beta access nor a custom compile. | — |
 
 ## Milestones
 
@@ -620,6 +622,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-06 | Changed | TASK-119's Tensor NPU half unblocked: the Google Tensor SDK Beta gates AOT compilation and optional remote-device access, not the public runtime Maven artifacts (verified); the owner's Pixel 11 test device is confirmed a Google Tensor G6 with 12 GB RAM, not previously checked. The Test devices table and an earlier, incorrect "no test device has Tensor G5/G6" note are corrected. |
 | 2026-11-06 | Changed | TASK-120 done for local model loading, chat and Hugging Face discovery: automatic pipeline selection by file format (`ActiveModel.loadAny`, `LiteRtPipeline`, `BruceRuntime.localOverride`), `.litertlm` local import, and `HubClient` search/file-listing for `litert-lm` repositories. Not done: Model Browser UI for LiteRT-LM results, and fit/speed ranking (no LiteRT-LM benchmark data exists to base it on, so none was invented). |
 | 2026-11-06 | Changed | Owner signed up for the Google Tensor SDK Beta; TASK-119's Tensor NPU half resumes once access is granted, with the device-identifier string and any other beta-portal findings. |
 | 2026-11-06 | Changed | TASK-119's GPU half done: `LiteRtBackendSelection` mirrors `BackendSelection`'s Auto-never-GPU shape; `Backend.GPU()` falls back to CPU on failure; `app/src/full/AndroidManifest.xml` declares `libvndksupport.so`. The Tensor NPU half is blocked, not just unstarted: a gated SDK signup with no access, an unverified Tensor G5/G6 device-identifier string, and still no test device. |
