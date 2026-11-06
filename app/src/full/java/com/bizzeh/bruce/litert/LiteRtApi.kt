@@ -11,8 +11,18 @@ import java.io.File
  * real native library (TASK-118). [LiteRtNative] is the real implementation.
  */
 internal interface LiteRtApi {
-    /** Loads [file] as the active model; null on failure. [maxContextTokens] non-positive asks for the model's default (`EngineConfig.maxNumTokens`). */
-    fun loadModel(file: File, maxContextTokens: Int): LiteRtModel?
+    /**
+     * Loads [file] as the active model, following [LiteRtBackendSelection.plan] for [preference].
+     * [maxContextTokens] non-positive asks for the model's default (`EngineConfig.maxNumTokens`).
+     */
+    fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference): LiteRtLoadResult
+}
+
+internal sealed interface LiteRtLoadResult {
+    /** [backend] is where the model loaded; [failedBackends] lists non-CPU choices tried first that failed, in order. */
+    data class Loaded(val model: LiteRtModel, val backend: LiteRtBackendChoice, val failedBackends: List<LiteRtBackendChoice> = emptyList()) : LiteRtLoadResult
+
+    data object Failed : LiteRtLoadResult
 }
 
 /** One loaded model; a fresh [LiteRtConversation] is made per turn, carrying the turn's full history (TASK-118: no persistent, stateful session, matching how [com.bizzeh.bruce.inference.LlamaCppEngine] is given the whole conversation each time). */

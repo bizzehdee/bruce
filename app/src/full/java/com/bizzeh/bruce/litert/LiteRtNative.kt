@@ -24,10 +24,11 @@ import com.bizzeh.bruce.inference.ToolCall as BruceToolCall
 import com.google.ai.edge.litertlm.ToolCall as NativeToolCall
 
 /**
- * Wraps the real LiteRT-LM Kotlin API (TASK-118). Isolated to this one file because the exact API
- * shape came from reading the library's own compiled classes on 2026-11-06 (`javap` against
- * `litertlm-android-0.19.1.aar`; see `research/sources/litert-lm-android-tensor-sdk-2026-11-06/`
- * and `research/sources/litert-torch-conversion-2026-11-06/` for background), not from an API
+ * Wraps the real LiteRT-LM Kotlin API (TASK-118; GPU backend TASK-119). Isolated to this one file
+ * because the exact API shape came from reading the library's own compiled classes on 2026-11-06
+ * (`javap` against `litertlm-android-0.19.1.aar`; see
+ * `research/sources/litert-lm-android-tensor-sdk-2026-11-06/` and
+ * `research/sources/litert-torch-conversion-2026-11-06/` for background), not from an API
  * reference or a real device run. The library is pre-1.0 (`0.19.1`): re-check this file against the
  * pinned version on any bump.
  *
@@ -38,8 +39,24 @@ import com.google.ai.edge.litertlm.ToolCall as NativeToolCall
  * generation (its own KDoc says it does; the C++ side was not read).
  */
 internal object LiteRtNative : LiteRtApi {
-    override fun loadModel(file: File, maxContextTokens: Int): LiteRtModel? {
-        val engine = Engine(EngineConfig(modelPath = file.absolutePath, backend = Backend.CPU(), maxNumTokens = maxContextTokens))
+    override fun loadModel(file: File, maxContextTokens: Int, preference: LiteRtBackendPreference): LiteRtLoadResult {
+        val failed = mutableListOf<LiteRtBackendChoice>()
+        for (choice in LiteRtBackendSelection.plan(preference)) {
+            when (val result = openOn(file, maxContextTokens, choice)) {
+                null -> if (choice != LiteRtBackendChoice.CPU) failed += choice
+                else -> return LiteRtLoadResult.Loaded(result, choice, failed.toList())
+            }
+        }
+        return LiteRtLoadResult.Failed
+    }
+
+    private fun nativeBackend(choice: LiteRtBackendChoice): Backend = when (choice) {
+        LiteRtBackendChoice.CPU -> Backend.CPU()
+        LiteRtBackendChoice.GPU -> Backend.GPU()
+    }
+
+    private fun openOn(file: File, maxContextTokens: Int, choice: LiteRtBackendChoice): EngineModel? {
+        val engine = Engine(EngineConfig(modelPath = file.absolutePath, backend = nativeBackend(choice), maxNumTokens = maxContextTokens))
         return try {
             engine.initialize()
             val contextTokens = ModelInfo.from(file.absolutePath).use { it.maxContextTokens() }
