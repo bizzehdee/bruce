@@ -142,12 +142,13 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   rather than building from source, so it is Google Play and GitHub Releases
   only (a new `full`/`foss` Gradle flavour split) — the F-Droid (`foss`) build
   omits it entirely, llama.cpp/GGUF only there (owner decision, 2026-11-06).
-  The Tensor NPU half of TASK-119 is blocked, not just unstarted: it needs the
-  gated "Google Tensor SDK Beta" signup (no access available), a verified
-  device-identifier string for Tensor G5/G6 that no research has found yet
-  (must not be guessed), and there is still no Tensor G5/G6 test device (Open
-  questions) to run it on even once built. `in progress` (TASK-118 done: CPU
-  path; TASK-119 done: GPU path, blocked: Tensor NPU; TASK-120 pipeline
+  The Tensor NPU half of TASK-119 is blocked on access, not a decision
+  anymore: owner signed up for the Google Tensor SDK Beta (2026-11-06,
+  https://developers.google.com/edge/litert/next/tensor-sdk), approval
+  pending. Also still needed: a verified device-identifier string for Tensor
+  G5/G6 (no research has found one; must not be guessed) and a Tensor G5/G6
+  test device (Open questions). `in progress` (TASK-118 done: CPU path;
+  TASK-119 done: GPU path, Tensor NPU pending beta access; TASK-120 pipeline
   selection/model-manager wiring remains;
   `app/src/full/java/com/bizzeh/bruce/litert/`)
 - **Pipeline selection** — Bruce selects llama.cpp/GGUF or LiteRT-LM
@@ -586,7 +587,7 @@ device-to-device transfer.
 | **Resolved 2026-11-06:** LiteRT-LM ships prebuilt binaries, not a from-source build, conflicting with F-Droid's requirement. Owner decision: Google Play and GitHub Releases builds get the full LiteRT pipeline; the F-Droid build variant omits it and offers llama.cpp/GGUF only. Detail: `research/sources/litert-lm-android-tensor-sdk-2026-11-06/`, `.learnings/litert-lm-fdroid-blocker.md`. Still open: whether the Tensor G5/G6 NPU path (gated beta, unverified Bazel dependency, Play Feature Delivery) needs its own further gating within the Play/GitHub builds — deferred to TASK-119. | Developer (TASK-119) |
 | **Resolved 2026-11-06:** Source format is safetensors, not GGUF (owner, confirmed against Google's LiteRT Torch docs). The tool is `litert-torch export_hf`/`export-hf`. Int8 is the main quantisation target (confirmed default recipe `dynamic_wi8_afp32`); Int4 stays in scope (owner, 2026-11-06), exact recipe name still to confirm; Int6 is dropped (owner, 2026-11-06), no longer pursued. Still open: whether Tensor G5 (only G6 is shown in the AOT compilation docs read) can be produced at all — needs checking against `google-ai-edge/ai-edge-quantizer` and the Tensor SDK docs directly (TASK-121). Tensor AOT compilation also needs the same gated "Google Tensor SDK Beta" signup found for the runtime (TASK-117) — a second place that gate appears, reinforcing that the Tensor path is not an ungated, from-source pipeline end to end. | Developer |
 | Where the conversion script lives in the repository and whether its output models are published anywhere (the project's own Hugging Face bucket, user suggested) or stay local-only. | User |
-| None of the test devices (XZ Premium, Xperia 1 II, Pixel 11) has a Tensor G5/G6 chip, so the TPU delegate cannot be measured on real hardware yet; a Tensor G5/G6 phone needs adding to Test devices, or the pipeline ships CPU-delegate-verified only, TPU-delegate unverified, until one is available. | User |
+| None of the test devices (XZ Premium, Xperia 1 II, Pixel 11) has a Tensor G5/G6 chip, so the TPU delegate cannot be measured on real hardware yet; a Tensor G5/G6 phone needs adding to Test devices, or the pipeline ships CPU-delegate-verified only, TPU-delegate unverified, until one is available. Owner signed up for the Google Tensor SDK Beta (2026-11-06), approval pending; this stays open until access and a test device are both in hand. | User |
 
 ## Milestones
 
@@ -613,6 +614,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-06 | Changed | Owner signed up for the Google Tensor SDK Beta; TASK-119's Tensor NPU half resumes once access is granted, with the device-identifier string and any other beta-portal findings. |
 | 2026-11-06 | Changed | TASK-119's GPU half done: `LiteRtBackendSelection` mirrors `BackendSelection`'s Auto-never-GPU shape; `Backend.GPU()` falls back to CPU on failure; `app/src/full/AndroidManifest.xml` declares `libvndksupport.so`. The Tensor NPU half is blocked, not just unstarted: a gated SDK signup with no access, an unverified Tensor G5/G6 device-identifier string, and still no test device. |
 | 2026-11-06 | Changed | TASK-118 done: `LiteRtBackend`, a `ChatBackend` implementation (not `InferenceEngine` — redesigned mid-task, owner approved, since LiteRT-LM's structured-message API does not fit llama.cpp's text/grammar contract), CPU path only, in `app/src/full/java/com/bizzeh/bruce/litert/`. New `full`/`foss` Gradle flavour dimension carries the Google Play/GitHub-vs-F-Droid split decided for TASK-117. Token counting is a characters-per-token estimate (no per-string tokenizer API exists in LiteRT-LM); `stop()` and the delta-streaming assumption are unverified on real hardware. |
 | 2026-11-06 | Changed | Owner decision on quantisation scope: Int8 is the conversion script's main target, Int4 stays in scope, Int6 is dropped (no source ever confirmed it exists). |
