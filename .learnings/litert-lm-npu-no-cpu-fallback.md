@@ -25,6 +25,30 @@ guard it, or the real failure reason gets masked by this secondary
 exception. Add `Log.w` on each failed backend attempt; `loadModel` otherwise
 gives no detail beyond `Loaded`/`Failed`.
 
+Reproduced on two independently-compiled models — a community build
+(`litert-community/Gemma3-1B-IT-Tensor-NPU`) and Google's own official
+release (`litert-community/gemma-4-E2B-it-litert-lm`'s
+`_Google_Tensor_G6.litertlm`) — both fail identically at native tensor
+allocation on the same Pixel 11 (Tensor G6, Android 17, build
+`CD1A.261005.003`). Pinning `litert-npu-runtime-google-tensor` to `2.3.0`
+(the exact version the community build's README says it was compiled with)
+made no difference; reverted to `2.3.2`. Two authors, two recipes, same
+failure — likely a firmware/dispatch-library ABI mismatch on this specific
+retail build (the community README documents exactly this class of problem
+happening before and being fixed by an SDK version bump), not a bad file.
+Not resolved; likely needs Google's own Tensor SDK Beta tooling or a
+support escalation rather than further version-guessing.
+
+Also: a non-AOT (`gemma-4-E2B-it.litertlm`) model "succeeds" when loaded
+with `LiteRtBackendPreference.NPU` — no error, backend reported as NPU — but
+this is not proof of real NPU execution. Google's own docs say the Tensor
+SDK has no on-device JIT compilation yet, so a model with no AOT-compiled
+NPU subgraph most likely runs entirely on CPU regardless of the requested
+backend; Bruce's own `backend` field only reflects which choice was
+attempted, not which hardware actually ran it. Only a model specifically
+AOT-compiled for the chip exercises the real NPU path — and both such files
+tried here failed before reaching execution.
+
 Read before: any further Tensor NPU work (completing TASK-119, or TASK-120's
 model-selection logic deciding which file to download/load per device). Full
 detail: `research/sources/litert-npu-device-test-2026-11-06/`.

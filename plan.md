@@ -145,10 +145,16 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   entirely, llama.cpp/GGUF only there (owner decision, 2026-11-06).
   `Backend.NPU(nativeLibraryDir)` is wired with the public
   `litert-npu-runtime-google-tensor` artifact, and was run against the
-  owner's Pixel 11 (confirmed Tensor G6, 12 GB RAM) with a real Tensor-AOT
-  `.litertlm` file: it reached genuine native NPU code (proving the wiring
-  correct) but failed at native tensor allocation, root cause unconfirmed.
-  Separately, and not a bug: the CPU fallback on the same file also failed,
+  owner's Pixel 11 (confirmed Tensor G6, 12 GB RAM) with **two**
+  independently-compiled Tensor-AOT `.litertlm` files — a community build and
+  Google's own official release: both reach genuine native NPU code (proving
+  the wiring correct) but fail identically at native tensor allocation.
+  Pinning the runtime to the exact version the community build documents
+  being compiled with made no difference. Reproduction across two authors'
+  independent compiles points to a firmware/dispatch-library mismatch on this
+  specific retail device build, not a bad file; root cause unresolved,
+  likely needs the owner's Tensor SDK Beta access or a support escalation.
+  Separately, and not a bug: the CPU fallback on each AOT file also failed,
   because an AOT-compiled Tensor file has **no CPU path at all** — the
   CPU/GPU-capable model is a different file in the same Hugging Face repo, so
   `LiteRtBackendSelection`'s llama.cpp-shaped "fall back to CPU on the same
@@ -629,6 +635,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-06 | Changed | TASK-119's Tensor NPU tensor-allocation failure reproduced identically on a second, independently-compiled model (Google's own official `gemma-4-E2B-it_Google_Tensor_G6.litertlm`, not just the first community build); a runtime-version pin matching the first model's documented compile toolchain made no difference. Points to a firmware/dispatch-library mismatch on this retail device, not a bad file; unresolved. |
 | 2026-11-06 | Changed | TASK-119's Tensor NPU delegate code written and run for real on the owner's Pixel 11 (Tensor G6): reaches genuine native NPU code but fails at tensor allocation (root cause unconfirmed); separately confirmed that an AOT-compiled Tensor `.litertlm` file has no CPU fallback at all (a different file holds the CPU/GPU-capable model), so `LiteRtBackendSelection`'s llama.cpp-shaped same-file fallback does not apply to it. A real bug (`Engine.close()` masking the actual failure) found and fixed in the same pass. |
 | 2026-11-06 | Changed | TASK-119's Tensor NPU half unblocked: the Google Tensor SDK Beta gates AOT compilation and optional remote-device access, not the public runtime Maven artifacts (verified); the owner's Pixel 11 test device is confirmed a Google Tensor G6 with 12 GB RAM, not previously checked. The Test devices table and an earlier, incorrect "no test device has Tensor G5/G6" note are corrected. |
 | 2026-11-06 | Changed | TASK-120 done for local model loading, chat and Hugging Face discovery: automatic pipeline selection by file format (`ActiveModel.loadAny`, `LiteRtPipeline`, `BruceRuntime.localOverride`), `.litertlm` local import, and `HubClient` search/file-listing for `litert-lm` repositories. Not done: Model Browser UI for LiteRT-LM results, and fit/speed ranking (no LiteRT-LM benchmark data exists to base it on, so none was invented). |

@@ -1,8 +1,11 @@
-# Tensor NPU delegate: first real-device run, Pixel 11 (Tensor G6)
+# Tensor NPU delegate: real-device runs, Pixel 11 (Tensor G6)
 
-Retrieved 2026-11-06. TASK-119: first attempt to actually load a Tensor-AOT-compiled
+Retrieved 2026-11-06. TASK-119: attempts to actually load a Tensor-AOT-compiled
 `.litertlm` model on the NPU delegate on real hardware (the owner's Pixel 11,
 confirmed Tensor G6, `.learnings/pixel-11-tensor-g6-and-sdk-gating.md`).
+Three models tried, two independently compiled (a community build and
+Google's own official release); the generic/non-AOT model and a version-pin
+experiment are included below for completeness.
 
 ## Setup
 
@@ -82,3 +85,63 @@ something `LiteRtNative`'s single-file load loop can do on its own. Whether
 and how Bruce should auto-select the matching variant file per device (and
 fall back to the plain file if the Tensor one fails) is an open design
 question, not yet decided.
+
+## Finding 3: the generic (non-AOT) model "succeeds" on the NPU label, but likely runs on CPU regardless
+
+`gemma-4-E2B-it.litertlm` (the plain, non-AOT variant from the same official
+`litert-community/gemma-4-E2B-it-litert-lm` repo) loaded successfully with
+`LiteRtBackendPreference.NPU` requested — `LiteRtNative.loadModel` returned
+`Loaded(backend = NPU, ...)` with no error, in 11.7 seconds, no `litert`-tagged
+native log lines at all (a clean load produces none; the earlier failures'
+`[compiled_model.cc:1735]` warnings are an error-path artifact, not a sign of
+activity). Google's own docs say Tensor SDK "doesn't yet support on-device
+(JIT) compilation," so a model with no AOT-compiled NPU subgraph has nothing
+for the NPU delegate to actually claim — the most likely explanation is that
+every op silently ran on the CPU kernel underneath, with the Kotlin-level
+`backend` field only reflecting which choice `LiteRtBackendSelection.plan()`
+tried, not which hardware actually executed. **Not confirmed either way**:
+no throughput/token-rate measurement was taken (the test only loads, it does
+not generate), and no log distinguished "ran on NPU" from "ran on CPU
+anyway." Do not treat a successful load with `backend = NPU` as proof of real
+NPU execution for a non-AOT model; only a `.litertlm` file compiled
+specifically for the chip (`_Google_Tensor_G6.litertlm`-style) exercises the
+real NPU delegate path at all — and both such files tried here failed before
+reaching execution.
+
+## Finding 4: reproduced on both an independent community build and Google's own official release
+
+The original run above used a community (non-Google) build,
+`litert-community/Gemma3-1B-IT-Tensor-NPU`'s `Gemma3-1B-IT_int8_aot_ekv4096_G6.litertlm`.
+Its own README is unusually detailed and names the exact toolchain it was
+compiled with: "Tensor SDK v2.1: `ai-edge-litert 2.3.0` +
+`ai-edge-litert-sdk-google-tensor 2.3.0` (compiler BuildID `f4df3004…`)" — a
+minor-version mismatch against the `litert-npu-runtime-google-tensor:2.3.2`
+Bruce had pinned looked like a plausible cause, so the pin was temporarily
+set to `2.3.0` (exact match) and retested: **no change**, identical
+`Failed to allocate tensors` failure. The pin was reverted to `2.3.2`.
+
+To rule out a bad file from one small-scale author, the same test was then
+run against Google's own official release,
+`litert-community/gemma-4-E2B-it-litert-lm`'s
+`gemma-4-E2B-it_Google_Tensor_G6.litertlm` (3,453,960,202 bytes, confirmed
+exact match after `adb push`). **Identical failure**: `Failed to allocate
+tensors` on the NPU attempt. The CPU fallback on this file failed with a
+different, but equally conclusive, message: `Signature not found: decode` —
+confirming Finding 2 again from a different angle: the AOT file does not
+even contain a "decode" execution signature outside the NPU path, it is
+structurally NPU-only, not just permission-gated.
+
+Two independently compiled models, by different authors, using different
+int4/int8 recipes, both fail identically at native tensor allocation on this
+exact Pixel 11 (Tensor G6, Android 17, build `CD1A.261005.003`). This is a
+real signal: either (a) a firmware/dispatch-library ABI mismatch on this
+specific retail device/Android build — the community README documents
+exactly this class of problem happening before ("The earlier int4 G5/G6
+bundles... failed warmup on a retail Pixel 11; it was built with the older
+beta SDK, whose G6 firmware ABI didn't match retail silicon; SDK v2.1 fixed
+that"), or (b) a more general incompatibility in the current pinned Maven
+runtime versions that a different combination (not yet tried) might resolve.
+Not diagnosed further in this pass — likely needs either Google's own
+Tensor SDK Beta tooling (which the owner now has access to, primarily
+intended for AOT compilation but may include firmware/compatibility
+guidance) or a support escalation, rather than more version-guessing.
