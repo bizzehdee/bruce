@@ -43,7 +43,7 @@ import com.bizzeh.bruce.inference.LlamaNative
 import com.bizzeh.bruce.search.EmbeddingModel
 import com.bizzeh.bruce.models.ProfileModel
 import com.bizzeh.bruce.models.ProfileStore
-import com.bizzeh.bruce.inference.LoadResult
+import com.bizzeh.bruce.models.ModelLoadResult
 import com.bizzeh.bruce.search.FileSearch
 import com.bizzeh.bruce.search.IndexWork
 import com.bizzeh.bruce.search.LlamaEmbedder
@@ -56,6 +56,8 @@ import com.bizzeh.bruce.chat.TurnObserver
 import com.bizzeh.bruce.hardware.CpuFeatures
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.LlamaCppEngine
+import com.bizzeh.bruce.litert.LiteRtPipeline
+import com.bizzeh.bruce.litert.createLiteRtPipeline
 import com.bizzeh.bruce.inference.SavedPrompts
 import com.bizzeh.bruce.inference.ToolChatMessage
 import android.os.BatteryManager
@@ -67,6 +69,7 @@ import com.bizzeh.bruce.memory.MemoryDatabase
 import com.bizzeh.bruce.memory.MemorySettingsRepository
 import com.bizzeh.bruce.memory.MemoryStore
 import com.bizzeh.bruce.models.ActiveModel
+import com.bizzeh.bruce.models.ModelFormat
 import com.bizzeh.bruce.models.ModelImporter
 import com.bizzeh.bruce.models.ModelSelection
 import com.bizzeh.bruce.models.ModelSettingsRepository
@@ -155,11 +158,14 @@ class AppContainer(private val context: Context) {
 
     val engine: InferenceEngine by lazy { LlamaCppEngine.create(context.applicationInfo.nativeLibraryDir, nativeThread, savedPrompts) }
 
+    /** Null in F-Droid builds, which carry no LiteRT-LM library (TASK-117, TASK-120). */
+    val liteRtPipeline: LiteRtPipeline? by lazy { createLiteRtPipeline() }
+
     val modelsDir: File = File(context.filesDir, MODELS_DIR)
 
     val importer: ModelImporter by lazy { ModelImporter(context.contentResolver, modelsDir, Dispatchers.IO) }
 
-    val activeModel: ActiveModel by lazy { ActiveModel(engine, modelsDir, Dispatchers.IO) }
+    val activeModel: ActiveModel by lazy { ActiveModel(engine, modelsDir, Dispatchers.IO, liteRtPipeline) }
 
     val themeSettings: ThemeSettingsRepository by lazy { ThemeSettingsRepository(context.settingsDataStore) }
 
@@ -371,7 +377,7 @@ class AppContainer(private val context: Context) {
                 when {
                     state.active == file && state.remote == null -> true
                     !file.isFile -> false
-                    else -> modelSelection.choose(file) is LoadResult.Loaded
+                    else -> modelSelection.choose(file) is ModelLoadResult.Loaded
                 }
             }
             is ProfileModel.Remote -> {
@@ -514,7 +520,13 @@ class AppContainer(private val context: Context) {
                 else -> grantScope.check(request)
             }
         }, requirementMet = ::requirementMet, sites = sites)
-        BruceRuntime(engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() }, maxDuration = { inferenceSettings.defaults.first().maxWaitMinutes.minutes }, thinking = { modelSelection.activeThinking() }, personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages)
+        BruceRuntime(
+            engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() },
+            maxDuration = { inferenceSettings.defaults.first().maxWaitMinutes.minutes }, thinking = { modelSelection.activeThinking() },
+            personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages,
+            // The active model's own pipeline when it is LiteRT-LM (TASK-120); null (llama.cpp) otherwise.
+            localOverride = { liteRtPipeline?.current().takeIf { activeModel.state.value.format == ModelFormat.LITERT_LM } },
+        )
     }
 
     val dataReset: DataReset by lazy {

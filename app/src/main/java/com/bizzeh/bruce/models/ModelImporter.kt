@@ -40,18 +40,31 @@ class ModelImporter(
             return@withContext ImportResult.Failed(ImportError.INSUFFICIENT_STORAGE)
         }
         val stream = openStream(uri) ?: return@withContext ImportResult.Failed(ImportError.UNREADABLE)
-        stream.use { copyIfGguf(it, sanitisedFileName(details.displayName)) }
+        // A `.litertlm` name copies as-is: no documented magic bytes exist for this format
+        // (TASK-120 research) to validate content the way GGUF's magic check does.
+        if (details.displayName?.endsWith(LITERT_LM_EXTENSION, ignoreCase = true) == true) {
+            stream.use { copyAs(it, sanitisedLiteRtLmFileName(details.displayName)) }
+        } else {
+            stream.use { copyIfGguf(it, sanitisedFileName(details.displayName)) }
+        }
     }
 
     private fun copyIfGguf(source: InputStream, fileName: String): ImportResult {
         val header = Gguf.readHeader(source)
         if (!Gguf.hasMagic(header)) return ImportResult.Failed(ImportError.NOT_GGUF)
+        return copyAs(source, fileName, header)
+    }
 
-        val target = uniqueTarget(modelsDir, fileName)
+    private fun copyAs(source: InputStream, fileName: String, prefix: ByteArray = ByteArray(0)): ImportResult {
+        val target = if (fileName.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) {
+            uniqueTarget(modelsDir, fileName, LITERT_LM_EXTENSION)
+        } else {
+            uniqueTarget(modelsDir, fileName, GGUF_EXTENSION)
+        }
         val partial = File(modelsDir, ".${target.name}.partial")
         val copied = try {
             partial.outputStream().use { out ->
-                out.write(header)
+                out.write(prefix)
                 source.copyTo(out)
             }
             true
@@ -90,32 +103,40 @@ class ModelImporter(
 
     internal companion object {
         private const val GGUF_EXTENSION = ".gguf"
+        private const val LITERT_LM_EXTENSION = ".litertlm"
         private const val MAX_BASE_NAME_LENGTH = 120
         private val UNSAFE_CHARACTERS = Regex("[^A-Za-z0-9._-]")
         private val GGUF_SUFFIX = Regex("\\.gguf$", RegexOption.IGNORE_CASE)
+        private val LITERT_LM_SUFFIX = Regex("\\.litertlm$", RegexOption.IGNORE_CASE)
 
         /** [fileName] in [dir], or with "-1", "-2"… before the extension if that name is taken. */
-        fun uniqueTarget(dir: File, fileName: String): File {
-            val base = fileName.removeSuffix(GGUF_EXTENSION)
+        fun uniqueTarget(dir: File, fileName: String): File = uniqueTarget(dir, fileName, GGUF_EXTENSION)
+
+        private fun uniqueTarget(dir: File, fileName: String, extension: String): File {
+            val base = fileName.removeSuffix(extension)
             var candidate = File(dir, fileName)
             var suffix = 1
             while (candidate.exists()) {
-                candidate = File(dir, "$base-$suffix$GGUF_EXTENSION")
+                candidate = File(dir, "$base-$suffix$extension")
                 suffix++
             }
             return candidate
         }
 
         /** The display name comes from another app, so it is never trusted as a path. */
-        fun sanitisedFileName(displayName: String?): String {
+        fun sanitisedFileName(displayName: String?): String = sanitisedFileName(displayName, GGUF_SUFFIX, GGUF_EXTENSION)
+
+        private fun sanitisedLiteRtLmFileName(displayName: String?): String = sanitisedFileName(displayName, LITERT_LM_SUFFIX, LITERT_LM_EXTENSION)
+
+        private fun sanitisedFileName(displayName: String?, suffix: Regex, extension: String): String {
             val base = (displayName ?: "")
                 .substringAfterLast('/')
                 .replace(UNSAFE_CHARACTERS, "_")
                 .trimStart('.')
-                .replace(GGUF_SUFFIX, "")
+                .replace(suffix, "")
                 .take(MAX_BASE_NAME_LENGTH)
                 .ifEmpty { "model" }
-            return base + GGUF_EXTENSION
+            return base + extension
         }
     }
 }

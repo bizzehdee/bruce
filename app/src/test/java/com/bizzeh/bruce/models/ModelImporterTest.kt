@@ -113,6 +113,24 @@ class ModelImporterTest {
     }
 
     @Test
+    fun copiesLiteRtLmIntoModelsDirectoryWithNoContentCheck() = runTest(dispatcher) {
+        val bytes = ByteArray(2048) { it.toByte() }
+        val result = importer.import(document(bytes, "gemma-4-E2B-it.litertlm"))
+
+        val expected = File(modelsDir, "gemma-4-E2B-it.litertlm")
+        assertEquals(ImportResult.Imported(expected), result)
+        assertArrayEquals(bytes, expected.readBytes())
+    }
+
+    @Test
+    fun liteRtLmExistingNameGetsNumberedSuffix() = runTest(dispatcher) {
+        importer.import(document(ByteArray(8), "m.litertlm"))
+        val second = importer.import(document(ByteArray(8), "m.litertlm"))
+
+        assertEquals(ImportResult.Imported(File(modelsDir, "m-1.litertlm")), second)
+    }
+
+    @Test
     fun copyFailureLeavesNoPartialFile() = runTest(dispatcher) {
         modelsDir.mkdirs()
         modelsDir.setWritable(false)

@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -38,10 +39,12 @@ class ModelSettingsTest {
         val modelsDir = File(dir, "models").apply { mkdirs() }
         val settings = ModelSettingsRepository(dataStore)
         val inference = InferenceSettingsRepository(dataStore)
-        val activeModel = ActiveModel(engine, modelsDir, dispatcher)
+        val liteRt = com.bizzeh.bruce.testing.FakeLiteRtPipeline()
+        val activeModel = ActiveModel(engine, modelsDir, dispatcher, liteRt)
         var servers = listOf(com.bizzeh.bruce.remote.RemoteServer("s", "Home", "http://192.168.1.20:8080", true, false))
         val selection = ModelSelection(activeModel, settings, inference, modelsDir, dispatcher) { servers }
-        fun model(name: String) = File(modelsDir, name).apply { writeText("x") }
+        fun model(name: String) = File(modelsDir, name).apply { writeBytes("GGUF".toByteArray() + ByteArray(16)) }
+        fun liteRtModel(name: String) = File(modelsDir, name).apply { writeBytes(ByteArray(2048)) }
     }
 
     @Test
@@ -113,6 +116,19 @@ class ModelSettingsTest {
         assertEquals(LoadConfig(contextLength = 8192, backend = BackendPreference.CPU).copy(threads = engine.loads.single().second.threads), engine.loads.single().second)
         assertEquals("m.gguf", f.settings.activeModelName.first())
         assertEquals(0.3f, f.selection.activeTemperature())
+    }
+
+    @Test
+    fun chooseLiteRtLmSkipsGgufSettingsAndRemembersTheModel() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val file = f.liteRtModel("m.litertlm")
+        f.liteRt.result = com.bizzeh.bruce.litert.LiteRtPipelineResult.Loaded(com.bizzeh.bruce.testing.FakeChatBackend(), 8192)
+
+        val result = f.selection.choose(file)
+
+        assertEquals(ModelLoadResult.Loaded(ModelFormat.LITERT_LM), result)
+        assertTrue(engine.loads.isEmpty(), "llama.cpp's engine was not asked for a LiteRT-LM file")
+        assertEquals("m.litertlm", f.settings.activeModelName.first())
     }
 
     @Test

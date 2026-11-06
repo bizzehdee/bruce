@@ -132,10 +132,15 @@ class BruceRuntime(
     images: ImageSource? = null,
     /** Today's date on the phone, which the system prompt states. */
     private val today: () -> LocalDate = { LocalDate.now() },
+    /**
+     * Which backend serves the phone's own model, when it is not llama.cpp/GGUF (TASK-120); null
+     * (the default) always uses [engine] through [LocalBackend], as before this parameter existed.
+     */
+    private val localOverride: (suspend () -> ChatBackend?)? = null,
 ) {
     private val local = LocalBackend(engine, images)
 
-    private suspend fun backend(): ChatBackend = remote() ?: local
+    private suspend fun backend(): ChatBackend = remote() ?: localOverride?.invoke() ?: local
 
     /** Whether the chosen model can be given images (TASK-082). */
     suspend fun acceptsImages(): Boolean = backend().acceptsImages()

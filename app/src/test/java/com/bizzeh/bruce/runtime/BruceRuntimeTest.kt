@@ -583,6 +583,46 @@ class BruceRuntimeTest {
     }
 
     @Test
+    fun aLocalOverrideTakesThePhonesPlaceWhenThereIsNoRemote() = runBlocking {
+        val override = object : ChatBackend {
+            override suspend fun contextLength() = 2048
+            override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) =
+                flowOf(StepEvent.Done(ParsedReply("from the override", "", emptyList()), null))
+            override fun stop() = Unit
+        }
+        val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" }, localOverride = { override })
+
+        val events = runtime.respond(question).toList()
+
+        assertTrue("the phone's own engine was not used", engine.formatted.isEmpty())
+        assertTrue((events.last() as RuntimeEvent.Finished).messages.last().content == "from the override")
+    }
+
+    @Test
+    fun aRemoteBackendTakesPrecedenceOverALocalOverride() = runBlocking {
+        val override = object : ChatBackend {
+            override suspend fun contextLength() = 2048
+            override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) =
+                flowOf(StepEvent.Done(ParsedReply("from the override", "", emptyList()), null))
+            override fun stop() = Unit
+        }
+        val remote = object : ChatBackend {
+            override suspend fun contextLength() = 8192
+            override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) =
+                flowOf(StepEvent.Done(ParsedReply("from the remote", "", emptyList()), null))
+            override fun stop() = Unit
+        }
+        val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" }, remote = { remote }, localOverride = { override })
+
+        val events = runtime.respond(question).toList()
+
+        assertTrue((events.last() as RuntimeEvent.Finished).messages.last().content == "from the remote")
+    }
+
+    @Test
     fun aRemoteFailureEndsTheTurn() = runBlocking {
         val remote = object : ChatBackend {
             override suspend fun contextLength() = 8192

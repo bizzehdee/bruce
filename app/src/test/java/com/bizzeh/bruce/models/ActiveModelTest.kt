@@ -5,12 +5,16 @@ import com.bizzeh.bruce.inference.LoadConfig
 import com.bizzeh.bruce.inference.LoadError
 import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.inference.ModelInfo
+import com.bizzeh.bruce.litert.LiteRtPipelineResult
+import com.bizzeh.bruce.testing.FakeChatBackend
 import com.bizzeh.bruce.testing.FakeEngine
+import com.bizzeh.bruce.testing.FakeLiteRtPipeline
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -21,17 +25,18 @@ class ActiveModelTest {
 
     private val dispatcher = StandardTestDispatcher()
     private val engine = FakeEngine()
+    private val liteRt = FakeLiteRtPipeline()
     private val info = ModelInfo("qwen3", 1, 1, 40_960)
-    private val activeModel by lazy { ActiveModel(engine, dir, dispatcher) }
+    private val activeModel by lazy { ActiveModel(engine, dir, dispatcher, liteRt) }
 
     @Test
-    fun refreshListsGgufFilesAlphabetically() = runTest(dispatcher) {
-        listOf("b.gguf", "A.gguf", ".download-x.part", "notes.txt").forEach { File(dir, it).writeText("x") }
+    fun refreshListsGgufAndLiteRtLmFilesAlphabetically() = runTest(dispatcher) {
+        listOf("b.gguf", "A.gguf", "c.litertlm", ".download-x.part", "notes.txt").forEach { File(dir, it).writeText("x") }
         File(dir, "folder.gguf").mkdir()
 
         activeModel.refresh()
 
-        assertEquals(listOf("A.gguf", "b.gguf"), activeModel.state.value.installed.map { it.name })
+        assertEquals(listOf("A.gguf", "b.gguf", "c.litertlm"), activeModel.state.value.installed.map { it.name })
     }
 
     @Test
@@ -49,7 +54,7 @@ class ActiveModelTest {
 
         activeModel.load(file, LoadConfig(contextLength = 512))
 
-        assertEquals(ActiveModelState(active = file, info = info, backend = Backend.CPU), activeModel.state.value)
+        assertEquals(ActiveModelState(active = file, format = ModelFormat.GGUF, info = info, backend = Backend.CPU), activeModel.state.value)
         assertEquals(512, engine.loads.single().second.contextLength)
     }
 
@@ -133,5 +138,79 @@ class ActiveModelTest {
 
         assertEquals(first, activeModel.state.value.active)
         assertEquals(LoadError.NOT_GGUF, activeModel.state.value.error)
+    }
+
+    @Test
+    fun loadAnyDispatchesGgufToTheEngine() = runTest(dispatcher) {
+        engine.loadResult = LoadResult.Loaded(info, Backend.CPU)
+        val file = File(dir, "m.gguf")
+
+        val result = activeModel.loadAny(file, LoadConfig(contextLength = 512))
+
+        assertEquals(ModelLoadResult.Loaded(ModelFormat.GGUF, info, Backend.CPU), result)
+        assertEquals(file, engine.loads.single().first)
+        assertEquals(ModelFormat.GGUF, activeModel.state.value.format)
+    }
+
+    @Test
+    fun loadAnyDispatchesLiteRtLmToThePipeline() = runTest(dispatcher) {
+        val file = File(dir, "m.litertlm").apply { writeBytes(ByteArray(1024)) }
+        liteRt.result = LiteRtPipelineResult.Loaded(FakeChatBackend(), 8192)
+
+        val result = activeModel.loadAny(file)
+
+        assertEquals(ModelLoadResult.Loaded(ModelFormat.LITERT_LM), result)
+        assertEquals(file to 0, liteRt.loads.single())
+        assertTrue(engine.loads.isEmpty(), "the llama.cpp engine was not used")
+        val state = activeModel.state.value
+        assertEquals(file, state.active)
+        assertEquals(ModelFormat.LITERT_LM, state.format)
+        assertNull(state.info)
+        assertNull(state.backend)
+        assertEquals(1024L, state.memoryBytes, "memory is the file's size: no detailed estimate exists for this format")
+    }
+
+    @Test
+    fun loadAnyFailsCleanlyWithNoLiteRtPipeline() = runTest(dispatcher) {
+        val withoutLiteRt = ActiveModel(engine, dir, dispatcher)
+        val file = File(dir, "m.litertlm").apply { writeBytes(ByteArray(1024)) }
+
+        val result = withoutLiteRt.loadAny(file)
+
+        assertEquals(ModelLoadResult.Failed(LoadError.NOT_GGUF), result)
+        assertNull(withoutLiteRt.state.value.active)
+    }
+
+    @Test
+    fun loadAnyFailsForAnUnknownFormat() = runTest(dispatcher) {
+        val result = activeModel.loadAny(File(dir, "notes.txt"))
+        assertEquals(ModelLoadResult.Failed(LoadError.NOT_GGUF), result)
+    }
+
+    @Test
+    fun loadAnyLiteRtFailureClosesTheModelAndClearsState() = runTest(dispatcher) {
+        val first = File(dir, "a.litertlm").apply { writeBytes(ByteArray(10)) }
+        liteRt.result = LiteRtPipelineResult.Loaded(FakeChatBackend(), 8192)
+        activeModel.loadAny(first)
+
+        liteRt.result = LiteRtPipelineResult.Failed
+        val result = activeModel.loadAny(File(dir, "b.litertlm").apply { writeBytes(ByteArray(10)) })
+
+        assertEquals(ModelLoadResult.Failed(LoadError.MODEL_LOAD_FAILED), result)
+        val state = activeModel.state.value
+        assertNull(state.active)
+        assertEquals(LoadError.MODEL_LOAD_FAILED, state.error)
+        assertEquals(0L, state.memoryBytes)
+    }
+
+    @Test
+    fun unloadReleasesBothPipelines() = runTest(dispatcher) {
+        engine.loadResult = LoadResult.Loaded(info, Backend.CPU)
+        activeModel.load(File(dir, "a.gguf"))
+
+        activeModel.unload()
+
+        assertEquals(1, engine.unloads)
+        assertEquals(1, liteRt.unloads)
     }
 }

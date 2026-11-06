@@ -8,7 +8,6 @@ import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
 import com.bizzeh.bruce.huggingface.HubError
 import com.bizzeh.bruce.inference.LoadError
-import com.bizzeh.bruce.inference.LoadResult
 import com.bizzeh.bruce.settings.InferenceDefaults
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -83,7 +82,7 @@ class ModelsViewModel(
         viewModelScope.launch {
             mutableState.update { it.copy(loading = file, loadError = null) }
             val result = selection.choose(file)
-            mutableState.update { it.copy(loading = null, loadError = (result as? LoadResult.Failed)?.error) }
+            mutableState.update { it.copy(loading = null, loadError = (result as? ModelLoadResult.Failed)?.error) }
         }
     }
 
