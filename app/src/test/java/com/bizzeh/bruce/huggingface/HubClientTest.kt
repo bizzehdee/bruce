@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.huggingface
 
+import com.bizzeh.bruce.models.ModelFormat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -153,6 +154,42 @@ class HubClientTest {
         assertEquals("da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4", q4.sha256)
         assertEquals(
             "https://huggingface.co/api/models/ggml-org/Qwen3-0.6B-GGUF/tree/main?recursive=true",
+            transport.urls.single(),
+        )
+    }
+
+    @Test
+    fun searchForLiteRtLmUsesItsOwnFilterTagAndNoGgufMetadata() = runTest(dispatcher) {
+        transport.respond(
+            200,
+            """[{"id":"litert-community/gemma-4-E2B-it-litert-lm","downloads":1381472,"tags":["litert-lm"],
+              "siblings":[{"rfilename":"gemma-4-E2B-it.litertlm"},{"rfilename":"gemma-4-E2B-it-web.task"},{"rfilename":"README.md"}]}]""",
+        )
+
+        val model = client.search("gemma", filter = HubSearchFilter(format = ModelFormat.LITERT_LM)).value().single()
+
+        assertEquals("https://huggingface.co/api/models?filter=litert-lm&sort=downloads&direction=-1&limit=20&search=gemma$EXPANSIONS", transport.urls.single())
+        assertEquals("the .task and README siblings are not litertlm files", listOf("gemma-4-E2B-it.litertlm"), model.files)
+        assertNull(model.architecture)
+        assertNull(model.parameterCount)
+        assertNull(model.contextLength)
+        assertNull(model.chatTemplate)
+    }
+
+    @Test
+    fun liteRtLmFilesListsOnlyLiteRtLmWithHashes() = runTest(dispatcher) {
+        transport.respond(
+            200,
+            """[{"type":"file","path":"m.litertlm","size":2000000000,"lfs":{"oid":"${"a".repeat(64)}"}},
+              {"type":"file","path":"m-web.task","size":10},{"type":"file","path":"README.md","size":1}]""",
+        )
+
+        val files = client.liteRtLmFiles("litert-community/gemma-4-E2B-it-litert-lm").value()
+
+        assertEquals(listOf("m.litertlm"), files.map { it.path })
+        assertEquals(2_000_000_000L, files.single().sizeBytes)
+        assertEquals(
+            "https://huggingface.co/api/models/litert-community/gemma-4-E2B-it-litert-lm/tree/main?recursive=true",
             transport.urls.single(),
         )
     }

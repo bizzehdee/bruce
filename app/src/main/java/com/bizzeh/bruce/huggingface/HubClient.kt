@@ -4,6 +4,7 @@ import com.bizzeh.bruce.gguf.GgufError
 import com.bizzeh.bruce.gguf.GgufPrefixResult
 import com.bizzeh.bruce.gguf.GgufReadResult
 import com.bizzeh.bruce.gguf.GgufReader
+import com.bizzeh.bruce.models.ModelFormat
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
@@ -12,7 +13,12 @@ import org.json.JSONObject
 import java.io.IOException
 import java.net.URLEncoder
 
-/** A repository from a Hub search, with the GGUF details the search already carries. */
+/**
+ * A repository from a Hub search. [architecture], [parameterCount], [contextLength] and the chat
+ * template fields come only from GGUF's Hub-computed metadata (TASK-120 research,
+ * `research/sources/hf-hub-api-2026-11-06-litert-lm/`): the Hub has no equivalent for LiteRT-LM, so
+ * they are always null on a [ModelFormat.LITERT_LM] result, not guessed from [files] or tags.
+ */
 data class HubModel(
     val id: String,
     val downloads: Long,
@@ -21,9 +27,9 @@ data class HubModel(
     val architecture: String?,
     val parameterCount: Long?,
     val contextLength: Long?,
-    /** The repository's GGUF file paths, from the search; sizes need [HubClient.ggufFiles]. */
+    /** The repository's model file paths for [HubSearchFilter]'s format, from the search; sizes need [HubClient.modelFiles]. */
     val files: List<String> = emptyList(),
-    /** The chat template and its BOS/EOS tokens as the Hub reports them from one of the files; untrusted text. */
+    /** The chat template and its BOS/EOS tokens as the Hub reports them from one of the files; untrusted text. GGUF only. */
     val chatTemplate: String? = null,
     val bosToken: String? = null,
     val eosToken: String? = null,
@@ -44,8 +50,10 @@ data class HubSearchFilter(
     /** Inclusive parameter-count bounds; null for no bound. The Hub filters on one parsed file's count, so treat it as a hint. */
     val minParameters: Long? = null,
     val maxParameters: Long? = null,
-    /** Only GGUF copies made from this repository, by its exact id; the Hub's tag is case-sensitive. */
+    /** Only copies made from this repository, by its exact id; the Hub's tag is case-sensitive. Works for both formats (TASK-120 research: a `.litertlm` repository can carry the same `base_model:quantized:` tag a GGUF one does). */
     val quantisedFrom: String? = null,
+    /** Which pipeline's models to search for (TASK-120); GGUF carries Hub-computed metadata ([HubModel.architecture] etc.), LiteRT-LM does not. */
+    val format: ModelFormat = ModelFormat.GGUF,
 )
 
 data class HubFile(val path: String, val sizeBytes: Long, val sha256: String?)
@@ -87,35 +95,40 @@ class HubClient(
         require(baseUrl.startsWith("https://")) { "Hub base URL must use HTTPS" }
     }
 
-    /** GGUF repositories, most downloaded first. A blank [query] lists without a name search. */
+    /** Repositories for [HubSearchFilter.format], most downloaded first. A blank [query] lists without a name search. */
     suspend fun search(query: String, limit: Int = 20, filter: HubSearchFilter = HubSearchFilter()): HubResult<List<HubModel>> {
         require(limit in 1..MAX_RESULTS) { "limit must be 1..$MAX_RESULTS, was $limit" }
         val parameters = listOfNotNull(filter.minParameters?.let { "min:$it" }, filter.maxParameters?.let { "max:$it" })
         require(filter.quantisedFrom?.let(::isRepositoryId) != false) { "not a repository id: ${filter.quantisedFrom}" }
-        val url = "$baseUrl/api/models?filter=gguf" + filter.quantisedFrom?.let { "&filter=${encode("base_model:quantized:$it")}" }.orEmpty() +
+        val url = "$baseUrl/api/models?filter=${filterTag(filter.format)}" + filter.quantisedFrom?.let { "&filter=${encode("base_model:quantized:$it")}" }.orEmpty() +
             "&sort=downloads&direction=-1&limit=$limit" +
             query.trim().takeIf { it.isNotEmpty() }?.let { "&search=${encode(it)}" }.orEmpty() +
             filter.task?.let { "&pipeline_tag=${it.tag}" }.orEmpty() +
             parameters.takeIf { it.isNotEmpty() }?.let { "&num_parameters=${encode(it.joinToString(","))}" }.orEmpty() +
             SEARCH_EXPANSIONS.joinToString("") { "&expand[]=$it" }
-        return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray(body)) }
+        return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray(body), filter.format) }
     }
 
     /**
      * One repository as [search] lists it, under the id the Hub spells it with. [HubModel.files] is
-     * empty for a repository with no GGUF file. The Hub answers an unknown name as UNAUTHORISED.
+     * empty for a repository with no file of [format]. The Hub answers an unknown name as UNAUTHORISED.
      */
-    suspend fun model(repositoryId: String): HubResult<HubModel> {
+    suspend fun model(repositoryId: String, format: ModelFormat = ModelFormat.GGUF): HubResult<HubModel> {
         require(isRepositoryId(repositoryId)) { "not a repository id: $repositoryId" }
         val url = "$baseUrl/api/models/$repositoryId?" + SEARCH_EXPANSIONS.joinToString("&") { "expand[]=$it" }
-        return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray().put(JSONObject(body)))?.single() }
+        return request(url, MAX_SEARCH_BYTES) { body -> parseModels(JSONArray().put(JSONObject(body)), format)?.single() }
     }
 
-    suspend fun ggufFiles(repositoryId: String, revision: String = "main"): HubResult<List<HubFile>> {
+    suspend fun ggufFiles(repositoryId: String, revision: String = "main"): HubResult<List<HubFile>> = modelFiles(repositoryId, ModelFormat.GGUF, revision)
+
+    /** A LiteRT-LM repository's `.litertlm` files with their sizes (TASK-120); a repository may also carry `.task`/`.tflite` files, which are not included. */
+    suspend fun liteRtLmFiles(repositoryId: String, revision: String = "main"): HubResult<List<HubFile>> = modelFiles(repositoryId, ModelFormat.LITERT_LM, revision)
+
+    private suspend fun modelFiles(repositoryId: String, format: ModelFormat, revision: String): HubResult<List<HubFile>> {
         require(isRepositoryId(repositoryId)) { "not a repository id: $repositoryId" }
         require(REVISION.matches(revision)) { "not a revision: $revision" }
         val url = "$baseUrl/api/models/$repositoryId/tree/${encode(revision)}?recursive=true"
-        return request(url, MAX_TREE_BYTES) { body -> parseFiles(JSONArray(body)) }
+        return request(url, MAX_TREE_BYTES) { body -> parseFiles(JSONArray(body), extensionFor(format)) }
     }
 
     /**
@@ -190,7 +203,12 @@ class HubClient(
         else -> HubError.MALFORMED_RESPONSE
     }
 
-    private fun parseModels(array: JSONArray): List<HubModel>? = (0 until array.length()).map { index ->
+    /**
+     * [format]'s LiteRT-LM results carry no `gguf`-equivalent Hub metadata (TASK-120 research): the
+     * Hub never sends that field for this format, so these simply read null — never guessed from
+     * [siblings] or tags.
+     */
+    private fun parseModels(array: JSONArray, format: ModelFormat): List<HubModel>? = (0 until array.length()).map { index ->
         val item = array.optJSONObject(index) ?: return null
         val id = item.optString("id").takeIf(::isRepositoryId) ?: return null
         val gguf = item.optJSONObject("gguf")
@@ -202,28 +220,28 @@ class HubClient(
             architecture = gguf?.optString("architecture")?.takeIf { it.isNotBlank() },
             parameterCount = gguf?.positiveLong("total"),
             contextLength = gguf?.positiveLong("context_length"),
-            files = ggufSiblings(item.optJSONArray("siblings")) ?: return null,
+            files = modelSiblings(item.optJSONArray("siblings"), extensionFor(format)) ?: return null,
             chatTemplate = gguf?.optString("chat_template")?.takeIf { it.isNotBlank() && it.length <= MAX_TEMPLATE_CHARS },
             bosToken = gguf?.optString("bos_token")?.takeIf { it.isNotBlank() },
             eosToken = gguf?.optString("eos_token")?.takeIf { it.isNotBlank() },
         )
     }
 
-    /** Unsafe paths make the whole response malformed, as in [parseFiles]. */
-    private fun ggufSiblings(siblings: JSONArray?): List<String>? {
+    /** Unsafe paths make the whole response malformed, as in [parseFiles]. A repository tagged for [extension]'s format may still mix in other file types, which are filtered out here (TASK-120 research: a `litert-lm`-tagged repository can carry `.task`/`.tflite` files too). */
+    private fun modelSiblings(siblings: JSONArray?, extension: String): List<String>? {
         if (siblings == null) return emptyList()
         return (0 until siblings.length()).mapNotNull { index ->
             val path = siblings.optJSONObject(index)?.optString("rfilename") ?: return null
-            if (!path.endsWith(GGUF_EXTENSION, ignoreCase = true)) return@mapNotNull null
+            if (!path.endsWith(extension, ignoreCase = true)) return@mapNotNull null
             if (!isSafePath(path)) return null
             path
         }
     }
 
-    private fun parseFiles(array: JSONArray): List<HubFile>? = (0 until array.length()).mapNotNull { index ->
+    private fun parseFiles(array: JSONArray, extension: String): List<HubFile>? = (0 until array.length()).mapNotNull { index ->
         val item = array.optJSONObject(index) ?: return null
         val path = item.optString("path")
-        if (item.optString("type") != "file" || !path.endsWith(GGUF_EXTENSION, ignoreCase = true)) return@mapNotNull null
+        if (item.optString("type") != "file" || !path.endsWith(extension, ignoreCase = true)) return@mapNotNull null
         if (!isSafePath(path)) return null
         val size = item.optLong("size", -1).takeIf { it >= 0 } ?: return null
         val sha256 = item.optJSONObject("lfs")?.optString("oid")?.lowercase()?.takeIf(SHA256::matches)
@@ -241,6 +259,17 @@ class HubClient(
 
     private fun encode(value: String) = URLEncoder.encode(value, "UTF-8")
 
+    /** The Hub's `filter=` tag for [format] (TASK-120 research: `litert-lm` works exactly like `gguf`). */
+    private fun filterTag(format: ModelFormat): String = when (format) {
+        ModelFormat.GGUF -> "gguf"
+        ModelFormat.LITERT_LM -> "litert-lm"
+    }
+
+    private fun extensionFor(format: ModelFormat): String = when (format) {
+        ModelFormat.GGUF -> GGUF_EXTENSION
+        ModelFormat.LITERT_LM -> LITERT_LM_EXTENSION
+    }
+
     companion object {
         const val MAX_RESULTS = 100
         private const val MAX_SEARCH_BYTES = 8 * 1024 * 1024
@@ -249,6 +278,7 @@ class HubClient(
         private const val MAX_TEMPLATE_CHARS = 64 * 1024
         private const val MAX_TREE_BYTES = 2 * 1024 * 1024
         private const val GGUF_EXTENSION = ".gguf"
+        private const val LITERT_LM_EXTENSION = ".litertlm"
         private val SEARCH_EXPANSIONS = listOf("downloads", "gated", "cardData", "gguf", "siblings")
         private val REPOSITORY_ID = Regex("[A-Za-z0-9][A-Za-z0-9._-]{0,95}/[A-Za-z0-9][A-Za-z0-9._-]{0,95}")
         private val REVISION = Regex("[A-Za-z0-9._-]{1,100}")
