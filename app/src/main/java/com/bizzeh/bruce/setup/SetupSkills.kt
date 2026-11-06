@@ -18,7 +18,8 @@ object SetupSkills {
     /** Tool definitions are mostly JSON, which tokenises at about three characters a token. */
     private const val CHARS_PER_TOKEN = 3
 
-    fun kind(skill: Skill): CapabilityClass = skill.capabilities.minOf { it.capabilityClass }
+    /** A skill with no capabilities (`find_settings`) needs nothing and runs automatically, the same as the INFORMATION skills below. */
+    fun kind(skill: Skill): CapabilityClass = skill.capabilities.minOfOrNull { it.capabilityClass } ?: CapabilityClass.INFORMATION
 
     fun groups(skills: List<Skill>, states: Map<String, SkillState>): List<SkillGroup> =
         skills.groupBy(::kind).toSortedMap().map { (kind, members) -> SkillGroup(kind, members, members.any { states[it.id] != SkillState.DECLINED }) }

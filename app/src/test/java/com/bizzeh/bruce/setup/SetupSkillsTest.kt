@@ -23,6 +23,14 @@ class SetupSkillsTest {
     private val battery = skill("get_battery_status", Capability.BATTERY)
     private val read = skill("read_file", Capability.FILE_READ)
     private val delete = skill("delete_file", Capability.FILE_DELETE, SkillState.ASK, highRisk = true)
+    private val findSettings = Skill("find_settings", 1, "finds settings", InputSchema(), emptySet(), SkillState.DECLINED, false) { SkillOutcome.Done("") }
+
+    @Test
+    fun aSkillWithNoCapabilitiesGroupsAsInformation() {
+        assertEquals(CapabilityClass.INFORMATION, SetupSkills.kind(findSettings))
+        val groups = SetupSkills.groups(listOf(findSettings, read), mapOf("find_settings" to SkillState.DECLINED, "read_file" to SkillState.DECLINED))
+        assertEquals(listOf(CapabilityClass.INFORMATION, CapabilityClass.FILES), groups.map { it.kind })
+    }
 
     @Test
     fun skillsAreGroupedByKindAndAKindIsOnWhenAnyOfItIs() {
