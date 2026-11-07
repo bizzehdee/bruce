@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.huggingface
 
+import com.bizzeh.bruce.models.ModelFiles
 import com.bizzeh.bruce.models.ModelImporter
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
@@ -70,7 +71,9 @@ class ModelDownloader(
         onProgress: (Long, Long) -> Unit = { _, _ -> },
     ): DownloadResult = withContext(dispatcher) {
         require(HubClient.isRepositoryId(repositoryId)) { "not a repository id: $repositoryId" }
-        require(HubClient.isSafePath(path) && path.endsWith(".gguf", ignoreCase = true)) { "not a GGUF path: $path" }
+        require(HubClient.isSafePath(path) && (path.endsWith(ModelFiles.GGUF_EXTENSION, ignoreCase = true) || path.endsWith(ModelFiles.LITERT_LM_EXTENSION, ignoreCase = true))) {
+            "not a GGUF or LiteRT-LM path: $path"
+        }
         require(REVISION.matches(revision)) { "not a revision: $revision" }
         require(sizeBytes > 0) { "sizeBytes must be positive, was $sizeBytes" }
         val expectedSha = sha256?.lowercase()?.takeIf(SHA256::matches)

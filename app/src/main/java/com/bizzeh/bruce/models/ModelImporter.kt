@@ -110,7 +110,8 @@ class ModelImporter(
         private val LITERT_LM_SUFFIX = Regex("\\.litertlm$", RegexOption.IGNORE_CASE)
 
         /** [fileName] in [dir], or with "-1", "-2"… before the extension if that name is taken. */
-        fun uniqueTarget(dir: File, fileName: String): File = uniqueTarget(dir, fileName, GGUF_EXTENSION)
+        fun uniqueTarget(dir: File, fileName: String): File =
+            uniqueTarget(dir, fileName, if (fileName.endsWith(LITERT_LM_EXTENSION, ignoreCase = true)) LITERT_LM_EXTENSION else GGUF_EXTENSION)
 
         private fun uniqueTarget(dir: File, fileName: String, extension: String): File {
             val base = fileName.removeSuffix(extension)
@@ -123,8 +124,10 @@ class ModelImporter(
             return candidate
         }
 
-        /** The display name comes from another app, so it is never trusted as a path. */
-        fun sanitisedFileName(displayName: String?): String = sanitisedFileName(displayName, GGUF_SUFFIX, GGUF_EXTENSION)
+        /** The display name comes from another app (or a download path), so it is never trusted as a path. */
+        fun sanitisedFileName(displayName: String?): String =
+            if (displayName?.endsWith(LITERT_LM_EXTENSION, ignoreCase = true) == true) sanitisedLiteRtLmFileName(displayName)
+            else sanitisedFileName(displayName, GGUF_SUFFIX, GGUF_EXTENSION)
 
         private fun sanitisedLiteRtLmFileName(displayName: String?): String = sanitisedFileName(displayName, LITERT_LM_SUFFIX, LITERT_LM_EXTENSION)
 

@@ -248,7 +248,18 @@ class ModelDownloaderTest {
         assertThrows<IllegalArgumentException> { runBlocking { downloader.download("a/b", "../m.gguf", 1, sha) } }
         assertThrows<IllegalArgumentException> { runBlocking { downloader.download("a/b", "m.gguf", 0, sha) } }
         assertThrows<IllegalArgumentException> { runBlocking { downloader.download("a/b", "m.gguf", 1, sha, revision = "a/b") } }
+        assertThrows<IllegalArgumentException> { runBlocking { downloader.download("a/b", "m.exe", 1, sha) } }
         assertThrows<IllegalArgumentException> { ModelDownloader(server, dir, { true }, Dispatchers.IO, "x", baseUrl = "http://h") }
+    }
+
+    /** TASK-123 crashed on exactly this: the Model Browser lets a LiteRT-LM file reach download(). */
+    @Test
+    fun aLiteRtLmPathDownloadsTheSameWayAGgufOneDoes() {
+        val result = download(path = "sub/model.litertlm")
+
+        val file = (result as DownloadResult.Downloaded).file
+        assertEquals("model.litertlm", file.name)
+        assertArrayEquals(content, file.readBytes())
     }
 
     private fun sha256(bytes: ByteArray) =
