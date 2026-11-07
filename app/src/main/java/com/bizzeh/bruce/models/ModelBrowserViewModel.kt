@@ -75,6 +75,8 @@ class ModelBrowserViewModel(
     private val checkDispatcher: CoroutineDispatcher = Dispatchers.Default,
     /** Repositories Bruce's evaluation recommends for this kind of phone (TASK-107). */
     private val recommendedRepositories: () -> Set<String> = { emptySet() },
+    /** Whether this build flavour can load a `.litertlm` file at all (TASK-123); false on `foss`, where `AppContainer.liteRtPipeline` is always null (TASK-120). Offering the LiteRT-LM format filter there would let the user download a file this build can never run. */
+    val liteRtLmAvailable: Boolean = false,
 ) : ViewModel() {
     private val mutableState = MutableStateFlow(BrowseState())
     val state: StateFlow<BrowseState> = mutableState.asStateFlow()
@@ -116,7 +118,7 @@ class ModelBrowserViewModel(
         viewModelScope.launch {
             val filter = Recommendations.hubFilter(mutableState.value.filters, device())
             // A lookup that fails (the Hub answers an unknown name as unauthorised) leaves a name search.
-            val named = HubClient.repositoryIn(query)?.let { (hub.model(it) as? HubResult.Success)?.value }
+            val named = HubClient.repositoryIn(query)?.let { (hub.model(it, filter.format) as? HubResult.Success)?.value }
             val copiesOf = named?.id?.takeIf { named.files.isEmpty() }
             val result = when {
                 named == null -> hub.search(query, limit = if (recommended) RECOMMENDATION_LIMIT else SEARCH_LIMIT, filter = filter)
@@ -154,14 +156,26 @@ class ModelBrowserViewModel(
     }
 
     private suspend fun listFiles(model: HubModel): RepositoryFiles {
-        val files = when (val result = hub.ggufFiles(model.id)) {
-            is HubResult.Failure -> RepositoryFiles(loading = false, error = result.error)
-            is HubResult.Success -> {
-                val projector = Projectors.choose(result.value)
-                RepositoryFiles(
+        val format = mutableState.value.filters.format
+        val files = when (format) {
+            ModelFormat.GGUF -> when (val result = hub.ggufFiles(model.id)) {
+                is HubResult.Failure -> RepositoryFiles(loading = false, error = result.error)
+                is HubResult.Success -> {
+                    val projector = Projectors.choose(result.value)
+                    RepositoryFiles(
+                        loading = false,
+                        ranked = ModelFit.rank(result.value.filterNot { Projectors.isProjector(it.path) }.map { candidate(model, it, projector, format) }, device(), roughContext()),
+                        projector = projector,
+                    )
+                }
+            }
+            // No vision projector concept exists yet for LiteRT-LM (TASK-120 research): every file
+            // is ranked on its own, with no sibling projector lookup.
+            ModelFormat.LITERT_LM -> when (val result = hub.liteRtLmFiles(model.id)) {
+                is HubResult.Failure -> RepositoryFiles(loading = false, error = result.error)
+                is HubResult.Success -> RepositoryFiles(
                     loading = false,
-                    ranked = ModelFit.rank(result.value.filterNot { Projectors.isProjector(it.path) }.map { candidate(model, it, projector) }, device(), roughContext()),
-                    projector = projector,
+                    ranked = ModelFit.rank(result.value.map { candidate(model, it, null, format) }, device(), roughContext()),
                 )
             }
         }
@@ -237,9 +251,11 @@ class ModelBrowserViewModel(
 
     /**
      * The file judged from its GGUF header, at the context size it would load with; null when the
-     * header could not be read, and the download goes ahead as before.
+     * header could not be read, and the download goes ahead as before. Always null for a
+     * LiteRT-LM candidate (TASK-123): the format has no header to read, by design (TASK-120).
      */
     private suspend fun exactAssessment(model: HubModel, assessment: Assessment): Assessment? {
+        if (assessment.candidate.format == ModelFormat.LITERT_LM) return null
         val projectorBytes = assessment.candidate.projectorBytes
         val header = (hub.ggufHeader(model.id, assessment.candidate.path) as? HubResult.Success)?.value as? GgufReadResult.Read ?: return null
         val profile = device()
@@ -260,7 +276,7 @@ class ModelBrowserViewModel(
         mutableState.update { it.copy(downloads = it.downloads - key) }
     }
 
-    private fun candidate(model: HubModel, file: HubFile, projector: HubFile?) = Candidate(
+    private fun candidate(model: HubModel, file: HubFile, projector: HubFile?, format: ModelFormat) = Candidate(
         repositoryId = model.id,
         path = file.path,
         sizeBytes = file.sizeBytes,
@@ -269,6 +285,7 @@ class ModelBrowserViewModel(
         parameterCount = model.parameterCount,
         sha256 = file.sha256,
         projectorBytes = projector?.sizeBytes ?: 0,
+        format = format,
     )
 
     private fun downloadError(error: HubError): DownloadError = when (error) {

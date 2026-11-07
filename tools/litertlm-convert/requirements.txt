@@ -1,0 +1,9 @@
+# Pinned exact versions (TASK-122), resolved 2026-11-06 in a Python 3.11 environment.
+# litert-torch's own setup.py does not declare tensorflow as a dependency, but its code imports
+# it (research/sources/litertlm-convert-2026-11-06/); install it explicitly.
+litert-torch==0.10.0
+tensorflow==2.20.0
+# litert-torch declares only `litert-lm-builder>=0.18.0` (no upper bound); 0.19.1 removed/renamed
+# `TfLiteModelType`, which litert-torch==0.10.0's own packaging code still calls directly, so an
+# unpinned install breaks .litertlm packaging with AttributeError. Pin to the floor version.
+litert-lm-builder==0.18.0

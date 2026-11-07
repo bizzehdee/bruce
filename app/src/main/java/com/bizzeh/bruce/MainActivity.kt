@@ -193,6 +193,7 @@ class MainActivity : ComponentActivity() {
                 onDownloaded = { models.refresh() },
                 templateSupportsTools = container.engine::templateSupportsTools,
                 recommendedRepositories = { SuggestedModels.forDevice(deviceProfile()).map { it.repositoryId }.toSet() },
+                liteRtLmAvailable = container.liteRtPipeline != null,
             )
         }
     }
@@ -403,7 +404,7 @@ class MainActivity : ComponentActivity() {
                 override fun use(server: RemoteServer, model: String) = servers.use(RemoteChoice(server.id, server.name, model))
             }
         }
-        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace, { backendChoices(known, it) }, fixed, serverState, serverActions)
+        ModelsScreen(state, actions, onBack, Runtime.getRuntime().availableProcessors(), browse, browseActions, startOnHuggingFace, { backendChoices(known, it) }, fixed, serverState, serverActions, container.liteRtPipeline != null)
     }
 
     @androidx.compose.runtime.Composable

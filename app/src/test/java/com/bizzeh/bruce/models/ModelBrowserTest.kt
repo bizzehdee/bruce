@@ -88,6 +88,9 @@ class ModelBrowserTest {
 
     private val qwen = HubModel("ggml-org/Qwen3-0.6B-GGUF", 1000, false, "apache-2.0", "qwen3", 596_000_000, 40_960)
 
+    /** No architecture/parameterCount/contextLength: the Hub has no equivalent metadata for LiteRT-LM (TASK-120). */
+    private val litertModel = HubModel("litert-community/gemma-4-E2B-it-litert-lm", 1000, false, "apache-2.0", null, null, null)
+
     @Test
     fun templatesAreJudgedOncePerTemplateAndMarkTheListings() = runTest(dispatcher) {
         hub.searchBody = """[
@@ -344,6 +347,30 @@ class ModelBrowserTest {
         assertEquals("Qwen3-0.6B-Q8_0.gguf", ranked.first().candidate.path)
         assertEquals("da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4", ranked.single { it.candidate.path == "Qwen3-0.6B-Q4_0.gguf" }.candidate.sha256)
         assertEquals("opened once, then cached", 1, hub.urls.size)
+    }
+
+    @Test
+    fun openingALiteRtLmRepositoryListsLiteRtLmFilesWithNoSpeedEstimate() = runTest(dispatcher) {
+        val vm = viewModel()
+        hub.treeBody = "[" + listOf(
+            treeEntry("gemma-4-E2B-it.litertlm", 2_588_147_712, "a".repeat(64)),
+            // A litert-lm-tagged repository can carry these too; only the .litertlm file is listed (TASK-120).
+            treeEntry("gemma-4-E2B-it.task", 2_000_000_000, "b".repeat(64)),
+        ).joinToString(",") + "]"
+        vm.setFilters(BrowseFilters(format = ModelFormat.LITERT_LM))
+        advanceUntilIdle()
+
+        vm.openRepository(litertModel)
+        advanceUntilIdle()
+
+        val ranked = vm.state.value.files.getValue(litertModel.id).ranked
+        assertEquals(1, ranked.size)
+        val assessment = ranked.single()
+        assertEquals("gemma-4-E2B-it.litertlm", assessment.candidate.path)
+        assertEquals(ModelFormat.LITERT_LM, assessment.candidate.format)
+        assertNull(assessment.speed)
+        assertNull(assessment.expectedTokensPerSecond)
+        assertTrue(assessment.supported)
     }
 
     @Test
@@ -853,5 +880,28 @@ class ModelBrowserTest {
         assertEquals(listOf("< 1 GB", "1–2 GB", "2–4 GB", "4–8 GB", "8 GB+"), SizeBucket.entries.map(BrowseText::sizeLabel))
         assertNull(BrowseText.parameterLabel(null))
         assertNull(BrowseText.sizeLabel(null))
+    }
+
+    private val noOpBrowseActions = object : BrowseActions {
+        override fun setQuery(query: String) = Unit
+        override fun search() = Unit
+        override fun recommend() = Unit
+        override fun setFilters(filters: BrowseFilters) = Unit
+        override fun openRepository(model: HubModel) = Unit
+        override fun download(model: HubModel, assessment: Assessment) = Unit
+        override fun cancel(repositoryId: String, path: String) = Unit
+    }
+
+    @Test
+    fun formatFilterIsHiddenWhenLiteRtLmIsUnavailable() {
+        compose.setContent { BruceTheme { BrowsePane(BrowseState(searched = true), noOpBrowseActions, liteRtLmAvailable = false) } }
+        compose.onNodeWithTag("format:GGUF").assertDoesNotExist()
+    }
+
+    @Test
+    fun formatFilterShowsBothChoicesWhenLiteRtLmIsAvailable() {
+        compose.setContent { BruceTheme { BrowsePane(BrowseState(searched = true), noOpBrowseActions, liteRtLmAvailable = true) } }
+        compose.onNodeWithTag("format:GGUF").assertIsDisplayed()
+        compose.onNodeWithTag("format:LITERT_LM").assertIsDisplayed()
     }
 }

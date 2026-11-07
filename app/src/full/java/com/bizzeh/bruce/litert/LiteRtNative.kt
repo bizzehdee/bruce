@@ -58,7 +58,9 @@ internal object LiteRtNative : LiteRtApi {
     }
 
     private fun openOn(file: File, maxContextTokens: Int, choice: LiteRtBackendChoice, nativeLibraryDir: String): EngineModel? {
-        val engine = Engine(EngineConfig(modelPath = file.absolutePath, backend = nativeBackend(choice, nativeLibraryDir), maxNumTokens = maxContextTokens))
+        // EngineConfig.maxNumTokens is Int? and rejects non-positive values; null is how the API
+        // itself spells "use the model's default" (confirmed via javap on litertlm-android-0.19.1.aar).
+        val engine = Engine(EngineConfig(modelPath = file.absolutePath, backend = nativeBackend(choice, nativeLibraryDir), maxNumTokens = maxContextTokens.takeIf { it > 0 }))
         return try {
             engine.initialize()
             val contextTokens = ModelInfo.from(file.absolutePath).use { it.maxContextTokens() }

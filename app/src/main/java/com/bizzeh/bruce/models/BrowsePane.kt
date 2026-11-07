@@ -50,7 +50,7 @@ interface BrowseActions {
 }
 
 @Composable
-fun BrowsePane(state: BrowseState, actions: BrowseActions) {
+fun BrowsePane(state: BrowseState, actions: BrowseActions, liteRtLmAvailable: Boolean = false) {
     var open by rememberSaveable { mutableStateOf<String?>(null) }
     val keyboard = LocalSoftwareKeyboardController.current
     val focus = LocalFocusManager.current
@@ -75,7 +75,7 @@ fun BrowsePane(state: BrowseState, actions: BrowseActions) {
                 Text(stringResource(R.string.browse_search))
             }
         }
-        Filters(state.filters, actions::setFilters)
+        Filters(state.filters, actions::setFilters, liteRtLmAvailable)
         if (state.searching) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         if (state.searching && state.recommended) Text(stringResource(R.string.browse_sniffing), style = MaterialTheme.typography.bodySmall)
         state.error?.let { ErrorText(BrowseText.hubError(it), it) }
@@ -165,10 +165,11 @@ private fun Files(model: HubModel, state: BrowseState, actions: BrowseActions) {
         val download = state.downloads[ModelBrowserViewModel.key(model.id, path)]
         Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("file:$path"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(path.substringAfterLast('/'), style = MaterialTheme.typography.bodyMedium)
+            val speedLabel = ModelsText.speedLabel(assessment.speed)
             Text(
                 listOfNotNull(Format.bytes(assessment.candidate.sizeBytes), assessment.quantisation).joinToString(" · ") +
                     " · " + stringResource(ModelsText.fitLabel(assessment)) +
-                    if (assessment.supported) " · " + stringResource(ModelsText.speedLabel(assessment.speed)) + " " + ModelsText.speed(assessment) else "",
+                    if (assessment.supported && speedLabel != null) " · " + stringResource(speedLabel) + " " + ModelsText.speed(assessment) else "",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -206,7 +207,12 @@ private fun Files(model: HubModel, state: BrowseState, actions: BrowseActions) {
 }
 
 @Composable
-private fun Filters(filters: BrowseFilters, onChange: (BrowseFilters) -> Unit) {
+private fun Filters(filters: BrowseFilters, onChange: (BrowseFilters) -> Unit, liteRtLmAvailable: Boolean) {
+    if (liteRtLmAvailable) {
+        FilterRow(R.string.browse_filter_format, ModelFormat.entries, filters.format, "format", { stringResource(BrowseText.formatLabel(it)) }) {
+            onChange(filters.copy(format = it))
+        }
+    }
     FilterRow(R.string.browse_filter_parameters, listOf(null) + ParameterBucket.entries, filters.parameters, "parameters", { BrowseText.parameterLabel(it) }) {
         onChange(filters.copy(parameters = it))
     }
@@ -266,6 +272,12 @@ internal object BrowseText {
     fun taskLabel(task: HubTask): Int = when (task) {
         HubTask.TEXT_GENERATION -> R.string.browse_task_text
         HubTask.IMAGE_TEXT_TO_TEXT -> R.string.browse_task_image_text
+    }
+
+    @StringRes
+    fun formatLabel(format: ModelFormat): Int = when (format) {
+        ModelFormat.GGUF -> R.string.browse_format_gguf
+        ModelFormat.LITERT_LM -> R.string.browse_format_litert_lm
     }
 
     @StringRes

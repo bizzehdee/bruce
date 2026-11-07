@@ -40,11 +40,17 @@ class LiteRtPipelineImplTest {
     private val pipeline = LiteRtPipelineImpl(api, "/data/app/com.bizzeh.bruce/lib/arm64")
 
     @Test
-    fun loadAlwaysAsksForAutoAndPassesTheNativeLibraryDir() = runBlockingTest {
+    fun loadAsksForAutoForAnUnverifiedModelAndPassesTheNativeLibraryDir() = runBlockingTest {
         pipeline.load(File("a.litertlm"), 4096)
         assertEquals(LiteRtBackendPreference.AUTO, api.calls.single().third)
         assertEquals(4096, api.calls.single().second)
         assertEquals("/data/app/com.bizzeh.bruce/lib/arm64", api.nativeLibraryDirs.single())
+    }
+
+    @Test
+    fun loadAsksForGpuForAFileOnTheVerifiedList() = runBlockingTest {
+        pipeline.load(File("/data/models/gemma-4-E2B-it.litertlm"), 4096)
+        assertEquals(LiteRtBackendPreference.GPU, api.calls.single().third)
     }
 
     @Test

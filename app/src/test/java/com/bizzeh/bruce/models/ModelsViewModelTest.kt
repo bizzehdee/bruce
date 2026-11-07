@@ -223,4 +223,14 @@ class ModelsViewModelTest {
         assertEquals("100+ tok/s", ModelsText.speed(model.assessment))
         assertEquals("~20 tok/s", ModelsText.speed(model.assessment.copy(expectedTokensPerSecond = 20.2)))
     }
+
+    @Test
+    fun detailsForALiteRtLmModel() {
+        val model = InstalledModel(
+            File("m.litertlm"), 1_185_376, null,
+            ModelFit.assess(Candidate("a/b", "m.litertlm", 1_185_376, false, null, null), DeviceProfile(1L shl 30, cpu), 2048),
+            ModelOverrides(),
+        )
+        assertEquals(listOf("No further details for a LiteRT-LM model."), ModelsText.details(model))
+    }
 }

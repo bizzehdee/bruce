@@ -80,6 +80,7 @@ fun ModelsScreen(
     fixedPromptTokens: Int? = null,
     servers: ServersState = ServersState(),
     serversActions: ServersActions? = null,
+    liteRtLmAvailable: Boolean = false,
 ) {
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<String?>(null) }
@@ -102,7 +103,7 @@ fun ModelsScreen(
                 if (tab == 2 && serversActions != null) {
                     ServersPane(servers, serversActions)
                 } else if (tab == 1 && browseActions != null) {
-                    BrowsePane(browse, browseActions)
+                    BrowsePane(browse, browseActions, liteRtLmAvailable)
                 } else {
                     val findCopies = browseActions?.let { { model: InstalledModel -> tab = 1; actions.findCopies(TemplateFinder.searchFor(model)) } }
                     Installed(state, actions, cores, backendChoices, fixedPromptTokens, findCopies, expanded, { expanded = it }, { confirmDelete = it })
@@ -198,8 +199,9 @@ private fun ModelCard(
             Text(ModelsText.summary(model), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 AssistChip(onClick = onToggle, label = { Text(stringResource(ModelsText.fitLabel(assessment))) }, modifier = Modifier.testTag("fit:${model.file.name}"))
-                if (assessment.supported) {
-                    AssistChip(onClick = onToggle, label = { Text(stringResource(ModelsText.speedLabel(assessment.speed)) + " · " + ModelsText.speed(assessment)) })
+                val speedLabel = ModelsText.speedLabel(assessment.speed)
+                if (assessment.supported && speedLabel != null) {
+                    AssistChip(onClick = onToggle, label = { Text(stringResource(speedLabel) + " · " + ModelsText.speed(assessment)) })
                 }
             }
             RamUse(model, totalMemoryBytes)
@@ -355,15 +357,18 @@ internal object ModelsText {
         else -> R.string.models_fit_no
     }
 
-    fun speedLabel(speed: SpeedBand): Int = when (speed) {
+    /** Null when [speed] is null (TASK-123): no speed estimate exists for a LiteRT-LM file. */
+    fun speedLabel(speed: SpeedBand?): Int? = when (speed) {
         SpeedBand.FAST -> R.string.models_speed_fast
         SpeedBand.USABLE -> R.string.models_speed_usable
         SpeedBand.SLOW -> R.string.models_speed_slow
+        null -> null
     }
 
-    /** Above 100 tokens per second the estimate is far outside what was measured, so it is not shown exactly. */
-    fun speed(assessment: Assessment): String =
-        if (assessment.expectedTokensPerSecond >= 100) "100+ tok/s" else String.format(Locale.ROOT, "~%.0f tok/s", assessment.expectedTokensPerSecond)
+    /** Above 100 tokens per second the estimate is far outside what was measured, so it is not shown exactly. Null when no estimate exists (TASK-123). */
+    fun speed(assessment: Assessment): String? = assessment.expectedTokensPerSecond?.let {
+        if (it >= 100) "100+ tok/s" else String.format(Locale.ROOT, "~%.0f tok/s", it)
+    }
 
     /**
      * The model's expected RAM at its context size and its share of the phone's RAM (0 to 1, or
@@ -383,7 +388,9 @@ internal object ModelsText {
     }
 
     fun details(model: InstalledModel): List<String> {
-        val metadata = model.metadata ?: return listOf("Not a readable GGUF file.")
+        val metadata = model.metadata ?: return listOf(
+            if (ModelFiles.formatOf(model.file) == ModelFormat.LITERT_LM) "No further details for a LiteRT-LM model." else "Not a readable GGUF file.",
+        )
         val estimate = model.assessment.estimate
         return listOf(
             "Architecture: ${metadata.architecture ?: "unknown"}",

@@ -160,6 +160,7 @@ class ModelsViewModel(
                 parameterCount = metadata?.parameterCount,
                 header = metadata,
                 projectorBytes = projectorBytes,
+                format = ModelFiles.formatOf(file) ?: ModelFormat.GGUF,
             )
             // The same cap ActiveModel applies when loading, so the estimate matches reality.
             val requested = overrides.loadConfig(defaults) { AutoContext.pick(metadata, profile.totalMemoryBytes, projectorBytes) }.contextLength
@@ -167,7 +168,8 @@ class ModelsViewModel(
             val fetched = modelSettings.template(file.name).first()
             // A fetched template was judged able to call tools before it was saved.
             val skills = if (fetched != null) true else metadata?.chatTemplate?.let { template -> withContext(ioDispatcher) { templateSupportsTools(template, null, null) } }
-            InstalledModel(file, candidate.sizeBytes, metadata, ModelFit.assess(candidate, profile, contextLength), overrides, skills, fetched)
+            val assessment = ModelFit.assess(candidate, profile, contextLength)
+            InstalledModel(file, candidate.sizeBytes, metadata, assessment, overrides, skills, fetched)
         }
         mutableState.update { it.copy(models = models, totalMemoryBytes = profile.totalMemoryBytes) }
     }

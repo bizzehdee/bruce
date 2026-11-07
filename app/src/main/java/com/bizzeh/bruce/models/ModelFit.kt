@@ -38,6 +38,8 @@ data class Candidate(
     val sha256: String? = null,
     /** The vision projector that comes with it (TASK-083); 0 for none. */
     val projectorBytes: Long = 0,
+    /** Which pipeline this file belongs to (TASK-123): decides whether a speed estimate is possible. */
+    val format: ModelFormat = ModelFormat.GGUF,
 )
 
 data class Assessment(
@@ -46,8 +48,14 @@ data class Assessment(
     val quantisation: String?,
     val estimate: MemoryEstimate,
     val fit: Fit,
-    val expectedTokensPerSecond: Double,
-    val speed: SpeedBand,
+    /**
+     * Null for a LiteRT-LM candidate (TASK-123): the tokens/GB constants below came from measured
+     * llama.cpp CPU benchmarks (`.learnings/phase0-cpu-benchmarks.md`); no equivalent measurement
+     * exists for LiteRT-LM on CPU, GPU or the Tensor NPU, so a number here would be invented, not
+     * estimated. Ship "speed unknown" rather than reuse a GGUF constant for a different engine.
+     */
+    val expectedTokensPerSecond: Double?,
+    val speed: SpeedBand?,
 )
 
 /**
@@ -87,16 +95,18 @@ object ModelFit {
         val architecture = header?.architecture ?: candidate.architecture
         val estimate = header?.let { ModelMemory.estimate(it, contextLength, candidate.projectorBytes) }
             ?: MemoryEstimate(weightsBytes = candidate.sizeBytes, kvCacheBytes = null, contextLength = contextLength, projectorBytes = candidate.projectorBytes)
-        val tokensPerSecond = (if (device.cpu.dotProd) DOTPROD_TOKENS_GB_PER_SECOND else BASELINE_TOKENS_GB_PER_SECOND) /
-            (estimate.weightsBytes / BYTES_PER_GB)
+        val tokensPerSecond = if (candidate.format == ModelFormat.LITERT_LM) null else {
+            (if (device.cpu.dotProd) DOTPROD_TOKENS_GB_PER_SECOND else BASELINE_TOKENS_GB_PER_SECOND) / (estimate.weightsBytes / BYTES_PER_GB)
+        }
         return Assessment(
             candidate = candidate,
-            supported = architecture != null && LlamaArchitectures.supportsChat(architecture),
+            supported = if (candidate.format == ModelFormat.LITERT_LM) true else architecture != null && LlamaArchitectures.supportsChat(architecture),
             quantisation = header?.quantisation ?: quantisationFromName(candidate.path),
             estimate = estimate,
             fit = fit(estimate.totalBytes, device.usableMemoryBytes),
             expectedTokensPerSecond = tokensPerSecond,
             speed = when {
+                tokensPerSecond == null -> null
                 tokensPerSecond >= FAST_TOKENS_PER_SECOND -> SpeedBand.FAST
                 tokensPerSecond >= USABLE_TOKENS_PER_SECOND -> SpeedBand.USABLE
                 else -> SpeedBand.SLOW
@@ -117,7 +127,7 @@ object ModelFit {
                 { it.fit == Fit.DOES_NOT_FIT },
                 { it.candidate.gated },
                 { it.fit.ordinal },
-                { it.speed.ordinal },
+                { it.speed?.ordinal ?: Int.MAX_VALUE },
             )
                 .thenByDescending { it.candidate.header?.parameterCount ?: it.candidate.parameterCount ?: 0 }
                 .thenBy { it.quantisation in UNQUANTISED }

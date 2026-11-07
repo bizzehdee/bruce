@@ -38,6 +38,8 @@ data class BrowseFilters(
     val runs: RunsFilter = RunsFilter.FITS_OR_TIGHT,
     /** Null shows every task, and repositories with no task tag; what Bruce cannot chat with is then dropped on the phone. */
     val task: HubTask? = null,
+    /** Which pipeline to search for (TASK-123); changing this re-fetches, same as a parameter/task change. */
+    val format: ModelFormat = ModelFormat.GGUF,
 )
 
 /** A repository in the list, with the file Bruce would pick for this phone, sized by estimate. */
@@ -66,6 +68,7 @@ object Recommendations {
             task = filters.task,
             minParameters = filters.parameters?.min,
             maxParameters = listOfNotNull(bucketMax, deviceMax).minOrNull(),
+            format = filters.format,
         )
     }
 

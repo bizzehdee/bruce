@@ -36,10 +36,10 @@ class ModelFitTest {
     @Test
     fun speedsMatchWhatTask012Measured() {
         // Measured: 59.1 and 20.2 tok/s on the Xperia 1 II; 14.0 and 5.1 tok/s on the XZ Premium.
-        assertEquals(55.9, ModelFit.assess(qwen06, xperia1Ii, 2048).expectedTokensPerSecond, 0.1)
-        assertEquals(18.7, ModelFit.assess(qwen17, xperia1Ii, 2048).expectedTokensPerSecond, 0.1)
-        assertEquals(13.5, ModelFit.assess(qwen06, xzPremium, 2048).expectedTokensPerSecond, 0.1)
-        assertEquals(4.5, ModelFit.assess(qwen17, xzPremium, 2048).expectedTokensPerSecond, 0.1)
+        assertEquals(55.9, ModelFit.assess(qwen06, xperia1Ii, 2048).expectedTokensPerSecond!!, 0.1)
+        assertEquals(18.7, ModelFit.assess(qwen17, xperia1Ii, 2048).expectedTokensPerSecond!!, 0.1)
+        assertEquals(13.5, ModelFit.assess(qwen06, xzPremium, 2048).expectedTokensPerSecond!!, 0.1)
+        assertEquals(4.5, ModelFit.assess(qwen17, xzPremium, 2048).expectedTokensPerSecond!!, 0.1)
     }
 
     @Test
@@ -83,6 +83,24 @@ class ModelFitTest {
         assertFalse(ModelFit.assess(qwen06.copy(header = null, architecture = "clip"), xperia1Ii, 2048).supported)
         assertFalse(ModelFit.assess(qwen06.copy(header = null, architecture = null), xperia1Ii, 2048).supported)
         assertFalse(ModelFit.assess(qwen06.copy(header = null, architecture = "made-up"), xperia1Ii, 2048).supported)
+    }
+
+    @Test
+    fun aLiteRtLmCandidateHasNoSpeedEstimateAndIsAlwaysSupported() {
+        val candidate = Candidate(
+            repositoryId = "litert-community/gemma-4-E2B-it-litert-lm",
+            path = "gemma-4-E2B-it.litertlm",
+            sizeBytes = 2_588_147_712,
+            gated = false,
+            architecture = null,
+            parameterCount = null,
+            format = ModelFormat.LITERT_LM,
+        )
+        val assessment = ModelFit.assess(candidate, xperia1Ii, 2048)
+
+        assertNull(assessment.expectedTokensPerSecond)
+        assertNull(assessment.speed)
+        assertTrue(assessment.supported)
     }
 
     @Test
