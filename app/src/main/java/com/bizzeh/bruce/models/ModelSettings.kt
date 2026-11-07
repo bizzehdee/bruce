@@ -22,6 +22,12 @@ data class ModelOverrides(
     val temperature: Float? = null,
     /** Null follows the inference default (TASK-110). */
     val thinking: Boolean? = null,
+    /**
+     * LiteRT-LM's backend choice (TASK-123 follow-up); meaningless for GGUF. Null is automatic
+     * (GPU only for a device-verified file, TASK-119's allowlist, CPU otherwise); true forces a
+     * GPU attempt (only offered for a verified file); false forces CPU.
+     */
+    val liteRtPreferGpu: Boolean? = null,
 ) {
     /** [automatic] is the size to use when neither this model nor the defaults name one. */
     fun loadConfig(defaults: InferenceDefaults, automatic: () -> Int): LoadConfig = defaults.copy(
@@ -56,6 +62,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             contextLength = preferences[contextKey(fileName)]?.takeIf { it in InferenceDefaults.CONTEXT_CHOICES },
             temperature = preferences[temperatureKey(fileName)]?.takeIf { it in ModelOverrides.TEMPERATURE_CHOICES },
             thinking = preferences[thinkingKey(fileName)],
+            liteRtPreferGpu = preferences[liteRtPreferGpuKey(fileName)],
         )
     }
 
@@ -101,6 +108,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             it.setOrRemove(contextKey(fileName), overrides.contextLength)
             it.setOrRemove(temperatureKey(fileName), overrides.temperature)
             it.setOrRemove(thinkingKey(fileName), overrides.thinking)
+            it.setOrRemove(liteRtPreferGpuKey(fileName), overrides.liteRtPreferGpu)
         }
     }
 
@@ -112,6 +120,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             it.remove(contextKey(fileName))
             it.remove(temperatureKey(fileName))
             it.remove(thinkingKey(fileName))
+            it.remove(liteRtPreferGpuKey(fileName))
             it.remove(templateKey(fileName))
             it.remove(templateSourceKey(fileName))
             if (it[ACTIVE] == fileName) it.remove(ACTIVE)
@@ -130,6 +139,7 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
         fun contextKey(name: String) = intPreferencesKey("model.$name.context")
         fun temperatureKey(name: String) = floatPreferencesKey("model.$name.temperature")
         fun thinkingKey(name: String) = booleanPreferencesKey("model.$name.thinking")
+        fun liteRtPreferGpuKey(name: String) = booleanPreferencesKey("model.$name.litert_prefer_gpu")
         fun templateKey(name: String) = stringPreferencesKey("model.$name.chat_template")
         fun templateSourceKey(name: String) = stringPreferencesKey("model.$name.chat_template_source")
     }

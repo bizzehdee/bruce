@@ -160,7 +160,7 @@ class ActiveModelTest {
         val result = activeModel.loadAny(file)
 
         assertEquals(ModelLoadResult.Loaded(ModelFormat.LITERT_LM), result)
-        assertEquals(file to 0, liteRt.loads.single())
+        assertEquals(Triple(file, 0, null), liteRt.loads.single())
         assertTrue(engine.loads.isEmpty(), "the llama.cpp engine was not used")
         val state = activeModel.state.value
         assertEquals(file, state.active)
@@ -168,6 +168,25 @@ class ActiveModelTest {
         assertNull(state.info)
         assertNull(state.backend)
         assertEquals(1024L, state.memoryBytes, "memory is the file's size: no detailed estimate exists for this format")
+    }
+
+    @Test
+    fun loadAnyPassesTheGpuPreferenceThrough() = runTest(dispatcher) {
+        val file = File(dir, "m.litertlm").apply { writeBytes(ByteArray(1024)) }
+        liteRt.result = LiteRtPipelineResult.Loaded(FakeChatBackend(), 8192)
+
+        activeModel.loadAny(file, liteRtContextTokens = 16384, liteRtPreferGpu = true)
+
+        assertEquals(Triple(file, 16384, true), liteRt.loads.single())
+    }
+
+    @Test
+    fun liteRtGpuAvailableAsksThePipeline() {
+        val file = File(dir, "m.litertlm")
+        liteRt.gpuAvailableFiles = setOf("m.litertlm")
+
+        assertTrue(activeModel.liteRtGpuAvailable(file))
+        assertFalse(activeModel.liteRtGpuAvailable(File(dir, "other.litertlm")))
     }
 
     @Test

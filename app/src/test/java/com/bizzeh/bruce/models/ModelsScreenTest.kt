@@ -63,6 +63,62 @@ class ModelsScreenTest {
         compose.onNodeWithText("Auto uses the CPU", substring = true).assertDoesNotExist()
     }
 
+    /** Backend and threads have no LiteRT-LM equivalent (TASK-119/TASK-123's choose() fix) and
+     * must not be shown as if they did something; context/temperature/thinking still apply. */
+    @Test
+    fun aLiteRtLmModelHidesThreadsAndGgufBackendButKeepsOtherOverrides() {
+        val liteRtModel = stories.copy(
+            file = File("m.litertlm"),
+            metadata = null,
+            assessment = ModelFit.assess(Candidate("a/b", "m.litertlm", 1024, false, null, null, format = ModelFormat.LITERT_LM), DeviceProfile(4L shl 30, cpu), 2048),
+        )
+        compose.setContent {
+            BruceTheme { ModelsScreen(ModelsState(models = listOf(liteRtModel)), actions, onBack = {}, backendChoices = { listOf(BackendPreference.AUTO, BackendPreference.CPU) }) }
+        }
+
+        compose.onNodeWithText("m").performClick()
+
+        compose.onNodeWithTag("backend:CPU").assertDoesNotExist()
+        compose.onNodeWithTag("threads:4").assertDoesNotExist()
+        compose.onNodeWithTag("format:m.litertlm").assertExists()
+        compose.onNodeWithTag("litertBackend:default").assertExists()
+        compose.onNodeWithTag("litertBackend:false").assertExists()
+        compose.onNodeWithTag("litertBackend:true").assertDoesNotExist()
+        compose.onNodeWithTag("context:8192").assertExists()
+        compose.onNodeWithTag("temperature:0.3").assertExists()
+        compose.onNodeWithTag("thinking:true").assertExists()
+    }
+
+    @Test
+    fun aGpuVerifiedLiteRtLmModelOffersTheGpuChoice() {
+        val liteRtModel = stories.copy(
+            file = File("gemma-4-E2B-it.litertlm"),
+            metadata = null,
+            assessment = ModelFit.assess(Candidate("a/b", "gemma-4-E2B-it.litertlm", 1024, false, null, null, format = ModelFormat.LITERT_LM), DeviceProfile(4L shl 30, cpu), 2048),
+        )
+        compose.setContent {
+            BruceTheme {
+                ModelsScreen(
+                    ModelsState(models = listOf(liteRtModel)), actions, onBack = {},
+                    liteRtGpuAvailable = { it.name == "gemma-4-E2B-it.litertlm" },
+                )
+            }
+        }
+
+        compose.onNodeWithText("gemma-4-E2B-it").performClick()
+
+        compose.onNodeWithTag("litertBackend:true").assertExists()
+        compose.onNodeWithTag("litertBackend:true").performClick()
+
+        assertEquals(listOf("overrides ${ModelOverrides(liteRtPreferGpu = true)}"), calls)
+    }
+
+    @Test
+    fun aGgufModelShowsTheGgufFormatTag() {
+        show(ModelsState(models = listOf(stories)))
+        compose.onNodeWithTag("format:stories260K.gguf").assertExists()
+    }
+
     @Test
     fun aModelWithoutSkillSupportSaysSoAndFindsOtherCopies() {
         val limited = stories.copy(skills = false, metadata = stories.metadata?.copy(name = "Llama 3.2 1B Instruct"))

@@ -31,8 +31,10 @@ class ModelSelection(
 
     /**
      * Loads [file] with its settings over the defaults, and remembers it for next launch.
-     * GGUF sizes its context with [AutoContext] (TASK-120: no equivalent exists for LiteRT-LM yet,
-     * which loads at the model's own default context instead).
+     * GGUF sizes its context with [AutoContext] when neither the model nor the defaults name one
+     * (TASK-120: no equivalent exists for LiteRT-LM, which asks the model for its own default
+     * context in that case instead) — otherwise both formats use the user's override or the
+     * Settings default the same way.
      */
     suspend fun choose(file: File): ModelLoadResult {
         val result = when (ModelFiles.formatOf(file)) {
@@ -44,7 +46,12 @@ class ModelSelection(
                     .copy(chatTemplate = template?.text)
                 activeModel.loadAny(file, config)
             }
-            ModelFormat.LITERT_LM, null -> activeModel.loadAny(file)
+            ModelFormat.LITERT_LM -> {
+                val overrides = modelSettings.overridesNow(file.name)
+                val contextTokens = overrides.contextLength ?: inferenceSettings.defaults.first().contextLength ?: 0
+                activeModel.loadAny(file, liteRtContextTokens = contextTokens, liteRtPreferGpu = overrides.liteRtPreferGpu)
+            }
+            null -> activeModel.loadAny(file)
         }
         if (result is ModelLoadResult.Loaded) modelSettings.setActiveModel(file.name)
         return result

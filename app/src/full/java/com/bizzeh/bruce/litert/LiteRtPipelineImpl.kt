@@ -6,18 +6,26 @@ import java.io.File
 /**
  * Holds the one loaded LiteRT-LM model at a time (TASK-120), closing the previous one before
  * opening the next — mirrors how [com.bizzeh.bruce.models.ActiveModel] holds llama.cpp's one loaded
- * model. Every other LiteRT-LM model loads CPU-only ([LiteRtBackendPreference.AUTO]); there is no
- * user-facing backend choice for this pipeline (TASK-119's GPU half exists but has no setting).
+ * model. A device-verified model (TASK-119's GPU allowlist) defaults to GPU automatically; the
+ * user can also force CPU or GPU explicitly via [load]'s `preferGpu` (TASK-123 follow-up: GPU is
+ * real and worth choosing for a verified file, not just an automatic fallback-prone guess).
  */
 internal class LiteRtPipelineImpl(private val api: LiteRtApi, private val nativeLibraryDir: String) : LiteRtPipeline {
     private data class Active(val model: LiteRtModel, val backend: LiteRtBackend)
 
     @Volatile private var active: Active? = null
 
-    override suspend fun load(file: File, contextTokens: Int): LiteRtPipelineResult {
+    override fun gpuAvailable(file: File): Boolean = file.name in GPU_VERIFIED_MODELS
+
+    override suspend fun load(file: File, contextTokens: Int, preferGpu: Boolean?): LiteRtPipelineResult {
         active?.model?.close()
         active = null
-        val preference = if (file.name in GPU_VERIFIED_MODELS) LiteRtBackendPreference.GPU else LiteRtBackendPreference.AUTO
+        val preference = when {
+            preferGpu == true -> LiteRtBackendPreference.GPU
+            preferGpu == false -> LiteRtBackendPreference.CPU
+            file.name in GPU_VERIFIED_MODELS -> LiteRtBackendPreference.GPU
+            else -> LiteRtBackendPreference.AUTO
+        }
         return when (val result = api.loadModel(file, contextTokens, preference, nativeLibraryDir)) {
             is LiteRtLoadResult.Loaded -> {
                 val backend = LiteRtBackend(result.model)

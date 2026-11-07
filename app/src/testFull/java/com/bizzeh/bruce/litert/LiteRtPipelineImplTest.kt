@@ -54,6 +54,32 @@ class LiteRtPipelineImplTest {
     }
 
     @Test
+    fun preferGpuTrueForcesGpuOnAVerifiedFile() = runBlockingTest {
+        pipeline.load(File("/data/models/gemma-4-E2B-it.litertlm"), 4096, preferGpu = true)
+        assertEquals(LiteRtBackendPreference.GPU, api.calls.single().third)
+    }
+
+    @Test
+    fun preferGpuFalseForcesCpuEvenOnAVerifiedFile() = runBlockingTest {
+        pipeline.load(File("/data/models/gemma-4-E2B-it.litertlm"), 4096, preferGpu = false)
+        assertEquals(LiteRtBackendPreference.CPU, api.calls.single().third)
+    }
+
+    @Test
+    fun preferGpuTrueOnAnUnverifiedFileStillAsksForGpu() = runBlockingTest {
+        // The caller is responsible for only offering true when gpuAvailable said so; load()
+        // itself does not re-check the allowlist for an explicit request.
+        pipeline.load(File("a.litertlm"), 4096, preferGpu = true)
+        assertEquals(LiteRtBackendPreference.GPU, api.calls.single().third)
+    }
+
+    @Test
+    fun gpuAvailableMatchesTheVerifiedList() {
+        assertEquals(true, pipeline.gpuAvailable(File("/data/models/gemma-4-E2B-it.litertlm")))
+        assertEquals(false, pipeline.gpuAvailable(File("/data/models/gemma-3-270m-it.litertlm")))
+    }
+
+    @Test
     fun loadedModelExposesContextLengthAndACurrentBackend() = runBlockingTest {
         val model = FakeModel(8192)
         api.result = LiteRtLoadResult.Loaded(model, LiteRtBackendChoice.CPU)

@@ -20,12 +20,13 @@ class FakeChatBackend(private val contextTokens: Int = 4096) : ChatBackend {
 
 class FakeLiteRtPipeline : LiteRtPipeline {
     var result: LiteRtPipelineResult = LiteRtPipelineResult.Loaded(FakeChatBackend(), 4096)
-    val loads = mutableListOf<Pair<File, Int>>()
+    val loads = mutableListOf<Triple<File, Int, Boolean?>>()
     var unloads = 0
+    var gpuAvailableFiles = emptySet<String>()
     private var active: LiteRtPipelineResult.Loaded? = null
 
-    override suspend fun load(file: File, contextTokens: Int): LiteRtPipelineResult {
-        loads += file to contextTokens
+    override suspend fun load(file: File, contextTokens: Int, preferGpu: Boolean?): LiteRtPipelineResult {
+        loads += Triple(file, contextTokens, preferGpu)
         active = result as? LiteRtPipelineResult.Loaded
         return result
     }
@@ -38,4 +39,6 @@ class FakeLiteRtPipeline : LiteRtPipeline {
     override fun contextLength(): Int? = active?.contextLength
 
     override fun current(): ChatBackend? = active?.backend
+
+    override fun gpuAvailable(file: File): Boolean = file.name in gpuAvailableFiles
 }

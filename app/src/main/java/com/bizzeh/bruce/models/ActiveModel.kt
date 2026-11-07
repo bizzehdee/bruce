@@ -108,24 +108,28 @@ class ActiveModel(
      * Loads [file] on whichever pipeline its format uses (TASK-120): llama.cpp/GGUF through
      * [load], or LiteRT-LM through [liteRt]. [liteRtContextTokens] non-positive asks LiteRT-LM for
      * the model's own default context (no Auto-context sizing exists for this format yet).
+     * [liteRtPreferGpu] is LiteRT-LM's backend choice (TASK-123 follow-up); see [LiteRtPipeline.load].
      */
-    suspend fun loadAny(file: File, config: LoadConfig = LoadConfig(), liteRtContextTokens: Int = 0): ModelLoadResult =
+    suspend fun loadAny(file: File, config: LoadConfig = LoadConfig(), liteRtContextTokens: Int = 0, liteRtPreferGpu: Boolean? = null): ModelLoadResult =
         when (ModelFiles.formatOf(file)) {
             ModelFormat.GGUF -> when (val result = load(file, config)) {
                 is LoadResult.Loaded -> ModelLoadResult.Loaded(ModelFormat.GGUF, result.info, result.backend)
                 is LoadResult.Failed -> ModelLoadResult.Failed(result.error)
             }
-            ModelFormat.LITERT_LM -> loadLiteRt(file, liteRtContextTokens)
+            ModelFormat.LITERT_LM -> loadLiteRt(file, liteRtContextTokens, liteRtPreferGpu)
             null -> ModelLoadResult.Failed(LoadError.NOT_GGUF)
         }
 
-    private suspend fun loadLiteRt(file: File, contextTokens: Int): ModelLoadResult {
+    /** Whether [file] can be chosen to run on LiteRT-LM's GPU backend (TASK-119's device-verified allowlist); false when nothing supports LiteRT-LM at all ([liteRt] is null, the `foss` flavour). */
+    fun liteRtGpuAvailable(file: File): Boolean = liteRt?.gpuAvailable(file) == true
+
+    private suspend fun loadLiteRt(file: File, contextTokens: Int, preferGpu: Boolean?): ModelLoadResult {
         val pipeline = liteRt ?: run {
             mutableState.update { it.copy(loading = false, error = LoadError.NOT_GGUF) }
             return ModelLoadResult.Failed(LoadError.NOT_GGUF)
         }
         mutableState.update { it.copy(loading = true, error = null) }
-        return when (val result = pipeline.load(file, contextTokens)) {
+        return when (val result = pipeline.load(file, contextTokens, preferGpu)) {
             is LiteRtPipelineResult.Loaded -> {
                 val memory = withContext(ioDispatcher) { file.length() }
                 mutableState.update { it.copy(active = file, format = ModelFormat.LITERT_LM, info = null, backend = null, loading = false, memoryBytes = memory, remote = null) }

@@ -131,6 +131,40 @@ class ModelSettingsTest {
         assertEquals("m.litertlm", f.settings.activeModelName.first())
     }
 
+    /** Found 2026-11-07: a LiteRT-LM model always loaded at the model's own default context,
+     * ignoring the user's saved override entirely, since choose() never read it for this format. */
+    @Test
+    fun chooseLiteRtLmAppliesTheContextOverride() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val file = f.liteRtModel("m.litertlm")
+        f.settings.setOverrides("m.litertlm", ModelOverrides(contextLength = 16384))
+
+        f.selection.choose(file)
+
+        assertEquals(16384, f.liteRt.loads.single().second)
+    }
+
+    @Test
+    fun chooseLiteRtLmFallsBackToTheSettingsDefaultContext() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val file = f.liteRtModel("m.litertlm")
+        f.inference.setContextLength(8192)
+
+        f.selection.choose(file)
+
+        assertEquals(8192, f.liteRt.loads.single().second)
+    }
+
+    @Test
+    fun chooseLiteRtLmAsksForTheModelsDefaultContextWhenNeitherNamesOne() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val file = f.liteRtModel("m.litertlm")
+
+        f.selection.choose(file)
+
+        assertEquals(0, f.liteRt.loads.single().second)
+    }
+
     @Test
     fun failedChoiceIsNotRemembered() = runTest(dispatcher) {
         val f = Fixture(this)

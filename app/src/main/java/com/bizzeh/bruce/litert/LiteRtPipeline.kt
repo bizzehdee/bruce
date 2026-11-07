@@ -12,8 +12,13 @@ import java.io.File
  * file compiles into both.
  */
 interface LiteRtPipeline {
-    /** Loads [file] as the active model, replacing any previously loaded one; null on failure. */
-    suspend fun load(file: File, contextTokens: Int): LiteRtPipelineResult
+    /**
+     * Loads [file] as the active model, replacing any previously loaded one; null on failure.
+     * [preferGpu] is null for the automatic choice (GPU only for a device-verified file, TASK-119's
+     * allowlist, CPU otherwise), true to force a GPU attempt (falls back to CPU on failure), false
+     * to force CPU. A caller should only pass true when [gpuAvailable] said so for this file.
+     */
+    suspend fun load(file: File, contextTokens: Int, preferGpu: Boolean? = null): LiteRtPipelineResult
 
     /** Releases the active model, if any. */
     suspend fun unload()
@@ -23,6 +28,9 @@ interface LiteRtPipeline {
 
     /** The active model's [ChatBackend] (TASK-120, for `BruceRuntime`'s `localOverride`), or null when nothing is loaded. */
     fun current(): ChatBackend?
+
+    /** Whether [file] is on the device-verified GPU allowlist (TASK-119) — the only models for which GPU should ever be offered as a user choice. */
+    fun gpuAvailable(file: File): Boolean
 }
 
 sealed interface LiteRtPipelineResult {

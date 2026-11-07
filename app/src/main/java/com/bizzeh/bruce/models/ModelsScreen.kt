@@ -81,6 +81,8 @@ fun ModelsScreen(
     servers: ServersState = ServersState(),
     serversActions: ServersActions? = null,
     liteRtLmAvailable: Boolean = false,
+    /** Whether a LiteRT-LM file is on the device-verified GPU allowlist (TASK-119/TASK-123 follow-up). */
+    liteRtGpuAvailable: (File) -> Boolean = { false },
 ) {
     var expanded by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<String?>(null) }
@@ -106,7 +108,7 @@ fun ModelsScreen(
                     BrowsePane(browse, browseActions, liteRtLmAvailable)
                 } else {
                     val findCopies = browseActions?.let { { model: InstalledModel -> tab = 1; actions.findCopies(TemplateFinder.searchFor(model)) } }
-                    Installed(state, actions, cores, backendChoices, fixedPromptTokens, findCopies, expanded, { expanded = it }, { confirmDelete = it })
+                    Installed(state, actions, cores, backendChoices, liteRtGpuAvailable, fixedPromptTokens, findCopies, expanded, { expanded = it }, { confirmDelete = it })
                 }
             }
         }
@@ -133,6 +135,7 @@ private fun Installed(
     actions: ModelsActions,
     cores: Int,
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
+    liteRtGpuAvailable: (File) -> Boolean,
     fixedPromptTokens: Int?,
     findCopies: ((InstalledModel) -> Unit)?,
     expanded: String?,
@@ -158,6 +161,7 @@ private fun Installed(
             expanded = expanded == model.file.name,
             cores = cores,
             backendChoices = backendChoices,
+            liteRtGpuAvailable = liteRtGpuAvailable(model.file),
             fixedPromptTokens = if (model.file == state.active) fixedPromptTokens else null,
             onFindCopies = findCopies?.let { { it(model) } },
             templateStatus = state.templates[model.file.name],
@@ -178,6 +182,7 @@ private fun ModelCard(
     expanded: Boolean,
     cores: Int,
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
+    liteRtGpuAvailable: Boolean,
     fixedPromptTokens: Int?,
     onFindCopies: (() -> Unit)?,
     templateStatus: TemplateStatus?,
@@ -198,6 +203,11 @@ private fun ModelCard(
             }
             Text(ModelsText.summary(model), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AssistChip(
+                    onClick = onToggle,
+                    label = { Text(stringResource(BrowseText.formatLabel(ModelFiles.formatOf(model.file) ?: ModelFormat.GGUF))) },
+                    modifier = Modifier.testTag("format:${model.file.name}"),
+                )
                 AssistChip(onClick = onToggle, label = { Text(stringResource(ModelsText.fitLabel(assessment))) }, modifier = Modifier.testTag("fit:${model.file.name}"))
                 val speedLabel = ModelsText.speedLabel(assessment.speed)
                 if (assessment.supported && speedLabel != null) {
@@ -249,23 +259,39 @@ private fun ModelCard(
                 Text(stringResource(R.string.models_settings), style = MaterialTheme.typography.titleSmall, modifier = Modifier.padding(top = 8.dp))
                 val onText = stringResource(R.string.models_on)
                 val offText = stringResource(R.string.models_off)
-                OverrideChips(
-                    label = stringResource(R.string.settings_backend),
-                    options = listOf(null) + backendChoices(model.overrides.backend),
-                    selected = model.overrides.backend?.let { BackendSelection.shown(it, backendChoices(it)) },
-                    text = { it?.name?.let(SettingsText::backendName) },
-                    tag = "backend",
-                ) { actions.setOverrides(model.file, model.overrides.copy(backend = it)) }
-                if (backendChoices(model.overrides.backend).any { it.isGpu }) {
-                    Text(stringResource(R.string.settings_backend_note), style = MaterialTheme.typography.bodySmall)
+                // Thread-count has no LiteRT-LM equivalent (no CPU thread-count API exists for this
+                // engine) — shown only for GGUF, not silently saved and ignored. Backend differs by
+                // format: GGUF's own choices below, or LiteRT-LM's own GPU/CPU picker further down.
+                if (ModelFiles.formatOf(model.file) != ModelFormat.LITERT_LM) {
+                    OverrideChips(
+                        label = stringResource(R.string.settings_backend),
+                        options = listOf(null) + backendChoices(model.overrides.backend),
+                        selected = model.overrides.backend?.let { BackendSelection.shown(it, backendChoices(it)) },
+                        text = { it?.name?.let(SettingsText::backendName) },
+                        tag = "backend",
+                    ) { actions.setOverrides(model.file, model.overrides.copy(backend = it)) }
+                    if (backendChoices(model.overrides.backend).any { it.isGpu }) {
+                        Text(stringResource(R.string.settings_backend_note), style = MaterialTheme.typography.bodySmall)
+                    }
+                    OverrideChips(
+                        label = stringResource(R.string.settings_threads),
+                        options = listOf(null) + SettingsText.threadChoices(cores),
+                        selected = model.overrides.threads,
+                        text = { it?.toString() },
+                        tag = "threads",
+                    ) { actions.setOverrides(model.file, model.overrides.copy(threads = it)) }
+                } else {
+                    // GPU is only offered for a device-verified file (TASK-119's allowlist,
+                    // .learnings/litert-lm-gpu-model-sweep.md) — an unverified file stays CPU/Auto
+                    // only, since GPU correctness there is unproven and ranges from fine to a crash.
+                    OverrideChips(
+                        label = stringResource(R.string.settings_backend),
+                        options = listOf<Boolean?>(null, false) + if (liteRtGpuAvailable) listOf(true) else emptyList(),
+                        selected = model.overrides.liteRtPreferGpu,
+                        text = { it?.let { gpu -> SettingsText.backendName(if (gpu) "GPU" else "CPU") } },
+                        tag = "litertBackend",
+                    ) { actions.setOverrides(model.file, model.overrides.copy(liteRtPreferGpu = it)) }
                 }
-                OverrideChips(
-                    label = stringResource(R.string.settings_threads),
-                    options = listOf(null) + SettingsText.threadChoices(cores),
-                    selected = model.overrides.threads,
-                    text = { it?.toString() },
-                    tag = "threads",
-                ) { actions.setOverrides(model.file, model.overrides.copy(threads = it)) }
                 OverrideChips(
                     label = stringResource(R.string.settings_context),
                     options = listOf(null) + InferenceDefaults.CONTEXT_CHOICES,
