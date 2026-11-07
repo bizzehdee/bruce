@@ -29,7 +29,7 @@ internal sealed interface LiteRtLoadResult {
 
 /** One loaded model; a fresh [LiteRtConversation] is made per turn, carrying the turn's full history (TASK-118: no persistent, stateful session, matching how [com.bizzeh.bruce.inference.LlamaCppEngine] is given the whole conversation each time). */
 internal interface LiteRtModel {
-    /** The model's maximum supported context size (`ModelInfo.maxContextTokens`). */
+    /** The context size this load was actually configured with — the requested override when one was given, the model's own declared default (`ModelInfo.maxContextTokens`) otherwise (TASK-123 follow-up bug fix: this used to always read the file's static default, ignoring any override). */
     val maxContextTokens: Int
 
     /**

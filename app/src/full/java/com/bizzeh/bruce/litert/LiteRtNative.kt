@@ -63,7 +63,14 @@ internal object LiteRtNative : LiteRtApi {
         val engine = Engine(EngineConfig(modelPath = file.absolutePath, backend = nativeBackend(choice, nativeLibraryDir), maxNumTokens = maxContextTokens.takeIf { it > 0 }))
         return try {
             engine.initialize()
-            val contextTokens = ModelInfo.from(file.absolutePath).use { it.maxContextTokens() }
+            // Bug found and fixed 2026-11-07, owner report: a 16k context override on
+            // gemma-4-E2B-it still showed 4k in the chat bar. This read the file's own static
+            // declared context unconditionally, completely independent of maxContextTokens (what
+            // was actually passed to EngineConfig above) — it never reflected a real override,
+            // only the model's own baked-in default. Report the requested value when there is
+            // one; fall back to the file's declared default only when asking for the model's own
+            // default (maxContextTokens <= 0, no override given).
+            val contextTokens = maxContextTokens.takeIf { it > 0 } ?: ModelInfo.from(file.absolutePath).use { it.maxContextTokens() }
             EngineModel(engine, contextTokens)
         } catch (e: Exception) {
             Log.w(TAG, "$choice backend failed to load", e)
