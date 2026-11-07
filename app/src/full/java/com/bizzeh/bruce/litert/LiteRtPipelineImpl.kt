@@ -1,6 +1,9 @@
 package com.bizzeh.bruce.litert
 
 import com.bizzeh.bruce.runtime.ChatBackend
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -10,14 +13,26 @@ import java.io.File
  * user can also force CPU or GPU explicitly via [load]'s `preferGpu` (TASK-123 follow-up: GPU is
  * real and worth choosing for a verified file, not just an automatic fallback-prone guess).
  */
-internal class LiteRtPipelineImpl(private val api: LiteRtApi, private val nativeLibraryDir: String) : LiteRtPipeline {
+internal class LiteRtPipelineImpl(
+    private val api: LiteRtApi,
+    private val nativeLibraryDir: String,
+    /**
+     * Bug found and fixed 2026-11-07: [api.loadModel]/model `close()` are blocking native calls
+     * with no dispatcher around them, unlike [com.bizzeh.bruce.inference.LlamaCppEngine], which
+     * always runs its own blocking calls off whatever dispatcher the caller used. Restoring a
+     * GPU-allowlisted model at app launch froze the UI thread for the whole load (ANR: "Input
+     * dispatching timed out... Waited 5001ms for MotionEvent") instead of just taking a while in
+     * the background, since GPU loads can take tens of seconds to minutes on this device.
+     */
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+) : LiteRtPipeline {
     private data class Active(val model: LiteRtModel, val backend: LiteRtBackend)
 
     @Volatile private var active: Active? = null
 
     override fun gpuAvailable(file: File): Boolean = file.name in GPU_VERIFIED_MODELS
 
-    override suspend fun load(file: File, contextTokens: Int, preferGpu: Boolean?): LiteRtPipelineResult {
+    override suspend fun load(file: File, contextTokens: Int, preferGpu: Boolean?): LiteRtPipelineResult = withContext(dispatcher) {
         active?.model?.close()
         active = null
         val preference = when {
@@ -26,7 +41,7 @@ internal class LiteRtPipelineImpl(private val api: LiteRtApi, private val native
             file.name in GPU_VERIFIED_MODELS -> LiteRtBackendPreference.GPU
             else -> LiteRtBackendPreference.AUTO
         }
-        return when (val result = api.loadModel(file, contextTokens, preference, nativeLibraryDir)) {
+        when (val result = api.loadModel(file, contextTokens, preference, nativeLibraryDir)) {
             is LiteRtLoadResult.Loaded -> {
                 val backend = LiteRtBackend(result.model)
                 active = Active(result.model, backend)
@@ -36,7 +51,7 @@ internal class LiteRtPipelineImpl(private val api: LiteRtApi, private val native
         }
     }
 
-    override suspend fun unload() {
+    override suspend fun unload() = withContext(dispatcher) {
         active?.model?.close()
         active = null
     }
