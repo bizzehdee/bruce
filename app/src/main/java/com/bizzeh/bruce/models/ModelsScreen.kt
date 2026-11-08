@@ -42,11 +42,14 @@ import androidx.compose.ui.unit.dp
 import com.bizzeh.bruce.R
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.BackendSelection
+import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.navigation.SubScreen
 import com.bizzeh.bruce.settings.InferenceDefaults
 import com.bizzeh.bruce.settings.SettingsText
 import com.bizzeh.bruce.settings.TightContextNote
+import com.bizzeh.bruce.ui.FloatStepper
 import com.bizzeh.bruce.ui.Format
+import com.bizzeh.bruce.ui.IntStepper
 import java.io.File
 import java.util.Locale
 
@@ -160,6 +163,7 @@ private fun Installed(
             loading = model.file == state.loading,
             expanded = expanded == model.file.name,
             cores = cores,
+            defaults = state.defaults,
             backendChoices = backendChoices,
             liteRtGpuAvailable = liteRtGpuAvailable(model.file),
             fixedPromptTokens = if (model.file == state.active) fixedPromptTokens else null,
@@ -181,6 +185,7 @@ private fun ModelCard(
     loading: Boolean,
     expanded: Boolean,
     cores: Int,
+    defaults: InferenceDefaults,
     backendChoices: (BackendPreference?) -> List<BackendPreference>,
     liteRtGpuAvailable: Boolean,
     fixedPromptTokens: Int?,
@@ -300,36 +305,44 @@ private fun ModelCard(
                     tag = "context",
                 ) { actions.setOverrides(model.file, model.overrides.copy(contextLength = it)) }
                 model.overrides.contextLength?.let { TightContextNote(it, fixedPromptTokens) }
-                OverrideChips(
+                FloatStepper(
                     label = stringResource(R.string.models_temperature),
-                    options = listOf(null) + ModelOverrides.TEMPERATURE_CHOICES,
-                    selected = model.overrides.temperature,
-                    text = { it?.let { value -> String.format(Locale.ROOT, "%.1f", value) } },
+                    value = model.overrides.temperature(defaults),
+                    min = GenerationRequest.MIN_TEMPERATURE, max = GenerationRequest.MAX_TEMPERATURE, step = GenerationRequest.TEMPERATURE_STEP, decimals = 1,
+                    isOverridden = model.overrides.temperature != null,
                     tag = "temperature",
-                ) { actions.setOverrides(model.file, model.overrides.copy(temperature = it)) }
-                OverrideChips(
+                    onChange = { actions.setOverrides(model.file, model.overrides.copy(temperature = it)) },
+                    onReset = { actions.setOverrides(model.file, model.overrides.copy(temperature = null)) },
+                )
+                IntStepper(
                     label = stringResource(R.string.settings_top_k),
-                    options = listOf(null) + ModelOverrides.TOP_K_CHOICES,
-                    selected = model.overrides.topK,
-                    text = { it?.toString() },
+                    value = model.overrides.topK(defaults),
+                    min = GenerationRequest.MIN_TOP_K, max = GenerationRequest.MAX_TOP_K, step = GenerationRequest.TOP_K_STEP,
+                    isOverridden = model.overrides.topK != null,
                     tag = "topK",
-                ) { actions.setOverrides(model.file, model.overrides.copy(topK = it)) }
-                OverrideChips(
+                    onChange = { actions.setOverrides(model.file, model.overrides.copy(topK = it)) },
+                    onReset = { actions.setOverrides(model.file, model.overrides.copy(topK = null)) },
+                )
+                FloatStepper(
                     label = stringResource(R.string.settings_top_p),
-                    options = listOf(null) + ModelOverrides.TOP_P_CHOICES,
-                    selected = model.overrides.topP,
-                    text = { it?.let { value -> String.format(Locale.ROOT, "%.2f", value) } },
+                    value = model.overrides.topP(defaults),
+                    min = GenerationRequest.MIN_TOP_P, max = GenerationRequest.MAX_TOP_P, step = GenerationRequest.TOP_P_STEP, decimals = 2,
+                    isOverridden = model.overrides.topP != null,
                     tag = "topP",
-                ) { actions.setOverrides(model.file, model.overrides.copy(topP = it)) }
+                    onChange = { actions.setOverrides(model.file, model.overrides.copy(topP = it)) },
+                    onReset = { actions.setOverrides(model.file, model.overrides.copy(topP = null)) },
+                )
                 // Hidden for LiteRT-LM (TASK-124, owner choice): that format has no repeat-penalty sampler.
                 if (ModelFiles.formatOf(model.file) != ModelFormat.LITERT_LM) {
-                    OverrideChips(
+                    FloatStepper(
                         label = stringResource(R.string.settings_repeat_penalty),
-                        options = listOf(null) + ModelOverrides.REPEAT_PENALTY_CHOICES,
-                        selected = model.overrides.repeatPenalty,
-                        text = { it?.let { value -> String.format(Locale.ROOT, "%.1f", value) } },
+                        value = model.overrides.repeatPenalty(defaults),
+                        min = GenerationRequest.MIN_REPEAT_PENALTY, max = GenerationRequest.MAX_REPEAT_PENALTY, step = GenerationRequest.REPEAT_PENALTY_STEP, decimals = 1,
+                        isOverridden = model.overrides.repeatPenalty != null,
                         tag = "repeatPenalty",
-                    ) { actions.setOverrides(model.file, model.overrides.copy(repeatPenalty = it)) }
+                        onChange = { actions.setOverrides(model.file, model.overrides.copy(repeatPenalty = it)) },
+                        onReset = { actions.setOverrides(model.file, model.overrides.copy(repeatPenalty = null)) },
+                    )
                 }
                 OverrideChips(
                     label = stringResource(R.string.settings_thinking),

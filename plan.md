@@ -648,6 +648,7 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-08 | Changed | TASK-126 done: temperature, top K, top P and repeat penalty are now number steppers (+/- buttons and a Reset-to-default button) in both Settings and the Models screen, replacing a row of preset pill chips for just these four settings. |
 | 2026-11-07 | Added | TASK-125 done: the contacts skill can now search by any substring of a name, not just a word's start, and a new `count_contacts` skill counts contacts in total or matching a search without listing them. |
 | 2026-11-07 | Added | TASK-124 done: global and per-model repeat penalty, top K and top P (temperature gained a global default too, fixing a bug where it had none). Resolution order is model override → global default → llama.cpp's own library default, threaded through all three `ChatBackend` implementers and, for GGUF, a rewritten native sampler chain; repeat penalty is hidden for LiteRT-LM, which has no such sampler. |
 | 2026-11-07 | Changed | TASK-123 done: Model Browser now lists, ranks, and downloads LiteRT-LM results (a new GGUF/LiteRT-LM format filter, shown only on the `full` flavour), with fit-only ranking — `ModelFit`'s speed estimate is now nullable and explicitly null for a LiteRT-LM candidate, rather than reusing a llama.cpp-benchmark-derived constant for a different engine. |

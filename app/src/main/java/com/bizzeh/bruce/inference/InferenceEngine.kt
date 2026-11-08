@@ -121,11 +121,26 @@ data class GenerationRequest(
         const val DEFAULT_TOP_P = 0.95f
         const val DEFAULT_REPEAT_PENALTY = 1.0f
 
-        /** Shared choices for both the global (Settings) and per-model (Models) chips, so the two stay consistent. */
-        val TEMPERATURE_CHOICES = listOf(0f, 0.3f, 0.7f, 1.0f)
-        val TOP_K_CHOICES = listOf(1, 10, 20, DEFAULT_TOP_K, 80, 100)
-        val TOP_P_CHOICES = listOf(0.5f, 0.8f, 0.9f, DEFAULT_TOP_P, 1.0f)
-        val REPEAT_PENALTY_CHOICES = listOf(DEFAULT_REPEAT_PENALTY, 1.1f, 1.2f, 1.3f)
+        /**
+         * Shared number-stepper bounds for both the global (Settings) and per-model (Models) UI,
+         * so the two stay consistent (TASK-126, replacing a row of preset pill chips 2026-11-08: a
+         * fixed small list could not express every value a user might want).
+         */
+        const val MIN_TEMPERATURE = 0f
+        const val MAX_TEMPERATURE = 2f
+        const val TEMPERATURE_STEP = 0.1f
+
+        const val MIN_TOP_K = 0
+        const val MAX_TOP_K = 100
+        const val TOP_K_STEP = 1
+
+        const val MIN_TOP_P = 0f
+        const val MAX_TOP_P = 1f
+        const val TOP_P_STEP = 0.05f
+
+        const val MIN_REPEAT_PENALTY = 0.5f
+        const val MAX_REPEAT_PENALTY = 2f
+        const val REPEAT_PENALTY_STEP = 0.1f
     }
 }
 

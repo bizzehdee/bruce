@@ -82,9 +82,9 @@ class ModelSettingsTest {
     @Test
     fun invalidTopKTopPOrRepeatPenaltyOverridesAreCallerBugs() = runTest(dispatcher) {
         val f = Fixture(this)
-        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(topK = 41)) }
-        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(topP = 0.42f)) }
-        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(repeatPenalty = 2f)) }
+        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(topK = 101)) }
+        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(topP = 1.1f)) }
+        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(repeatPenalty = 2.1f)) }
     }
 
     @Test
@@ -124,7 +124,7 @@ class ModelSettingsTest {
         val f = Fixture(this)
         assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(threads = 0)) }
         assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(contextLength = 100)) }
-        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(temperature = 0.5f)) }
+        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(temperature = 2.1f)) }
     }
 
     @Test

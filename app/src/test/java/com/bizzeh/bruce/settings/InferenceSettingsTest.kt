@@ -121,20 +121,24 @@ class InferenceSettingsTest {
         assertEquals(null, repository.defaults.first().topP)
         assertEquals(null, repository.defaults.first().repeatPenalty)
 
-        assertThrows<IllegalArgumentException> { repository.setTemperature(0.42f) }
-        assertThrows<IllegalArgumentException> { repository.setTopK(41) }
-        assertThrows<IllegalArgumentException> { repository.setTopP(0.42f) }
-        assertThrows<IllegalArgumentException> { repository.setRepeatPenalty(2f) }
+        assertThrows<IllegalArgumentException> { repository.setTemperature(-0.1f) }
+        assertThrows<IllegalArgumentException> { repository.setTemperature(2.1f) }
+        assertThrows<IllegalArgumentException> { repository.setTopK(-1) }
+        assertThrows<IllegalArgumentException> { repository.setTopK(101) }
+        assertThrows<IllegalArgumentException> { repository.setTopP(-0.1f) }
+        assertThrows<IllegalArgumentException> { repository.setTopP(1.1f) }
+        assertThrows<IllegalArgumentException> { repository.setRepeatPenalty(0.4f) }
+        assertThrows<IllegalArgumentException> { repository.setRepeatPenalty(2.1f) }
     }
 
     @Test
-    fun aStoredSamplingValueOutsideTheChoicesFallsBack() = runTest {
+    fun aStoredSamplingValueOutsideTheRangeFallsBack() = runTest {
         val dataStore = store()
         dataStore.edit {
-            it[androidx.datastore.preferences.core.floatPreferencesKey("default_temperature")] = 0.42f
-            it[intPreferencesKey("default_top_k")] = 41
-            it[androidx.datastore.preferences.core.floatPreferencesKey("default_top_p")] = 0.42f
-            it[androidx.datastore.preferences.core.floatPreferencesKey("default_repeat_penalty")] = 2f
+            it[androidx.datastore.preferences.core.floatPreferencesKey("default_temperature")] = -0.5f
+            it[intPreferencesKey("default_top_k")] = -10
+            it[androidx.datastore.preferences.core.floatPreferencesKey("default_top_p")] = 1.5f
+            it[androidx.datastore.preferences.core.floatPreferencesKey("default_repeat_penalty")] = 5f
         }
 
         val defaults = InferenceSettingsRepository(dataStore).defaults.first()
@@ -145,8 +149,9 @@ class InferenceSettingsTest {
     }
 
     @Test
-    fun sharedSamplingChoicesComeFromGenerationRequest() {
-        assertEquals(GenerationRequest.TEMPERATURE_CHOICES, listOf(0f, 0.3f, 0.7f, 1.0f))
+    fun sharedSamplingStepperBoundsComeFromGenerationRequest() {
+        assertEquals(0f, GenerationRequest.MIN_TEMPERATURE)
+        assertEquals(2f, GenerationRequest.MAX_TEMPERATURE)
         assertEquals(40, GenerationRequest.DEFAULT_TOP_K)
     }
 

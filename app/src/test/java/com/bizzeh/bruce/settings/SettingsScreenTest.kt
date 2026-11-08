@@ -45,6 +45,10 @@ class SettingsScreenTest {
         override fun setThreads(threads: Int?) { calls += "threads $threads" }
         override fun setMaxWaitMinutes(minutes: Int) { calls += "wait $minutes" }
         override fun setContextLength(contextLength: Int?) { calls += "context $contextLength" }
+        override fun setTemperature(temperature: Float?) { calls += "temperature $temperature" }
+        override fun setTopK(topK: Int?) { calls += "topK $topK" }
+        override fun setTopP(topP: Float?) { calls += "topP $topP" }
+        override fun setRepeatPenalty(repeatPenalty: Float?) { calls += "repeatPenalty $repeatPenalty" }
         override fun clearAllData() { calls += "clear" }
         override fun deleteAllConversations() { calls += "deleteChats" }
         override fun exportAllConversations(format: com.bizzeh.bruce.conversations.ExportFormat) { calls += "export $format" }
@@ -82,6 +86,33 @@ class SettingsScreenTest {
 
         compose.onNodeWithText("With the loaded model, instructions and skills take about 1,382 tokens, leaving about 154 for the chat. Choose a longer context.")
             .performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
+    fun temperatureTopKTopPAndRepeatPenaltyAreNumberSteppersWithNoResetUnset() {
+        show(SettingsState())
+
+        compose.onNodeWithTag("temperature:reset").assertDoesNotExist()
+        compose.onNodeWithTag("temperature:value").performScrollTo().assertTextEquals("0.5")
+        compose.onNodeWithTag("temperature:plus").performScrollTo().performClick()
+        compose.onNodeWithTag("topK:value").performScrollTo().assertTextEquals("40")
+        compose.onNodeWithTag("topK:plus").performScrollTo().performClick()
+        compose.onNodeWithTag("topP:value").performScrollTo().assertTextEquals("0.95")
+        compose.onNodeWithTag("topP:minus").performScrollTo().performClick()
+        compose.onNodeWithTag("repeatPenalty:value").performScrollTo().assertTextEquals("1.0")
+        compose.onNodeWithTag("repeatPenalty:minus").performScrollTo().performClick()
+
+        assertEquals(listOf("temperature 0.6", "topK 41", "topP 0.9", "repeatPenalty 0.9"), calls)
+    }
+
+    @Test
+    fun aResetButtonAppearsOnceOverriddenAndRestoresTheDefault() {
+        show(SettingsState(inference = InferenceDefaults(temperature = 0.6f)))
+
+        compose.onNodeWithTag("temperature:value").performScrollTo().assertTextEquals("0.6")
+        compose.onNodeWithTag("temperature:reset").performScrollTo().performClick()
+
+        assertEquals(listOf("temperature null"), calls)
     }
 
     @Test

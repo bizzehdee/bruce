@@ -289,6 +289,7 @@
     <string name="settings_clear_data_confirm_text">This deletes every downloaded or imported model and every saved chat, and resets all settings. It cannot be undone.</string>
     <string name="settings_clear_data_confirm">Clear</string>
     <string name="settings_cancel">Cancel</string>
+    <string name="settings_reset">Reset</string>
     <string name="settings_about">About</string>
     <string name="permissions_files">Files and folders</string>
     <string name="permissions_files_empty">No files or folders granted yet.</string>

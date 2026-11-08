@@ -53,6 +53,8 @@ data class ModelsState(
     val templates: Map<String, TemplateStatus> = emptyMap(),
     /** The phone's RAM, which each model's expected use is shown against; 0 until read. */
     val totalMemoryBytes: Long = 0,
+    /** The global sampling defaults, so a model's own stepper can show what it would use unset (TASK-126). */
+    val defaults: InferenceDefaults = InferenceDefaults(),
 )
 
 class ModelsViewModel(
@@ -171,6 +173,6 @@ class ModelsViewModel(
             val assessment = ModelFit.assess(candidate, profile, contextLength)
             InstalledModel(file, candidate.sizeBytes, metadata, assessment, overrides, skills, fetched)
         }
-        mutableState.update { it.copy(models = models, totalMemoryBytes = profile.totalMemoryBytes) }
+        mutableState.update { it.copy(models = models, totalMemoryBytes = profile.totalMemoryBytes, defaults = defaults) }
     }
 }

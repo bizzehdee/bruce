@@ -85,10 +85,10 @@ class ModelsScreenTest {
         compose.onNodeWithTag("litertBackend:false").assertExists()
         compose.onNodeWithTag("litertBackend:true").assertDoesNotExist()
         compose.onNodeWithTag("context:8192").assertExists()
-        compose.onNodeWithTag("temperature:0.3").assertExists()
-        compose.onNodeWithTag("topK:80").assertExists()
-        compose.onNodeWithTag("topP:0.9").assertExists()
-        compose.onNodeWithTag("repeatPenalty:1.1").assertDoesNotExist()
+        compose.onNodeWithTag("temperature:value").assertExists()
+        compose.onNodeWithTag("topK:value").assertExists()
+        compose.onNodeWithTag("topP:value").assertExists()
+        compose.onNodeWithTag("repeatPenalty:value").assertDoesNotExist()
         compose.onNodeWithTag("thinking:true").assertExists()
     }
 
@@ -188,10 +188,10 @@ class ModelsScreenTest {
         compose.onNodeWithTag("backend:CPU").performClick()
         compose.onNodeWithTag("threads:2").performClick()
         compose.onNodeWithTag("context:8192").performClick()
-        compose.onNodeWithTag("temperature:0.3").performClick()
-        compose.onNodeWithTag("topK:80").performScrollTo().performClick()
-        compose.onNodeWithTag("topP:0.9").performScrollTo().performClick()
-        compose.onNodeWithTag("repeatPenalty:1.1").performScrollTo().performClick()
+        compose.onNodeWithTag("temperature:plus").performClick()
+        compose.onNodeWithTag("topK:plus").performScrollTo().performClick()
+        compose.onNodeWithTag("topP:plus").performScrollTo().performClick()
+        compose.onNodeWithTag("repeatPenalty:plus").performScrollTo().performClick()
         compose.onNodeWithTag("thinking:true").performScrollTo().performClick()
         compose.onNodeWithTag("use:stories260K.gguf").performScrollTo().performClick()
 
@@ -200,9 +200,9 @@ class ModelsScreenTest {
                 "overrides ${ModelOverrides(backend = BackendPreference.CPU)}",
                 "overrides ${ModelOverrides(threads = 2)}",
                 "overrides ${ModelOverrides(contextLength = 8192)}",
-                "overrides ${ModelOverrides(temperature = 0.3f)}",
-                "overrides ${ModelOverrides(topK = 80)}",
-                "overrides ${ModelOverrides(topP = 0.9f)}",
+                "overrides ${ModelOverrides(temperature = 0.6f)}",
+                "overrides ${ModelOverrides(topK = 41)}",
+                "overrides ${ModelOverrides(topP = 1.0f)}",
                 "overrides ${ModelOverrides(repeatPenalty = 1.1f)}",
                 "overrides ${ModelOverrides(thinking = true)}",
                 "choose stories260K.gguf",

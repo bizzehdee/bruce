@@ -57,10 +57,6 @@ data class ModelOverrides(
 
     companion object {
         const val DEFAULT_TEMPERATURE = GenerationRequest.DEFAULT_TEMPERATURE
-        val TEMPERATURE_CHOICES = GenerationRequest.TEMPERATURE_CHOICES
-        val TOP_K_CHOICES = GenerationRequest.TOP_K_CHOICES
-        val TOP_P_CHOICES = GenerationRequest.TOP_P_CHOICES
-        val REPEAT_PENALTY_CHOICES = GenerationRequest.REPEAT_PENALTY_CHOICES
     }
 }
 
@@ -79,10 +75,10 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             backend = BackendPreference.entries.firstOrNull { it.name == preferences[backendKey(fileName)] },
             threads = preferences[threadsKey(fileName)]?.takeIf { it in 1..InferenceDefaults.MAX_THREADS },
             contextLength = preferences[contextKey(fileName)]?.takeIf { it in InferenceDefaults.CONTEXT_CHOICES },
-            temperature = preferences[temperatureKey(fileName)]?.takeIf { it in ModelOverrides.TEMPERATURE_CHOICES },
-            topK = preferences[topKKey(fileName)]?.takeIf { it in ModelOverrides.TOP_K_CHOICES },
-            topP = preferences[topPKey(fileName)]?.takeIf { it in ModelOverrides.TOP_P_CHOICES },
-            repeatPenalty = preferences[repeatPenaltyKey(fileName)]?.takeIf { it in ModelOverrides.REPEAT_PENALTY_CHOICES },
+            temperature = preferences[temperatureKey(fileName)]?.takeIf { it in GenerationRequest.MIN_TEMPERATURE..GenerationRequest.MAX_TEMPERATURE },
+            topK = preferences[topKKey(fileName)]?.takeIf { it in GenerationRequest.MIN_TOP_K..GenerationRequest.MAX_TOP_K },
+            topP = preferences[topPKey(fileName)]?.takeIf { it in GenerationRequest.MIN_TOP_P..GenerationRequest.MAX_TOP_P },
+            repeatPenalty = preferences[repeatPenaltyKey(fileName)]?.takeIf { it in GenerationRequest.MIN_REPEAT_PENALTY..GenerationRequest.MAX_REPEAT_PENALTY },
             thinking = preferences[thinkingKey(fileName)],
             liteRtPreferGpu = preferences[liteRtPreferGpuKey(fileName)],
         )
@@ -123,10 +119,10 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun setOverrides(fileName: String, overrides: ModelOverrides) {
         require(overrides.threads == null || overrides.threads in 1..InferenceDefaults.MAX_THREADS) { "threads out of range" }
         require(overrides.contextLength == null || overrides.contextLength in InferenceDefaults.CONTEXT_CHOICES) { "unsupported context" }
-        require(overrides.temperature == null || overrides.temperature in ModelOverrides.TEMPERATURE_CHOICES) { "unsupported temperature" }
-        require(overrides.topK == null || overrides.topK in ModelOverrides.TOP_K_CHOICES) { "unsupported topK" }
-        require(overrides.topP == null || overrides.topP in ModelOverrides.TOP_P_CHOICES) { "unsupported topP" }
-        require(overrides.repeatPenalty == null || overrides.repeatPenalty in ModelOverrides.REPEAT_PENALTY_CHOICES) { "unsupported repeatPenalty" }
+        require(overrides.temperature == null || overrides.temperature in GenerationRequest.MIN_TEMPERATURE..GenerationRequest.MAX_TEMPERATURE) { "unsupported temperature" }
+        require(overrides.topK == null || overrides.topK in GenerationRequest.MIN_TOP_K..GenerationRequest.MAX_TOP_K) { "unsupported topK" }
+        require(overrides.topP == null || overrides.topP in GenerationRequest.MIN_TOP_P..GenerationRequest.MAX_TOP_P) { "unsupported topP" }
+        require(overrides.repeatPenalty == null || overrides.repeatPenalty in GenerationRequest.MIN_REPEAT_PENALTY..GenerationRequest.MAX_REPEAT_PENALTY) { "unsupported repeatPenalty" }
         dataStore.edit {
             it.setOrRemove(backendKey(fileName), overrides.backend?.name)
             it.setOrRemove(threadsKey(fileName), overrides.threads)

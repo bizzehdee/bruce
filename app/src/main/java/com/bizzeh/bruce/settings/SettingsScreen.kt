@@ -58,7 +58,8 @@ import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.BackendSelection
 import com.bizzeh.bruce.inference.GenerationRequest
-import java.util.Locale
+import com.bizzeh.bruce.ui.FloatStepper
+import com.bizzeh.bruce.ui.IntStepper
 import com.bizzeh.bruce.memory.MemoryMode
 import com.bizzeh.bruce.navigation.SubScreen
 import com.bizzeh.bruce.runtime.ContextBudget
@@ -291,50 +292,42 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 supportingContent = { Text(stringResource(R.string.settings_thinking_summary)) },
                 trailingContent = { Switch(state.inference.thinking, actions::setThinking, modifier = Modifier.testTag("thinking")) },
             )
-            Label(R.string.models_temperature)
-            Chips {
-                (listOf(null) + GenerationRequest.TEMPERATURE_CHOICES).forEach { value ->
-                    FilterChip(
-                        selected = state.inference.temperature == value,
-                        onClick = { actions.setTemperature(value) },
-                        label = { Text(value?.let { String.format(Locale.ROOT, "%.1f", it) } ?: stringResource(R.string.settings_context_auto)) },
-                        modifier = Modifier.testTag("temperature:${value ?: "auto"}"),
-                    )
-                }
-            }
-            Label(R.string.settings_top_k)
-            Chips {
-                (listOf(null) + GenerationRequest.TOP_K_CHOICES).forEach { value ->
-                    FilterChip(
-                        selected = state.inference.topK == value,
-                        onClick = { actions.setTopK(value) },
-                        label = { Text(value?.toString() ?: stringResource(R.string.settings_context_auto)) },
-                        modifier = Modifier.testTag("topK:${value ?: "auto"}"),
-                    )
-                }
-            }
-            Label(R.string.settings_top_p)
-            Chips {
-                (listOf(null) + GenerationRequest.TOP_P_CHOICES).forEach { value ->
-                    FilterChip(
-                        selected = state.inference.topP == value,
-                        onClick = { actions.setTopP(value) },
-                        label = { Text(value?.let { String.format(Locale.ROOT, "%.2f", it) } ?: stringResource(R.string.settings_context_auto)) },
-                        modifier = Modifier.testTag("topP:${value ?: "auto"}"),
-                    )
-                }
-            }
-            Label(R.string.settings_repeat_penalty)
-            Chips {
-                (listOf(null) + GenerationRequest.REPEAT_PENALTY_CHOICES).forEach { value ->
-                    FilterChip(
-                        selected = state.inference.repeatPenalty == value,
-                        onClick = { actions.setRepeatPenalty(value) },
-                        label = { Text(value?.let { String.format(Locale.ROOT, "%.1f", it) } ?: stringResource(R.string.settings_context_auto)) },
-                        modifier = Modifier.testTag("repeatPenalty:${value ?: "auto"}"),
-                    )
-                }
-            }
+            FloatStepper(
+                label = stringResource(R.string.models_temperature),
+                value = state.inference.temperature ?: GenerationRequest.DEFAULT_TEMPERATURE,
+                min = GenerationRequest.MIN_TEMPERATURE, max = GenerationRequest.MAX_TEMPERATURE, step = GenerationRequest.TEMPERATURE_STEP, decimals = 1,
+                isOverridden = state.inference.temperature != null,
+                tag = "temperature",
+                onChange = actions::setTemperature,
+                onReset = { actions.setTemperature(null) },
+            )
+            IntStepper(
+                label = stringResource(R.string.settings_top_k),
+                value = state.inference.topK ?: GenerationRequest.DEFAULT_TOP_K,
+                min = GenerationRequest.MIN_TOP_K, max = GenerationRequest.MAX_TOP_K, step = GenerationRequest.TOP_K_STEP,
+                isOverridden = state.inference.topK != null,
+                tag = "topK",
+                onChange = actions::setTopK,
+                onReset = { actions.setTopK(null) },
+            )
+            FloatStepper(
+                label = stringResource(R.string.settings_top_p),
+                value = state.inference.topP ?: GenerationRequest.DEFAULT_TOP_P,
+                min = GenerationRequest.MIN_TOP_P, max = GenerationRequest.MAX_TOP_P, step = GenerationRequest.TOP_P_STEP, decimals = 2,
+                isOverridden = state.inference.topP != null,
+                tag = "topP",
+                onChange = actions::setTopP,
+                onReset = { actions.setTopP(null) },
+            )
+            FloatStepper(
+                label = stringResource(R.string.settings_repeat_penalty),
+                value = state.inference.repeatPenalty ?: GenerationRequest.DEFAULT_REPEAT_PENALTY,
+                min = GenerationRequest.MIN_REPEAT_PENALTY, max = GenerationRequest.MAX_REPEAT_PENALTY, step = GenerationRequest.REPEAT_PENALTY_STEP, decimals = 1,
+                isOverridden = state.inference.repeatPenalty != null,
+                tag = "repeatPenalty",
+                onChange = actions::setRepeatPenalty,
+                onReset = { actions.setRepeatPenalty(null) },
+            )
             Text(
                 stringResource(R.string.settings_defaults_note),
                 style = MaterialTheme.typography.bodySmall,

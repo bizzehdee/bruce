@@ -64,10 +64,10 @@ class InferenceSettingsRepository(private val dataStore: DataStore<Preferences>)
             contextLength = preferences[CONTEXT]?.takeIf { it in InferenceDefaults.CONTEXT_CHOICES },
             thinking = preferences[THINKING] ?: false,
             maxWaitMinutes = preferences[MAX_WAIT]?.takeIf { it in InferenceDefaults.WAIT_MINUTES_CHOICES } ?: InferenceDefaults.DEFAULT_WAIT_MINUTES,
-            temperature = preferences[TEMPERATURE]?.takeIf { it in GenerationRequest.TEMPERATURE_CHOICES },
-            topK = preferences[TOP_K]?.takeIf { it in GenerationRequest.TOP_K_CHOICES },
-            topP = preferences[TOP_P]?.takeIf { it in GenerationRequest.TOP_P_CHOICES },
-            repeatPenalty = preferences[REPEAT_PENALTY]?.takeIf { it in GenerationRequest.REPEAT_PENALTY_CHOICES },
+            temperature = preferences[TEMPERATURE]?.takeIf { it in GenerationRequest.MIN_TEMPERATURE..GenerationRequest.MAX_TEMPERATURE },
+            topK = preferences[TOP_K]?.takeIf { it in GenerationRequest.MIN_TOP_K..GenerationRequest.MAX_TOP_K },
+            topP = preferences[TOP_P]?.takeIf { it in GenerationRequest.MIN_TOP_P..GenerationRequest.MAX_TOP_P },
+            repeatPenalty = preferences[REPEAT_PENALTY]?.takeIf { it in GenerationRequest.MIN_REPEAT_PENALTY..GenerationRequest.MAX_REPEAT_PENALTY },
         )
     }
 
@@ -98,25 +98,25 @@ class InferenceSettingsRepository(private val dataStore: DataStore<Preferences>)
 
     /** Null restores [GenerationRequest.DEFAULT_TEMPERATURE]. */
     suspend fun setTemperature(temperature: Float?) {
-        require(temperature == null || temperature in GenerationRequest.TEMPERATURE_CHOICES) { "unsupported temperature: $temperature" }
+        require(temperature == null || temperature in GenerationRequest.MIN_TEMPERATURE..GenerationRequest.MAX_TEMPERATURE) { "unsupported temperature: $temperature" }
         dataStore.edit { if (temperature == null) it.remove(TEMPERATURE) else it[TEMPERATURE] = temperature }
     }
 
     /** Null restores [GenerationRequest.DEFAULT_TOP_K]. */
     suspend fun setTopK(topK: Int?) {
-        require(topK == null || topK in GenerationRequest.TOP_K_CHOICES) { "unsupported topK: $topK" }
+        require(topK == null || topK in GenerationRequest.MIN_TOP_K..GenerationRequest.MAX_TOP_K) { "unsupported topK: $topK" }
         dataStore.edit { if (topK == null) it.remove(TOP_K) else it[TOP_K] = topK }
     }
 
     /** Null restores [GenerationRequest.DEFAULT_TOP_P]. */
     suspend fun setTopP(topP: Float?) {
-        require(topP == null || topP in GenerationRequest.TOP_P_CHOICES) { "unsupported topP: $topP" }
+        require(topP == null || topP in GenerationRequest.MIN_TOP_P..GenerationRequest.MAX_TOP_P) { "unsupported topP: $topP" }
         dataStore.edit { if (topP == null) it.remove(TOP_P) else it[TOP_P] = topP }
     }
 
     /** Null restores [GenerationRequest.DEFAULT_REPEAT_PENALTY]. Meaningless for a LiteRT-LM model. */
     suspend fun setRepeatPenalty(repeatPenalty: Float?) {
-        require(repeatPenalty == null || repeatPenalty in GenerationRequest.REPEAT_PENALTY_CHOICES) { "unsupported repeatPenalty: $repeatPenalty" }
+        require(repeatPenalty == null || repeatPenalty in GenerationRequest.MIN_REPEAT_PENALTY..GenerationRequest.MAX_REPEAT_PENALTY) { "unsupported repeatPenalty: $repeatPenalty" }
         dataStore.edit { if (repeatPenalty == null) it.remove(REPEAT_PENALTY) else it[REPEAT_PENALTY] = repeatPenalty }
     }
 
