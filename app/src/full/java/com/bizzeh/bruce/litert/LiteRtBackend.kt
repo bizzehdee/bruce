@@ -48,13 +48,22 @@ internal class LiteRtBackend(
         return Prepared.Ready(chat, tokens, PreparedHandle(characters))
     }
 
-    override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?): Flow<StepEvent> = flow {
+    /** [repeatPenalty] is accepted for the common [ChatBackend] signature but ignored: LiteRT-LM's public API has no repeat-penalty sampler (TASK-124). */
+    override fun generate(
+        prepared: Prepared.Ready,
+        maxTokens: Int,
+        temperature: Float,
+        topK: Int,
+        topP: Float,
+        repeatPenalty: Float,
+        branchOf: BackendChat?,
+    ): Flow<StepEvent> = flow {
         val chat = prepared.chat
         if (chat.messages.isEmpty()) {
             emit(StepEvent.Failed(RuntimeError.GENERATION_FAILED))
             return@flow
         }
-        val conversation = model.converse(chat.system, chat.messages.dropLast(1), chat.messages.last(), chat.tools, chat.thinking, maxTokens, temperature)
+        val conversation = model.converse(chat.system, chat.messages.dropLast(1), chat.messages.last(), chat.tools, chat.thinking, maxTokens, temperature, topK, topP)
         open = conversation
         try {
             var failed = false

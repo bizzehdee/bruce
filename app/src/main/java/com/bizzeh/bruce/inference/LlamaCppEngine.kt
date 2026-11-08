@@ -101,9 +101,12 @@ internal class LlamaCppEngine(
             }
             stopRequested.set(false)
             val generation = if (request.grammar == null) {
-                llama.beginGeneration(current.context, request.temperature, request.seed)
+                llama.beginGeneration(current.context, request.temperature, request.seed, request.topK, request.topP, request.repeatPenalty)
             } else {
-                llama.beginGenerationWithGrammar(current.context, request.temperature, request.seed, request.grammar.json.toByteArray(Charsets.UTF_8))
+                llama.beginGenerationWithGrammar(
+                    current.context, request.temperature, request.seed, request.topK, request.topP, request.repeatPenalty,
+                    request.grammar.json.toByteArray(Charsets.UTF_8),
+                )
             }
             if (generation == 0L) {
                 emit(GenerationEvent.Failed(GenerationError.GRAMMAR_REJECTED))

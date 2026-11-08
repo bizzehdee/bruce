@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.LoadConfig
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -92,6 +93,61 @@ class InferenceSettingsTest {
         val repository = InferenceSettingsRepository(store())
         assertThrows<IllegalArgumentException> { repository.setThreads(0) }
         assertThrows<IllegalArgumentException> { repository.setContextLength(1000) }
+    }
+
+    @Test
+    fun storesTemperatureTopKTopPAndRepeatPenalty() = runTest {
+        val repository = InferenceSettingsRepository(store())
+        assertEquals(null, repository.defaults.first().temperature)
+        assertEquals(null, repository.defaults.first().topK)
+        assertEquals(null, repository.defaults.first().topP)
+        assertEquals(null, repository.defaults.first().repeatPenalty)
+
+        repository.setTemperature(0.3f)
+        repository.setTopK(80)
+        repository.setTopP(0.9f)
+        repository.setRepeatPenalty(1.2f)
+        assertEquals(0.3f, repository.defaults.first().temperature)
+        assertEquals(80, repository.defaults.first().topK)
+        assertEquals(0.9f, repository.defaults.first().topP)
+        assertEquals(1.2f, repository.defaults.first().repeatPenalty)
+
+        repository.setTemperature(null)
+        repository.setTopK(null)
+        repository.setTopP(null)
+        repository.setRepeatPenalty(null)
+        assertEquals(null, repository.defaults.first().temperature)
+        assertEquals(null, repository.defaults.first().topK)
+        assertEquals(null, repository.defaults.first().topP)
+        assertEquals(null, repository.defaults.first().repeatPenalty)
+
+        assertThrows<IllegalArgumentException> { repository.setTemperature(0.42f) }
+        assertThrows<IllegalArgumentException> { repository.setTopK(41) }
+        assertThrows<IllegalArgumentException> { repository.setTopP(0.42f) }
+        assertThrows<IllegalArgumentException> { repository.setRepeatPenalty(2f) }
+    }
+
+    @Test
+    fun aStoredSamplingValueOutsideTheChoicesFallsBack() = runTest {
+        val dataStore = store()
+        dataStore.edit {
+            it[androidx.datastore.preferences.core.floatPreferencesKey("default_temperature")] = 0.42f
+            it[intPreferencesKey("default_top_k")] = 41
+            it[androidx.datastore.preferences.core.floatPreferencesKey("default_top_p")] = 0.42f
+            it[androidx.datastore.preferences.core.floatPreferencesKey("default_repeat_penalty")] = 2f
+        }
+
+        val defaults = InferenceSettingsRepository(dataStore).defaults.first()
+        assertEquals(null, defaults.temperature)
+        assertEquals(null, defaults.topK)
+        assertEquals(null, defaults.topP)
+        assertEquals(null, defaults.repeatPenalty)
+    }
+
+    @Test
+    fun sharedSamplingChoicesComeFromGenerationRequest() {
+        assertEquals(GenerationRequest.TEMPERATURE_CHOICES, listOf(0f, 0.3f, 0.7f, 1.0f))
+        assertEquals(40, GenerationRequest.DEFAULT_TOP_K)
     }
 
     @Test

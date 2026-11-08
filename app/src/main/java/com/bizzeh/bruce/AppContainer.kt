@@ -522,6 +522,7 @@ class AppContainer(private val context: Context) {
         }, requirementMet = ::requirementMet, sites = sites)
         BruceRuntime(
             engine, skills, skillStates, policy, temperature = { modelSelection.activeTemperature() },
+            topK = { modelSelection.activeTopK() }, topP = { modelSelection.activeTopP() }, repeatPenalty = { modelSelection.activeRepeatPenalty() },
             maxDuration = { inferenceSettings.defaults.first().maxWaitMinutes.minutes }, thinking = { modelSelection.activeThinking() },
             personality = ::personalityRules, grantNames = ::grantNames, requirementMet = ::requirementMet, remote = ::remoteBackend, images = chatImages,
             // The active model's own pipeline when it is LiteRT-LM (TASK-120); null (llama.cpp) otherwise.

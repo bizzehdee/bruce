@@ -91,12 +91,14 @@ internal object LiteRtNative : LiteRtApi {
             thinking: Boolean,
             maxTokens: Int,
             temperature: Float,
+            topK: Int,
+            topP: Float,
         ): LiteRtConversation {
             val config = ConversationConfig(
                 systemInstruction = Contents.of(systemInstruction),
                 initialMessages = priorMessages.map(::toLiteRtMessage),
                 tools = tools.map { tool(BruceTool(it)) },
-                samplerConfig = SamplerConfig(topK = DEFAULT_TOP_K, topP = DEFAULT_TOP_P, temperature = temperature.toDouble()),
+                samplerConfig = SamplerConfig(topK = topK, topP = topP.toDouble(), temperature = temperature.toDouble()),
                 automaticToolCalling = false,
                 maxOutputToken = maxTokens,
                 thinkingConfig = ThinkingConfig(thinking),
@@ -176,7 +178,5 @@ internal object LiteRtNative : LiteRtApi {
     }
 
     private const val REASONING_CHANNEL = "thought"
-    private const val DEFAULT_TOP_K = 40
-    private const val DEFAULT_TOP_P = 0.95
     private const val TAG = "LiteRtNative"
 }

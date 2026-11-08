@@ -108,6 +108,14 @@ class SettingsViewModel(
 
     fun setMaxWaitMinutes(minutes: Int) = launch { inference.setMaxWaitMinutes(minutes) }
 
+    fun setTemperature(temperature: Float?) = launch { inference.setTemperature(temperature) }
+
+    fun setTopK(topK: Int?) = launch { inference.setTopK(topK) }
+
+    fun setTopP(topP: Float?) = launch { inference.setTopP(topP) }
+
+    fun setRepeatPenalty(repeatPenalty: Float?) = launch { inference.setRepeatPenalty(repeatPenalty) }
+
     fun clearAllData() = launch { dataReset.clearAll() }
 
     private fun launch(block: suspend () -> Unit) {

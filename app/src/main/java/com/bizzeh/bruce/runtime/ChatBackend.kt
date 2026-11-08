@@ -67,8 +67,18 @@ interface ChatBackend {
     /**
      * [branchOf] is a conversation that continues the same chat differently, when a pass branches
      * off it (TASK-047); a backend that keeps the evaluated prompt can checkpoint what they share.
+     * [repeatPenalty] is meaningless for a LiteRT-LM-backed implementation (TASK-124): no such
+     * sampler exists in that format's public API, so it is accepted but ignored there.
      */
-    fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat? = null): Flow<StepEvent>
+    fun generate(
+        prepared: Prepared.Ready,
+        maxTokens: Int,
+        temperature: Float,
+        topK: Int = GenerationRequest.DEFAULT_TOP_K,
+        topP: Float = GenerationRequest.DEFAULT_TOP_P,
+        repeatPenalty: Float = GenerationRequest.DEFAULT_REPEAT_PENALTY,
+        branchOf: BackendChat? = null,
+    ): Flow<StepEvent>
 
     fun stop()
 
@@ -101,7 +111,15 @@ class LocalBackend(
         return Prepared.Ready(chat, tokens + prompt.images.sumOf { tokensFor(it) ?: 0 }, prompt)
     }
 
-    override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?): Flow<StepEvent> = flow {
+    override fun generate(
+        prepared: Prepared.Ready,
+        maxTokens: Int,
+        temperature: Float,
+        topK: Int,
+        topP: Float,
+        repeatPenalty: Float,
+        branchOf: BackendChat?,
+    ): Flow<StepEvent> = flow {
         val prompt = prepared.handle as Prompt
         val shared = branchOf?.let { other -> prompt(other)?.text?.let(prompt.text::commonPrefixWith) }
         val text = StringBuilder()
@@ -114,7 +132,8 @@ class LocalBackend(
             return@flow
         }
         val request = GenerationRequest(
-            prompt.text, maxTokens = maxTokens, temperature = temperature, grammar = prompt.format.grammar, stops = prompt.format.stops,
+            prompt.text, maxTokens = maxTokens, temperature = temperature, topK = topK, topP = topP, repeatPenalty = repeatPenalty,
+            grammar = prompt.format.grammar, stops = prompt.format.stops,
             checkpointPrefix = shared.takeIf { pixels.isEmpty() }, images = pixels,
             savedPrefix = if (engine.savesPrompts && prepared.chat.savable && pixels.isEmpty()) fixedPrefix(prepared.chat) else null,
         )

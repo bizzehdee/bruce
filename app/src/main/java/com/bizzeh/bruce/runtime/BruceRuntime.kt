@@ -3,6 +3,7 @@ package com.bizzeh.bruce.runtime
 import android.util.Log
 import com.bizzeh.bruce.chat.ThinkingText
 import com.bizzeh.bruce.inference.ChatRole
+import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.GenerationStats
 import com.bizzeh.bruce.inference.InferenceEngine
 import com.bizzeh.bruce.inference.ParsedReply
@@ -112,6 +113,9 @@ class BruceRuntime(
     private val states: SkillStateStore,
     private val policy: PolicyEngine,
     private val temperature: suspend () -> Float,
+    private val topK: suspend () -> Int = { GenerationRequest.DEFAULT_TOP_K },
+    private val topP: suspend () -> Float = { GenerationRequest.DEFAULT_TOP_P },
+    private val repeatPenalty: suspend () -> Float = { GenerationRequest.DEFAULT_REPEAT_PENALTY },
     /** Whether the chosen model may reason before answering (TASK-110). */
     private val thinking: suspend () -> Boolean = { false },
     /** The chosen personality's rules, which lead the system prompt. */
@@ -218,7 +222,7 @@ class BruceRuntime(
             var failure: RuntimeError? = null
             val shown = StringBuilder()
             limit.arm()
-            fitted.backend.generate(prompt, maxReplyTokens, temperature()).collect { event ->
+            fitted.backend.generate(prompt, maxReplyTokens, temperature(), topK(), topP(), repeatPenalty()).collect { event ->
                 when (event) {
                     is StepEvent.Text -> {
                         limit.arm()

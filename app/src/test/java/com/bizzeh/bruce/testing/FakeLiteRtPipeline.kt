@@ -14,7 +14,15 @@ import java.io.File
 class FakeChatBackend(private val contextTokens: Int = 4096) : ChatBackend {
     override suspend fun contextLength(): Int = contextTokens
     override suspend fun prepare(chat: BackendChat): Prepared = Prepared.Ready(chat, 0, null)
-    override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?): Flow<StepEvent> = flowOf()
+    override fun generate(
+        prepared: Prepared.Ready,
+        maxTokens: Int,
+        temperature: Float,
+        topK: Int,
+        topP: Float,
+        repeatPenalty: Float,
+        branchOf: BackendChat?,
+    ): Flow<StepEvent> = flowOf()
     override fun stop() = Unit
 }
 

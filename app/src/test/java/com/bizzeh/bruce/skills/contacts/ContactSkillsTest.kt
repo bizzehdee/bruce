@@ -15,15 +15,33 @@ class ContactSkillsTest {
         Contact("Adam Smith", emptyList(), listOf("adam@example.com")),
     )
     private val asked = mutableListOf<Pair<String, Int>>()
+    private val counted = mutableListOf<String?>()
     private var found = people
-    private val skill = ContactSkills({ name, limit -> asked += name to limit; found }, Dispatchers.Unconfined).create().single()
+    private var total = 0
+    private val source = object : ContactsSource {
+        override fun find(name: String, limit: Int): List<Contact> {
+            asked += name to limit
+            return found
+        }
+        override fun count(name: String?): Int {
+            counted += name
+            return total
+        }
+    }
+    private val skills = ContactSkills(source, Dispatchers.Unconfined).create()
+    private val findSkill = skills[0]
+    private val countSkill = skills[1]
 
-    private fun run(vararg arguments: Pair<String, Any>) = runBlocking { skill.execute(SkillArguments(mapOf(*arguments))) }
+    private fun run(vararg arguments: Pair<String, Any>) = runBlocking { findSkill.execute(SkillArguments(mapOf(*arguments))) }
+
+    private fun runCount(vararg arguments: Pair<String, Any>) = runBlocking { countSkill.execute(SkillArguments(mapOf(*arguments))) }
 
     @Test
     fun offByDefaultWithTheContactsPermission() {
-        assertEquals(SkillState.DECLINED, skill.defaultState)
-        assertEquals(listOf(android.Manifest.permission.READ_CONTACTS), skill.androidPermissions)
+        assertEquals(SkillState.DECLINED, findSkill.defaultState)
+        assertEquals(listOf(android.Manifest.permission.READ_CONTACTS), findSkill.androidPermissions)
+        assertEquals(SkillState.DECLINED, countSkill.defaultState)
+        assertEquals(listOf(android.Manifest.permission.READ_CONTACTS), countSkill.androidPermissions)
     }
 
     @Test
@@ -40,5 +58,25 @@ class ContactSkillsTest {
         found = emptyList()
         assertEquals(SkillOutcome.Done("No contact matches that name."), run("name" to "Zed", "detail" to "phone"))
         assertEquals(DenialCode.INVALID_ARGUMENTS, (run("name" to "Z", "detail" to "phone") as SkillOutcome.Failed).code)
+    }
+
+    @Test
+    fun countsEveryContactWhenNoNameIsGiven() {
+        total = 42
+        assertEquals(SkillOutcome.Done("42 contacts in total."), runCount())
+        assertEquals(listOf<String?>(null), counted)
+    }
+
+    @Test
+    fun countsOnlyTheMatchesWhenANameIsGiven() {
+        total = 1
+        assertEquals(SkillOutcome.Done("1 contact matches \"Ada\"."), runCount("name" to " Ada "))
+        assertEquals(listOf("Ada"), counted)
+    }
+
+    @Test
+    fun aTooShortNameToCountIsSaid() {
+        assertEquals(DenialCode.INVALID_ARGUMENTS, (runCount("name" to "A") as SkillOutcome.Failed).code)
+        assertEquals(emptyList<String?>(), counted)
     }
 }

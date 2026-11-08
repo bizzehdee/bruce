@@ -84,9 +84,17 @@ class RemoteBackend(
         return Prepared.Ready(chat, tokens, characters)
     }
 
-    override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?): Flow<StepEvent> = flow {
+    override fun generate(
+        prepared: Prepared.Ready,
+        maxTokens: Int,
+        temperature: Float,
+        topK: Int,
+        topP: Float,
+        repeatPenalty: Float,
+        branchOf: BackendChat?,
+    ): Flow<StepEvent> = flow {
         val vision = prepared.chat.messages.any { it.images.isNotEmpty() } && acceptsImages()
-        val body = request(prepared.chat, maxTokens, temperature, vision).toString().toByteArray(Charsets.UTF_8)
+        val body = request(prepared.chat, maxTokens, temperature, topK, topP, repeatPenalty, vision).toString().toByteArray(Charsets.UTF_8)
         val response = try {
             transport.postStream("${server.address}/v1/chat/completions", headers() + ("Content-Type" to "application/json"), body, FIRST_TOKEN_TIMEOUT_MS)
         } catch (e: IOException) {
@@ -133,12 +141,16 @@ class RemoteBackend(
         key?.let { put("Authorization", "Bearer $it") }
     }
 
-    private fun request(chat: BackendChat, maxTokens: Int, temperature: Float, vision: Boolean): JSONObject = JSONObject()
+    /** [topK]/[topP]/[repeatPenalty] follow the OpenAI-compatible fields llama.cpp's and vLLM's servers accept; an unrelated server ignores unknown fields. */
+    private fun request(chat: BackendChat, maxTokens: Int, temperature: Float, topK: Int, topP: Float, repeatPenalty: Float, vision: Boolean): JSONObject = JSONObject()
         .put("model", model)
         .put("stream", true)
         .put("stream_options", JSONObject().put("include_usage", true))
         .put("max_tokens", maxTokens)
         .put("temperature", temperature.toDouble())
+        .put("top_k", topK)
+        .put("top_p", topP.toDouble())
+        .put("repeat_penalty", repeatPenalty.toDouble())
         .put("chat_template_kwargs", JSONObject().put("enable_thinking", chat.thinking))
         .put("messages", JSONArray().apply {
             put(JSONObject().put("role", "system").put("content", chat.system))

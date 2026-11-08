@@ -88,6 +88,23 @@ class ModelSelection(
         return activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).thinking(defaults) } ?: defaults.thinking
     }
 
-    suspend fun activeTemperature(): Float =
-        activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).temperature() } ?: ModelOverrides.DEFAULT_TEMPERATURE
+    suspend fun activeTemperature(): Float {
+        val defaults = inferenceSettings.defaults.first()
+        return activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).temperature(defaults) } ?: defaults.temperature ?: com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TEMPERATURE
+    }
+
+    suspend fun activeTopK(): Int {
+        val defaults = inferenceSettings.defaults.first()
+        return activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).topK(defaults) } ?: defaults.topK ?: com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TOP_K
+    }
+
+    suspend fun activeTopP(): Float {
+        val defaults = inferenceSettings.defaults.first()
+        return activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).topP(defaults) } ?: defaults.topP ?: com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TOP_P
+    }
+
+    suspend fun activeRepeatPenalty(): Float {
+        val defaults = inferenceSettings.defaults.first()
+        return activeModel.state.value.active?.let { modelSettings.overridesNow(it.name).repeatPenalty(defaults) } ?: defaults.repeatPenalty ?: com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_REPEAT_PENALTY
+    }
 }

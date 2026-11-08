@@ -29,7 +29,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /** A tall screen, so every setting is laid out without scrolling nested scroll containers. */
-@Config(qualifiers = "w400dp-h3000dp")
+@Config(qualifiers = "w400dp-h4000dp")
 @RunWith(RobolectricTestRunner::class)
 class SettingsScreenTest {
     @get:Rule

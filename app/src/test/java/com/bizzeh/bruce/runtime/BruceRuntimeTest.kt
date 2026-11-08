@@ -564,7 +564,7 @@ class BruceRuntimeTest {
             var step = 0
             override suspend fun contextLength() = 8192
             override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 100, null).also { asked += chat }
-            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) = flowOf(
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, topK: Int, topP: Float, repeatPenalty: Float, branchOf: BackendChat?) = flowOf(
                 if (step++ == 0) StepEvent.Done(ParsedReply("", "", listOf(ToolCall("get_datetime", "{}", "r1"))), null)
                 else StepEvent.Done(ParsedReply("It is noon.", "", emptyList()), null),
             )
@@ -587,7 +587,7 @@ class BruceRuntimeTest {
         val override = object : ChatBackend {
             override suspend fun contextLength() = 2048
             override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
-            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) =
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, topK: Int, topP: Float, repeatPenalty: Float, branchOf: BackendChat?) =
                 flowOf(StepEvent.Done(ParsedReply("from the override", "", emptyList()), null))
             override fun stop() = Unit
         }
@@ -604,14 +604,14 @@ class BruceRuntimeTest {
         val override = object : ChatBackend {
             override suspend fun contextLength() = 2048
             override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
-            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) =
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, topK: Int, topP: Float, repeatPenalty: Float, branchOf: BackendChat?) =
                 flowOf(StepEvent.Done(ParsedReply("from the override", "", emptyList()), null))
             override fun stop() = Unit
         }
         val remote = object : ChatBackend {
             override suspend fun contextLength() = 8192
             override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
-            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) =
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, topK: Int, topP: Float, repeatPenalty: Float, branchOf: BackendChat?) =
                 flowOf(StepEvent.Done(ParsedReply("from the remote", "", emptyList()), null))
             override fun stop() = Unit
         }
@@ -627,7 +627,7 @@ class BruceRuntimeTest {
         val remote = object : ChatBackend {
             override suspend fun contextLength() = 8192
             override suspend fun prepare(chat: BackendChat) = Prepared.Ready(chat, 10, null)
-            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, branchOf: BackendChat?) = flowOf(StepEvent.Text("x"), StepEvent.Failed(RuntimeError.SERVER_UNREACHABLE))
+            override fun generate(prepared: Prepared.Ready, maxTokens: Int, temperature: Float, topK: Int, topP: Float, repeatPenalty: Float, branchOf: BackendChat?) = flowOf(StepEvent.Text("x"), StepEvent.Failed(RuntimeError.SERVER_UNREACHABLE))
             override fun stop() = Unit
         }
         val runtime = BruceRuntime(engine, registry, states, policy, temperature = { 0f }, personality = { "P" }, remote = { remote })

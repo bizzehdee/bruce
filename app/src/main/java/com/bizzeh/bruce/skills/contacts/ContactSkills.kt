@@ -16,9 +16,12 @@ import kotlinx.coroutines.withContext
 data class Contact(val name: String, val phones: List<String>, val emails: List<String>)
 
 /** The phone's contacts; AndroidContacts on a phone. */
-fun interface ContactsSource {
-    /** Contacts whose name matches [name], at most [limit]. */
+interface ContactsSource {
+    /** Contacts whose name contains [name] anywhere, not just at the start (TASK-125), at most [limit]. */
     fun find(name: String, limit: Int): List<Contact>
+
+    /** How many contacts there are; how many contain [name] anywhere when it is given. */
+    fun count(name: String? = null): Int
 }
 
 /**
@@ -28,7 +31,7 @@ fun interface ContactsSource {
  * passed to the model as untrusted text like any skill result.
  */
 class ContactSkills(private val source: ContactsSource, private val io: CoroutineDispatcher) {
-    fun create(): List<Skill> = listOf(find())
+    fun create(): List<Skill> = listOf(find(), count())
 
     private fun find() = Skill(
         id = "find_contact",
@@ -54,6 +57,27 @@ class ContactSkills(private val source: ContactsSource, private val io: Coroutin
             "${contact.name}: " + details.ifEmpty { listOf(if (phone) "no phone number" else "no email address") }.joinToString(", ")
         }
         SkillOutcome.Done(lines.joinToString("\n") + if (found.size > MAX_FOUND) "\n[More contacts match; give more of the name.]" else "")
+    }
+
+    /** How many contacts there are in total, or how many match a name — without listing them (TASK-125). */
+    private fun count() = Skill(
+        id = "count_contacts",
+        version = 1,
+        description = "Count the contacts on the phone, or how many match a name search, without listing them.",
+        input = InputSchema(
+            listOf(Parameter(NAME, ParameterType.STRING, "Part of a name to count matches for; omit to count every contact", required = false, maxLength = MAX_NAME)),
+        ),
+        capabilities = setOf(Capability.CONTACTS),
+        defaultState = SkillState.DECLINED,
+        androidPermissions = listOf(Manifest.permission.READ_CONTACTS),
+    ) { arguments ->
+        val name = arguments.string(NAME)?.trim().orEmpty()
+        if (name.isNotEmpty() && name.length < MIN_NAME) return@Skill SkillOutcome.Failed(DenialCode.INVALID_ARGUMENTS, "Give at least $MIN_NAME letters of the name.", retryable = true)
+        val count = withContext(io) { source.count(name.ifEmpty { null }) }
+        SkillOutcome.Done(
+            if (name.isEmpty()) "$count contact${if (count == 1) "" else "s"} in total."
+            else "$count contact${if (count == 1) "" else "s"} ${if (count == 1) "matches" else "match"} \"$name\".",
+        )
     }
 
     private companion object {

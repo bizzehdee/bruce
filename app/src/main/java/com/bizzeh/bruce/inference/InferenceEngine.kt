@@ -84,6 +84,12 @@ data class GenerationRequest(
     /** 0 selects greedy decoding. */
     val temperature: Float = DEFAULT_TEMPERATURE,
     val seed: Int = 0,
+    /** <= 0 uses the full vocabulary (llama.cpp's own `llama_sampler_init_top_k` convention). */
+    val topK: Int = DEFAULT_TOP_K,
+    /** 1.0 disables top-p truncation. */
+    val topP: Float = DEFAULT_TOP_P,
+    /** 1.0 disables the repeat penalty (llama.cpp's own library default). */
+    val repeatPenalty: Float = DEFAULT_REPEAT_PENALTY,
     /** Constrains tool calls; see [ToolFormat.grammar]. */
     val grammar: ToolGrammar? = null,
     /** Generation ends once the reply ends with one of these (some templates end turns with text). */
@@ -100,11 +106,26 @@ data class GenerationRequest(
     init {
         require(maxTokens > 0) { "maxTokens must be positive, was $maxTokens" }
         require(temperature >= 0f) { "temperature must not be negative, was $temperature" }
+        require(topP in 0f..1f) { "topP must be 0..1, was $topP" }
+        require(repeatPenalty > 0f) { "repeatPenalty must be positive, was $repeatPenalty" }
     }
 
     companion object {
         // At 0.8 MiniCPM5 2B skipped a needed search one time in five; at 0.5 one in twenty (2026-10-02).
         const val DEFAULT_TEMPERATURE = 0.5f
+
+        // llama.cpp's own library defaults (common/common.h), not a community-recommended value:
+        // top_k=40, top_p=0.95 (a real truncation), penalty_repeat=1.0 (disabled by default; 1.1 is
+        // a commonly recommended starting point once a user turns it on, not the library's own default).
+        const val DEFAULT_TOP_K = 40
+        const val DEFAULT_TOP_P = 0.95f
+        const val DEFAULT_REPEAT_PENALTY = 1.0f
+
+        /** Shared choices for both the global (Settings) and per-model (Models) chips, so the two stay consistent. */
+        val TEMPERATURE_CHOICES = listOf(0f, 0.3f, 0.7f, 1.0f)
+        val TOP_K_CHOICES = listOf(1, 10, 20, DEFAULT_TOP_K, 80, 100)
+        val TOP_P_CHOICES = listOf(0.5f, 0.8f, 0.9f, DEFAULT_TOP_P, 1.0f)
+        val REPEAT_PENALTY_CHOICES = listOf(DEFAULT_REPEAT_PENALTY, 1.1f, 1.2f, 1.3f)
     }
 }
 

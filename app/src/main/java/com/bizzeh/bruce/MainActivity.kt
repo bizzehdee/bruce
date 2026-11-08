@@ -868,6 +868,10 @@ class MainActivity : ComponentActivity() {
         override fun setContextLength(contextLength: Int?) = settings.setContextLength(contextLength)
         override fun setThinking(enabled: Boolean) = settings.setThinking(enabled)
         override fun setMaxWaitMinutes(minutes: Int) = settings.setMaxWaitMinutes(minutes)
+        override fun setTemperature(temperature: Float?) = settings.setTemperature(temperature)
+        override fun setTopK(topK: Int?) = settings.setTopK(topK)
+        override fun setTopP(topP: Float?) = settings.setTopP(topP)
+        override fun setRepeatPenalty(repeatPenalty: Float?) = settings.setRepeatPenalty(repeatPenalty)
         override fun clearAllData() {
             settings.clearAllData()
             chat.newChat()

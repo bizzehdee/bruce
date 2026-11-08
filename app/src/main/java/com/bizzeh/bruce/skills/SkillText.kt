@@ -31,6 +31,7 @@ object SkillText {
         "post_note" to (R.string.skill_post_note to R.string.skill_post_note_summary),
         "get_location" to (R.string.skill_location to R.string.skill_location_summary),
         "find_contact" to (R.string.skill_contact to R.string.skill_contact_summary),
+        "count_contacts" to (R.string.skill_count_contacts to R.string.skill_count_contacts_summary),
         "take_photo" to (R.string.skill_take_photo to R.string.skill_take_photo_summary),
         "set_reminder" to (R.string.skill_reminder to R.string.skill_reminder_summary),
         "search_my_files" to (R.string.skill_search_files to R.string.skill_search_files_summary),

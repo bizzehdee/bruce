@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.bizzeh.bruce.inference.ChatRole
+import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.ToolChatMessage
 import com.bizzeh.bruce.testing.ManualOnly
 import kotlinx.coroutines.flow.toList
@@ -60,6 +61,8 @@ class LiteRtGpuReferenceOutputDeviceTest {
                 thinking = false,
                 maxTokens = 64,
                 temperature = 0f,
+                topK = GenerationRequest.DEFAULT_TOP_K,
+                topP = GenerationRequest.DEFAULT_TOP_P,
             )
             val events = runBlocking { conversation.send().toList() }
             conversation.close()

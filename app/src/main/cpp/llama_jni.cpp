@@ -122,11 +122,20 @@ int32_t usedPositions(llama_context *context) {
     return llama_memory_seq_pos_max(llama_get_memory(context), 0) + 1;
 }
 
-llama_sampler *newSampler(float temperature, uint32_t seed, llama_sampler *grammar = nullptr) {
+// Matches llama.cpp's own default sampler order (common/common.h's default `samplers` list,
+// trimmed to the stages Bruce exposes): penalties, top_k, top_p, then temperature/dist or greedy.
+// penaltyLastN is fixed at llama.cpp's own library default (64), not exposed as a setting.
+constexpr int32_t kPenaltyLastN = 64;
+
+llama_sampler *newSampler(float temperature, uint32_t seed, int32_t topK, float topP, float repeatPenalty,
+                           const llama_vocab *vocab, llama_sampler *grammar = nullptr) {
     llama_sampler *chain = llama_sampler_chain_init(llama_sampler_chain_default_params());
     if (grammar != nullptr) {
         llama_sampler_chain_add(chain, grammar);
     }
+    llama_sampler_chain_add(chain, llama_sampler_init_penalties(llama_vocab_n_tokens(vocab), kPenaltyLastN, repeatPenalty, 0.0f, 0.0f));
+    llama_sampler_chain_add(chain, llama_sampler_init_top_k(topK));
+    llama_sampler_chain_add(chain, llama_sampler_init_top_p(topP, 0));
     if (temperature <= 0.0f) {
         llama_sampler_chain_add(chain, llama_sampler_init_greedy());
     } else {
@@ -456,14 +465,15 @@ Java_com_bizzeh_bruce_inference_LlamaNative_cpuBackendFeatures(JNIEnv *env, jobj
 
 JNIEXPORT jlong JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_beginGeneration(
-        JNIEnv *, jobject, jlong context, jfloat temperature, jint seed) {
+        JNIEnv *, jobject, jlong context, jfloat temperature, jint seed, jint topK, jfloat topP, jfloat repeatPenalty) {
     llama_context *ctx = asContext(context);
     clearStop(ctx);
+    const llama_vocab *vocab = llama_model_get_vocab(llama_get_model(ctx));
     auto *generation = new Generation{
             cacheFor(ctx),
             ctx,
-            llama_model_get_vocab(llama_get_model(ctx)),
-            newSampler(temperature, static_cast<uint32_t>(seed)),
+            vocab,
+            newSampler(temperature, static_cast<uint32_t>(seed), topK, topP, repeatPenalty, vocab),
             {},
             {},
     };
@@ -475,7 +485,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_beginGeneration(
 // returns it. Returns 0 if the grammar or its triggers cannot be used.
 JNIEXPORT jlong JNICALL
 Java_com_bizzeh_bruce_inference_LlamaNative_beginGenerationWithGrammar(
-        JNIEnv *env, jobject, jlong context, jfloat temperature, jint seed, jbyteArray grammarUtf8) {
+        JNIEnv *env, jobject, jlong context, jfloat temperature, jint seed, jint topK, jfloat topP, jfloat repeatPenalty, jbyteArray grammarUtf8) {
     llama_context *ctx = asContext(context);
     clearStop(ctx);
     const llama_vocab *vocab = llama_model_get_vocab(llama_get_model(ctx));
@@ -492,7 +502,7 @@ Java_com_bizzeh_bruce_inference_LlamaNative_beginGenerationWithGrammar(
     if (grammar == nullptr) {
         return 0;
     }
-    auto *generation = new Generation{cacheFor(ctx), ctx, vocab, newSampler(temperature, static_cast<uint32_t>(seed), grammar), {}, preserved};
+    auto *generation = new Generation{cacheFor(ctx), ctx, vocab, newSampler(temperature, static_cast<uint32_t>(seed), topK, topP, repeatPenalty, vocab, grammar), {}, preserved};
     return reinterpret_cast<jlong>(generation);
 }
 

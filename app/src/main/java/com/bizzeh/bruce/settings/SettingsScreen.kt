@@ -57,6 +57,8 @@ import com.bizzeh.bruce.huggingface.HubAccount
 import com.bizzeh.bruce.huggingface.SignInError
 import com.bizzeh.bruce.inference.BackendPreference
 import com.bizzeh.bruce.inference.BackendSelection
+import com.bizzeh.bruce.inference.GenerationRequest
+import java.util.Locale
 import com.bizzeh.bruce.memory.MemoryMode
 import com.bizzeh.bruce.navigation.SubScreen
 import com.bizzeh.bruce.runtime.ContextBudget
@@ -105,6 +107,14 @@ interface SettingsActions {
     fun setContextLength(contextLength: Int?)
     fun setThinking(enabled: Boolean) = Unit
     fun setMaxWaitMinutes(minutes: Int) = Unit
+    /** Null restores [com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TEMPERATURE]. */
+    fun setTemperature(temperature: Float?) = Unit
+    /** Null restores [com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TOP_K]. */
+    fun setTopK(topK: Int?) = Unit
+    /** Null restores [com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TOP_P]. */
+    fun setTopP(topP: Float?) = Unit
+    /** Null restores [com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_REPEAT_PENALTY]. */
+    fun setRepeatPenalty(repeatPenalty: Float?) = Unit
     fun clearAllData()
     fun deleteAllConversations()
     fun exportAllConversations(format: ExportFormat) = Unit
@@ -281,6 +291,50 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 supportingContent = { Text(stringResource(R.string.settings_thinking_summary)) },
                 trailingContent = { Switch(state.inference.thinking, actions::setThinking, modifier = Modifier.testTag("thinking")) },
             )
+            Label(R.string.models_temperature)
+            Chips {
+                (listOf(null) + GenerationRequest.TEMPERATURE_CHOICES).forEach { value ->
+                    FilterChip(
+                        selected = state.inference.temperature == value,
+                        onClick = { actions.setTemperature(value) },
+                        label = { Text(value?.let { String.format(Locale.ROOT, "%.1f", it) } ?: stringResource(R.string.settings_context_auto)) },
+                        modifier = Modifier.testTag("temperature:${value ?: "auto"}"),
+                    )
+                }
+            }
+            Label(R.string.settings_top_k)
+            Chips {
+                (listOf(null) + GenerationRequest.TOP_K_CHOICES).forEach { value ->
+                    FilterChip(
+                        selected = state.inference.topK == value,
+                        onClick = { actions.setTopK(value) },
+                        label = { Text(value?.toString() ?: stringResource(R.string.settings_context_auto)) },
+                        modifier = Modifier.testTag("topK:${value ?: "auto"}"),
+                    )
+                }
+            }
+            Label(R.string.settings_top_p)
+            Chips {
+                (listOf(null) + GenerationRequest.TOP_P_CHOICES).forEach { value ->
+                    FilterChip(
+                        selected = state.inference.topP == value,
+                        onClick = { actions.setTopP(value) },
+                        label = { Text(value?.let { String.format(Locale.ROOT, "%.2f", it) } ?: stringResource(R.string.settings_context_auto)) },
+                        modifier = Modifier.testTag("topP:${value ?: "auto"}"),
+                    )
+                }
+            }
+            Label(R.string.settings_repeat_penalty)
+            Chips {
+                (listOf(null) + GenerationRequest.REPEAT_PENALTY_CHOICES).forEach { value ->
+                    FilterChip(
+                        selected = state.inference.repeatPenalty == value,
+                        onClick = { actions.setRepeatPenalty(value) },
+                        label = { Text(value?.let { String.format(Locale.ROOT, "%.1f", it) } ?: stringResource(R.string.settings_context_auto)) },
+                        modifier = Modifier.testTag("repeatPenalty:${value ?: "auto"}"),
+                    )
+                }
+            }
             Text(
                 stringResource(R.string.settings_defaults_note),
                 style = MaterialTheme.typography.bodySmall,

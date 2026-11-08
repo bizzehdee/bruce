@@ -50,10 +50,10 @@ internal interface LlamaApi {
     fun formatChat(model: Long, roles: Array<String>, contents: Array<ByteArray>, addAssistant: Boolean): ByteArray?
 
     /** Clears the context and returns a generation handle; release it with [endGeneration]. */
-    fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
+    fun beginGeneration(context: Long, temperature: Float, seed: Int, topK: Int, topP: Float, repeatPenalty: Float): Long
 
     /** As [beginGeneration], constrained by [grammarJson] ([ToolGrammar.json]); 0 if the grammar is unusable. */
-    fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long
+    fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, topK: Int, topP: Float, repeatPenalty: Float, grammarJson: ByteArray): Long
 
     /** The model's chat templates for tool formats, or [overrideUtf8]'s when not empty; 0 on failure. Free with [chatTemplatesFree]. */
     fun chatTemplatesInit(model: Long, overrideUtf8: ByteArray): Long
@@ -182,11 +182,11 @@ internal object LlamaNative : LlamaApi {
 
     external override fun formatChat(model: Long, roles: Array<String>, contents: Array<ByteArray>, addAssistant: Boolean): ByteArray?
 
-    external override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long
+    external override fun beginGeneration(context: Long, temperature: Float, seed: Int, topK: Int, topP: Float, repeatPenalty: Float): Long
 
     external override fun requestStop(context: Long)
 
-    external override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long
+    external override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, topK: Int, topP: Float, repeatPenalty: Float, grammarJson: ByteArray): Long
 
     external override fun chatTemplatesInit(model: Long, overrideUtf8: ByteArray): Long
 

@@ -66,6 +66,39 @@ class ModelSettingsTest {
     }
 
     @Test
+    fun topKTopPAndRepeatPenaltyAreStoredPerModelAndForgotten() = runTest(dispatcher) {
+        val f = Fixture(this)
+        f.settings.setOverrides("a.gguf", ModelOverrides(topK = 80, topP = 0.9f, repeatPenalty = 1.2f))
+
+        val stored = f.settings.overridesNow("a.gguf")
+        assertEquals(80, stored.topK)
+        assertEquals(0.9f, stored.topP)
+        assertEquals(1.2f, stored.repeatPenalty)
+
+        f.settings.forget("a.gguf")
+        assertEquals(ModelOverrides(), f.settings.overridesNow("a.gguf"))
+    }
+
+    @Test
+    fun invalidTopKTopPOrRepeatPenaltyOverridesAreCallerBugs() = runTest(dispatcher) {
+        val f = Fixture(this)
+        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(topK = 41)) }
+        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(topP = 0.42f)) }
+        assertThrows<IllegalArgumentException> { f.settings.setOverrides("a", ModelOverrides(repeatPenalty = 2f)) }
+    }
+
+    @Test
+    fun aModelsTopKTopPAndRepeatPenaltyWinOverTheDefaults() {
+        val defaults = com.bizzeh.bruce.settings.InferenceDefaults(topK = 10, topP = 0.5f, repeatPenalty = 1.1f)
+        assertEquals(10, ModelOverrides().topK(defaults))
+        assertEquals(80, ModelOverrides(topK = 80).topK(defaults))
+        assertEquals(0.5f, ModelOverrides().topP(defaults))
+        assertEquals(0.9f, ModelOverrides(topP = 0.9f).topP(defaults))
+        assertEquals(1.1f, ModelOverrides().repeatPenalty(defaults))
+        assertEquals(1.2f, ModelOverrides(repeatPenalty = 1.2f).repeatPenalty(defaults))
+    }
+
+    @Test
     fun aModelsThinkingChoiceWinsOverTheDefault() {
         val on = com.bizzeh.bruce.settings.InferenceDefaults(thinking = true)
         assertEquals(true, ModelOverrides().thinking(on))
@@ -100,8 +133,8 @@ class ModelSettingsTest {
         assertEquals(LoadConfig(contextLength = 8192, threads = 4, backend = BackendPreference.CPU), ModelOverrides(backend = BackendPreference.CPU, contextLength = 8192).loadConfig(defaults) { error("not asked") })
         assertEquals(4096, ModelOverrides().loadConfig(defaults) { error("not asked") }.contextLength)
         assertEquals(16384, ModelOverrides().loadConfig(defaults.copy(contextLength = null)) { 16384 }.contextLength, "automatic when neither names a size")
-        assertEquals(0.5f, ModelOverrides().temperature())
-        assertEquals(0.3f, ModelOverrides(temperature = 0.3f).temperature())
+        assertEquals(0.5f, ModelOverrides().temperature(defaults))
+        assertEquals(0.3f, ModelOverrides(temperature = 0.3f).temperature(defaults))
     }
 
     @Test
@@ -116,6 +149,20 @@ class ModelSettingsTest {
         assertEquals(LoadConfig(contextLength = 8192, backend = BackendPreference.CPU).copy(threads = engine.loads.single().second.threads), engine.loads.single().second)
         assertEquals("m.gguf", f.settings.activeModelName.first())
         assertEquals(0.3f, f.selection.activeTemperature())
+    }
+
+    @Test
+    fun activeTopKTopPAndRepeatPenaltyFollowTheModelOverrideOrTheDefault() = runTest(dispatcher) {
+        val f = Fixture(this)
+        val file = f.model("m.gguf")
+        f.inference.setTopK(10)
+        f.settings.setOverrides("m.gguf", ModelOverrides(topP = 0.9f, repeatPenalty = 1.2f))
+
+        f.selection.choose(file)
+
+        assertEquals(10, f.selection.activeTopK(), "no model override: falls back to the global default")
+        assertEquals(0.9f, f.selection.activeTopP())
+        assertEquals(1.2f, f.selection.activeRepeatPenalty())
     }
 
     @Test

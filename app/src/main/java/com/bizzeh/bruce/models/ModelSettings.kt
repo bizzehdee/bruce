@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.bizzeh.bruce.inference.BackendPreference
+import com.bizzeh.bruce.inference.GenerationRequest
 import com.bizzeh.bruce.inference.LoadConfig
 import com.bizzeh.bruce.settings.InferenceDefaults
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,10 @@ data class ModelOverrides(
     val threads: Int? = null,
     val contextLength: Int? = null,
     val temperature: Float? = null,
+    val topK: Int? = null,
+    val topP: Float? = null,
+    /** Meaningless for a LiteRT-LM model, which has no repeat-penalty sampler (TASK-124). */
+    val repeatPenalty: Float? = null,
     /** Null follows the inference default (TASK-110). */
     val thinking: Boolean? = null,
     /**
@@ -35,13 +40,27 @@ data class ModelOverrides(
         threads = threads ?: defaults.threads,
     ).toLoadConfig(contextLength ?: defaults.contextLength ?: automatic())
 
-    fun temperature(): Float = temperature ?: DEFAULT_TEMPERATURE
+    /**
+     * Bug found and fixed 2026-11-07 (TASK-124): this used to ignore [defaults] entirely, so no
+     * global temperature setting could ever take effect — only this model's own override or the
+     * hardcoded fallback. Same bug applied to topK/topP/repeatPenalty below before they existed.
+     */
+    fun temperature(defaults: InferenceDefaults): Float = temperature ?: defaults.temperature ?: GenerationRequest.DEFAULT_TEMPERATURE
+
+    fun topK(defaults: InferenceDefaults): Int = topK ?: defaults.topK ?: GenerationRequest.DEFAULT_TOP_K
+
+    fun topP(defaults: InferenceDefaults): Float = topP ?: defaults.topP ?: GenerationRequest.DEFAULT_TOP_P
+
+    fun repeatPenalty(defaults: InferenceDefaults): Float = repeatPenalty ?: defaults.repeatPenalty ?: GenerationRequest.DEFAULT_REPEAT_PENALTY
 
     fun thinking(defaults: InferenceDefaults): Boolean = thinking ?: defaults.thinking
 
     companion object {
-        const val DEFAULT_TEMPERATURE = com.bizzeh.bruce.inference.GenerationRequest.DEFAULT_TEMPERATURE
-        val TEMPERATURE_CHOICES = listOf(0f, 0.3f, 0.7f, 1.0f)
+        const val DEFAULT_TEMPERATURE = GenerationRequest.DEFAULT_TEMPERATURE
+        val TEMPERATURE_CHOICES = GenerationRequest.TEMPERATURE_CHOICES
+        val TOP_K_CHOICES = GenerationRequest.TOP_K_CHOICES
+        val TOP_P_CHOICES = GenerationRequest.TOP_P_CHOICES
+        val REPEAT_PENALTY_CHOICES = GenerationRequest.REPEAT_PENALTY_CHOICES
     }
 }
 
@@ -61,6 +80,9 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             threads = preferences[threadsKey(fileName)]?.takeIf { it in 1..InferenceDefaults.MAX_THREADS },
             contextLength = preferences[contextKey(fileName)]?.takeIf { it in InferenceDefaults.CONTEXT_CHOICES },
             temperature = preferences[temperatureKey(fileName)]?.takeIf { it in ModelOverrides.TEMPERATURE_CHOICES },
+            topK = preferences[topKKey(fileName)]?.takeIf { it in ModelOverrides.TOP_K_CHOICES },
+            topP = preferences[topPKey(fileName)]?.takeIf { it in ModelOverrides.TOP_P_CHOICES },
+            repeatPenalty = preferences[repeatPenaltyKey(fileName)]?.takeIf { it in ModelOverrides.REPEAT_PENALTY_CHOICES },
             thinking = preferences[thinkingKey(fileName)],
             liteRtPreferGpu = preferences[liteRtPreferGpuKey(fileName)],
         )
@@ -102,11 +124,17 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
         require(overrides.threads == null || overrides.threads in 1..InferenceDefaults.MAX_THREADS) { "threads out of range" }
         require(overrides.contextLength == null || overrides.contextLength in InferenceDefaults.CONTEXT_CHOICES) { "unsupported context" }
         require(overrides.temperature == null || overrides.temperature in ModelOverrides.TEMPERATURE_CHOICES) { "unsupported temperature" }
+        require(overrides.topK == null || overrides.topK in ModelOverrides.TOP_K_CHOICES) { "unsupported topK" }
+        require(overrides.topP == null || overrides.topP in ModelOverrides.TOP_P_CHOICES) { "unsupported topP" }
+        require(overrides.repeatPenalty == null || overrides.repeatPenalty in ModelOverrides.REPEAT_PENALTY_CHOICES) { "unsupported repeatPenalty" }
         dataStore.edit {
             it.setOrRemove(backendKey(fileName), overrides.backend?.name)
             it.setOrRemove(threadsKey(fileName), overrides.threads)
             it.setOrRemove(contextKey(fileName), overrides.contextLength)
             it.setOrRemove(temperatureKey(fileName), overrides.temperature)
+            it.setOrRemove(topKKey(fileName), overrides.topK)
+            it.setOrRemove(topPKey(fileName), overrides.topP)
+            it.setOrRemove(repeatPenaltyKey(fileName), overrides.repeatPenalty)
             it.setOrRemove(thinkingKey(fileName), overrides.thinking)
             it.setOrRemove(liteRtPreferGpuKey(fileName), overrides.liteRtPreferGpu)
         }
@@ -119,6 +147,9 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
             it.remove(threadsKey(fileName))
             it.remove(contextKey(fileName))
             it.remove(temperatureKey(fileName))
+            it.remove(topKKey(fileName))
+            it.remove(topPKey(fileName))
+            it.remove(repeatPenaltyKey(fileName))
             it.remove(thinkingKey(fileName))
             it.remove(liteRtPreferGpuKey(fileName))
             it.remove(templateKey(fileName))
@@ -138,6 +169,9 @@ class ModelSettingsRepository(private val dataStore: DataStore<Preferences>) {
         fun threadsKey(name: String) = intPreferencesKey("model.$name.threads")
         fun contextKey(name: String) = intPreferencesKey("model.$name.context")
         fun temperatureKey(name: String) = floatPreferencesKey("model.$name.temperature")
+        fun topKKey(name: String) = intPreferencesKey("model.$name.top_k")
+        fun topPKey(name: String) = floatPreferencesKey("model.$name.top_p")
+        fun repeatPenaltyKey(name: String) = floatPreferencesKey("model.$name.repeat_penalty")
         fun thinkingKey(name: String) = booleanPreferencesKey("model.$name.thinking")
         fun liteRtPreferGpuKey(name: String) = booleanPreferencesKey("model.$name.litert_prefer_gpu")
         fun templateKey(name: String) = stringPreferencesKey("model.$name.chat_template")

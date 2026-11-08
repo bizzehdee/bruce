@@ -46,6 +46,8 @@ internal interface LiteRtModel {
         thinking: Boolean,
         maxTokens: Int,
         temperature: Float,
+        topK: Int,
+        topP: Float,
     ): LiteRtConversation
 
     fun close()

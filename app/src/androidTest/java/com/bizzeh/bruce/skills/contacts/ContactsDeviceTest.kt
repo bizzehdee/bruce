@@ -27,4 +27,18 @@ class ContactsDeviceTest {
         assertEquals(listOf("+44 7700 900999 (Mobile)"), found.single().phones)
         assertEquals(listOf("zzq@example.com (Home)"), found.single().emails)
     }
+
+    /** "zqtes" is a middle-of-word substring of "Zzqtest" — proves the search is not just a prefix match (TASK-125). */
+    @Test
+    fun theTestContactIsFoundByAMiddleOfWordSubstring() {
+        val found = contacts.find("zqtes", 5)
+
+        assertEquals(1, found.size)
+        assertEquals("Bruce Zzqtest", found.single().name)
+    }
+
+    @Test
+    fun theTestContactIsCountedByItsUnusualName() {
+        assertEquals(1, contacts.count("Zzqtest"))
+    }
 }

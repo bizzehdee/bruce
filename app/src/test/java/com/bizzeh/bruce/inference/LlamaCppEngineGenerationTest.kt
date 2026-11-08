@@ -56,11 +56,21 @@ class LlamaCppEngineGenerationTest {
             events.filterIsInstance<GenerationEvent.Token>().map { it.text },
         )
         assertEquals(StopReason.END_OF_GENERATION, events.completion().reason)
-        assertEquals(Triple(20L, 0f, 7), llama.generationRequest)
+        assertEquals(FakeLlamaApi.GenerationCall(20L, 0f, 7, GenerationRequest.DEFAULT_TOP_K, GenerationRequest.DEFAULT_TOP_P, GenerationRequest.DEFAULT_REPEAT_PENALTY), llama.generationRequest)
         assertArrayEquals("Tell a story".toByteArray(), llama.lastPrompt)
         assertEquals(true, llama.lastReuse)
         assertEquals(null, llama.lastCheckpointPrefix)
         assertEquals(listOf(30L), llama.endedGenerations)
+    }
+
+    @Test
+    fun samplingParametersReachTheNativeCall() = test {
+        loadModel()
+        llama.script("hi")
+
+        engine.generate(GenerationRequest("Tell a story", topK = 20, topP = 0.8f, repeatPenalty = 1.1f)).toList()
+
+        assertEquals(FakeLlamaApi.GenerationCall(20L, GenerationRequest.DEFAULT_TEMPERATURE, 0, 20, 0.8f, 1.1f), llama.generationRequest)
     }
 
     @Test

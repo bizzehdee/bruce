@@ -396,8 +396,10 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   label; choose the active model; model details (metadata, memory estimate,
   backend); delete. Import from a file with the system picker. Browse, search and
   download from Hugging Face with fit-ranked results and download progress.
-  Per-model settings (context length, backend, threads, temperature) override the
-  inference defaults. The last chosen model loads at launch; if none was chosen
+  Per-model settings (context length, backend, threads, temperature, top K, top P,
+  repeat penalty — the last hidden for a LiteRT-LM model, which has no such
+  sampler) override the inference defaults, which themselves can be set globally
+  in Settings. The last chosen model loads at launch; if none was chosen
   and only one model is installed, that model loads. `done`
 - **Model browser recommendations** — The Hugging Face tab opens on a list of
   models suited to the phone, so users need not know a model's name; name search
@@ -436,7 +438,8 @@ Status values: `planned`, `in progress`, `done`, `dropped`.
   and removed with the model or by clearing data. Saved only when the fixed part
   holds nothing about the user (no memories, summaries or file names). `done` (TASK-109)
 - **Settings screen** — Appearance (theme and dynamic colour, moved from the
-  prototype screen); inference defaults (backend, threads, context length);
+  prototype screen); inference defaults (backend, threads, context length,
+  temperature, top K, top P, repeat penalty — overridable per model);
   network (network mode and Hugging Face sign-in); data and privacy (export and
   delete conversations, delete memories, clear all data, open-source licences);
   a Skills section opening the Skills screen; a link to the permissions management screen; and Diagnostics, the Phase 0 test
@@ -645,6 +648,8 @@ The MVP feature list (spec §54) falls in Phases 1 and 2. MVP success criterion
 
 | Date | Change | Summary |
 |---|---|---|
+| 2026-11-07 | Added | TASK-125 done: the contacts skill can now search by any substring of a name, not just a word's start, and a new `count_contacts` skill counts contacts in total or matching a search without listing them. |
+| 2026-11-07 | Added | TASK-124 done: global and per-model repeat penalty, top K and top P (temperature gained a global default too, fixing a bug where it had none). Resolution order is model override → global default → llama.cpp's own library default, threaded through all three `ChatBackend` implementers and, for GGUF, a rewritten native sampler chain; repeat penalty is hidden for LiteRT-LM, which has no such sampler. |
 | 2026-11-07 | Changed | TASK-123 done: Model Browser now lists, ranks, and downloads LiteRT-LM results (a new GGUF/LiteRT-LM format filter, shown only on the `full` flavour), with fit-only ranking — `ModelFit`'s speed estimate is now nullable and explicitly null for a LiteRT-LM candidate, rather than reusing a llama.cpp-benchmark-derived constant for a different engine. |
 | 2026-11-07 | Changed | TASK-122 done: the `.litertlm` conversion script's two untested variants (GPU, Tensor G5) both run end to end; Tensor G5 is reachable, resolving TASK-121's open question. |
 | 2026-11-07 | Changed | TASK-119's GPU half called done, with caveats: a device-verified per-file allowlist (not a size/family rule — a full sweep of phone-sized LiteRT-LM chat models found none) decides which models get `LiteRtPipelineImpl`'s GPU path; two of eleven models tested crashed on GPU with no diagnosable cause, excluded from the list. The Tensor NPU half stays blocked: NPU allocation fails on every AOT-compiled model tried, and a plain model's reported `backend=NPU` is confirmed to silently run on CPU instead. |

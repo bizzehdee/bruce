@@ -74,7 +74,9 @@ internal class FakeLlamaApi : LlamaApi {
     val tokenResults = ArrayDeque<Int>()
     val pieces = ArrayDeque<ByteArray>()
     var onNextToken: () -> Unit = {}
-    var generationRequest: Triple<Long, Float, Int>? = null
+    data class GenerationCall(val context: Long, val temperature: Float, val seed: Int, val topK: Int, val topP: Float, val repeatPenalty: Float)
+
+    var generationRequest: GenerationCall? = null
     var lastPrompt: ByteArray? = null
     val endedGenerations = mutableListOf<Long>()
     private var currentPiece = ByteArray(0)
@@ -89,8 +91,8 @@ internal class FakeLlamaApi : LlamaApi {
         pieces += bytes
     }
 
-    override fun beginGeneration(context: Long, temperature: Float, seed: Int): Long {
-        generationRequest = Triple(context, temperature, seed)
+    override fun beginGeneration(context: Long, temperature: Float, seed: Int, topK: Int, topP: Float, repeatPenalty: Float): Long {
+        generationRequest = GenerationCall(context, temperature, seed, topK, topP, repeatPenalty)
         stopped.set(false)
         return 30L
     }
@@ -187,8 +189,8 @@ internal class FakeLlamaApi : LlamaApi {
     var grammarGenerationResult = 31L
     var lastGrammar: String? = null
 
-    override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, grammarJson: ByteArray): Long {
-        generationRequest = Triple(context, temperature, seed)
+    override fun beginGenerationWithGrammar(context: Long, temperature: Float, seed: Int, topK: Int, topP: Float, repeatPenalty: Float, grammarJson: ByteArray): Long {
+        generationRequest = GenerationCall(context, temperature, seed, topK, topP, repeatPenalty)
         lastGrammar = grammarJson.toString(Charsets.UTF_8)
         return grammarGenerationResult
     }

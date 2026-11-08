@@ -17,6 +17,8 @@ class LiteRtPipelineImplTest {
             thinking: Boolean,
             maxTokens: Int,
             temperature: Float,
+            topK: Int,
+            topP: Float,
         ): LiteRtConversation = error("not used")
 
         override fun close() {

@@ -308,6 +308,30 @@ private fun ModelCard(
                     tag = "temperature",
                 ) { actions.setOverrides(model.file, model.overrides.copy(temperature = it)) }
                 OverrideChips(
+                    label = stringResource(R.string.settings_top_k),
+                    options = listOf(null) + ModelOverrides.TOP_K_CHOICES,
+                    selected = model.overrides.topK,
+                    text = { it?.toString() },
+                    tag = "topK",
+                ) { actions.setOverrides(model.file, model.overrides.copy(topK = it)) }
+                OverrideChips(
+                    label = stringResource(R.string.settings_top_p),
+                    options = listOf(null) + ModelOverrides.TOP_P_CHOICES,
+                    selected = model.overrides.topP,
+                    text = { it?.let { value -> String.format(Locale.ROOT, "%.2f", value) } },
+                    tag = "topP",
+                ) { actions.setOverrides(model.file, model.overrides.copy(topP = it)) }
+                // Hidden for LiteRT-LM (TASK-124, owner choice): that format has no repeat-penalty sampler.
+                if (ModelFiles.formatOf(model.file) != ModelFormat.LITERT_LM) {
+                    OverrideChips(
+                        label = stringResource(R.string.settings_repeat_penalty),
+                        options = listOf(null) + ModelOverrides.REPEAT_PENALTY_CHOICES,
+                        selected = model.overrides.repeatPenalty,
+                        text = { it?.let { value -> String.format(Locale.ROOT, "%.1f", value) } },
+                        tag = "repeatPenalty",
+                    ) { actions.setOverrides(model.file, model.overrides.copy(repeatPenalty = it)) }
+                }
+                OverrideChips(
                     label = stringResource(R.string.settings_thinking),
                     options = listOf(null, true, false),
                     selected = model.overrides.thinking,

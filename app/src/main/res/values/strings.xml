@@ -195,6 +195,8 @@
     <string name="skill_take_photo_summary">Opens the camera for you to take a photo; you send it with your next message.</string>
     <string name="skill_contact">Contacts</string>
     <string name="skill_contact_summary">Finds a contact by name and gives only the phone number or email address asked for.</string>
+    <string name="skill_count_contacts">Contact count</string>
+    <string name="skill_count_contacts_summary">Counts the contacts on the phone, or how many match a name search, without listing them.</string>
     <string name="permission_contacts">Contacts</string>
     <string name="permission_contacts_summary">Used only by the contacts skill, to find a person by name when asked.</string>
     <string name="skill_location">Location</string>
@@ -274,6 +276,9 @@
     <string name="settings_context_auto_picked">Auto picks the biggest size that keeps Bruce within 30%% of the phone\'s memory and the model within 6 GB (16K at most for models bigger than that), up to what the model was trained for: %1$s for the loaded model.</string>
     <string name="settings_context_tight">With the loaded model, instructions and skills take about %1$,d tokens, leaving about %2$,d for the chat. Choose a longer context.</string>
     <string name="settings_defaults_note">Applied the next time a model is loaded.</string>
+    <string name="settings_top_k">Top K</string>
+    <string name="settings_top_p">Top P</string>
+    <string name="settings_repeat_penalty">Repeat penalty</string>
     <string name="settings_privacy">Data and privacy</string>
     <string name="settings_permissions">Permissions</string>
     <string name="settings_permissions_summary">What Bruce may access on this phone</string>
