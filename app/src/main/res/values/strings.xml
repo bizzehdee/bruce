@@ -359,7 +359,7 @@
     <string name="models_remove_template">Remove</string>
     <string name="models_settings">Model settings</string>
     <string name="models_default">Default</string>
-    <string name="models_temperature">Temperature</string>
+    <string name="models_temperature">Temp</string>
     <string name="settings_network">Network</string>
     <string name="network_offline">Offline</string>
     <string name="network_huggingface">Hugging Face</string>

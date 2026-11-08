@@ -1,5 +1,6 @@
 package com.bizzeh.bruce.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +23,10 @@ import kotlin.math.roundToInt
 /**
  * A number with +/- buttons to step it by [step] within [min]..[max], and a Reset button shown
  * only while [isOverridden] (owner, 2026-11-08: replaced a row of preset pill chips, which could
- * not express every value and had no way back to the effective default once touched).
+ * not express every value and had no way back to the effective default once touched). Compact
+ * clickable text rather than [androidx.compose.material3.TextButton]: a Material3 button's own
+ * minimum touch-target width (58.dp) made four of these in a row far wider than they needed to be
+ * (owner feedback, 2026-11-08: "too wide").
  */
 @Composable
 fun FloatStepper(
@@ -38,18 +41,15 @@ fun FloatStepper(
     onChange: (Float) -> Unit,
     onReset: () -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
-        Text(label, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-        TextButton(onClick = { onChange(round(value - step, decimals).coerceIn(min, max)) }, modifier = Modifier.testTag("$tag:minus")) { Text(MINUS) }
-        Text(
-            String.format(Locale.ROOT, "%.${decimals}f", value),
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.widthIn(min = 56.dp).testTag("$tag:value").semantics(mergeDescendants = true) {},
-        )
-        TextButton(onClick = { onChange(round(value + step, decimals).coerceIn(min, max)) }, modifier = Modifier.testTag("$tag:plus")) { Text(PLUS) }
-        if (isOverridden) TextButton(onClick = onReset, modifier = Modifier.testTag("$tag:reset")) { Text(stringResource(R.string.settings_reset)) }
-    }
+    StepperRow(
+        label = label,
+        valueText = String.format(Locale.ROOT, "%.${decimals}f", value),
+        isOverridden = isOverridden,
+        tag = tag,
+        onMinus = { onChange(round(value - step, decimals).coerceIn(min, max)) },
+        onPlus = { onChange(round(value + step, decimals).coerceIn(min, max)) },
+        onReset = onReset,
+    )
 }
 
 /** The integer counterpart of [FloatStepper], for a setting with no fractional part (top K). */
@@ -65,13 +65,49 @@ fun IntStepper(
     onChange: (Int) -> Unit,
     onReset: () -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+    StepperRow(
+        label = label,
+        valueText = value.toString(),
+        isOverridden = isOverridden,
+        tag = tag,
+        onMinus = { onChange((value - step).coerceIn(min, max)) },
+        onPlus = { onChange((value + step).coerceIn(min, max)) },
+        onReset = onReset,
+    )
+}
+
+@Composable
+private fun StepperRow(
+    label: String,
+    valueText: String,
+    isOverridden: Boolean,
+    tag: String,
+    onMinus: () -> Unit,
+    onPlus: () -> Unit,
+    onReset: () -> Unit,
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         Text(label, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-        TextButton(onClick = { onChange((value - step).coerceIn(min, max)) }, modifier = Modifier.testTag("$tag:minus")) { Text(MINUS) }
-        Text(value.toString(), style = MaterialTheme.typography.bodyMedium, textAlign = TextAlign.Center, modifier = Modifier.widthIn(min = 56.dp).testTag("$tag:value").semantics(mergeDescendants = true) {})
-        TextButton(onClick = { onChange((value + step).coerceIn(min, max)) }, modifier = Modifier.testTag("$tag:plus")) { Text(PLUS) }
-        if (isOverridden) TextButton(onClick = onReset, modifier = Modifier.testTag("$tag:reset")) { Text(stringResource(R.string.settings_reset)) }
+        StepperButton(MINUS, onMinus, Modifier.testTag("$tag:minus"))
+        Text(
+            valueText,
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(min = 32.dp).testTag("$tag:value").semantics(mergeDescendants = true) {},
+        )
+        StepperButton(PLUS, onPlus, Modifier.testTag("$tag:plus"))
+        if (isOverridden) StepperButton(stringResource(R.string.settings_reset), onReset, Modifier.testTag("$tag:reset"))
     }
+}
+
+@Composable
+private fun StepperButton(text: String, onClick: () -> Unit, modifier: Modifier) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier.clickable(onClick = onClick).padding(horizontal = 6.dp, vertical = 4.dp),
+    )
 }
 
 private const val MINUS = "−"
