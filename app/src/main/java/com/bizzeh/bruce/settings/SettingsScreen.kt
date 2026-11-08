@@ -300,6 +300,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 tag = "temperature",
                 onChange = actions::setTemperature,
                 onReset = { actions.setTemperature(null) },
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
             IntStepper(
                 label = stringResource(R.string.settings_top_k),
@@ -309,6 +310,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 tag = "topK",
                 onChange = actions::setTopK,
                 onReset = { actions.setTopK(null) },
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
             FloatStepper(
                 label = stringResource(R.string.settings_top_p),
@@ -318,6 +320,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 tag = "topP",
                 onChange = actions::setTopP,
                 onReset = { actions.setTopP(null) },
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
             FloatStepper(
                 label = stringResource(R.string.settings_repeat_penalty),
@@ -327,6 +330,7 @@ fun SettingsScreen(state: SettingsState, actions: SettingsActions, onBack: () ->
                 tag = "repeatPenalty",
                 onChange = actions::setRepeatPenalty,
                 onReset = { actions.setRepeatPenalty(null) },
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
             Text(
                 stringResource(R.string.settings_defaults_note),

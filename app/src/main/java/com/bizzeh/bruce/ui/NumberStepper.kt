@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -40,6 +41,7 @@ fun FloatStepper(
     tag: String,
     onChange: (Float) -> Unit,
     onReset: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     StepperRow(
         label = label,
@@ -49,6 +51,7 @@ fun FloatStepper(
         onMinus = { onChange(round(value - step, decimals).coerceIn(min, max)) },
         onPlus = { onChange(round(value + step, decimals).coerceIn(min, max)) },
         onReset = onReset,
+        modifier = modifier,
     )
 }
 
@@ -64,6 +67,7 @@ fun IntStepper(
     tag: String,
     onChange: (Int) -> Unit,
     onReset: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     StepperRow(
         label = label,
@@ -73,6 +77,7 @@ fun IntStepper(
         onMinus = { onChange((value - step).coerceIn(min, max)) },
         onPlus = { onChange((value + step).coerceIn(min, max)) },
         onReset = onReset,
+        modifier = modifier,
     )
 }
 
@@ -85,8 +90,9 @@ private fun StepperRow(
     onMinus: () -> Unit,
     onPlus: () -> Unit,
     onReset: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp), modifier = modifier.fillMaxWidth().padding(vertical = 2.dp)) {
         Text(label, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
         StepperButton(MINUS, onMinus, Modifier.testTag("$tag:minus"))
         Text(
@@ -96,17 +102,26 @@ private fun StepperRow(
             modifier = Modifier.widthIn(min = 32.dp).testTag("$tag:value").semantics(mergeDescendants = true) {},
         )
         StepperButton(PLUS, onPlus, Modifier.testTag("$tag:plus"))
-        if (isOverridden) StepperButton(stringResource(R.string.settings_reset), onReset, Modifier.testTag("$tag:reset"))
+        // Reset always takes its place in the row, invisible and inert while unset, rather than
+        // appearing only once overridden: letting it pop in shifted every button after the label
+        // (which fills the remaining width) left by its width, so a quick second tap on `+` right
+        // after the first landed on Reset instead (owner, 2026-11-08).
+        StepperButton(
+            stringResource(R.string.settings_reset),
+            onReset,
+            Modifier.testTag("$tag:reset").alpha(if (isOverridden) 1f else 0f),
+            enabled = isOverridden,
+        )
     }
 }
 
 @Composable
-private fun StepperButton(text: String, onClick: () -> Unit, modifier: Modifier) {
+private fun StepperButton(text: String, onClick: () -> Unit, modifier: Modifier, enabled: Boolean = true) {
     Text(
         text,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.clickable(onClick = onClick).padding(horizontal = 6.dp, vertical = 4.dp),
+        modifier = modifier.clickable(enabled = enabled, onClick = onClick).padding(horizontal = 6.dp, vertical = 4.dp),
     )
 }
 

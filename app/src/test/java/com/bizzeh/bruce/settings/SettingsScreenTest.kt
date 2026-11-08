@@ -92,7 +92,7 @@ class SettingsScreenTest {
     fun temperatureTopKTopPAndRepeatPenaltyAreNumberSteppersWithNoResetUnset() {
         show(SettingsState())
 
-        compose.onNodeWithTag("temperature:reset").assertDoesNotExist()
+        compose.onNodeWithTag("temperature:reset").assertIsNotEnabled()
         compose.onNodeWithTag("temperature:value").performScrollTo().assertTextEquals("0.5")
         compose.onNodeWithTag("temperature:plus").performScrollTo().performClick()
         compose.onNodeWithTag("topK:value").performScrollTo().assertTextEquals("40")
